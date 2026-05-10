@@ -204,3 +204,4 @@ user: [(v: any) => !!v || 'validation.required']
 }
 
 export default GoalCrud
+

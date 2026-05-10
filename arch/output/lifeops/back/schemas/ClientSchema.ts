@@ -5,7 +5,7 @@ import { z } from 'zod';
 const ClientBaseSchema = z.object({
       name: z.string().min(1,'validation.required'),
     description: z.string().optional(),
-    type: z.enum(['company', 'person', 'internal', 'partner']).optional().default('company'),
+    type: z.string().optional(),
     status: z.enum(['active', 'inactive', 'prospect', 'paused', 'archived']).optional().default('active'),
     priority: z.string().optional(),
     valueScore: z.number().nullable().optional().default(5),

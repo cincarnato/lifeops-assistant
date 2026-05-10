@@ -102,7 +102,7 @@ user: [(v: any) => !!v || 'validation.required']
         {name:'firstName',type:'string',label:'firstName',default:''},
 {name:'lastName',type:'string',label:'lastName',default:''},
 {name:'displayName',type:'string',label:'displayName',default:''},
-{name:'type',type:'enum',label:'type',default:'work',enum: ['work', 'client', 'provider', 'partner', 'personal', 'internal']},
+{name:'type',type:'string',label:'type',default:''},
 {name:'status',type:'enum',label:'status',default:'active',enum: ['active', 'inactive', 'archived']},
 {name:'priority',type:'string',label:'priority',default:''},
 {name:'client',type:'ref',label:'client',default:null,ref: 'Client',refDisplay: 'name'},

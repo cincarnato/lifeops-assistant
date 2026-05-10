@@ -9,6 +9,9 @@ import TaskStatusCrudRoute from "./TaskStatusCrudRoute"
 import TaskSourceCrudRoute from "./TaskSourceCrudRoute"
 import TaskCrudRoute from "./TaskCrudRoute"
 import PriorityCrudRoute from "./PriorityCrudRoute"
+import ContactTypeCrudRoute from "./ContactTypeCrudRoute"
+import CompanyTypeCrudRoute from "./CompanyTypeCrudRoute"
+import ClientTypeCrudRoute from "./ClientTypeCrudRoute"
 
 export const routes = [
     ...GoalCrudRoute,
@@ -20,7 +23,10 @@ export const routes = [
 ...TaskStatusCrudRoute,
 ...TaskSourceCrudRoute,
 ...TaskCrudRoute,
-...PriorityCrudRoute
+...PriorityCrudRoute,
+...ContactTypeCrudRoute,
+...CompanyTypeCrudRoute,
+...ClientTypeCrudRoute
 ]
 
 export default routes

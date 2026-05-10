@@ -100,6 +100,27 @@ const menu: MenuItem[] = [
         gallery: true,
         permission: 'tasksource:manage'
       },
+      {
+        icon: 'mdi-account-tag-outline',
+        text:'contacttype.menu',
+        link: { name: "ContactTypeCrudPage" },
+        gallery: true,
+        permission: 'contacttype:manage'
+      },
+      {
+        icon: 'mdi-office-building-cog-outline',
+        text:'companytype.menu',
+        link: { name: "CompanyTypeCrudPage" },
+        gallery: true,
+        permission: 'companytype:manage'
+      },
+      {
+        icon: 'mdi-domain-plus',
+        text:'clienttype.menu',
+        link: { name: "ClientTypeCrudPage" },
+        gallery: true,
+        permission: 'clienttype:manage'
+      },
     ]
   },
   {

@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import PriorityCrud from '../../cruds/PriorityCrud'
 import {Crud} from "@drax/crud-vue";
+import {formatDate} from "@drax/common-front"
 
 </script>
 
@@ -14,3 +15,4 @@ import {Crud} from "@drax/crud-vue";
 <style scoped>
 
 </style>
+

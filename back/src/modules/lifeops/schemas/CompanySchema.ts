@@ -8,7 +8,7 @@ const CompanyBaseSchema = z.object({
     taxIdType: z.string().optional().default(""),
     taxIdNumber: z.string().optional().default(""),
     description: z.string().optional().default(""),
-    type: z.enum(['company', 'government', 'non_profit', 'internal', 'partner', 'provider', 'other']).optional().default('company'),
+    type: z.string().optional().default(""),
     status: z.enum(['active', 'inactive', 'archived']).optional().default('active'),
     website: z.string().optional().default(""),
     emailDomains: z.array(z.string()).optional().default([]),

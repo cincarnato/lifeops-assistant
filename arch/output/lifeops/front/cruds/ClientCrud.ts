@@ -99,7 +99,7 @@ user: [(v: any) => !!v || 'validation.required']
     return [
         {name:'name',type:'string',label:'name',default:''},
 {name:'description',type:'longString',label:'description',default:''},
-{name:'type',type:'enum',label:'type',default:'company',enum: ['company', 'person', 'internal', 'partner']},
+{name:'type',type:'string',label:'type',default:''},
 {name:'status',type:'enum',label:'status',default:'active',enum: ['active', 'inactive', 'prospect', 'paused', 'archived']},
 {name:'priority',type:'string',label:'priority',default:''},
 {name:'valueScore',type:'number',label:'valueScore',default:5},

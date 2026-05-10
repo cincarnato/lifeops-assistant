@@ -9,7 +9,7 @@ const ContactSchema = new mongoose.Schema<IContact>({
             firstName: {type: String,   required: true, index: false, unique: false },
             lastName: {type: String,   required: false, index: false, unique: false },
             displayName: {type: String,   required: true, index: true, unique: false },
-            type: {type: String,  enum: ['work', 'client', 'provider', 'partner', 'personal', 'internal'], required: false, index: true, unique: false },
+            type: {type: String,   required: false, index: true, unique: false },
             status: {type: String,  enum: ['active', 'inactive', 'archived'], required: false, index: true, unique: false },
             priority: {type: String,   required: false, index: true, unique: false },
             client: {type: mongoose.Schema.Types.ObjectId, ref: 'Client',  required: false, index: true, unique: false },

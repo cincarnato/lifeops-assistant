@@ -19,9 +19,7 @@ const entitySchema: IEntitySchema = {
             search: true,
         },
         type: {
-            type: "enum",
-            enum: ["company", "person", "internal", "partner"],
-            default: "company",
+            type: "string",
             index: true,
             header: true,
         },

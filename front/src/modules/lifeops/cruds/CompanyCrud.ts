@@ -91,13 +91,7 @@ class CompanyCrud extends EntityCrud implements IEntityCrud {
       {name: 'taxIdType', type: 'string', label: 'taxIdType', default: ''},
       {name: 'taxIdNumber', type: 'string', label: 'taxIdNumber', default: ''},
       {name: 'description', type: 'longString', label: 'description', default: ''},
-      {
-        name: 'type',
-        type: 'enum',
-        label: 'type',
-        default: 'company',
-        enum: ['company', 'government', 'non_profit', 'internal', 'partner', 'provider', 'other']
-      },
+      {name: 'type', type: 'string', label: 'type', default: ''},
       {name: 'status', type: 'enum', label: 'status', default: 'active', enum: ['active', 'inactive', 'archived']},
       {name: 'website', type: 'string', label: 'website', default: ''},
       {name: 'emailDomains', type: 'array.string', label: 'emailDomains', default: []},

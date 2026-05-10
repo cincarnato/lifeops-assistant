@@ -11,7 +11,7 @@ const CompanySchema = new mongoose.Schema<ICompany>({
             taxIdType: {type: String,   required: false, index: false, unique: false },
             taxIdNumber: {type: String,   required: false, index: false, unique: false },
             description: {type: String,   required: false, index: false, unique: false },
-            type: {type: String,  enum: ['company', 'government', 'non_profit', 'internal', 'partner', 'provider', 'other'], required: false, index: true, unique: false },
+            type: {type: String,   required: false, index: true, unique: false },
             status: {type: String,  enum: ['active', 'inactive', 'archived'], required: false, index: true, unique: false },
             website: {type: String,   required: false, index: false, unique: false },
             emailDomains: [{type: String,   required: false, index: true, unique: false }],

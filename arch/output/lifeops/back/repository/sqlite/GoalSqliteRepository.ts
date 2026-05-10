@@ -45,3 +45,4 @@ class GoalSqliteRepository extends AbstractSqliteRepository<IGoal, IGoalBase, IG
 
 export default GoalSqliteRepository
 export {GoalSqliteRepository}
+

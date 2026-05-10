@@ -97,13 +97,7 @@ class ClientCrud extends EntityCrud implements IEntityCrud {
     return [
       {name: 'name', type: 'string', label: 'name', default: ''},
       {name: 'description', type: 'longString', label: 'description', default: ''},
-      {
-        name: 'type',
-        type: 'enum',
-        label: 'type',
-        default: 'company',
-        enum: ['company', 'person', 'internal', 'partner']
-      },
+      {name: 'type', type: 'string', label: 'type', default: ''},
       {
         name: 'status',
         type: 'enum',

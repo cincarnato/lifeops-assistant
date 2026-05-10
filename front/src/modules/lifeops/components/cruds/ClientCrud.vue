@@ -4,11 +4,21 @@ import ClientCrud from '../../cruds/ClientCrud'
 import {Crud} from "@drax/crud-vue";
 import {formatDate} from "@drax/common-front"
 import PriorityCombobox from '../../comboboxes/PriorityCombobox.vue'
+import ClientTypeCombobox from '../../comboboxes/ClientTypeCombobox.vue'
 
 </script>
 
 <template>
   <crud :entity="ClientCrud.instance">
+    <template v-slot:field.type="{field, form}">
+      <client-type-combobox
+          v-model="form.type"
+          :name="field.name"
+          :label="field.label"
+          item-title="name"
+          item-value="name"
+      />
+    </template>
     <template v-slot:field.priority="{field, form}">
       <priority-combobox
           v-model="form.priority"
@@ -18,6 +28,7 @@ import PriorityCombobox from '../../comboboxes/PriorityCombobox.vue'
           item-value="name"
       />
     </template>
+    <template v-slot:item.type="{value}">{{value}}</template>
     <template v-slot:item.priority="{value}">{{value}}</template>
     <template v-slot:item.emailDomains="{value}"><v-chip v-for="v in value">{{v}}</v-chip></template>
     <template v-slot:item.mainContact="{value}">{{value?.displayName}}</template>

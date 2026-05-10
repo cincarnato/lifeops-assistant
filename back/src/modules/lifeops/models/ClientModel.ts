@@ -8,7 +8,7 @@ import type {IClient} from '../interfaces/IClient'
 const ClientSchema = new mongoose.Schema<IClient>({
             name: {type: String,   required: true, index: true, unique: false },
             description: {type: String,   required: false, index: false, unique: false },
-            type: {type: String,  enum: ['company', 'person', 'internal', 'partner'], required: false, index: true, unique: false },
+            type: {type: String,   required: false, index: true, unique: false },
             status: {type: String,  enum: ['active', 'inactive', 'prospect', 'paused', 'archived'], required: false, index: true, unique: false },
             priority: {type: String, required: false, index: true, unique: false },
             valueScore: {type: Number,   required: false, index: false, unique: false },

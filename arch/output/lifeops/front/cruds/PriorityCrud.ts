@@ -1,5 +1,5 @@
 
-import {EntityCrud} from "@drax/crud-vue";
+import {EntityCrud, useCrudStore} from "@drax/crud-vue";
 import type{
   IDraxCrudProvider,
   IEntityCrud,
@@ -18,10 +18,12 @@ import PriorityProvider from "../providers/PriorityProvider";
 class PriorityCrud extends EntityCrud implements IEntityCrud {
 
   static singleton: PriorityCrud
+  private store
 
   constructor() {
     super();
     this.name = 'Priority'
+    this.store = useCrudStore(this.name)
   }
   
   static get instance(): PriorityCrud {
@@ -172,6 +174,10 @@ color: [(v: any) => !!v || 'validation.required']
     return false
   }
 
+  get navigationOperations(){
+    return ['view'] // edit, delete
+  }
+  
   get isSavedQueriesEnabled(){
     return true
   }
@@ -179,3 +185,4 @@ color: [(v: any) => !!v || 'validation.required']
 }
 
 export default PriorityCrud
+

@@ -10,6 +10,9 @@ import TaskStatusMessages from "./TaskStatus-i18n"
 import TaskSourceMessages from "./TaskSource-i18n"
 import TaskMessages from "./Task-i18n"
 import PriorityMessages from "./Priority-i18n"
+import ContactTypeMessages from "./ContactType-i18n"
+import CompanyTypeMessages from "./CompanyType-i18n"
+import ClientTypeMessages from "./ClientType-i18n"
 
 const messages = merge.all([
     GoalMessages,
@@ -21,7 +24,10 @@ const messages = merge.all([
     TaskStatusMessages,
     TaskSourceMessages,
     TaskMessages,
-    PriorityMessages
+    PriorityMessages,
+    ContactTypeMessages,
+    CompanyTypeMessages,
+    ClientTypeMessages
 ])
 
 export default messages

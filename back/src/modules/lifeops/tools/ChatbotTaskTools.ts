@@ -10,6 +10,9 @@ import ProjectServiceFactory from "../factory/services/ProjectServiceFactory.js"
 import ContactServiceFactory from "../factory/services/ContactServiceFactory.js";
 import ClientServiceFactory from "../factory/services/ClientServiceFactory.js";
 import CompanyServiceFactory from "../factory/services/CompanyServiceFactory.js";
+import ContactTypeServiceFactory from "../factory/services/ContactTypeServiceFactory.js";
+import CompanyTypeServiceFactory from "../factory/services/CompanyTypeServiceFactory.js";
+import ClientTypeServiceFactory from "../factory/services/ClientTypeServiceFactory.js";
 
 interface ChatbotTaskToolsContext {
     userId: string;
@@ -23,6 +26,17 @@ interface TaskOptionNames {
     statuses: string[];
     types: string[];
     priorities: string[];
+}
+
+interface EntityTypeOptionNames {
+    contactTypes: string[];
+    companyTypes: string[];
+    clientTypes: string[];
+}
+
+interface LifeOpsOptionNames {
+    task: TaskOptionNames;
+    entityTypes: EntityTypeOptionNames;
 }
 
 interface EntityToolConfig {
@@ -64,6 +78,24 @@ class ChatbotTaskTools {
             statuses: this.serializeOptionNames(statuses),
             types: this.serializeOptionNames(types),
             priorities: this.serializeOptionNames(priorities),
+        };
+    }
+
+    static async fetchLifeOpsOptionNames(): Promise<LifeOpsOptionNames> {
+        const [task, contactTypes, companyTypes, clientTypes] = await Promise.all([
+            this.fetchTaskOptionNames(),
+            ContactTypeServiceFactory.instance.fetchAll(),
+            CompanyTypeServiceFactory.instance.fetchAll(),
+            ClientTypeServiceFactory.instance.fetchAll(),
+        ]);
+
+        return {
+            task,
+            entityTypes: {
+                contactTypes: this.serializeOptionNames(contactTypes),
+                companyTypes: this.serializeOptionNames(companyTypes),
+                clientTypes: this.serializeOptionNames(clientTypes),
+            },
         };
     }
 
@@ -278,7 +310,7 @@ class ChatbotTaskTools {
                     firstName: {type: "string"},
                     lastName: {type: "string"},
                     displayName: {type: "string"},
-                    type: {type: "string", enum: ["work", "client", "provider", "partner", "personal", "internal"]},
+                    type: {type: "string", description: "Nombre de ContactType si el usuario eligio una opcion existente."},
                     status: {type: "string", enum: ["active", "inactive", "archived"]},
                     priority: {type: "string", enum: ["low", "medium", "high", "critical"]},
                     client: {type: "string", description: "ID del cliente relacionado."},
@@ -296,7 +328,7 @@ class ChatbotTaskTools {
                     firstName: {type: "string"},
                     lastName: {type: "string"},
                     displayName: {type: "string"},
-                    type: {type: "string", enum: ["work", "client", "provider", "partner", "personal", "internal"]},
+                    type: {type: "string", description: "Nombre de ContactType."},
                     status: {type: "string", enum: ["active", "inactive", "archived"]},
                     priority: {type: "string", enum: ["low", "medium", "high", "critical"]},
                     client: {type: ["string", "null"], description: "ID del cliente o null para limpiar."},
@@ -321,7 +353,7 @@ class ChatbotTaskTools {
                 createProperties: {
                     name: {type: "string"},
                     description: {type: "string"},
-                    type: {type: "string", enum: ["company", "person", "internal", "partner"]},
+                    type: {type: "string", description: "Nombre de ClientType si el usuario eligio una opcion existente."},
                     status: {type: "string", enum: ["active", "inactive", "prospect", "paused", "archived"]},
                     priority: {type: "string", enum: ["low", "medium", "high", "critical"]},
                     valueScore: scoreProperty,
@@ -338,7 +370,7 @@ class ChatbotTaskTools {
                 updateProperties: {
                     name: {type: "string"},
                     description: {type: "string"},
-                    type: {type: "string", enum: ["company", "person", "internal", "partner"]},
+                    type: {type: "string", description: "Nombre de ClientType."},
                     status: {type: "string", enum: ["active", "inactive", "prospect", "paused", "archived"]},
                     priority: {type: "string", enum: ["low", "medium", "high", "critical"]},
                     valueScore: {type: ["number", "null"]},
@@ -366,7 +398,7 @@ class ChatbotTaskTools {
                     taxIdType: {type: "string"},
                     taxIdNumber: {type: "string"},
                     description: {type: "string"},
-                    type: {type: "string", enum: ["company", "government", "non_profit", "internal", "partner", "provider", "other"]},
+                    type: {type: "string", description: "Nombre de CompanyType si el usuario eligio una opcion existente."},
                     status: {type: "string", enum: ["active", "inactive", "archived"]},
                     website: {type: "string"},
                     emailDomains: tagArrayProperty,
@@ -379,7 +411,7 @@ class ChatbotTaskTools {
                     taxIdType: {type: "string"},
                     taxIdNumber: {type: "string"},
                     description: {type: "string"},
-                    type: {type: "string", enum: ["company", "government", "non_profit", "internal", "partner", "provider", "other"]},
+                    type: {type: "string", description: "Nombre de CompanyType."},
                     status: {type: "string", enum: ["active", "inactive", "archived"]},
                     website: {type: "string"},
                     emailDomains: tagArrayProperty,
@@ -732,6 +764,6 @@ class ChatbotTaskTools {
     }
 }
 
-export type {ChatbotTaskToolsContext, TaskOptionNames};
+export type {ChatbotTaskToolsContext, TaskOptionNames, EntityTypeOptionNames, LifeOpsOptionNames};
 export default ChatbotTaskTools;
 export {ChatbotTaskTools};

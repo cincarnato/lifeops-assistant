@@ -31,17 +31,7 @@ const entitySchema: IEntitySchema = {
             search: true,
         },
         type: {
-            type: "enum",
-            enum: [
-                "company",
-                "government",
-                "non_profit",
-                "internal",
-                "partner",
-                "provider",
-                "other",
-            ],
-            default: "company",
+            type: "string",
             index: true,
             header: true,
         },
