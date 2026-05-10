@@ -16,8 +16,8 @@ const GoalBaseSchema = z.object({
     completedAt: z.coerce.date().nullable().optional(),
     archivedAt: z.coerce.date().nullable().optional(),
     progressPercent: z.number().min(0).max(100).nullable().optional().default(0),
-    successCriteria: z.string().optional(),
-    purpose: z.string().optional(),
+    successCriteria: z.string().optional().default(""),
+    purpose: z.string().optional().default(""),
     constraints: z.array(z.string()).optional().default([]),
     tags: z.array(z.string()).optional().default([]),
     user: z.string().min(1,'validation.required')

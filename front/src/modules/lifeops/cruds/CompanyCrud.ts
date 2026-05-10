@@ -46,7 +46,7 @@ class CompanyCrud extends EntityCrud implements IEntityCrud {
       {title: 'name', key: 'name', align: 'start'},
       {title: 'type', key: 'type', align: 'start'},
       {title: 'status', key: 'status', align: 'start'},
-      {title: 'user', key: 'user', align: 'start'}
+      // {title: 'user', key: 'user', align: 'start'}
     ]
   }
 
@@ -103,8 +103,8 @@ class CompanyCrud extends EntityCrud implements IEntityCrud {
       {name: 'emailDomains', type: 'array.string', label: 'emailDomains', default: []},
       {name: 'tags', type: 'array.string', label: 'tags', default: []},
       {name: 'notes', type: 'longString', label: 'notes', default: ''},
-      {name: 'user', type: 'ref', label: 'user', default: null, ref: 'User', refDisplay: 'username'},
       {name: 'archivedAt', type: 'date', label: 'archivedAt', default: null}
+      // {name: 'user', type: 'ref', label: 'user', default: null, ref: 'User', refDisplay: 'username'},
     ]
   }
 

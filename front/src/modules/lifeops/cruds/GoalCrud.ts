@@ -51,7 +51,7 @@ class GoalCrud extends EntityCrud implements IEntityCrud {
       {title: 'timeHorizon', key: 'timeHorizon', align: 'start'},
       {title: 'targetDate', key: 'targetDate', align: 'start'},
       {title: 'progressPercent', key: 'progressPercent', align: 'start'},
-      {title: 'user', key: 'user', align: 'start'}
+      // {title: 'user', key: 'user', align: 'start'}
     ]
   }
 

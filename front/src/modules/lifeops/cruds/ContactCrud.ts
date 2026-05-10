@@ -53,7 +53,7 @@ class ContactCrud extends EntityCrud implements IEntityCrud {
       {title: 'priority', key: 'priority', align: 'start'},
       {title: 'client', key: 'client', align: 'start'},
       {title: 'company', key: 'company', align: 'start'},
-      {title: 'user', key: 'user', align: 'start'}
+      // {title: 'user', key: 'user', align: 'start'}
     ]
   }
 

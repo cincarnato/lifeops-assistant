@@ -1,6 +1,6 @@
 import {randomUUID} from "node:crypto";
 import {AiProviderFactory} from "@drax/ai-back";
-import TaskServiceFactory from "../factory/services/TaskServiceFactory.js";
+import ChatbotTaskTools from "../tools/ChatbotTaskTools.js";
 
 type ChatRole = "user" | "assistant" | "system";
 
@@ -60,8 +60,8 @@ class ChatbotTaskService {
             systemPrompt: this.systemPrompt(),
             userInput: input.message,
             history,
-            tools: [this.registerTaskTool(input.userId)],
-            toolMaxIterations: 5,
+            tools: ChatbotTaskTools.build({userId: input.userId}),
+            toolMaxIterations: 10,
             operationTitle: "lifeops-task-chatbot",
             operationGroup: "lifeops",
             ip: input.ip,
@@ -110,72 +110,22 @@ class ChatbotTaskService {
         return JSON.stringify(output);
     }
 
-    private registerTaskTool(userId: string) {
-        return {
-            name: "register_task",
-            description: "Registra una tarea para el usuario autenticado cuando el usuario pide crear, guardar o registrar una tarea.",
-            parameters: {
-                type: "object",
-                properties: {
-                    title: {type: "string", description: "Titulo breve y accionable de la tarea."},
-                    description: {type: "string", description: "Descripcion o contexto adicional."},
-                    nextAction: {type: "string", description: "Proxima accion concreta, si se puede inferir."},
-                    dueDate: {type: "string", description: "Fecha limite en formato ISO 8601."},
-                    scheduledDate: {type: "string", description: "Fecha programada en formato ISO 8601."},
-                    estimatedMinutes: {type: "number", description: "Minutos estimados."},
-                    valueScore: {type: "number", minimum: 1, maximum: 10},
-                    motivationScore: {type: "number", minimum: 1, maximum: 10},
-                    effortScore: {type: "number", minimum: 1, maximum: 10},
-                    urgencyScore: {type: "number", minimum: 1, maximum: 10},
-                    tags: {
-                        type: "array",
-                        items: {type: "string"},
-                    },
-                    notes: {type: "string"},
-                },
-                required: ["title"],
-                additionalProperties: false,
-            },
-            execute: async (args: any) => {
-                const taskService = TaskServiceFactory.instance;
-                const task = await taskService.create({
-                    title: args.title,
-                    description: args.description,
-                    nextAction: args.nextAction,
-                    dueDate: args.dueDate,
-                    scheduledDate: args.scheduledDate,
-                    estimatedMinutes: args.estimatedMinutes,
-                    valueScore: args.valueScore,
-                    motivationScore: args.motivationScore,
-                    effortScore: args.effortScore,
-                    urgencyScore: args.urgencyScore,
-                    tags: args.tags ?? [],
-                    notes: args.notes,
-                    user: userId,
-                });
-
-                return {
-                    _id: task._id,
-                    title: task.title,
-                    description: task.description,
-                    dueDate: task.dueDate,
-                    scheduledDate: task.scheduledDate,
-                    estimatedMinutes: task.estimatedMinutes,
-                    nextAction: task.nextAction,
-                    tags: task.tags,
-                };
-            },
-        };
-    }
-
     private systemPrompt(): string {
         return [
-            "Sos un asistente de LifeOps especializado en registrar tareas.",
+            "Sos un asistente de LifeOps especializado en gestionar tareas, objetivos, proyectos, contactos, clientes y empresas.",
             "Conversas en espanol claro y breve.",
             "Cuando el usuario pida registrar, crear, guardar o agendar una tarea, usa la tool register_task.",
+            "Cuando el usuario pida buscar tareas por texto, usa search_tasks. Si pide una tarea puntual por ID, usa find_task_by_id.",
+            "Cuando el usuario pida modificar una tarea existente, primero identifica el ID y usa update_task_partial.",
+            "Cuando el usuario pida crear objetivos, proyectos, contactos, clientes o empresas, usa create_goal, create_project, create_contact, create_client o create_company.",
+            "Cuando el usuario pida buscar objetivos, proyectos, contactos, clientes o empresas por texto, usa search_goals, search_projects, search_contacts, search_clients o search_companies. Si pide una entidad puntual por ID, usa find_goal_by_id, find_project_by_id, find_contact_by_id, find_client_by_id o find_company_by_id.",
+            "Cuando el usuario pida modificar parcialmente objetivos, proyectos, contactos, clientes o empresas existentes, primero identifica el ID y usa update_goal_partial, update_project_partial, update_contact_partial, update_client_partial o update_company_partial.",
+            "Cuando necesites IDs validos de source, status, type o priority, usa list_task_options antes de registrar o modificar.",
+            "Si el usuario pide una opcion de source, status, type o priority que no existe, podes crearla con create_task_source, create_task_status, create_task_type o create_task_priority.",
+            "No inventes IDs de empresas, clientes, contactos, proyectos u objetivos relacionados. Buscalos primero con la tool correspondiente; si no existen y el usuario quiere crearlos, crealos antes de usarlos como relacion.",
             "Si faltan datos minimos para crear la tarea, inferi un titulo razonable desde el mensaje del usuario.",
-            "No inventes IDs de entidades relacionadas. Si el usuario menciona proyecto, cliente, prioridad o estado sin ID, guardalo como texto en description, notes o tags.",
-            "Despues de registrar una tarea, confirma que fue creada y resume los campos relevantes.",
+            "Si faltan datos minimos para crear una entidad, pedi solo los datos imprescindibles que no puedas inferir.",
+            "Despues de registrar, encontrar o modificar una entidad, confirma el resultado y resume los campos relevantes.",
         ].join("\n");
     }
 }

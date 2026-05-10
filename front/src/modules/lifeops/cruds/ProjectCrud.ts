@@ -52,7 +52,7 @@ class ProjectCrud extends EntityCrud implements IEntityCrud {
       {title: 'priorityScore', key: 'priorityScore', align: 'start'},
       {title: 'targetDate', key: 'targetDate', align: 'start'},
       {title: 'progressPercent', key: 'progressPercent', align: 'start'},
-      {title: 'user', key: 'user', align: 'start'}
+      // {title: 'user', key: 'user', align: 'start'}
     ]
   }
 
@@ -121,8 +121,8 @@ class ProjectCrud extends EntityCrud implements IEntityCrud {
       {name: 'completedAt', type: 'date', label: 'completedAt', default: null},
       {name: 'progressPercent', type: 'number', label: 'progressPercent', default: 0},
       {name: 'tags', type: 'array.string', label: 'tags', default: []},
-      // {name: 'user', type: 'ref', label: 'user', default: null, ref: 'User', refDisplay: 'username'},
       {name: 'archivedAt', type: 'date', label: 'archivedAt', default: null}
+      // {name: 'user', type: 'ref', label: 'user', default: null, ref: 'User', refDisplay: 'username'},
     ]
   }
 
