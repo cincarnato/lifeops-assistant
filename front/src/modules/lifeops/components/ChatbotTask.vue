@@ -1,10 +1,50 @@
 <script setup lang="ts">
-import {computed, nextTick, ref} from 'vue'
+import {computed, nextTick, onBeforeUnmount, onMounted, ref} from 'vue'
 import ChatbotTaskProvider from '../providers/ChatbotTaskProvider'
 
 interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
+}
+
+interface BrowserSpeechRecognition extends EventTarget {
+  continuous: boolean
+  interimResults: boolean
+  lang: string
+  onend: (() => void) | null
+  onerror: ((event: BrowserSpeechRecognitionErrorEvent) => void) | null
+  onresult: ((event: BrowserSpeechRecognitionEvent) => void) | null
+  onstart: (() => void) | null
+  abort: () => void
+  start: () => void
+  stop: () => void
+}
+
+interface BrowserSpeechRecognitionConstructor {
+  new(): BrowserSpeechRecognition
+}
+
+interface BrowserSpeechRecognitionErrorEvent extends Event {
+  error: string
+}
+
+interface BrowserSpeechRecognitionEvent extends Event {
+  resultIndex: number
+  results: BrowserSpeechRecognitionResultList
+}
+
+interface BrowserSpeechRecognitionResultList {
+  length: number
+  [index: number]: BrowserSpeechRecognitionResult
+}
+
+interface BrowserSpeechRecognitionResult {
+  isFinal: boolean
+  [index: number]: BrowserSpeechRecognitionAlternative | undefined
+}
+
+interface BrowserSpeechRecognitionAlternative {
+  transcript: string
 }
 
 const sessionId = ref<string>()
@@ -18,8 +58,32 @@ const input = ref('')
 const loading = ref(false)
 const error = ref<string | null>(null)
 const messagesContainer = ref<HTMLElement | null>(null)
+const speechRecognition = ref<BrowserSpeechRecognition | null>(null)
+const speechSupported = ref(false)
+const speechListening = ref(false)
+const speechError = ref<string | null>(null)
+const interimSpeech = ref('')
+const speechAutoSendEnabled = ref(false)
+const speechAutoSending = ref(false)
+const textToSpeechSupported = ref(false)
+const textToSpeechEnabled = ref(true)
+const textToSpeechVoices = ref<SpeechSynthesisVoice[]>([])
+const selectedVoiceURI = ref<string | null>(null)
 
 const canSend = computed(() => input.value.trim().length > 0 && !loading.value)
+const speechButtonIcon = computed(() => speechListening.value ? 'mdi-microphone-off' : 'mdi-microphone')
+const speechButtonLabel = computed(() => speechListening.value ? 'Detener dictado' : 'Dictar mensaje')
+const speechAutoSendLabel = computed(() => speechAutoSendEnabled.value
+  ? 'Apagar envio automatico al terminar de hablar'
+  : 'Prender envio automatico al terminar de hablar')
+const selectedVoice = computed(() => {
+  if (!selectedVoiceURI.value) {
+    return null
+  }
+
+  return textToSpeechVoices.value.find((voice) => voice.voiceURI === selectedVoiceURI.value) ?? null
+})
+const selectedVoiceName = computed(() => selectedVoice.value?.name ?? 'Voz predeterminada')
 
 async function startNewSession() {
   loading.value = true
@@ -34,6 +98,7 @@ async function startNewSession() {
         content: 'Nueva sesion iniciada. Que tarea queres registrar?',
       },
     ]
+    speakAssistantMessage('Nueva sesion iniciada. Que tarea queres registrar?')
   } catch (e: any) {
     error.value = e?.message ?? 'No se pudo iniciar una nueva sesion.'
   } finally {
@@ -58,12 +123,15 @@ async function sendMessage() {
     const response = await ChatbotTaskProvider.instance.sendMessage(message, sessionId.value)
     sessionId.value = response.sessionId
     messages.value.push({role: 'assistant', content: response.message})
+    speakAssistantMessage(response.message)
   } catch (e: any) {
     error.value = e?.message ?? 'No se pudo enviar el mensaje.'
+    const fallbackMessage = 'No pude procesar el pedido. Proba de nuevo en unos segundos.'
     messages.value.push({
       role: 'assistant',
-      content: 'No pude procesar el pedido. Proba de nuevo en unos segundos.',
+      content: fallbackMessage,
     })
+    speakAssistantMessage(fallbackMessage)
   } finally {
     loading.value = false
     await scrollToBottom()
@@ -77,6 +145,224 @@ async function scrollToBottom() {
   }
 }
 
+function setupSpeechRecognition() {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  const recognitionConstructor = (
+    window as Window & {
+      SpeechRecognition?: BrowserSpeechRecognitionConstructor
+      webkitSpeechRecognition?: BrowserSpeechRecognitionConstructor
+    }
+  ).SpeechRecognition ?? (
+    window as Window & {
+      webkitSpeechRecognition?: BrowserSpeechRecognitionConstructor
+    }
+  ).webkitSpeechRecognition
+
+  if (!recognitionConstructor) {
+    return
+  }
+
+  const recognition = new recognitionConstructor()
+  recognition.lang = 'es-AR'
+  recognition.continuous = true
+  recognition.interimResults = true
+  recognition.onstart = () => {
+    speechListening.value = true
+    speechError.value = null
+  }
+  recognition.onend = () => {
+    speechListening.value = false
+    interimSpeech.value = ''
+  }
+  recognition.onerror = (event) => {
+    speechListening.value = false
+    interimSpeech.value = ''
+    speechError.value = getSpeechErrorMessage(event.error)
+  }
+  recognition.onresult = (event) => {
+    let finalTranscript = ''
+    let nextInterimSpeech = ''
+
+    for (let index = event.resultIndex; index < event.results.length; index += 1) {
+      const result = event.results[index]
+      const transcript = result[0]?.transcript ?? ''
+
+      if (result.isFinal) {
+        finalTranscript += transcript
+      } else {
+        nextInterimSpeech += transcript
+      }
+    }
+
+    if (finalTranscript.trim().length > 0) {
+      appendSpeechText(finalTranscript)
+      sendSpeechMessageAutomatically()
+    }
+
+    interimSpeech.value = nextInterimSpeech.trim()
+  }
+
+  speechRecognition.value = recognition
+  speechSupported.value = true
+}
+
+function setupTextToSpeech() {
+  if (typeof window === 'undefined' || !window.speechSynthesis) {
+    return
+  }
+
+  textToSpeechSupported.value = true
+  loadTextToSpeechVoices()
+  window.speechSynthesis.onvoiceschanged = loadTextToSpeechVoices
+}
+
+function loadTextToSpeechVoices() {
+  if (typeof window === 'undefined' || !window.speechSynthesis) {
+    return
+  }
+
+  const voices = window.speechSynthesis.getVoices()
+    .sort((firstVoice, secondVoice) => {
+      const firstVoiceIsSpanish = firstVoice.lang.toLowerCase().startsWith('es') ? 0 : 1
+      const secondVoiceIsSpanish = secondVoice.lang.toLowerCase().startsWith('es') ? 0 : 1
+
+      if (firstVoiceIsSpanish !== secondVoiceIsSpanish) {
+        return firstVoiceIsSpanish - secondVoiceIsSpanish
+      }
+
+      return firstVoice.name.localeCompare(secondVoice.name)
+    })
+
+  textToSpeechVoices.value = voices
+
+  if (!selectedVoiceURI.value && voices.length > 0) {
+    selectedVoiceURI.value = voices.find((voice) => voice.lang.toLowerCase().startsWith('es'))?.voiceURI
+      ?? voices[0].voiceURI
+  }
+}
+
+function toggleSpeechRecognition() {
+  if (!speechRecognition.value || loading.value) {
+    return
+  }
+
+  speechError.value = null
+
+  if (speechListening.value) {
+    speechRecognition.value.stop()
+    return
+  }
+
+  try {
+    speechRecognition.value.start()
+  } catch (e: any) {
+    speechError.value = e?.message ?? 'No se pudo iniciar el dictado.'
+  }
+}
+
+function toggleSpeechAutoSend() {
+  speechAutoSendEnabled.value = !speechAutoSendEnabled.value
+}
+
+function toggleTextToSpeech() {
+  textToSpeechEnabled.value = !textToSpeechEnabled.value
+
+  if (!textToSpeechEnabled.value && typeof window !== 'undefined' && window.speechSynthesis) {
+    window.speechSynthesis.cancel()
+  }
+}
+
+function selectTextToSpeechVoice(voiceURI: string) {
+  selectedVoiceURI.value = voiceURI
+
+  if (typeof window !== 'undefined' && window.speechSynthesis) {
+    window.speechSynthesis.cancel()
+  }
+}
+
+function speakAssistantMessage(message: string) {
+  if (!textToSpeechEnabled.value || typeof window === 'undefined' || !window.speechSynthesis) {
+    return
+  }
+
+  const utterance = new SpeechSynthesisUtterance(message)
+  utterance.lang = selectedVoice.value?.lang ?? 'es-AR'
+
+  if (selectedVoice.value) {
+    utterance.voice = selectedVoice.value
+  }
+
+  window.speechSynthesis.cancel()
+  window.speechSynthesis.speak(utterance)
+}
+
+async function sendSpeechMessageAutomatically() {
+  if (!speechAutoSendEnabled.value || speechAutoSending.value) {
+    return
+  }
+
+  speechAutoSending.value = true
+
+  if (speechRecognition.value && speechListening.value) {
+    speechRecognition.value.stop()
+  }
+
+  await nextTick()
+
+  if (canSend.value) {
+    await sendMessage()
+  }
+
+  speechAutoSending.value = false
+}
+
+function appendSpeechText(transcript: string) {
+  const normalizedTranscript = transcript.trim()
+
+  if (!normalizedTranscript) {
+    return
+  }
+
+  input.value = input.value.trim()
+    ? `${input.value.trim()} ${normalizedTranscript}`
+    : normalizedTranscript
+}
+
+function getSpeechErrorMessage(speechRecognitionError: string) {
+  switch (speechRecognitionError) {
+    case 'not-allowed':
+    case 'service-not-allowed':
+      return 'El navegador no tiene permiso para usar el microfono.'
+    case 'no-speech':
+      return 'No se detecto voz. Proba de nuevo.'
+    case 'audio-capture':
+      return 'No se encontro un microfono disponible.'
+    case 'network':
+      return 'No se pudo conectar con el servicio de reconocimiento de voz.'
+    default:
+      return 'No se pudo completar el dictado por voz.'
+  }
+}
+
+onMounted(() => {
+  setupSpeechRecognition()
+  setupTextToSpeech()
+})
+
+onBeforeUnmount(() => {
+  if (speechRecognition.value) {
+    speechRecognition.value.abort()
+  }
+
+  if (typeof window !== 'undefined' && window.speechSynthesis) {
+    window.speechSynthesis.cancel()
+    window.speechSynthesis.onvoiceschanged = null
+  }
+})
+
 </script>
 
 <template>
@@ -87,15 +373,60 @@ async function scrollToBottom() {
         <p v-if="sessionId">Sesion {{ sessionId.slice(0, 8) }}</p>
       </div>
 
-      <v-btn
-        color="primary"
-        variant="tonal"
-        prepend-icon="mdi-plus"
-        :loading="loading"
-        @click="startNewSession"
-      >
-        Nueva sesion
-      </v-btn>
+      <div class="chatbot-task__header-actions">
+        <template v-if="textToSpeechSupported">
+          <v-btn
+            color="primary"
+            variant="tonal"
+            :icon="textToSpeechEnabled ? 'mdi-volume-high' : 'mdi-volume-off'"
+            :aria-label="textToSpeechEnabled ? 'Apagar lectura de respuestas' : 'Prender lectura de respuestas'"
+            :title="textToSpeechEnabled ? 'Apagar lectura de respuestas' : 'Prender lectura de respuestas'"
+            @click="toggleTextToSpeech"
+          />
+
+          <v-menu max-height="320" location="bottom end">
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                color="primary"
+                variant="tonal"
+                icon="mdi-account-voice"
+                aria-label="Elegir voz"
+                :title="`Elegir voz: ${selectedVoiceName}`"
+              />
+            </template>
+
+            <v-list density="compact" class="chatbot-task__voice-list">
+              <v-list-subheader>Voces disponibles</v-list-subheader>
+              <v-list-item
+                v-for="voice in textToSpeechVoices"
+                :key="voice.voiceURI"
+                :active="voice.voiceURI === selectedVoiceURI"
+                @click="selectTextToSpeechVoice(voice.voiceURI)"
+              >
+                <template #prepend>
+                  <v-icon
+                    :icon="voice.voiceURI === selectedVoiceURI ? 'mdi-check' : 'mdi-account-voice'"
+                    size="small"
+                  />
+                </template>
+                <v-list-item-title>{{ voice.name }}</v-list-item-title>
+                <v-list-item-subtitle>{{ voice.lang }}</v-list-item-subtitle>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </template>
+
+        <v-btn
+          color="primary"
+          variant="tonal"
+          prepend-icon="mdi-plus"
+          :loading="loading"
+          @click="startNewSession"
+        >
+          Nueva sesion
+        </v-btn>
+      </div>
     </header>
 
     <v-alert
@@ -141,6 +472,28 @@ async function scrollToBottom() {
       />
 
       <v-btn
+        v-if="speechSupported"
+        color="primary"
+        variant="tonal"
+        :icon="speechButtonIcon"
+        :disabled="loading"
+        :aria-label="speechButtonLabel"
+        :title="speechButtonLabel"
+        @click="toggleSpeechRecognition"
+      />
+
+      <v-btn
+        v-if="speechSupported"
+        color="primary"
+        variant="tonal"
+        :icon="speechAutoSendEnabled ? 'mdi-send-check' : 'mdi-send-outline'"
+        :disabled="loading"
+        :aria-label="speechAutoSendLabel"
+        :title="speechAutoSendLabel"
+        @click="toggleSpeechAutoSend"
+      />
+
+      <v-btn
         color="primary"
         icon="mdi-send"
         type="submit"
@@ -149,6 +502,14 @@ async function scrollToBottom() {
         aria-label="Enviar"
       />
     </form>
+
+    <p
+      v-if="speechListening || speechError"
+      class="chatbot-task__speech-status"
+      :class="{'chatbot-task__speech-status--error': speechError}"
+    >
+      {{ speechError ?? (interimSpeech ? `Escuchando: ${interimSpeech}` : 'Escuchando...') }}
+    </p>
   </section>
 </template>
 
@@ -180,6 +541,18 @@ async function scrollToBottom() {
   margin: 4px 0 0;
   color: rgba(var(--v-theme-on-surface), 0.64);
   font-size: 0.875rem;
+}
+
+.chatbot-task__header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.chatbot-task__voice-list {
+  min-width: 280px;
+  max-width: min(420px, calc(100vw - 32px));
 }
 
 .chatbot-task__messages {
@@ -229,10 +602,21 @@ async function scrollToBottom() {
 
 .chatbot-task__composer {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr auto auto auto;
   align-items: end;
   gap: 12px;
   margin-top: 16px;
+}
+
+.chatbot-task__speech-status {
+  min-height: 20px;
+  margin: 8px 0 0;
+  color: rgba(var(--v-theme-on-surface), 0.68);
+  font-size: 0.875rem;
+}
+
+.chatbot-task__speech-status--error {
+  color: rgb(var(--v-theme-error));
 }
 
 @media (max-width: 700px) {
@@ -247,12 +631,22 @@ async function scrollToBottom() {
     flex-direction: column;
   }
 
+  .chatbot-task__header-actions {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
   .chatbot-task__messages {
     padding: 12px;
   }
 
   .chatbot-task__message {
     max-width: 92%;
+  }
+
+  .chatbot-task__composer {
+    grid-template-columns: 1fr auto auto auto;
   }
 }
 </style>
