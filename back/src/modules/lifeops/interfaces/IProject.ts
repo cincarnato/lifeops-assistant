@@ -2,7 +2,6 @@
 interface IProjectBase {
     name: string
     description?: string
-    status?: string
     priority?: string
     goals?: Array<any>
     client?: any
@@ -25,7 +24,6 @@ interface IProject {
     _id: string
     name: string
     description?: string
-    status?: string
     priority?: string
     goals?: Array<any>
     client?: any

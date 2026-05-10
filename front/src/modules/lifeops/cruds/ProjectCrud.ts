@@ -46,7 +46,6 @@ class ProjectCrud extends EntityCrud implements IEntityCrud {
   get headers(): IEntityCrudHeader[] {
     return [
       {title: 'name', key: 'name', align: 'start'},
-      {title: 'status', key: 'status', align: 'start'},
       {title: 'priority', key: 'priority', align: 'start'},
       {title: 'client', key: 'client', align: 'start'},
       {title: 'priorityScore', key: 'priorityScore', align: 'start'},
@@ -96,13 +95,6 @@ class ProjectCrud extends EntityCrud implements IEntityCrud {
     return [
       {name: 'name', type: 'string', label: 'name', default: ''},
       {name: 'description', type: 'longString', label: 'description', default: ''},
-      {
-        name: 'status',
-        type: 'enum',
-        label: 'status',
-        default: 'idea',
-        enum: ['idea', 'active', 'paused', 'completed', 'cancelled', 'archived']
-      },
       {
         name: 'priority',
         type: 'string',

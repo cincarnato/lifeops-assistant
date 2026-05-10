@@ -2,7 +2,6 @@
 interface IGoalBase {
     name: string
     description?: string
-    status?: string
     priority?: string
     valueScore?: number
     motivationScore?: number
@@ -25,7 +24,6 @@ interface IGoal {
     _id: string
     name: string
     description?: string
-    status?: string
     priority?: string
     valueScore?: number
     motivationScore?: number

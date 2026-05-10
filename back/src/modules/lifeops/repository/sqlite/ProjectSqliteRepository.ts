@@ -22,7 +22,6 @@ class ProjectSqliteRepository extends AbstractSqliteRepository<IProject, IProjec
     protected tableFields: SqliteTableField[] = [
         {name: "name", type: "TEXT", unique: undefined, primary: false},
 {name: "description", type: "TEXT", unique: undefined, primary: false},
-{name: "status", type: "TEXT", unique: undefined, primary: false},
 {name: "priority", type: "TEXT", unique: undefined, primary: false},
 {name: "goals", type: "TEXT", unique: undefined, primary: false},
 {name: "client", type: "TEXT", unique: undefined, primary: false},
@@ -48,4 +47,3 @@ class ProjectSqliteRepository extends AbstractSqliteRepository<IProject, IProjec
 
 export default ProjectSqliteRepository
 export {ProjectSqliteRepository}
-

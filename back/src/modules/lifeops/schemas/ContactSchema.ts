@@ -7,7 +7,6 @@ const ContactBaseSchema = z.object({
     lastName: z.string().optional().default(""),
     displayName: z.string().min(1,'validation.required'),
     type: z.enum(['work', 'client', 'provider', 'partner', 'personal', 'internal']).optional().default('work'),
-    status: z.enum(['active', 'inactive', 'archived']).optional().default('active'),
     priority: z.string().optional().default(""),
     client: z.coerce.string().optional().nullable(),
     company: z.coerce.string().min(1,'validation.required'),

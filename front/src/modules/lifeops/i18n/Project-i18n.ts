@@ -8,7 +8,6 @@ const messages = {
       field: {
         name: 'Name',
         description: 'Description',
-        status: 'Status',
         priority: 'Priority',
         goals: 'Goals',
         client: 'Client',
@@ -41,7 +40,6 @@ const messages = {
       field: {
         name: 'Nombre',
         description: 'Descripción',
-        status: 'Estado',
         priority: 'Prioridad',
         goals: 'Objetivos',
         client: 'Cliente',

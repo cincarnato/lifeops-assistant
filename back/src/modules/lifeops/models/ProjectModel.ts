@@ -8,7 +8,6 @@ import type {IProject} from '../interfaces/IProject'
 const ProjectSchema = new mongoose.Schema<IProject>({
             name: {type: String,   required: true, index: true, unique: false },
             description: {type: String,   required: false, index: false, unique: false },
-            status: {type: String,  enum: ['idea', 'active', 'paused', 'completed', 'cancelled', 'archived'], required: false, index: true, unique: false },
             priority: {type: String, required: false, index: true, unique: false },
             goals: [{type: mongoose.Schema.Types.ObjectId, ref: 'Goal',  required: false, index: true, unique: false }],
             client: {type: mongoose.Schema.Types.ObjectId, ref: 'Client',  required: false, index: true, unique: false },

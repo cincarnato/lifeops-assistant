@@ -20,7 +20,6 @@ class GoalSqliteRepository extends AbstractSqliteRepository<IGoal, IGoalBase, IG
     protected tableFields: SqliteTableField[] = [
         {name: "name", type: "TEXT", unique: undefined, primary: false},
 {name: "description", type: "TEXT", unique: undefined, primary: false},
-{name: "status", type: "TEXT", unique: undefined, primary: false},
 {name: "priority", type: "TEXT", unique: undefined, primary: false},
 {name: "valueScore", type: "REAL", unique: undefined, primary: false},
 {name: "motivationScore", type: "REAL", unique: undefined, primary: false},

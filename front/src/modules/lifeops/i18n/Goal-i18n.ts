@@ -8,7 +8,6 @@ const messages = {
       field: {
         name: 'Name',
         description: 'Description',
-        status: 'Status',
         priority: 'Priority',
         valueScore: 'Value Score',
         motivationScore: 'Motivation Score',
@@ -41,7 +40,6 @@ const messages = {
       field: {
         name: 'Nombre',
         description: 'Descripción',
-        status: 'Estado',
         priority: 'Prioridad',
         valueScore: 'Puntaje de valor',
         motivationScore: 'Puntaje de motivación',

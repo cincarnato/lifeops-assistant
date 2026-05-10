@@ -8,7 +8,6 @@ import type {IGoal} from '../interfaces/IGoal'
 const GoalSchema = new mongoose.Schema<IGoal>({
             name: {type: String,   required: true, index: true, unique: false },
             description: {type: String,   required: false, index: false, unique: false },
-            status: {type: String,  enum: ['draft', 'active', 'paused', 'completed', 'cancelled', 'archived'], default: 'draft', required: false, index: true, unique: false },
             priority: {type: String, required: false, index: true, unique: false },
             valueScore: {type: Number, min: 1, max: 10, default: 5,  required: false, index: false, unique: false },
             motivationScore: {type: Number, min: 1, max: 10, default: 5,  required: false, index: false, unique: false },

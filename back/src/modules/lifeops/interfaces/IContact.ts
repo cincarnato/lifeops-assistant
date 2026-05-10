@@ -4,7 +4,6 @@ interface IContactBase {
     lastName?: string
     displayName: string
     type?: string
-    status?: string
     priority?: string
     client?: any
     company: any
@@ -28,7 +27,6 @@ interface IContact {
     lastName?: string
     displayName: string
     type?: string
-    status?: string
     priority?: string
     client?: any
     company: any

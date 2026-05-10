@@ -24,7 +24,6 @@ class ContactSqliteRepository extends AbstractSqliteRepository<IContact, IContac
 {name: "lastName", type: "TEXT", unique: undefined, primary: false},
 {name: "displayName", type: "TEXT", unique: undefined, primary: false},
 {name: "type", type: "TEXT", unique: undefined, primary: false},
-{name: "status", type: "TEXT", unique: undefined, primary: false},
 {name: "priority", type: "TEXT", unique: undefined, primary: false},
 {name: "client", type: "TEXT", unique: undefined, primary: false},
 {name: "company", type: "TEXT", unique: undefined, primary: false},

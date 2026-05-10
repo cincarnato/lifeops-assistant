@@ -5,7 +5,6 @@ import { z } from 'zod';
 const GoalBaseSchema = z.object({
       name: z.string().min(1,'validation.required'),
     description: z.string().optional(),
-    status: z.enum(['draft', 'active', 'paused', 'completed', 'cancelled', 'archived']).optional().default('draft'),
     priority: z.string().optional().default(""),
     valueScore: z.number().min(1).max(10).nullable().optional().default(5),
     motivationScore: z.number().min(1).max(10).nullable().optional().default(5),

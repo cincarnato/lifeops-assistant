@@ -45,7 +45,6 @@ class GoalCrud extends EntityCrud implements IEntityCrud {
   get headers(): IEntityCrudHeader[] {
     return [
       {title: 'name', key: 'name', align: 'start'},
-      {title: 'status', key: 'status', align: 'start'},
       {title: 'priority', key: 'priority', align: 'start'},
       {title: 'timeHorizon', key: 'timeHorizon', align: 'start'},
       {title: 'targetDate', key: 'targetDate', align: 'start'},
@@ -92,13 +91,6 @@ class GoalCrud extends EntityCrud implements IEntityCrud {
     return [
       {name: 'name', type: 'string', label: 'name', default: ''},
       {name: 'description', type: 'longString', label: 'description', default: ''},
-      {
-        name: 'status',
-        type: 'enum',
-        label: 'status',
-        default: 'draft',
-        enum: ['draft', 'active', 'paused', 'completed', 'cancelled', 'archived']
-      },
       {
         name: 'priority',
         type: 'string',

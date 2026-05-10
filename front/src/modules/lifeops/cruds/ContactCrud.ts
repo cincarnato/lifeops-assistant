@@ -49,7 +49,6 @@ class ContactCrud extends EntityCrud implements IEntityCrud {
       {title: 'lastName', key: 'lastName', align: 'start'},
       {title: 'displayName', key: 'displayName', align: 'start'},
       {title: 'type', key: 'type', align: 'start'},
-      {title: 'status', key: 'status', align: 'start'},
       {title: 'priority', key: 'priority', align: 'start'},
       {title: 'client', key: 'client', align: 'start'},
       {title: 'company', key: 'company', align: 'start'},
@@ -107,7 +106,6 @@ class ContactCrud extends EntityCrud implements IEntityCrud {
         default: 'work',
         enum: ['work', 'client', 'provider', 'partner', 'personal', 'internal']
       },
-      {name: 'status', type: 'enum', label: 'status', default: 'active', enum: ['active', 'inactive', 'archived']},
       {
         name: 'priority',
         type: 'string',
