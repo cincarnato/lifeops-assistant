@@ -1,0 +1,73 @@
+
+const messages = {
+  en: {
+    contact: {
+      entity: 'Contact',
+      menu: 'Contacts',
+      crud: 'Manage Contact',
+      field: {
+        firstName: 'First Name',
+        lastName: 'Last Name',
+        displayName: 'Display Name',
+        type: 'Type',
+        status: 'Status',
+        priority: 'Priority',
+        client: 'Client',
+        company: 'Company',
+        jobTitle: 'Job Title',
+        department: 'Department',
+        emails: 'Emails',
+        phones: 'Phones',
+        valueScore: 'Value Score',
+        relationshipScore: 'Relationship Score',
+        tags: 'Tags',
+        notes: 'Notes',
+        user: 'User',
+        archivedAt: 'Archived At',
+      },
+    },
+    permission: {
+      'contact:view': 'View Contact',
+      'contact:create': 'Create Contact',
+      'contact:update': 'Edit Contact',
+      'contact:delete': 'Delete Contact',
+      'contact:manage': 'Manage Contact',
+    },
+  },
+  es: {
+    contact: {
+      entity: 'Contacto',
+      menu: 'Contactos',
+      crud: 'Gestionar contacto',
+      field: {
+        firstName: 'Nombre',
+        lastName: 'Apellido',
+        displayName: 'Nombre visible',
+        type: 'Tipo',
+        status: 'Estado',
+        priority: 'Prioridad',
+        client: 'Cliente',
+        company: 'Empresa',
+        jobTitle: 'Cargo',
+        department: 'Departamento',
+        emails: 'Emails',
+        phones: 'Teléfonos',
+        valueScore: 'Puntaje de valor',
+        relationshipScore: 'Puntaje de relación',
+        tags: 'Etiquetas',
+        notes: 'Notas',
+        user: 'Usuario',
+        archivedAt: 'Archivado el',
+      },
+    },
+    permission: {
+      'contact:view': 'Ver contacto',
+      'contact:create': 'Crear contacto',
+      'contact:update': 'Editar contacto',
+      'contact:delete': 'Eliminar contacto',
+      'contact:manage': 'Gestionar contacto',
+    },
+  },
+};
+
+export default messages;

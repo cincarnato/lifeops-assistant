@@ -16,6 +16,16 @@ import {CrudSavedQueryPermissions} from "@drax/crud-back";
 
 import {BasePermissions} from "../modules/base/permissions/BasePermissions.js";
 import {NotificationPermissions} from "../modules/base/permissions/NotificationPermissions.js";
+import {GoalPermissions} from "../modules/lifeops/permissions/GoalPermissions.js";
+import {ProjectPermissions} from "../modules/lifeops/permissions/ProjectPermissions.js";
+import {ClientPermissions} from "../modules/lifeops/permissions/ClientPermissions.js";
+import {ContactPermissions} from "../modules/lifeops/permissions/ContactPermissions.js";
+import {CompanyPermissions} from "../modules/lifeops/permissions/CompanyPermissions.js";
+import {TaskTypePermissions} from "../modules/lifeops/permissions/TaskTypePermissions.js";
+import {TaskStatusPermissions} from "../modules/lifeops/permissions/TaskStatusPermissions.js";
+import {TaskPriorityPermissions} from "../modules/lifeops/permissions/TaskPriorityPermissions.js";
+import {TaskSourcePermissions} from "../modules/lifeops/permissions/TaskSourcePermissions.js";
+import {TaskPermissions} from "../modules/lifeops/permissions/TaskPermissions.js";
 
 
 function InitializePermissions() {
@@ -40,6 +50,16 @@ function InitializePermissions() {
         //Local modules permissions
         ...Object.values(BasePermissions),
         ...Object.values(NotificationPermissions),
+        ...Object.values(GoalPermissions),
+        ...Object.values(ProjectPermissions),
+        ...Object.values(ClientPermissions),
+        ...Object.values(ContactPermissions),
+        ...Object.values(CompanyPermissions),
+        ...Object.values(TaskTypePermissions),
+        ...Object.values(TaskStatusPermissions),
+        ...Object.values(TaskPriorityPermissions),
+        ...Object.values(TaskSourcePermissions),
+        ...Object.values(TaskPermissions),
 
     ]
 
@@ -50,4 +70,3 @@ function InitializePermissions() {
 export default InitializePermissions
 
 export {InitializePermissions}
-

@@ -1,0 +1,71 @@
+
+const messages = {
+  en: {
+    client: {
+      entity: 'Client',
+      menu: 'Clients',
+      crud: 'Manage Client',
+      field: {
+        name: 'Name',
+        description: 'Description',
+        type: 'Type',
+        status: 'Status',
+        priority: 'Priority',
+        valueScore: 'Value Score',
+        relationshipScore: 'Relationship Score',
+        priorityScore: 'Priority Score',
+        website: 'Website',
+        emailDomains: 'Email Domains',
+        company: 'Company',
+        mainContact: 'Main Contact',
+        redmineProjectIds: 'Redmine Project IDs',
+        tags: 'Tags',
+        notes: 'Notes',
+        user: 'User',
+        archivedAt: 'Archived At',
+      },
+    },
+    permission: {
+      'client:view': 'View Client',
+      'client:create': 'Create Client',
+      'client:update': 'Edit Client',
+      'client:delete': 'Delete Client',
+      'client:manage': 'Manage Client',
+    },
+  },
+  es: {
+    client: {
+      entity: 'Cliente',
+      menu: 'Clientes',
+      crud: 'Gestionar cliente',
+      field: {
+        name: 'Nombre',
+        description: 'Descripción',
+        type: 'Tipo',
+        status: 'Estado',
+        priority: 'Prioridad',
+        valueScore: 'Puntaje de valor',
+        relationshipScore: 'Puntaje de relación',
+        priorityScore: 'Puntaje de prioridad',
+        website: 'Sitio web',
+        emailDomains: 'Dominios de email',
+        company: 'Empresa',
+        mainContact: 'Contacto principal',
+        redmineProjectIds: 'IDs de proyecto en Redmine',
+        tags: 'Etiquetas',
+        notes: 'Notas',
+        user: 'Usuario',
+        archivedAt: 'Archivado el',
+      },
+    },
+    permission: {
+      'client:view': 'Ver cliente',
+      'client:create': 'Crear cliente',
+      'client:update': 'Editar cliente',
+      'client:delete': 'Eliminar cliente',
+      'client:manage': 'Gestionar cliente',
+    },
+  },
+};
+
+export default messages;

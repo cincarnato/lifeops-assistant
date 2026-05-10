@@ -9,6 +9,100 @@ const menu: MenuItem[] = [
     auth: false
   },
   {
+    icon: 'mdi-bullseye-arrow',
+    text:'lifeops',
+    gallery: true,
+    permission: 'goal:manage',
+    children: [
+      {
+        icon: 'mdi-flag-checkered',
+        text:'goal.menu',
+        link: { name: "GoalCrudPage" },
+        gallery: true,
+        permission: 'goal:manage'
+      },
+      {
+        icon: 'mdi-briefcase-outline',
+        text:'project.menu',
+        link: { name: "ProjectCrudPage" },
+        gallery: true,
+        permission: 'project:manage'
+      },
+      {
+        icon: 'mdi-domain',
+        text:'client.menu',
+        link: { name: "ClientCrudPage" },
+        gallery: true,
+        permission: 'client:manage'
+      },
+      {
+        icon: 'mdi-card-account-details-outline',
+        text:'contact.menu',
+        link: { name: "ContactCrudPage" },
+        gallery: true,
+        permission: 'contact:manage'
+      },
+      {
+        icon: 'mdi-office-building-outline',
+        text:'company.menu',
+        link: { name: "CompanyCrudPage" },
+        gallery: true,
+        permission: 'company:manage'
+      },
+      {
+        icon: 'mdi-format-list-checks',
+        text:'task.menu',
+        link: { name: "TaskCrudPage" },
+        gallery: true,
+        permission: 'task:manage'
+      },
+      {
+        icon: 'mdi-robot-outline',
+        text:'Asistente de tareas',
+        link: { name: "ChatbotTaskPage" },
+        gallery: true,
+        permission: 'task:create'
+      },
+
+    ]
+  },
+  {
+    icon: 'mdi-bullseye-arrow',
+    text:'Task Config',
+    gallery: true,
+    children: [
+
+      {
+        icon: 'mdi-shape-outline',
+        text:'tasktype.menu',
+        link: { name: "TaskTypeCrudPage" },
+        gallery: true,
+        permission: 'tasktype:manage'
+      },
+      {
+        icon: 'mdi-progress-check',
+        text:'taskstatus.menu',
+        link: { name: "TaskStatusCrudPage" },
+        gallery: true,
+        permission: 'taskstatus:manage'
+      },
+      {
+        icon: 'mdi-priority-high',
+        text:'taskpriority.menu',
+        link: { name: "TaskPriorityCrudPage" },
+        gallery: true,
+        permission: 'taskpriority:manage'
+      },
+      {
+        icon: 'mdi-source-branch',
+        text:'tasksource.menu',
+        link: { name: "TaskSourceCrudPage" },
+        gallery: true,
+        permission: 'tasksource:manage'
+      },
+    ]
+  },
+  {
     icon: 'mdi-account-circle',
     text:'admin',
     gallery: true,
@@ -130,5 +224,3 @@ export default menu
 export {
   menu
 }
-
-
