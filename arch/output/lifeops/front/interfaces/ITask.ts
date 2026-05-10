@@ -5,7 +5,7 @@ interface ITaskBase {
     source?: any
     type?: any
     status?: any
-    priority?: any
+    priority?: string
     goals?: Array<any>
     project?: any
     client?: any
@@ -38,7 +38,7 @@ interface ITask {
     source?: any
     type?: any
     status?: any
-    priority?: any
+    priority?: string
     goals?: Array<any>
     project?: any
     client?: any

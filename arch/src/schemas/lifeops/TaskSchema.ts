@@ -40,9 +40,7 @@ const entitySchema: IEntitySchema = {
             header: true,
         },
         priority: {
-            type: "ref",
-            ref: "TaskPriority",
-            refDisplay: "name",
+            type: "string",
             index: true,
             header: true,
         },

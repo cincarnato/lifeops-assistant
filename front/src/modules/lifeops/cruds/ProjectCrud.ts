@@ -105,10 +105,9 @@ class ProjectCrud extends EntityCrud implements IEntityCrud {
       },
       {
         name: 'priority',
-        type: 'enum',
+        type: 'string',
         label: 'priority',
-        default: 'medium',
-        enum: ['low', 'medium', 'high', 'critical']
+        default: ''
       },
       {name: 'goals', type: 'array.ref', label: 'goals', default: [], ref: 'Goal', refDisplay: 'name'},
       {name: 'client', type: 'ref', label: 'client', default: null, ref: 'Client', refDisplay: 'name'},

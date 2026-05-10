@@ -28,8 +28,6 @@ class GoalSqliteRepository extends AbstractSqliteRepository<IGoal, IGoalBase, IG
 {name: "motivationScore", type: "TEXT", unique: undefined, primary: false},
 {name: "effortScore", type: "NUMERIC", unique: undefined, primary: false},
 {name: "effortScore", type: "TEXT", unique: undefined, primary: false},
-{name: "priorityScore", type: "NUMERIC", unique: undefined, primary: false},
-{name: "priorityScore", type: "TEXT", unique: undefined, primary: false},
 {name: "timeHorizon", type: "TEXT", unique: undefined, primary: false},
 {name: "targetDate", type: "TEXT", unique: undefined, primary: false},
 {name: "completedAt", type: "TEXT", unique: undefined, primary: false},
@@ -47,4 +45,3 @@ class GoalSqliteRepository extends AbstractSqliteRepository<IGoal, IGoalBase, IG
 
 export default GoalSqliteRepository
 export {GoalSqliteRepository}
-

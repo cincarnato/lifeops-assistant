@@ -12,10 +12,6 @@ import type {
 import TaskProvider from "../providers/TaskProvider";
 
 //Import EntityCrud Refs
-import TaskSourceCrud from "./TaskSourceCrud";
-import TaskTypeCrud from "./TaskTypeCrud";
-import TaskStatusCrud from "./TaskStatusCrud";
-import TaskPriorityCrud from "./TaskPriorityCrud";
 import GoalCrud from "./GoalCrud";
 import ProjectCrud from "./ProjectCrud";
 import ClientCrud from "./ClientCrud";
@@ -87,10 +83,6 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
 
   get refs(): IEntityCrudRefs {
     return {
-      TaskSource: TaskSourceCrud.instance,
-      TaskType: TaskTypeCrud.instance,
-      TaskStatus: TaskStatusCrud.instance,
-      TaskPriority: TaskPriorityCrud.instance,
       Goal: GoalCrud.instance,
       Project: ProjectCrud.instance,
       Client: ClientCrud.instance,
@@ -110,10 +102,10 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
     return [
       {name: 'title', type: 'string', label: 'title', default: ''},
       {name: 'description', type: 'longString', label: 'description', default: ''},
-      {name: 'source', type: 'ref', label: 'source', default: null, ref: 'TaskSource', refDisplay: 'name', addOnTheFly: true, groupTab: 'CLASSIFICATION'},
-      {name: 'type', type: 'ref', label: 'type', default: null, ref: 'TaskType', refDisplay: 'name', addOnTheFly: true, groupTab: 'CLASSIFICATION'},
-      {name: 'status', type: 'ref', label: 'status', default: null, ref: 'TaskStatus', refDisplay: 'name', addOnTheFly: true, groupTab: 'CLASSIFICATION'},
-      {name: 'priority', type: 'ref', label: 'priority', default: null, ref: 'TaskPriority', refDisplay: 'name', addOnTheFly: true, groupTab: 'CLASSIFICATION'},
+      {name: 'source', type: 'string', label: 'source', default: '', groupTab: 'CLASSIFICATION'},
+      {name: 'type', type: 'string', label: 'type', default: '', groupTab: 'CLASSIFICATION'},
+      {name: 'status', type: 'string', label: 'status', default: '', groupTab: 'CLASSIFICATION'},
+      {name: 'priority', type: 'string', label: 'priority', default: '', groupTab: 'CLASSIFICATION'},
       {name: 'goals', type: 'array.ref', label: 'goals', default: [], ref: 'Goal', refDisplay: 'name', groupTab: 'CONTEXT'},
       {name: 'project', type: 'ref', label: 'project', default: null, ref: 'Project', refDisplay: 'name', groupTab: 'CONTEXT'},
       {name: 'client', type: 'ref', label: 'client', default: null, ref: 'Client', refDisplay: 'name', groupTab: 'CONTEXT'},
@@ -124,10 +116,10 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
       {name: 'urgencyScore', type: 'number', label: 'urgencyScore', default: null, groupTab: 'SCORING'},
       {name: 'dueDate', type: 'date', label: 'dueDate', default: null, groupTab: 'SCHEDULE'},
       {name: 'scheduledDate', type: 'date', label: 'scheduledDate', default: null, groupTab: 'SCHEDULE'},
-      {name: 'estimatedMinutes', type: 'number', label: 'estimatedMinutes', default: 1, groupTab: 'SCHEDULE'},
-      {name: 'nextAction', type: 'string', label: 'nextAction', default: '', groupTab: 'EXECUTION'},
+      {name: 'estimatedMinutes', type: 'number', label: 'estimatedMinutes', default: 1, groupTab: 'EXECUTION'},
       {name: 'spentMinutes', type: 'number', label: 'spentMinutes', default: 1, groupTab: 'EXECUTION'},
       {name: 'completedAt', type: 'date', label: 'completedAt', default: null, groupTab: 'EXECUTION'},
+      {name: 'nextAction', type: 'string', label: 'nextAction', default: '', groupTab: 'EXECUTION'},
       {name: 'notes', type: 'longString', label: 'notes', default: '', groupTab: 'EXECUTION'},
       {name: 'tags', type: 'array.string', label: 'tags', default: [], groupTab: 'CLASSIFICATION'},
       {name: 'redmineIssueId', type: 'string', label: 'redmineIssueId', default: '', groupTab: 'INTEGRATIONS'},

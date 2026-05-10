@@ -2,10 +2,10 @@
 interface ITaskBase {
     title: string
     description?: string
-    source?: any
-    type?: any
-    status?: any
-    priority?: any
+    source?: string
+    type?: string
+    status?: string
+    priority?: string
     goals?: Array<any>
     project?: any
     client?: any
@@ -35,10 +35,10 @@ interface ITask {
     _id: string
     title: string
     description?: string
-    source?: any
-    type?: any
-    status?: any
-    priority?: any
+    source?: string
+    type?: string
+    status?: string
+    priority?: string
     goals?: Array<any>
     project?: any
     client?: any

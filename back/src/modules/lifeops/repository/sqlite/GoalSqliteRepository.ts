@@ -25,7 +25,6 @@ class GoalSqliteRepository extends AbstractSqliteRepository<IGoal, IGoalBase, IG
 {name: "valueScore", type: "REAL", unique: undefined, primary: false},
 {name: "motivationScore", type: "REAL", unique: undefined, primary: false},
 {name: "effortScore", type: "REAL", unique: undefined, primary: false},
-{name: "priorityScore", type: "REAL", unique: undefined, primary: false},
 {name: "timeHorizon", type: "TEXT", unique: undefined, primary: false},
 {name: "targetDate", type: "TEXT", unique: undefined, primary: false},
 {name: "completedAt", type: "TEXT", unique: undefined, primary: false},

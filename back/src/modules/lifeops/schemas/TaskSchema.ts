@@ -35,10 +35,6 @@ const TaskBaseSchema = z.object({
 const TaskSchema = TaskBaseSchema
     .extend({
       _id: z.coerce.string(),
-       source: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
-type: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
-status: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
-priority: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
 goals: z.array(z.object({_id: z.coerce.string(), name: z.string()})).optional(),
 project: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
 client: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),

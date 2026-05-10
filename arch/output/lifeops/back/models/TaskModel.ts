@@ -11,7 +11,7 @@ const TaskSchema = new mongoose.Schema<ITask>({
             source: {type: mongoose.Schema.Types.ObjectId, ref: 'TaskSource',  required: false, index: true, unique: false },
             type: {type: mongoose.Schema.Types.ObjectId, ref: 'TaskType',  required: false, index: true, unique: false },
             status: {type: mongoose.Schema.Types.ObjectId, ref: 'TaskStatus',  required: false, index: true, unique: false },
-            priority: {type: mongoose.Schema.Types.ObjectId, ref: 'TaskPriority',  required: false, index: true, unique: false },
+            priority: {type: String,   required: false, index: true, unique: false },
             goals: [{type: mongoose.Schema.Types.ObjectId, ref: 'Goal',  required: false, index: true, unique: false }],
             project: {type: mongoose.Schema.Types.ObjectId, ref: 'Project',  required: false, index: true, unique: false },
             client: {type: mongoose.Schema.Types.ObjectId, ref: 'Client',  required: false, index: true, unique: false },

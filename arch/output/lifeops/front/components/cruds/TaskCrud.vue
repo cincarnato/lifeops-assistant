@@ -11,7 +11,6 @@ import {formatDate} from "@drax/common-front"
     <template v-slot:item.source="{value}">{{value?.name}}</template>
     <template v-slot:item.type="{value}">{{value?.name}}</template>
     <template v-slot:item.status="{value}">{{value?.name}}</template>
-    <template v-slot:item.priority="{value}">{{value?.name}}</template>
     <template v-slot:item.goals="{value}">{{ value.map(v => v.name).join(",") }}</template>
     <template v-slot:item.project="{value}">{{value?.name}}</template>
     <template v-slot:item.client="{value}">{{value?.name}}</template>

@@ -47,7 +47,6 @@ class GoalCrud extends EntityCrud implements IEntityCrud {
       {title: 'name', key: 'name', align: 'start'},
       {title: 'status', key: 'status', align: 'start'},
       {title: 'priority', key: 'priority', align: 'start'},
-      {title: 'priorityScore', key: 'priorityScore', align: 'start'},
       {title: 'timeHorizon', key: 'timeHorizon', align: 'start'},
       {title: 'targetDate', key: 'targetDate', align: 'start'},
       {title: 'progressPercent', key: 'progressPercent', align: 'start'},
@@ -102,15 +101,13 @@ class GoalCrud extends EntityCrud implements IEntityCrud {
       },
       {
         name: 'priority',
-        type: 'enum',
+        type: 'string',
         label: 'priority',
-        default: 'medium',
-        enum: ['low', 'medium', 'high', 'critical']
+        default: ''
       },
       {name: 'valueScore', type: 'number', label: 'valueScore', default: 5},
       {name: 'motivationScore', type: 'number', label: 'motivationScore', default: 5},
       {name: 'effortScore', type: 'number', label: 'effortScore', default: 5},
-      {name: 'priorityScore', type: 'number', label: 'priorityScore', default: null},
       {
         name: 'timeHorizon',
         type: 'enum',

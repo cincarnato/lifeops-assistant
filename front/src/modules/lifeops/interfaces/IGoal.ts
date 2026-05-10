@@ -7,7 +7,6 @@ interface IGoalBase {
     valueScore?: number
     motivationScore?: number
     effortScore?: number
-    priorityScore?: number
     timeHorizon?: string
     targetDate?: Date
     completedAt?: Date
@@ -31,7 +30,6 @@ interface IGoal {
     valueScore?: number
     motivationScore?: number
     effortScore?: number
-    priorityScore?: number
     timeHorizon?: string
     targetDate?: Date
     completedAt?: Date

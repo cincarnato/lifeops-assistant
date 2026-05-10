@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {computed, nextTick, onBeforeUnmount, onMounted, ref} from 'vue'
 import ChatbotTaskProvider from '../providers/ChatbotTaskProvider'
+import VisualBot from './VisualBot.vue'
 
 interface ChatMessage {
   role: 'user' | 'assistant'
@@ -63,12 +64,15 @@ const speechSupported = ref(false)
 const speechListening = ref(false)
 const speechError = ref<string | null>(null)
 const interimSpeech = ref('')
-const speechAutoSendEnabled = ref(false)
+const speechAutoSendEnabled = ref(true)
 const speechAutoSending = ref(false)
 const textToSpeechSupported = ref(false)
 const textToSpeechEnabled = ref(true)
+const textToSpeechSpeaking = ref(false)
 const textToSpeechVoices = ref<SpeechSynthesisVoice[]>([])
+const currentTextToSpeechId = ref(0)
 const selectedVoiceURI = ref<string | null>(null)
+const visualBotVisible = ref(true)
 
 const canSend = computed(() => input.value.trim().length > 0 && !loading.value)
 const speechButtonIcon = computed(() => speechListening.value ? 'mdi-microphone-off' : 'mdi-microphone')
@@ -84,6 +88,7 @@ const selectedVoice = computed(() => {
   return textToSpeechVoices.value.find((voice) => voice.voiceURI === selectedVoiceURI.value) ?? null
 })
 const selectedVoiceName = computed(() => selectedVoice.value?.name ?? 'Voz predeterminada')
+const visualBotButtonLabel = computed(() => visualBotVisible.value ? 'Ocultar bot visual' : 'Mostrar bot visual')
 
 async function startNewSession() {
   loading.value = true
@@ -272,7 +277,12 @@ function toggleTextToSpeech() {
 
   if (!textToSpeechEnabled.value && typeof window !== 'undefined' && window.speechSynthesis) {
     window.speechSynthesis.cancel()
+    textToSpeechSpeaking.value = false
   }
+}
+
+function toggleVisualBot() {
+  visualBotVisible.value = !visualBotVisible.value
 }
 
 function selectTextToSpeechVoice(voiceURI: string) {
@@ -285,17 +295,44 @@ function selectTextToSpeechVoice(voiceURI: string) {
 
 function speakAssistantMessage(message: string) {
   if (!textToSpeechEnabled.value || typeof window === 'undefined' || !window.speechSynthesis) {
+    startSpeechRecognitionAfterAssistantResponse()
     return
   }
 
+  currentTextToSpeechId.value += 1
+  const utteranceId = currentTextToSpeechId.value
   const utterance = new SpeechSynthesisUtterance(message)
   utterance.lang = selectedVoice.value?.lang ?? 'es-AR'
+  utterance.onstart = () => {
+    if (utteranceId !== currentTextToSpeechId.value) {
+      return
+    }
+
+    textToSpeechSpeaking.value = true
+  }
+  utterance.onend = () => {
+    if (utteranceId !== currentTextToSpeechId.value) {
+      return
+    }
+
+    textToSpeechSpeaking.value = false
+    startSpeechRecognitionAfterAssistantResponse()
+  }
+  utterance.onerror = () => {
+    if (utteranceId !== currentTextToSpeechId.value) {
+      return
+    }
+
+    textToSpeechSpeaking.value = false
+    startSpeechRecognitionAfterAssistantResponse()
+  }
 
   if (selectedVoice.value) {
     utterance.voice = selectedVoice.value
   }
 
   window.speechSynthesis.cancel()
+  textToSpeechSpeaking.value = false
   window.speechSynthesis.speak(utterance)
 }
 
@@ -317,6 +354,32 @@ async function sendSpeechMessageAutomatically() {
   }
 
   speechAutoSending.value = false
+}
+
+function startSpeechRecognitionAfterAssistantResponse() {
+  if (!speechAutoSendEnabled.value) {
+    return
+  }
+
+  window.setTimeout(() => {
+    if (
+      !speechAutoSendEnabled.value
+      || !speechRecognition.value
+      || speechListening.value
+      || loading.value
+      || textToSpeechSpeaking.value
+    ) {
+      return
+    }
+
+    speechError.value = null
+
+    try {
+      speechRecognition.value.start()
+    } catch (e: any) {
+      speechError.value = e?.message ?? 'No se pudo iniciar el dictado.'
+    }
+  }, 300)
 }
 
 function appendSpeechText(transcript: string) {
@@ -361,6 +424,8 @@ onBeforeUnmount(() => {
     window.speechSynthesis.cancel()
     window.speechSynthesis.onvoiceschanged = null
   }
+
+  textToSpeechSpeaking.value = false
 })
 
 </script>
@@ -374,6 +439,15 @@ onBeforeUnmount(() => {
       </div>
 
       <div class="chatbot-task__header-actions">
+        <v-btn
+          color="primary"
+          variant="tonal"
+          :icon="visualBotVisible ? 'mdi-eye-off' : 'mdi-eye'"
+          :aria-label="visualBotButtonLabel"
+          :title="visualBotButtonLabel"
+          @click="toggleVisualBot"
+        />
+
         <template v-if="textToSpeechSupported">
           <v-btn
             color="primary"
@@ -439,23 +513,33 @@ onBeforeUnmount(() => {
       {{ error }}
     </v-alert>
 
-    <div ref="messagesContainer" class="chatbot-task__messages">
-      <div
-        v-for="(message, index) in messages"
-        :key="index"
-        class="chatbot-task__message-row"
-        :class="`chatbot-task__message-row--${message.role}`"
-      >
-        <div class="chatbot-task__message">
-          {{ message.content }}
+    <div
+      class="chatbot-task__conversation"
+      :class="{'chatbot-task__conversation--with-bot': visualBotVisible}"
+    >
+      <div ref="messagesContainer" class="chatbot-task__messages">
+        <div
+          v-for="(message, index) in messages"
+          :key="index"
+          class="chatbot-task__message-row"
+          :class="`chatbot-task__message-row--${message.role}`"
+        >
+          <div class="chatbot-task__message">
+            {{ message.content }}
+          </div>
+        </div>
+
+        <div v-if="loading" class="chatbot-task__message-row chatbot-task__message-row--assistant">
+          <div class="chatbot-task__message chatbot-task__message--loading">
+            Procesando...
+          </div>
         </div>
       </div>
 
-      <div v-if="loading" class="chatbot-task__message-row chatbot-task__message-row--assistant">
-        <div class="chatbot-task__message chatbot-task__message--loading">
-          Procesando...
-        </div>
-      </div>
+      <VisualBot
+        :visible="visualBotVisible"
+        :speaking="textToSpeechSpeaking"
+      />
     </div>
 
     <form class="chatbot-task__composer" @submit.prevent="sendMessage">
@@ -510,6 +594,7 @@ onBeforeUnmount(() => {
     >
       {{ speechError ?? (interimSpeech ? `Escuchando: ${interimSpeech}` : 'Escuchando...') }}
     </p>
+
   </section>
 </template>
 
@@ -555,8 +640,20 @@ onBeforeUnmount(() => {
   max-width: min(420px, calc(100vw - 32px));
 }
 
-.chatbot-task__messages {
+.chatbot-task__conversation {
   flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+.chatbot-task__conversation--with-bot {
+  grid-template-columns: minmax(0, 1fr) 220px;
+}
+
+.chatbot-task__messages {
+  min-height: 0;
   overflow-y: auto;
   padding: 16px;
   border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
@@ -639,6 +736,12 @@ onBeforeUnmount(() => {
 
   .chatbot-task__messages {
     padding: 12px;
+  }
+
+  .chatbot-task__conversation,
+  .chatbot-task__conversation--with-bot {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
   }
 
   .chatbot-task__message {

@@ -10,7 +10,7 @@ const ClientSchema = new mongoose.Schema<IClient>({
             description: {type: String,   required: false, index: false, unique: false },
             type: {type: String,  enum: ['company', 'person', 'internal', 'partner'], required: false, index: true, unique: false },
             status: {type: String,  enum: ['active', 'inactive', 'prospect', 'paused', 'archived'], required: false, index: true, unique: false },
-            priority: {type: String,  enum: ['low', 'medium', 'high', 'critical'], required: false, index: true, unique: false },
+            priority: {type: String,   required: false, index: true, unique: false },
             valueScore: {type: Number,   required: false, index: false, unique: false },
             relationshipScore: {type: Number,   required: false, index: false, unique: false },
             priorityScore: {type: Number,   required: false, index: true, unique: false },

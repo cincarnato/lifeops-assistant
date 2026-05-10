@@ -26,9 +26,7 @@ const entitySchema: IEntitySchema = {
             header: true,
         },
         priority: {
-            type: "enum",
-            enum: ["low", "medium", "high", "critical"],
-            default: "medium",
+            type: "string",
             index: true,
             header: true,
         },

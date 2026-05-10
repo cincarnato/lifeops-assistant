@@ -27,9 +27,9 @@ import {ContactFastifyRoutes} from "../modules/lifeops/routes/ContactRoutes.js"
 import {CompanyFastifyRoutes} from "../modules/lifeops/routes/CompanyRoutes.js"
 import {TaskTypeFastifyRoutes} from "../modules/lifeops/routes/TaskTypeRoutes.js"
 import {TaskStatusFastifyRoutes} from "../modules/lifeops/routes/TaskStatusRoutes.js"
-import {TaskPriorityFastifyRoutes} from "../modules/lifeops/routes/TaskPriorityRoutes.js"
 import {TaskSourceFastifyRoutes} from "../modules/lifeops/routes/TaskSourceRoutes.js"
 import {TaskFastifyRoutes} from "../modules/lifeops/routes/TaskRoutes.js"
+import {PriorityFastifyRoutes} from "../modules/lifeops/routes/PriorityRoutes.js"
 import {ChatbotTaskFastifyRoutes} from "../modules/lifeops/routes/ChatbotTaskRoutes.js"
 
 function FastifyServerFactory(rootDir:string) {
@@ -70,9 +70,9 @@ function FastifyServerFactory(rootDir:string) {
     server.fastifyRegister(CompanyFastifyRoutes)
     server.fastifyRegister(TaskTypeFastifyRoutes)
     server.fastifyRegister(TaskStatusFastifyRoutes)
-    server.fastifyRegister(TaskPriorityFastifyRoutes)
     server.fastifyRegister(TaskSourceFastifyRoutes)
     server.fastifyRegister(TaskFastifyRoutes)
+    server.fastifyRegister(PriorityFastifyRoutes)
     server.fastifyRegister(ChatbotTaskFastifyRoutes)
 
 

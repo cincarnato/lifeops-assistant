@@ -23,9 +23,9 @@ import {ContactPermissions} from "../modules/lifeops/permissions/ContactPermissi
 import {CompanyPermissions} from "../modules/lifeops/permissions/CompanyPermissions.js";
 import {TaskTypePermissions} from "../modules/lifeops/permissions/TaskTypePermissions.js";
 import {TaskStatusPermissions} from "../modules/lifeops/permissions/TaskStatusPermissions.js";
-import {TaskPriorityPermissions} from "../modules/lifeops/permissions/TaskPriorityPermissions.js";
 import {TaskSourcePermissions} from "../modules/lifeops/permissions/TaskSourcePermissions.js";
 import {TaskPermissions} from "../modules/lifeops/permissions/TaskPermissions.js";
+import {PriorityPermissions} from "../modules/lifeops/permissions/PriorityPermissions.js";
 
 
 function InitializePermissions() {
@@ -57,9 +57,9 @@ function InitializePermissions() {
         ...Object.values(CompanyPermissions),
         ...Object.values(TaskTypePermissions),
         ...Object.values(TaskStatusPermissions),
-        ...Object.values(TaskPriorityPermissions),
         ...Object.values(TaskSourcePermissions),
         ...Object.values(TaskPermissions),
+        ...Object.values(PriorityPermissions),
 
     ]
 

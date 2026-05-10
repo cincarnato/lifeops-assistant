@@ -88,10 +88,10 @@ const menu: MenuItem[] = [
       },
       {
         icon: 'mdi-priority-high',
-        text:'taskpriority.menu',
-        link: { name: "TaskPriorityCrudPage" },
+        text:'priority.menu',
+        link: { name: "PriorityCrudPage" },
         gallery: true,
-        permission: 'taskpriority:manage'
+        permission: 'priority:manage'
       },
       {
         icon: 'mdi-source-branch',

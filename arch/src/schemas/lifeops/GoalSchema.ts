@@ -26,9 +26,7 @@ const entitySchema: IEntitySchema = {
             header: true,
         },
         priority: {
-            type: "enum",
-            enum: ["low", "medium", "high", "critical"],
-            default: "medium",
+            type: "string",
             index: true,
             header: true,
         },
@@ -43,11 +41,6 @@ const entitySchema: IEntitySchema = {
         effortScore: {
             type: "number",
             default: 5,
-        },
-        priorityScore: {
-            type: "number",
-            index: true,
-            header: true,
         },
         timeHorizon: {
             type: "enum",

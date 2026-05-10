@@ -104,7 +104,7 @@ user: [(v: any) => !!v || 'validation.required']
 {name:'displayName',type:'string',label:'displayName',default:''},
 {name:'type',type:'enum',label:'type',default:'work',enum: ['work', 'client', 'provider', 'partner', 'personal', 'internal']},
 {name:'status',type:'enum',label:'status',default:'active',enum: ['active', 'inactive', 'archived']},
-{name:'priority',type:'enum',label:'priority',default:'medium',enum: ['low', 'medium', 'high', 'critical']},
+{name:'priority',type:'string',label:'priority',default:''},
 {name:'client',type:'ref',label:'client',default:null,ref: 'Client',refDisplay: 'name'},
 {name:'company',type:'ref',label:'company',default:null,ref: 'Company',refDisplay: 'name'},
 {name:'jobTitle',type:'string',label:'jobTitle',default:''},

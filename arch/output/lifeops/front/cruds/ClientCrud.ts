@@ -101,7 +101,7 @@ user: [(v: any) => !!v || 'validation.required']
 {name:'description',type:'longString',label:'description',default:''},
 {name:'type',type:'enum',label:'type',default:'company',enum: ['company', 'person', 'internal', 'partner']},
 {name:'status',type:'enum',label:'status',default:'active',enum: ['active', 'inactive', 'prospect', 'paused', 'archived']},
-{name:'priority',type:'enum',label:'priority',default:'medium',enum: ['low', 'medium', 'high', 'critical']},
+{name:'priority',type:'string',label:'priority',default:''},
 {name:'valueScore',type:'number',label:'valueScore',default:5},
 {name:'relationshipScore',type:'number',label:'relationshipScore',default:null},
 {name:'priorityScore',type:'number',label:'priorityScore',default:null},

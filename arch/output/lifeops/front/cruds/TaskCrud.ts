@@ -16,7 +16,6 @@ import TaskProvider from "../providers/TaskProvider";
 import TaskSourceCrud from "./TaskSourceCrud";
 import TaskTypeCrud from "./TaskTypeCrud";
 import TaskStatusCrud from "./TaskStatusCrud";
-import TaskPriorityCrud from "./TaskPriorityCrud";
 import GoalCrud from "./GoalCrud";
 import ProjectCrud from "./ProjectCrud";
 import ClientCrud from "./ClientCrud";
@@ -93,7 +92,6 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
       TaskSource: TaskSourceCrud.instance ,
 TaskType: TaskTypeCrud.instance ,
 TaskStatus: TaskStatusCrud.instance ,
-TaskPriority: TaskPriorityCrud.instance ,
 Goal: GoalCrud.instance ,
 Project: ProjectCrud.instance ,
 Client: ClientCrud.instance ,
@@ -116,7 +114,7 @@ user: [(v: any) => !!v || 'validation.required']
 {name:'source',type:'ref',label:'source',default:null,ref: 'TaskSource',refDisplay: 'name'},
 {name:'type',type:'ref',label:'type',default:null,ref: 'TaskType',refDisplay: 'name'},
 {name:'status',type:'ref',label:'status',default:null,ref: 'TaskStatus',refDisplay: 'name'},
-{name:'priority',type:'ref',label:'priority',default:null,ref: 'TaskPriority',refDisplay: 'name'},
+{name:'priority',type:'string',label:'priority',default:''},
 {name:'goals',type:'array.ref',label:'goals',default:[],ref: 'Goal',refDisplay: 'name'},
 {name:'project',type:'ref',label:'project',default:null,ref: 'Project',refDisplay: 'name'},
 {name:'client',type:'ref',label:'client',default:null,ref: 'Client',refDisplay: 'name'},

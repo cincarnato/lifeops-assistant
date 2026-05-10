@@ -9,7 +9,7 @@ const ProjectSchema = new mongoose.Schema<IProject>({
             name: {type: String,   required: true, index: true, unique: false },
             description: {type: String,   required: false, index: false, unique: false },
             status: {type: String,  enum: ['idea', 'active', 'paused', 'completed', 'cancelled', 'archived'], required: false, index: true, unique: false },
-            priority: {type: String,  enum: ['low', 'medium', 'high', 'critical'], required: false, index: true, unique: false },
+            priority: {type: String,   required: false, index: true, unique: false },
             goals: [{type: mongoose.Schema.Types.ObjectId, ref: 'Goal',  required: false, index: true, unique: false }],
             client: {type: mongoose.Schema.Types.ObjectId, ref: 'Client',  required: false, index: true, unique: false },
             valueScore: {type: Number,   required: false, index: false, unique: false },

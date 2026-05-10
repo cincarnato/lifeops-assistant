@@ -17,7 +17,6 @@ class TaskSqliteRepository extends AbstractSqliteRepository<ITask, ITaskBase, IT
         { field: 'source', table: 'source', identifier: '_id' },
 { field: 'type', table: 'type', identifier: '_id' },
 { field: 'status', table: 'status', identifier: '_id' },
-{ field: 'priority', table: 'priority', identifier: '_id' },
 { field: 'goals', table: 'goals', identifier: '_id' },
 { field: 'project', table: 'project', identifier: '_id' },
 { field: 'client', table: 'client', identifier: '_id' },

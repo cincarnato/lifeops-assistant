@@ -110,10 +110,9 @@ class ContactCrud extends EntityCrud implements IEntityCrud {
       {name: 'status', type: 'enum', label: 'status', default: 'active', enum: ['active', 'inactive', 'archived']},
       {
         name: 'priority',
-        type: 'enum',
+        type: 'string',
         label: 'priority',
-        default: 'medium',
-        enum: ['low', 'medium', 'high', 'critical']
+        default: ''
       },
       {name: 'client', type: 'ref', label: 'client', default: null, ref: 'Client', refDisplay: 'name'},
       {name: 'company', type: 'ref', label: 'company', default: null, ref: 'Company', refDisplay: 'name'},

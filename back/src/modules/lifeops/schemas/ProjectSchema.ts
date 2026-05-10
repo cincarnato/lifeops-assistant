@@ -6,7 +6,7 @@ const ProjectBaseSchema = z.object({
       name: z.string().min(1,'validation.required'),
     description: z.string().optional().default(""),
     status: z.enum(['idea', 'active', 'paused', 'completed', 'cancelled', 'archived']).optional().default('idea'),
-    priority: z.enum(['low', 'medium', 'high', 'critical']).optional().default('medium'),
+    priority: z.string().optional().default(""),
     goals: z.array(z.coerce.string()).optional(),
     client: z.coerce.string().optional().nullable().default(null),
     valueScore: z.number().nullable().optional().default(5),

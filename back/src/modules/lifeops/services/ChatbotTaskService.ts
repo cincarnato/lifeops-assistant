@@ -1,6 +1,7 @@
 import {randomUUID} from "node:crypto";
 import {AiProviderFactory} from "@drax/ai-back";
 import ChatbotTaskTools from "../tools/ChatbotTaskTools.js";
+import type {TaskOptionNames} from "../tools/ChatbotTaskTools.js";
 
 type ChatRole = "user" | "assistant" | "system";
 
@@ -55,9 +56,10 @@ class ChatbotTaskService {
         const session = this.resolveSession(input.userId, input.sessionId);
         const provider = AiProviderFactory.instance();
         const history = session.messages.slice(-20);
+        const taskOptionNames = await ChatbotTaskTools.fetchTaskOptionNames();
 
         const response = await provider.prompt({
-            systemPrompt: this.systemPrompt(),
+            systemPrompt: this.systemPrompt(taskOptionNames),
             userInput: input.message,
             history,
             tools: ChatbotTaskTools.build({userId: input.userId}),
@@ -110,7 +112,7 @@ class ChatbotTaskService {
         return JSON.stringify(output);
     }
 
-    private systemPrompt(): string {
+    private systemPrompt(taskOptionNames: TaskOptionNames): string {
         return [
             "Sos un asistente de LifeOps especializado en gestionar tareas, objetivos, proyectos, contactos, clientes y empresas.",
             "Conversas en espanol claro y breve.",
@@ -120,13 +122,28 @@ class ChatbotTaskService {
             "Cuando el usuario pida crear objetivos, proyectos, contactos, clientes o empresas, usa create_goal, create_project, create_contact, create_client o create_company.",
             "Cuando el usuario pida buscar objetivos, proyectos, contactos, clientes o empresas por texto, usa search_goals, search_projects, search_contacts, search_clients o search_companies. Si pide una entidad puntual por ID, usa find_goal_by_id, find_project_by_id, find_contact_by_id, find_client_by_id o find_company_by_id.",
             "Cuando el usuario pida modificar parcialmente objetivos, proyectos, contactos, clientes o empresas existentes, primero identifica el ID y usa update_goal_partial, update_project_partial, update_contact_partial, update_client_partial o update_company_partial.",
-            "Cuando necesites IDs validos de source, status, type o priority, usa list_task_options antes de registrar o modificar.",
-            "Si el usuario pide una opcion de source, status, type o priority que no existe, podes crearla con create_task_source, create_task_status, create_task_type o create_task_priority.",
+            "Para registrar o modificar tareas, elegi source, status, type y priority solo desde estas opciones disponibles por nombre:",
+            this.formatTaskOptionNames(taskOptionNames),
+            "No llames list_task_options antes de registrar o modificar una tarea cuando puedas elegir una opcion desde la lista anterior.",
+            "Si el usuario pide una opcion de source, status, type o priority que no existe, podes crearla con create_task_source, create_task_status, create_task_type o create_priority.",
             "No inventes IDs de empresas, clientes, contactos, proyectos u objetivos relacionados. Buscalos primero con la tool correspondiente; si no existen y el usuario quiere crearlos, crealos antes de usarlos como relacion.",
             "Si faltan datos minimos para crear la tarea, inferi un titulo razonable desde el mensaje del usuario.",
             "Si faltan datos minimos para crear una entidad, pedi solo los datos imprescindibles que no puedas inferir.",
             "Despues de registrar, encontrar o modificar una entidad, confirma el resultado y resume los campos relevantes.",
         ].join("\n");
+    }
+
+    private formatTaskOptionNames(taskOptionNames: TaskOptionNames): string {
+        return [
+            `- source: ${this.formatOptionList(taskOptionNames.sources)}`,
+            `- status: ${this.formatOptionList(taskOptionNames.statuses)}`,
+            `- type: ${this.formatOptionList(taskOptionNames.types)}`,
+            `- priority: ${this.formatOptionList(taskOptionNames.priorities)}`,
+        ].join("\n");
+    }
+
+    private formatOptionList(options: string[]): string {
+        return options.length > 0 ? options.join(", ") : "(sin opciones disponibles)";
     }
 }
 

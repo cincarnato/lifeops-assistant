@@ -4,7 +4,7 @@ import TaskServiceFactory from "../factory/services/TaskServiceFactory.js";
 import TaskSourceServiceFactory from "../factory/services/TaskSourceServiceFactory.js";
 import TaskStatusServiceFactory from "../factory/services/TaskStatusServiceFactory.js";
 import TaskTypeServiceFactory from "../factory/services/TaskTypeServiceFactory.js";
-import TaskPriorityServiceFactory from "../factory/services/TaskPriorityServiceFactory.js";
+import PriorityServiceFactory from "../factory/services/PriorityServiceFactory.js";
 import GoalServiceFactory from "../factory/services/GoalServiceFactory.js";
 import ProjectServiceFactory from "../factory/services/ProjectServiceFactory.js";
 import ContactServiceFactory from "../factory/services/ContactServiceFactory.js";
@@ -17,6 +17,13 @@ interface ChatbotTaskToolsContext {
 
 type TaskOptionKind = "source" | "status" | "type" | "priority";
 type LifeOpsEntityKind = "goal" | "project" | "contact" | "client" | "company";
+
+interface TaskOptionNames {
+    sources: string[];
+    statuses: string[];
+    types: string[];
+    priorities: string[];
+}
 
 interface EntityToolConfig {
     kind: LifeOpsEntityKind;
@@ -44,6 +51,22 @@ class ChatbotTaskTools {
         ];
     }
 
+    static async fetchTaskOptionNames(): Promise<TaskOptionNames> {
+        const [sources, statuses, types, priorities] = await Promise.all([
+            TaskSourceServiceFactory.instance.fetchAll(),
+            TaskStatusServiceFactory.instance.fetchAll(),
+            TaskTypeServiceFactory.instance.fetchAll(),
+            PriorityServiceFactory.instance.fetchAll(),
+        ]);
+
+        return {
+            sources: this.serializeOptionNames(sources),
+            statuses: this.serializeOptionNames(statuses),
+            types: this.serializeOptionNames(types),
+            priorities: this.serializeOptionNames(priorities),
+        };
+    }
+
     private static taskUserFilter(userId: string): IDraxFieldFilter {
         return {field: "user", operator: "eq", value: userId};
     }
@@ -52,6 +75,12 @@ class ChatbotTaskTools {
         return Object.fromEntries(
             Object.entries(data).filter(([, value]) => value !== undefined)
         ) as T;
+    }
+
+    private static serializeOptionNames(options: any[]): string[] {
+        return options
+            .map(option => option?.name)
+            .filter((name): name is string => typeof name === "string" && name.trim().length > 0);
     }
 
     private static serializeTask(task: any) {
@@ -87,7 +116,7 @@ class ChatbotTaskTools {
     private static serializeGoal(goal: any) {
         return this.serializeFields(goal, [
             "_id", "name", "description", "status", "priority", "valueScore", "motivationScore",
-            "effortScore", "priorityScore", "timeHorizon", "targetDate", "completedAt", "archivedAt",
+            "effortScore", "timeHorizon", "targetDate", "completedAt", "archivedAt",
             "progressPercent", "successCriteria", "purpose", "constraints", "tags", "createdAt", "updatedAt",
         ]);
     }
@@ -169,7 +198,6 @@ class ChatbotTaskTools {
                     valueScore: scoreProperty,
                     motivationScore: scoreProperty,
                     effortScore: scoreProperty,
-                    priorityScore: {type: "number"},
                     timeHorizon: {type: "string", enum: ["short_term", "medium_term", "long_term"]},
                     targetDate: {type: "string", description: "Fecha objetivo en formato ISO 8601."},
                     completedAt: {type: "string", description: "Fecha de completado en formato ISO 8601."},
@@ -187,7 +215,6 @@ class ChatbotTaskTools {
                     valueScore: scoreProperty,
                     motivationScore: scoreProperty,
                     effortScore: scoreProperty,
-                    priorityScore: {type: ["number", "null"]},
                     timeHorizon: {type: "string", enum: ["short_term", "medium_term", "long_term"]},
                     targetDate: nullableDateProperty,
                     completedAt: nullableDateProperty,
@@ -483,10 +510,10 @@ class ChatbotTaskTools {
                 properties: {
                     title: {type: "string", description: "Titulo breve y accionable de la tarea."},
                     description: {type: "string", description: "Descripcion o contexto adicional."},
-                    source: {type: "string", description: "ID de TaskSource si el usuario eligio una opcion existente."},
-                    type: {type: "string", description: "ID de TaskType si el usuario eligio una opcion existente."},
-                    status: {type: "string", description: "ID de TaskStatus si el usuario eligio una opcion existente."},
-                    priority: {type: "string", description: "ID de TaskPriority si el usuario eligio una opcion existente."},
+                    source: {type: "string", description: "Nombre de TaskSource si el usuario eligio una opcion existente."},
+                    type: {type: "string", description: "Nombre de TaskType si el usuario eligio una opcion existente."},
+                    status: {type: "string", description: "Nombre de TaskStatus si el usuario eligio una opcion existente."},
+                    priority: {type: "string", description: "Nombre de Priority si el usuario eligio una opcion existente."},
                     nextAction: {type: "string", description: "Proxima accion concreta, si se puede inferir."},
                     dueDate: {type: "string", description: "Fecha limite en formato ISO 8601."},
                     scheduledDate: {type: "string", description: "Fecha programada en formato ISO 8601."},
@@ -540,7 +567,7 @@ class ChatbotTaskTools {
                 properties: {
                     query: {type: "string", description: "Texto de busqueda para title, description y otros campos configurados."},
                     limit: {type: "number", minimum: 1, maximum: 50, default: 10},
-                    status: {type: "string", description: "ID exacto de TaskStatus para filtrar."},
+                    status: {type: "string", description: "Nombre exacto de TaskStatus para filtrar."},
                     createdAtFrom: {type: "string", description: "Fecha ISO desde la cual filtrar createdAt inclusive."},
                     createdAtTo: {type: "string", description: "Fecha ISO hasta la cual filtrar createdAt inclusive."},
                 },
@@ -598,10 +625,10 @@ class ChatbotTaskTools {
                     id: {type: "string", description: "ID exacto de la tarea a modificar."},
                     title: {type: "string"},
                     description: {type: "string"},
-                    source: {type: "string", description: "ID de TaskSource."},
-                    type: {type: "string", description: "ID de TaskType."},
-                    status: {type: "string", description: "ID de TaskStatus."},
-                    priority: {type: "string", description: "ID de TaskPriority."},
+                    source: {type: "string", description: "Nombre de TaskSource."},
+                    type: {type: "string", description: "Nombre de TaskType."},
+                    status: {type: "string", description: "Nombre de TaskStatus."},
+                    priority: {type: "string", description: "Nombre de Priority."},
                     nextAction: {type: "string"},
                     dueDate: {type: ["string", "null"], description: "Fecha limite ISO o null para limpiar."},
                     scheduledDate: {type: ["string", "null"], description: "Fecha programada ISO o null para limpiar."},
@@ -641,26 +668,14 @@ class ChatbotTaskTools {
     private static listTaskOptionsTool(): IPromptTool {
         return {
             name: "list_task_options",
-            description: "Consulta de una sola vez todas las opciones disponibles de TaskSource, TaskStatus, TaskType y TaskPriority.",
+            description: "Consulta de una sola vez todas las opciones disponibles de TaskSource, TaskStatus, TaskType y Priority.",
             parameters: {
                 type: "object",
                 properties: {},
                 additionalProperties: false,
             },
             execute: async () => {
-                const [sources, statuses, types, priorities] = await Promise.all([
-                    TaskSourceServiceFactory.instance.fetchAll(),
-                    TaskStatusServiceFactory.instance.fetchAll(),
-                    TaskTypeServiceFactory.instance.fetchAll(),
-                    TaskPriorityServiceFactory.instance.fetchAll(),
-                ]);
-
-                return {
-                    sources,
-                    statuses,
-                    types,
-                    priorities,
-                };
+                return await this.fetchTaskOptionNames();
             },
         };
     }
@@ -670,31 +685,53 @@ class ChatbotTaskTools {
             source: TaskSourceServiceFactory.instance,
             status: TaskStatusServiceFactory.instance,
             type: TaskTypeServiceFactory.instance,
-            priority: TaskPriorityServiceFactory.instance,
+            priority: PriorityServiceFactory.instance,
         };
+        const entityLabelMap = {
+            source: "TaskSource",
+            status: "TaskStatus",
+            type: "TaskType",
+            priority: "Priority",
+        };
+        const toolNameMap = {
+            source: "create_task_source",
+            status: "create_task_status",
+            type: "create_task_type",
+            priority: "create_priority",
+        };
+        const properties: Record<string, any> = {
+            name: {type: "string", description: "Nombre de la nueva opcion."},
+            description: {type: "string", description: "Descripcion opcional."},
+        };
+        const required = ["name"];
+
+        if (kind === "priority") {
+            properties.color = {type: "string", description: "Color de la prioridad."};
+            required.push("color");
+        }
 
         return {
-            name: `create_task_${kind}`,
-            description: `Crea una nueva opcion de Task${kind.charAt(0).toUpperCase() + kind.slice(1)} cuando el usuario necesita una opcion que no existe.`,
+            name: toolNameMap[kind],
+            description: `Crea una nueva opcion de ${entityLabelMap[kind]} cuando el usuario necesita una opcion que no existe.`,
             parameters: {
                 type: "object",
-                properties: {
-                    name: {type: "string", description: "Nombre de la nueva opcion."},
-                    description: {type: "string", description: "Descripcion opcional."},
-                },
-                required: ["name"],
+                properties,
+                required,
                 additionalProperties: false,
             },
             execute: async (args: any) => {
-                return await serviceMap[kind].create(this.compactObject({
+                const createData = this.compactObject({
                     name: args.name,
                     description: args.description,
-                }));
+                    color: kind === "priority" ? args.color : undefined,
+                });
+
+                return await serviceMap[kind].create(createData as any);
             },
         };
     }
 }
 
-export type {ChatbotTaskToolsContext};
+export type {ChatbotTaskToolsContext, TaskOptionNames};
 export default ChatbotTaskTools;
 export {ChatbotTaskTools};

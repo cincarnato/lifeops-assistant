@@ -8,7 +8,7 @@ const ContactBaseSchema = z.object({
     displayName: z.string().min(1,'validation.required'),
     type: z.enum(['work', 'client', 'provider', 'partner', 'personal', 'internal']).optional().default('work'),
     status: z.enum(['active', 'inactive', 'archived']).optional().default('active'),
-    priority: z.enum(['low', 'medium', 'high', 'critical']).optional().default('medium'),
+    priority: z.string().optional().default(""),
     client: z.coerce.string().optional().nullable(),
     company: z.coerce.string().min(1,'validation.required'),
     jobTitle: z.string().optional().default(""),

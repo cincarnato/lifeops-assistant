@@ -7,7 +7,7 @@ const ClientBaseSchema = z.object({
     description: z.string().optional(),
     type: z.enum(['company', 'person', 'internal', 'partner']).optional().default('company'),
     status: z.enum(['active', 'inactive', 'prospect', 'paused', 'archived']).optional().default('active'),
-    priority: z.enum(['low', 'medium', 'high', 'critical']).optional().default('medium'),
+    priority: z.string().optional(),
     valueScore: z.number().nullable().optional().default(5),
     relationshipScore: z.number().nullable().optional(),
     priorityScore: z.number().nullable().optional(),

@@ -53,6 +53,8 @@ const field: IEntityCrudField = {
     v-model="valueModel"
     :field="field"
     :entity="TaskSourceCrud.instance"
+    :item-title="itemTitle"
+    :item-value="itemValue"
     :hint="hint"
     :persistent-hint="persistentHint"
     :error-messages="errorMessages"
@@ -67,6 +69,9 @@ const field: IEntityCrudField = {
     :append-icon="appendIcon"
     :prepend-inner-icon="prependInnerIcon"
     :append-inner-icon="appendInnerIcon"
+    :multiple="multiple"
+    :chips="chips"
+    :closable-chips="closableChips"
     :add-on-the-fly="addOnTheFly"
   ></crud-autocomplete>
 
@@ -75,5 +80,4 @@ const field: IEntityCrudField = {
 <style scoped>
 
 </style>
-
 

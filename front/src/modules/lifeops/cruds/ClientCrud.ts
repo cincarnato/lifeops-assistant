@@ -113,10 +113,9 @@ class ClientCrud extends EntityCrud implements IEntityCrud {
       },
       {
         name: 'priority',
-        type: 'enum',
+        type: 'string',
         label: 'priority',
-        default: 'medium',
-        enum: ['low', 'medium', 'high', 'critical']
+        default: ''
       },
       {name: 'valueScore', type: 'number', label: 'valueScore', default: 5},
       {name: 'relationshipScore', type: 'number', label: 'relationshipScore', default: null},

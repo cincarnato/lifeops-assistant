@@ -48,7 +48,6 @@ class GoalCrud extends EntityCrud implements IEntityCrud {
         {title: 'name',key:'name', align: 'start'},
 {title: 'status',key:'status', align: 'start'},
 {title: 'priority',key:'priority', align: 'start'},
-{title: 'priorityScore',key:'priorityScore', align: 'start'},
 {title: 'timeHorizon',key:'timeHorizon', align: 'start'},
 {title: 'targetDate',key:'targetDate', align: 'start'},
 {title: 'progressPercent',key:'progressPercent', align: 'start'},
@@ -95,11 +94,10 @@ user: [(v: any) => !!v || 'validation.required']
         {name:'name',type:'string',label:'name',default:''},
 {name:'description',type:'longString',label:'description',default:''},
 {name:'status',type:'enum',label:'status',default:'draft',enum: ['draft', 'active', 'paused', 'completed', 'cancelled', 'archived']},
-{name:'priority',type:'enum',label:'priority',default:'medium',enum: ['low', 'medium', 'high', 'critical']},
+{name:'priority',type:'string',label:'priority',default:''},
 {name:'valueScore',type:'number',label:'valueScore',default:5},
 {name:'motivationScore',type:'number',label:'motivationScore',default:5},
 {name:'effortScore',type:'number',label:'effortScore',default:5},
-{name:'priorityScore',type:'number',label:'priorityScore',default:null},
 {name:'timeHorizon',type:'enum',label:'timeHorizon',default:'medium_term',enum: ['short_term', 'medium_term', 'long_term']},
 {name:'targetDate',type:'date',label:'targetDate',default:null},
 {name:'completedAt',type:'date',label:'completedAt',default:null},
@@ -206,4 +204,3 @@ user: [(v: any) => !!v || 'validation.required']
 }
 
 export default GoalCrud
-

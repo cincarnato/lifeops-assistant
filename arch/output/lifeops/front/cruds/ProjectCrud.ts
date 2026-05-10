@@ -99,7 +99,7 @@ user: [(v: any) => !!v || 'validation.required']
         {name:'name',type:'string',label:'name',default:''},
 {name:'description',type:'longString',label:'description',default:''},
 {name:'status',type:'enum',label:'status',default:'idea',enum: ['idea', 'active', 'paused', 'completed', 'cancelled', 'archived']},
-{name:'priority',type:'enum',label:'priority',default:'medium',enum: ['low', 'medium', 'high', 'critical']},
+{name:'priority',type:'string',label:'priority',default:''},
 {name:'goals',type:'array.ref',label:'goals',default:[],ref: 'Goal',refDisplay: 'name'},
 {name:'client',type:'ref',label:'client',default:null,ref: 'Client',refDisplay: 'name'},
 {name:'valueScore',type:'number',label:'valueScore',default:5},
