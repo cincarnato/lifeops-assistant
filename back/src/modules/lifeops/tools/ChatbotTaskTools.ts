@@ -21,6 +21,29 @@ interface ChatbotTaskToolsContext {
 type TaskOptionKind = "source" | "status" | "type" | "priority";
 type LifeOpsEntityKind = "goal" | "project" | "contact" | "client" | "company";
 
+const TASK_GROUP_BY_FIELDS = [
+    "source",
+    "type",
+    "status",
+    "priority",
+    "project",
+    "client",
+    "dueDate",
+    "scheduledDate",
+    "completedAt",
+    "createdAt",
+    "updatedAt",
+    "archivedAt",
+    "valueScore",
+    "motivationScore",
+    "effortScore",
+    "urgencyScore",
+    "estimatedMinutes",
+    "spentMinutes",
+] as const;
+
+const TASK_GROUP_BY_DATE_FORMATS = ["year", "month", "day", "hour", "minute", "second"] as const;
+
 interface TaskOptionNames {
     sources: string[];
     statuses: string[];
@@ -55,6 +78,7 @@ class ChatbotTaskTools {
             this.registerTaskTool(context),
             this.searchTasksTool(context),
             this.findTaskByIdTool(context),
+            this.groupTasksTool(context),
             this.updateTaskPartialTool(context),
             this.listTaskOptionsTool(),
             this.createTaskOptionTool("source"),
@@ -643,6 +667,66 @@ class ChatbotTaskTools {
             execute: async (args: any) => {
                 const task = await this.findUserTaskById(args.id, context.userId);
                 return this.serializeTask(task);
+            },
+        };
+    }
+
+    private static groupTasksTool(context: ChatbotTaskToolsContext): IPromptTool {
+        return {
+            name: "group_tasks",
+            description: "Cuenta tareas agrupadas por atributos de Task. Tambien suma campos numericos cuando se incluyen en fields. Usa esta tool para responder metricas como tareas por status, prioridad, fecha, proyecto, cliente o totales de minutos.",
+            parameters: {
+                type: "object",
+                properties: {
+                    fields: {
+                        type: "array",
+                        items: {type: "string", enum: TASK_GROUP_BY_FIELDS},
+                        minItems: 1,
+                        maxItems: 10,
+                        description: "Campos por los que agrupar o sumar. Los campos numericos se suman; los demas agrupan.",
+                    },
+                    filters: {
+                        type: "array",
+                        description: "Filtros AND opcionales compatibles con Drax. No incluyas user; la tool lo agrega automaticamente.",
+                        items: {
+                            type: "object",
+                            properties: {
+                                field: {type: "string", enum: TASK_GROUP_BY_FIELDS},
+                                operator: {
+                                    type: "string",
+                                    enum: ["eq", "ne", "gt", "gte", "lt", "lte", "in", "nin", "like", "empty"],
+                                },
+                                value: {
+                                    type: ["string", "number", "boolean", "array", "null"],
+                                    items: {type: ["string", "number", "boolean"]},
+                                    description: "Valor del filtro. Para fechas usa ISO 8601; para in/nin puede ser array.",
+                                },
+                            },
+                            required: ["field", "operator"],
+                            additionalProperties: false,
+                        },
+                    },
+                    dateFormat: {
+                        type: "string",
+                        enum: TASK_GROUP_BY_DATE_FORMATS,
+                        default: "day",
+                        description: "Granularidad para campos fecha.",
+                    },
+                },
+                required: ["fields"],
+                additionalProperties: false,
+            },
+            execute: async (args: any) => {
+                const filters: IDraxFieldFilter[] = [
+                    ...(Array.isArray(args.filters) ? args.filters : []),
+                    this.taskUserFilter(context.userId),
+                ];
+
+                return await TaskServiceFactory.instance.groupBy({
+                    fields: args.fields,
+                    filters,
+                    dateFormat: args.dateFormat ?? "day",
+                });
             },
         };
     }

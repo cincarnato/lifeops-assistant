@@ -9,7 +9,7 @@ import AnimatedBackground from "../components/AnimatedBackground/AnimatedBackgro
 import {useRouter} from "vue-router";
 import { useDarkMode } from '../composables/useDarkMode.js'
 import NotificationButton from "../modules/base/components/NotificationButton.vue"
-import ChatbotTask from "../modules/lifeops/components/ChatbotTask.vue"
+import { DraxAgentButton} from "@drax/ai-vue";
 
 const {loadDarkMode} = useDarkMode()
 
@@ -20,7 +20,6 @@ onMounted(() => {
 
 let profileDrawer = ref(false)
 let drawer = ref(false)
-let chatbotTaskDialog = ref(false)
 
 const {push} = useRouter()
 const settingStore = useSettingStore()
@@ -48,46 +47,16 @@ const appName = computed(() => {
       <v-spacer></v-spacer>
       <slot name="toolbar-right"></slot>
       <dark-mode></dark-mode>
-      <v-btn
-        icon
-        class="mr-2"
-        aria-label="Asistente de tareas"
-        @click="chatbotTaskDialog = true"
-      >
-        <v-icon>mdi-robot-outline</v-icon>
-        <v-tooltip activator="parent" location="bottom">
-          Asistente de tareas
-        </v-tooltip>
-      </v-btn>
+      <drax-agent-button></drax-agent-button>
+
+
       <notification-button class="mr-2"></notification-button>
       <identity-profile-avatar class="cursor-pointer" @click="profileDrawer = !profileDrawer"></identity-profile-avatar>
     </v-app-bar>
 
     <identity-profile-drawer v-if="isAuthenticated()" v-model="profileDrawer" ></identity-profile-drawer>
 
-    <v-dialog
-      v-if="isAuthenticated()"
-      v-model="chatbotTaskDialog"
-      max-width="960"
-      width="calc(100vw - 32px)"
-      scrollable
-    >
-      <v-card>
-        <v-card-title class="d-flex align-center justify-space-between pr-2">
-          <span>Asistente de tareas</span>
-          <v-btn
-            icon="mdi-close"
-            variant="text"
-            aria-label="Cerrar asistente de tareas"
-            @click="chatbotTaskDialog = false"
-          />
-        </v-card-title>
-        <v-divider />
-        <v-card-text class="pa-0">
-          <chatbot-task class="default-layout__chatbot-task" />
-        </v-card-text>
-      </v-card>
-    </v-dialog>
+
 
     <animated-background></animated-background>
 

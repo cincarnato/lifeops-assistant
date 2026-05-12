@@ -10,6 +10,7 @@ import TaskSourceCrudRoute from "./TaskSourceCrudRoute"
 import TaskCrudRoute from "./TaskCrudRoute"
 import PriorityCrudRoute from "./PriorityCrudRoute"
 import ChatbotTaskRoute from "./ChatbotTaskRoute"
+import KanbanTaskRoute from "./KanbanTaskRoute"
 import ContactTypeCrudRoute from "./ContactTypeCrudRoute"
 import CompanyTypeCrudRoute from "./CompanyTypeCrudRoute"
 import ClientTypeCrudRoute from "./ClientTypeCrudRoute"
@@ -28,7 +29,8 @@ export const routes = [
     ...ContactTypeCrudRoute,
     ...CompanyTypeCrudRoute,
     ...ClientTypeCrudRoute,
-    ...ChatbotTaskRoute
+    ...ChatbotTaskRoute,
+    ...KanbanTaskRoute
 ]
 
 export default routes

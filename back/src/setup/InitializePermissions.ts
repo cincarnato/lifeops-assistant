@@ -11,7 +11,7 @@ import {MediaPermissions, FilePermissions} from "@drax/media-back";
 import {SettingPermissions} from "@drax/settings-back";
 import {DashboardPermissions} from "@drax/dashboard-back";
 import {AuditPermissions} from "@drax/audit-back";
-import {AILogPermissions, AIPermissions} from "@drax/ai-back";
+import {AILogPermissions, AIPermissions, AgentSessionPermissions, AgentPermissions} from "@drax/ai-back";
 import {CrudSavedQueryPermissions} from "@drax/crud-back";
 
 import {BasePermissions} from "../modules/base/permissions/BasePermissions.js";
@@ -48,6 +48,9 @@ function InitializePermissions() {
         ...Object.values(AuditPermissions),
         ...Object.values(AILogPermissions),
         ...Object.values(AIPermissions),
+        ...Object.values(AgentSessionPermissions),
+        ...Object.values(AgentPermissions),
+
         ...Object.values(CrudSavedQueryPermissions),
 
         //Local modules permissions

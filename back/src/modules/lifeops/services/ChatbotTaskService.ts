@@ -1,6 +1,7 @@
 import {randomUUID} from "node:crypto";
 import {AiProviderFactory} from "@drax/ai-back";
 import ChatbotTaskTools from "../tools/ChatbotTaskTools.js";
+import type {IPromptTool} from "@drax/ai-back/types/interfaces/IAIProvider.js";
 import type {EntityTypeOptionNames, LifeOpsOptionNames, TaskOptionNames} from "../tools/ChatbotTaskTools.js";
 
 type ChatRole = "user" | "assistant" | "system";
@@ -57,12 +58,16 @@ class ChatbotTaskService {
         const provider = AiProviderFactory.instance();
         const history = session.messages.slice(-20);
         const optionNames = await ChatbotTaskTools.fetchLifeOpsOptionNames();
+        const tools = this.withToolExecutionLogs(
+            ChatbotTaskTools.build({userId: input.userId}),
+            session.id
+        );
 
         const response = await provider.prompt({
             systemPrompt: this.systemPrompt(optionNames),
             userInput: input.message,
             history,
-            tools: ChatbotTaskTools.build({userId: input.userId}),
+            tools,
             toolMaxIterations: 10,
             operationTitle: "lifeops-task-chatbot",
             operationGroup: "lifeops",
@@ -112,12 +117,45 @@ class ChatbotTaskService {
         return JSON.stringify(output);
     }
 
+    private withToolExecutionLogs(tools: IPromptTool[], sessionId: string): IPromptTool[] {
+        return tools.map(tool => ({
+            ...tool,
+            execute: async (args: any) => {
+                console.log("[lifeops-task-chatbot] tool:start", {
+                    sessionId,
+                    tool: tool.name,
+                    args,
+                });
+
+                try {
+                    const result = await tool.execute(args);
+
+                    console.log("[lifeops-task-chatbot] tool:success", {
+                        sessionId,
+                        tool: tool.name,
+                    });
+
+                    return result;
+                } catch (error) {
+                    console.error("[lifeops-task-chatbot] tool:error", {
+                        sessionId,
+                        tool: tool.name,
+                        error,
+                    });
+
+                    throw error;
+                }
+            },
+        }));
+    }
+
     private systemPrompt(optionNames: LifeOpsOptionNames): string {
         return [
             "Sos un asistente de LifeOps especializado en gestionar tareas, objetivos, proyectos, contactos, clientes y empresas.",
             "Conversas en espanol claro y breve.",
             "Cuando el usuario pida registrar, crear, guardar o agendar una tarea, usa la tool register_task.",
             "Cuando el usuario pida buscar tareas por texto, usa search_tasks. Si pide una tarea puntual por ID, usa find_task_by_id.",
+            "Cuando el usuario pida cantidad de tareas agrupadas, metricas, distribuciones o totales por atributos como status, priority, source, type, fechas, proyecto, cliente o minutos, usa group_tasks.",
             "Cuando el usuario pida modificar una tarea existente, primero identifica el ID y usa update_task_partial.",
             "Cuando el usuario pida crear objetivos, proyectos, contactos, clientes o empresas, usa create_goal, create_project, create_contact, create_client o create_company.",
             "Cuando el usuario pida buscar objetivos, proyectos, contactos, clientes o empresas por texto, usa search_goals, search_projects, search_contacts, search_clients o search_companies. Si pide una entidad puntual por ID, usa find_goal_by_id, find_project_by_id, find_contact_by_id, find_client_by_id o find_company_by_id.",

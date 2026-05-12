@@ -7,6 +7,8 @@ import InitializeSettings from "./InitializeSettings.js";
 import InitializeAudit from "./InitializeAudit.js";
 
 import {projectPasswordPolicy} from "./data/policies/PasswordPolicy.js";
+import InitLifeops from "./scripts/InitLifeops.js";
+import initializeAgent from "./InitializeAgent.js";
 
 async function SetupDrax(){
 
@@ -37,6 +39,11 @@ async function SetupDrax(){
     await CreateRootUserAndAdminRole()
 
     await CreateSystemRoles()
+
+    await InitLifeops()
+
+
+    await initializeAgent()
 }
 
 export default SetupDrax
