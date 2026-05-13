@@ -6,6 +6,7 @@
   "private": true,
   "scripts": {
     "back": "nodemon --exec node --env-file .env --loader ts-node/esm src/index.ts",
+    "jobs": "nodemon --exec node --env-file .env --loader ts-node/esm src/index-job.ts",
     "prod": "node --env-file .env  index.js",
     "build": "tsc -p tsconfig.json && copyfiles package.json ../out",
     "build:local": "tsc -p tsconfig.build.json && copyfiles package.json ../build",
@@ -28,7 +29,7 @@
     "@drax/settings-back": "^3.32.0",
     "@drax/dashboard-back": "^3.32.0",
     "@drax/audit-back": "^3.32.0",
-    "@drax/ai-back": "^3.32.0",
+    "@drax/ai-back": "^3.33.0",
     "@graphql-tools/load-files": "^7.0.0",
     "@graphql-tools/merge": "^9.0.0",
     "better-sqlite3": "^12.8.0",

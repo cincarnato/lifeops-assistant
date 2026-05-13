@@ -1,0 +1,17 @@
+import "../modules/base/models/NotificationModel.js";
+import "../modules/google/models/GoogleConnectionModel.js";
+import "../modules/lifeops/models/AgentJobExecutionModel.js";
+import "../modules/lifeops/models/AgentJobModel.js";
+import "../modules/lifeops/models/ClientModel.js";
+import "../modules/lifeops/models/ClientTypeModel.js";
+import "../modules/lifeops/models/CompanyModel.js";
+import "../modules/lifeops/models/CompanyTypeModel.js";
+import "../modules/lifeops/models/ContactModel.js";
+import "../modules/lifeops/models/ContactTypeModel.js";
+import "../modules/lifeops/models/GoalModel.js";
+import "../modules/lifeops/models/PriorityModel.js";
+import "../modules/lifeops/models/ProjectModel.js";
+import "../modules/lifeops/models/TaskModel.js";
+import "../modules/lifeops/models/TaskSourceModel.js";
+import "../modules/lifeops/models/TaskStatusModel.js";
+import "../modules/lifeops/models/TaskTypeModel.js";

@@ -44,7 +44,10 @@ class AgentJobCrud extends EntityCrud implements IEntityCrud {
   get headers(): IEntityCrudHeader[] {
     return [
       {title: 'name', key: 'name', align: 'start'},
-      {title: 'active', key: 'active', align: 'start'}
+      {title: 'active', key: 'active', align: 'start'},
+      {title: 'runtime.lastRunAt', key: 'runtime.lastRunAt', align: 'start'},
+      {title: 'runtime.nextRunAt', key: 'runtime.nextRunAt', align: 'start'},
+      {title: 'runtime.lastStatus', key: 'runtime.lastStatus', align: 'start'},
     ]
   }
 
@@ -150,32 +153,8 @@ class AgentJobCrud extends EntityCrud implements IEntityCrud {
         groupTab: 'EXECUTION',
         objectFields: [{name: 'timeoutSeconds', type: 'number', label: 'timeoutSeconds', default: 300},
           {name: 'maxRetries', type: 'number', label: 'maxRetries', default: 0}]
-      },
-      {
-        name: 'runtime',
-        type: 'object',
-        label: 'runtime',
-        default: {"lastRunAt": null, "nextRunAt": null, "lastStatus": null},
-        groupTab: 'RUNTIME',
-        objectFields: [{name: 'lastRunAt', type: 'date', label: 'lastRunAt', default: null},
-          {name: 'nextRunAt', type: 'date', label: 'nextRunAt', default: null},
-          {
-            name: 'lastStatus',
-            type: 'enum',
-            label: 'lastStatus',
-            default: null,
-            enum: ['success', 'failed', 'timeout']
-          }]
-      },
-      {
-        name: 'createdBy',
-        type: 'ref',
-        label: 'createdBy',
-        default: null,
-        groupTab: 'GENERAL',
-        ref: 'User',
-        refDisplay: 'username'
       }
+
     ]
   }
 

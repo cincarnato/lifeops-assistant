@@ -5,6 +5,7 @@ import CreateRootUserAndAdminRole from "./CreateRootUserAndAdminRole.js";
 import CreateSystemRoles from "./CreateSystemRoles.js";
 import InitializeSettings from "./InitializeSettings.js";
 import InitializeAudit from "./InitializeAudit.js";
+import "./RegisterMongoModels.js";
 
 import {projectPasswordPolicy} from "./data/policies/PasswordPolicy.js";
 import InitLifeops from "./scripts/InitLifeops.js";
