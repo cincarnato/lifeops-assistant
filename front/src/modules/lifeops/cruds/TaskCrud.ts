@@ -56,6 +56,7 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
       {title: 'valueScore', key: 'valueScore', align: 'start'},
       {title: 'dueDate', key: 'dueDate', align: 'start'},
       {title: 'scheduledDate', key: 'scheduledDate', align: 'start'},
+      {title: 'statusHistory', key: 'statusHistory', align: 'start'},
       {title: 'user', key: 'user', align: 'start'}
     ]
   }
@@ -100,16 +101,49 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
 
   get fields(): IEntityCrudField[] {
     return [
-      {name: 'title', type: 'string', label: 'title', default: ''},
+      {name: 'title', type: 'string', label: 'title', default: '', sm: 6},
+      {name: 'status', type: 'string', label: 'status', default: '', sm: 6},
       {name: 'description', type: 'longString', label: 'description', default: ''},
-      {name: 'source', type: 'string', label: 'source', default: '', groupTab: 'CLASSIFICATION'},
-      {name: 'type', type: 'string', label: 'type', default: '', groupTab: 'CLASSIFICATION'},
-      {name: 'status', type: 'string', label: 'status', default: '', groupTab: 'CLASSIFICATION'},
-      {name: 'priority', type: 'string', label: 'priority', default: '', groupTab: 'CLASSIFICATION'},
-      {name: 'goals', type: 'array.ref', label: 'goals', default: [], ref: 'Goal', refDisplay: 'name', groupTab: 'CONTEXT'},
-      {name: 'project', type: 'ref', label: 'project', default: null, ref: 'Project', refDisplay: 'name', groupTab: 'CONTEXT'},
-      {name: 'client', type: 'ref', label: 'client', default: null, ref: 'Client', refDisplay: 'name', groupTab: 'CONTEXT'},
-      {name: 'contacts', type: 'array.ref', label: 'contacts', default: [], ref: 'Contact', refDisplay: 'displayName', groupTab: 'CONTEXT'},
+      {name: 'source', type: 'string', label: 'source', default: '', groupTab: 'CLASSIFICATION', sm: 4},
+      {name: 'type', type: 'string', label: 'type', default: '', groupTab: 'CLASSIFICATION', sm: 4},
+      {name: 'priority', type: 'string', label: 'priority', default: '', groupTab: 'CLASSIFICATION', sm: 4},
+      {name: 'tags', type: 'array.string', label: 'tags', default: [], groupTab: 'CLASSIFICATION'},
+      {
+        name: 'goals',
+        type: 'array.ref',
+        label: 'goals',
+        default: [],
+        ref: 'Goal',
+        refDisplay: 'name',
+        groupTab: 'CONTEXT'
+      },
+      {
+        name: 'project',
+        type: 'ref',
+        label: 'project',
+        default: null,
+        ref: 'Project',
+        refDisplay: 'name',
+        groupTab: 'CONTEXT'
+      },
+      {
+        name: 'client',
+        type: 'ref',
+        label: 'client',
+        default: null,
+        ref: 'Client',
+        refDisplay: 'name',
+        groupTab: 'CONTEXT'
+      },
+      {
+        name: 'contacts',
+        type: 'array.ref',
+        label: 'contacts',
+        default: [],
+        ref: 'Contact',
+        refDisplay: 'displayName',
+        groupTab: 'CONTEXT'
+      },
       {name: 'valueScore', type: 'number', label: 'valueScore', default: 5, groupTab: 'SCORING'},
       {name: 'motivationScore', type: 'number', label: 'motivationScore', default: 5, groupTab: 'SCORING'},
       {name: 'effortScore', type: 'number', label: 'effortScore', default: 5, groupTab: 'SCORING'},
@@ -120,14 +154,52 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
       {name: 'spentMinutes', type: 'number', label: 'spentMinutes', default: 1, groupTab: 'EXECUTION'},
       {name: 'completedAt', type: 'date', label: 'completedAt', default: null, groupTab: 'EXECUTION'},
       {name: 'nextAction', type: 'string', label: 'nextAction', default: '', groupTab: 'EXECUTION'},
-      {name: 'notes', type: 'longString', label: 'notes', default: '', groupTab: 'EXECUTION'},
-      {name: 'tags', type: 'array.string', label: 'tags', default: [], groupTab: 'CLASSIFICATION'},
+      {
+        name: 'notes',
+        type: 'array.object',
+        label: 'notes',
+        default: [],
+        groupTab: 'NOTES',
+        arrayObjectUI: 'accordion',
+        arrayObjectShowField: 'note',
+        objectFields: [
+          {name: 'date', type: 'date', label: 'date', default: null},
+          {name: 'note', type: 'longString', label: 'note', default: ''}
+        ]
+      },
+      {
+        name: 'statusHistory',
+        type: 'array.object',
+        label: 'statusHistory',
+        default: [],
+        groupTab: 'HISTORY',
+        arrayObjectUI: 'accordion',
+        arrayObjectShowField: 'newStatus',
+        objectFields: [
+          {name: 'date', type: 'date', label: 'date', default: null},
+          {name: 'previousStatus', type: 'string', label: 'previousStatus', default: ''},
+          {name: 'newStatus', type: 'string', label: 'newStatus', default: ''}
+        ]
+      },
+
       {name: 'redmineIssueId', type: 'string', label: 'redmineIssueId', default: '', groupTab: 'INTEGRATIONS'},
       {name: 'emailMessageId', type: 'string', label: 'emailMessageId', default: '', groupTab: 'INTEGRATIONS'},
       {name: 'calendarEventId', type: 'string', label: 'calendarEventId', default: '', groupTab: 'INTEGRATIONS'},
       // {name: 'user', type: 'ref', label: 'user', default: null, ref: 'User', refDisplay: 'username'},
       {name: 'archivedAt', type: 'date', label: 'archivedAt', default: null, groupTab: 'EXECUTION'}
     ]
+  }
+
+  get createFields(): IEntityCrudField[] {
+    return this.fields.filter(field => field.name !== 'statusHistory')
+  }
+
+  get updateFields(): IEntityCrudField[] {
+    return this.fields.filter(field => field.name !== 'statusHistory')
+  }
+
+  get viewFields(): IEntityCrudField[] {
+    return this.fields
   }
 
   get filters(): IEntityCrudFilter[] {
@@ -185,7 +257,7 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
   }
 
   get tabs() {
-    return ['CLASSIFICATION', 'CONTEXT', 'SCORING', 'SCHEDULE', 'EXECUTION', 'INTEGRATIONS']
+    return ['CLASSIFICATION', 'CONTEXT', 'NOTES','HISTORY', 'SCORING', 'SCHEDULE', 'EXECUTION', 'INTEGRATIONS']
   }
 
   get menus() {

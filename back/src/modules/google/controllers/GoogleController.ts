@@ -1,5 +1,7 @@
 import GoogleAuthServiceFactory from "../factory/GoogleAuthServiceFactory.js";
 import {BadCredentialsError, RoleServiceFactory, UserServiceFactory} from "@drax/identity-back";
+import GoogleConnectionManagerFactory from "../factory/GoogleConnectionManagerFactory.js";
+import GoogleConnectionServiceFactory from "../factory/services/GoogleConnectionServiceFactory.js";
 
 class GoogleController {
 
@@ -52,6 +54,85 @@ class GoogleController {
 
     }
 
+    async connectionPermissions(request, reply) {
+        reply.send({
+            permissions: GoogleConnectionManagerFactory.instance.getAvailablePermissions(),
+        });
+    }
+
+    async connectionAuthorizationUrl(request, reply) {
+        try {
+            if (!request.authUser?.id) {
+                reply.code(401);
+                return reply.send({error: "error.unauthorized"});
+            }
+
+            const {permissions = [], scopes = [], redirectUri, state} = request.body;
+
+            if (!redirectUri) {
+                reply.code(400);
+                return reply.send({error: "google.redirect_uri.required"});
+            }
+
+            const authorizationUrl = GoogleConnectionManagerFactory.instance.createAuthorizationUrl({
+                permissions,
+                scopes,
+                redirectUri,
+                state,
+            });
+
+            reply.send({authorizationUrl});
+        } catch (e) {
+            console.error("/api/google/connections/auth-url error", e);
+            reply.code(500);
+            reply.send({error: "error.server"});
+        }
+    }
+
+    async connectionCallback(request, reply) {
+        try {
+            if (!request.authUser?.id) {
+                reply.code(401);
+                return reply.send({error: "error.unauthorized"});
+            }
+
+            const {code, redirectUri} = request.body;
+
+            if (!code || !redirectUri) {
+                reply.code(400);
+                return reply.send({error: "google.authorization_code.required"});
+            }
+
+            const connection = await GoogleConnectionManagerFactory.instance.connectWithCode({
+                code,
+                redirectUri,
+                userId: request.authUser.id,
+            });
+
+            reply.send({connection});
+        } catch (e) {
+            console.error("/api/google/connections/callback error", e);
+            reply.code(500);
+            reply.send({error: e?.message || "error.server"});
+        }
+    }
+
+    async myConnections(request, reply) {
+        try {
+            if (!request.authUser?.id) {
+                reply.code(401);
+                return reply.send({error: "error.unauthorized"});
+            }
+
+            const connections = await GoogleConnectionServiceFactory.instance.findBy("userId", request.authUser.id, 20);
+            reply.send({connections: connections || []});
+        } catch (e) {
+            console.error("/api/google/connections/me error", e);
+            reply.code(500);
+            reply.send({error: "error.server"});
+        }
+    }
+
 
 }
 
@@ -59,4 +140,3 @@ export default GoogleController;
 export {
     GoogleController
 }
-

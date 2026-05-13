@@ -14,6 +14,8 @@ import KanbanTaskRoute from "./KanbanTaskRoute"
 import ContactTypeCrudRoute from "./ContactTypeCrudRoute"
 import CompanyTypeCrudRoute from "./CompanyTypeCrudRoute"
 import ClientTypeCrudRoute from "./ClientTypeCrudRoute"
+import AgentJobCrudRoute from "./AgentJobCrudRoute"
+import AgentJobExecutionCrudRoute from "./AgentJobExecutionCrudRoute"
 
 export const routes = [
     ...GoalCrudRoute,
@@ -29,6 +31,8 @@ export const routes = [
     ...ContactTypeCrudRoute,
     ...CompanyTypeCrudRoute,
     ...ClientTypeCrudRoute,
+    ...AgentJobCrudRoute,
+    ...AgentJobExecutionCrudRoute,
     ...ChatbotTaskRoute,
     ...KanbanTaskRoute
 ]

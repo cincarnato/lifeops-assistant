@@ -1,9 +1,7 @@
-
-import { z } from 'zod';
-
+import {z} from 'zod';
 
 const TaskBaseSchema = z.object({
-      title: z.string().min(1,'validation.required'),
+    title: z.string().min(1, 'validation.required'),
     description: z.string().optional(),
     source: z.coerce.string().optional().nullable(),
     type: z.coerce.string().optional().nullable(),
@@ -19,7 +17,6 @@ const TaskBaseSchema = z.object({
     urgencyScore: z.number().nullable().optional(),
     dueDate: z.coerce.date().nullable().optional(),
     scheduledDate: z.coerce.date().nullable().optional(),
-    completedAt: z.coerce.date().nullable().optional(),
     estimatedMinutes: z.number().nullable().optional().default(1),
     spentMinutes: z.number().nullable().optional().default(1),
     nextAction: z.string().optional(),
@@ -27,19 +24,34 @@ const TaskBaseSchema = z.object({
     emailMessageId: z.string().optional(),
     calendarEventId: z.string().optional(),
     tags: z.array(z.string()).optional().default([]),
-    notes: z.string().optional(),
-    user: z.coerce.string().min(1,'validation.required'),
+    notes: z.array(
+        z.object({
+            date:  z.coerce.date().nullable().optional(),
+            note: z.string().optional().default('')
+        })
+    ).optional().default([]),
+    statusHistory: z.array(
+        z.object({
+            date: z.coerce.date().nullable().optional(),
+            previousStatus: z.string().nullable().optional(),
+            newStatus: z.string().nullable().optional()
+        })
+    ).optional().default([]),
+    user: z.coerce.string().min(1, 'validation.required'),
+    completedAt: z.coerce.date().nullable().optional(),
     archivedAt: z.coerce.date().nullable().optional()
 });
 
 const TaskSchema = TaskBaseSchema
     .extend({
-      _id: z.coerce.string(),
-goals: z.array(z.object({_id: z.coerce.string(), name: z.string()})).optional(),
-project: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
-client: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
-contacts: z.array(z.object({_id: z.coerce.string(), displayName: z.string()})).optional(),
-user: z.object({_id: z.coerce.string(), username: z.string()})
+        _id: z.coerce.string(),
+        goals: z.array(z.object({_id: z.coerce.string(), name: z.string()})).optional(),
+        project: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
+        client: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
+        contacts: z.array(z.object({_id: z.coerce.string(), displayName: z.string()})).optional(),
+
+
+        user: z.object({_id: z.coerce.string(), username: z.string()})
     })
 
 export default TaskSchema;

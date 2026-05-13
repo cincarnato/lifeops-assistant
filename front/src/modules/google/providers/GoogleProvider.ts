@@ -1,5 +1,18 @@
 import {HttpRestClientFactory, IHttpClient} from "@drax/common-front";
 import {useAuth} from "@drax/identity-vue";
+import type {
+  IGoogleGmailListOptions,
+  IGoogleGmailListResult,
+  IGoogleGmailMessage,
+} from "@/modules/google/interfaces/IGoogleGmail";
+import type {
+  IGoogleCalendarCreateEventInput,
+  IGoogleCalendarEvent,
+  IGoogleCalendarEventsListOptions,
+  IGoogleCalendarEventsListResult,
+  IGoogleCalendarItem,
+  IGoogleCalendarListOptions,
+} from "@/modules/google/interfaces/IGoogleCalendar";
 
 
 class GoogleProvider {
@@ -43,7 +56,90 @@ class GoogleProvider {
     return response
   }
 
+  async getConnectionPermissions(): Promise<{permissions: Array<{key: string, label: string, scope: string}>}> {
+    const url = this.basePath + '/connections/permissions'
+    return await this.httpClient.get(url, {timeout: 120000}) as {permissions: Array<{key: string, label: string, scope: string}>}
+  }
+
+  async getMyConnections(): Promise<{connections: any[]}> {
+    const url = this.basePath + '/connections/me'
+    return await this.httpClient.get(url, {timeout: 120000}) as {connections: any[]}
+  }
+
+  async createConnectionAuthorizationUrl(payload: {
+    permissions: string[],
+    scopes?: string[],
+    redirectUri: string,
+    state?: string,
+  }): Promise<{authorizationUrl: string}> {
+    const url = this.basePath + '/connections/auth-url'
+    return await this.httpClient.post(url, payload, {timeout: 120000}) as {authorizationUrl: string}
+  }
+
+  async completeConnectionCallback(payload: {
+    code: string,
+    redirectUri: string,
+  }): Promise<{connection: any}> {
+    const url = this.basePath + '/connections/callback'
+    return await this.httpClient.post(url, payload, {timeout: 120000}) as {connection: any}
+  }
+
+  async listGmailMessages(options: IGoogleGmailListOptions = {}): Promise<IGoogleGmailListResult> {
+    const params = new URLSearchParams()
+    Object.entries(options).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === '') return
+      if (Array.isArray(value)) {
+        value.forEach(item => params.append(key, String(item)))
+        return
+      }
+      params.set(key, String(value))
+    })
+
+    const query = params.toString()
+    const url = `${this.basePath}/gmail/messages${query ? `?${query}` : ''}`
+    return await this.httpClient.get(url, {timeout: 120000}) as IGoogleGmailListResult
+  }
+
+  async getGmailMessage(id: string, connectionId?: string): Promise<IGoogleGmailMessage> {
+    const params = new URLSearchParams()
+    if (connectionId) params.set('connectionId', connectionId)
+    const query = params.toString()
+    const url = `${this.basePath}/gmail/messages/${encodeURIComponent(id)}${query ? `?${query}` : ''}`
+    return await this.httpClient.get(url, {timeout: 120000}) as IGoogleGmailMessage
+  }
+
+  async listCalendars(options: IGoogleCalendarListOptions = {}): Promise<{items: IGoogleCalendarItem[]}> {
+    const params = this.createQueryParams(options)
+    const query = params.toString()
+    const url = `${this.basePath}/calendar/calendars${query ? `?${query}` : ''}`
+    return await this.httpClient.get(url, {timeout: 120000}) as {items: IGoogleCalendarItem[]}
+  }
+
+  async listCalendarEvents(options: IGoogleCalendarEventsListOptions): Promise<IGoogleCalendarEventsListResult> {
+    const params = this.createQueryParams(options)
+    const query = params.toString()
+    const url = `${this.basePath}/calendar/events${query ? `?${query}` : ''}`
+    return await this.httpClient.get(url, {timeout: 120000}) as IGoogleCalendarEventsListResult
+  }
+
+  async createCalendarEvent(payload: IGoogleCalendarCreateEventInput): Promise<IGoogleCalendarEvent> {
+    const url = `${this.basePath}/calendar/events`
+    return await this.httpClient.post(url, payload, {timeout: 120000}) as IGoogleCalendarEvent
+  }
+
+  private createQueryParams(options: Record<string, any>): URLSearchParams {
+    const params = new URLSearchParams()
+    Object.entries(options).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === '') return
+      if (Array.isArray(value)) {
+        value.forEach(item => params.append(key, String(item)))
+        return
+      }
+      params.set(key, String(value))
+    })
+    return params
+  }
+
 }
 
 export default GoogleProvider
-

@@ -18,6 +18,9 @@ import {AIRoutes, AILogRoutes, AgentSessionRoutes, DraxAgentRoutes} from "@drax/
 import {CrudSavedQueryFastifyRoutes} from "@drax/crud-back";
 //Local modules routes
 import {GoogleFastifyRoutes} from "../modules/google/routes/GoogleRoutes.js"
+import {GoogleConnectionFastifyRoutes} from "../modules/google/routes/GoogleConnectionRoutes.js"
+import {GoogleGmailFastifyRoutes} from "../modules/google/routes/GoogleGmailRoutes.js"
+import {GoogleCalendarFastifyRoutes} from "../modules/google/routes/GoogleCalendarRoutes.js"
 import {HealthRoutes} from "../modules/base/routes/HealthRoutes.js"
 import {NotificationFastifyRoutes} from "../modules/base/routes/NotificationRoutes.js"
 import {GoalFastifyRoutes} from "../modules/lifeops/routes/GoalRoutes.js"
@@ -34,6 +37,8 @@ import {ChatbotTaskFastifyRoutes} from "../modules/lifeops/routes/ChatbotTaskRou
 import {ContactTypeFastifyRoutes} from "../modules/lifeops/routes/ContactTypeRoutes.js"
 import {CompanyTypeFastifyRoutes} from "../modules/lifeops/routes/CompanyTypeRoutes.js"
 import {ClientTypeFastifyRoutes} from "../modules/lifeops/routes/ClientTypeRoutes.js"
+import {AgentJobFastifyRoutes} from "../modules/lifeops/routes/AgentJobRoutes.js"
+import {AgentJobExecutionFastifyRoutes} from "../modules/lifeops/routes/AgentJobExecutionRoutes.js"
 
 function FastifyServerFactory(rootDir:string) {
     const server = new FastifyServer(rootDir);
@@ -68,6 +73,9 @@ function FastifyServerFactory(rootDir:string) {
 
     //LOCAL MODULES ROUTES
     server.fastifyRegister(GoogleFastifyRoutes)
+    server.fastifyRegister(GoogleConnectionFastifyRoutes)
+    server.fastifyRegister(GoogleGmailFastifyRoutes)
+    server.fastifyRegister(GoogleCalendarFastifyRoutes)
     server.fastifyRegister(HealthRoutes)
     server.fastifyRegister(NotificationFastifyRoutes)
     server.fastifyRegister(GoalFastifyRoutes)
@@ -83,6 +91,8 @@ function FastifyServerFactory(rootDir:string) {
     server.fastifyRegister(ContactTypeFastifyRoutes)
     server.fastifyRegister(CompanyTypeFastifyRoutes)
     server.fastifyRegister(ClientTypeFastifyRoutes)
+    server.fastifyRegister(AgentJobFastifyRoutes)
+    server.fastifyRegister(AgentJobExecutionFastifyRoutes)
     server.fastifyRegister(ChatbotTaskFastifyRoutes)
 
 

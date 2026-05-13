@@ -34,6 +34,20 @@ const menu: MenuItem[] = [
         gallery: true,
         permission: 'task:create'
       },
+      {
+        icon: 'mdi-robot-industrial-outline',
+        text: 'agentjob.menu',
+        link: {name: "AgentJobCrudPage"},
+        gallery: true,
+        permission: 'agentjob:manage'
+      },
+      {
+        icon: 'mdi-progress-clock',
+        text: 'agentjobexecution.menu',
+        link: {name: "AgentJobExecutionCrudPage"},
+        gallery: true,
+        permission: 'agentjobexecution:manage'
+      },
     ]
   },
   {
@@ -134,6 +148,41 @@ const menu: MenuItem[] = [
         link: {name: "ClientTypeCrudPage"},
         gallery: true,
         permission: 'clienttype:manage'
+      },
+    ]
+  },
+  {
+    icon: 'mdi-google',
+    text: 'Google',
+    gallery: true,
+    children: [
+      {
+        icon: 'mdi-link-variant',
+        text: 'Conectar Google',
+        link: {name: "GoogleConnectionPage"},
+        gallery: true,
+        permission: 'googleconnection:manage'
+      },
+      {
+        icon: 'mdi-email-outline',
+        text: 'Mails',
+        link: {name: "GoogleGmailPage"},
+        gallery: true,
+        permission: 'googleconnection:view'
+      },
+      {
+        icon: 'mdi-calendar-month-outline',
+        text: 'Calendario',
+        link: {name: "GoogleCalendarPage"},
+        gallery: true,
+        permission: 'googleconnection:view'
+      },
+      {
+        icon: 'mdi-table-cog',
+        text: 'googleconnection.menu',
+        link: {name: "GoogleConnectionCrudPage"},
+        gallery: true,
+        permission: 'googleconnection:manage'
       },
     ]
   },

@@ -14,6 +14,8 @@ import {MediaRoutes} from "@drax/media-back"
 import ModuleMerger from "../merge/ModuleMerger.js";
 const {typeDefs, resolvers} = await ModuleMerger()
 import {GoogleFastifyRoutes} from "../modules/google/routes/GoogleRoutes.js"
+import {GoogleGmailFastifyRoutes} from "../modules/google/routes/GoogleGmailRoutes.js"
+import {GoogleCalendarFastifyRoutes} from "../modules/google/routes/GoogleCalendarRoutes.js"
 import {SettingRoutes} from "@drax/settings-back";
 import {DashboardRoutes} from "@drax/dashboard-back";
 import {AuditRoutes} from "@drax/audit-back";
@@ -39,6 +41,8 @@ function YogaFastifyServerFactory(rootDir:string) {
     server.fastifyRegister(UserLoginFailRoutes)
 
     server.fastifyRegister(GoogleFastifyRoutes)
+    server.fastifyRegister(GoogleGmailFastifyRoutes)
+    server.fastifyRegister(GoogleCalendarFastifyRoutes)
 
 
     server.fastifyRegister(DashboardRoutes)

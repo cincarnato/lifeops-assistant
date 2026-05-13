@@ -12,10 +12,14 @@ import PrioritySchema from './schemas/lifeops/PrioritySchema.js';
 import ContactTypeSchema from './schemas/lifeops/ContactTypeSchema.js';
 import CompanyTypeSchema from './schemas/lifeops/CompanyTypeSchema.js';
 import ClientTypeSchema from './schemas/lifeops/ClientTypeSchema.js';
+import AgentJobSchema from './schemas/lifeops/AgentJobSchema.js';
+import AgentJobExecutionSchema from './schemas/lifeops/AgentJobExecutionSchema.js';
+import GoogleConnectionSchema from './schemas/google/GoogleConnectionSchema.js';
 
 //Import schemas
 
 const schemas = [
+    GoogleConnectionSchema,
     GoalSchema,
     ProjectSchema,
     ClientSchema,
@@ -29,6 +33,8 @@ const schemas = [
     ContactTypeSchema,
     CompanyTypeSchema,
     ClientTypeSchema,
+    AgentJobSchema,
+    AgentJobExecutionSchema,
     //add schemas
 ];
 

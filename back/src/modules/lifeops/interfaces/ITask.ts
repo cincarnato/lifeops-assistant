@@ -1,4 +1,15 @@
 
+interface ITaskStatusHistory {
+    date?: Date
+    previousStatus?: string | null
+    newStatus?: string | null
+}
+
+interface ITaskNote {
+    date?: Date
+    note: string
+}
+
 interface ITaskBase {
     title: string
     description?: string
@@ -24,7 +35,8 @@ interface ITaskBase {
     emailMessageId?: string
     calendarEventId?: string
     tags?: Array<string>
-    notes?: string
+    notes?: Array<ITaskNote> | string | null
+    statusHistory?: Array<ITaskStatusHistory>
     user: any
     archivedAt?: Date
     createdAt?: Date
@@ -57,7 +69,8 @@ interface ITask {
     emailMessageId?: string
     calendarEventId?: string
     tags?: Array<string>
-    notes?: string
+    notes?: Array<ITaskNote> | string | null
+    statusHistory?: Array<ITaskStatusHistory>
     user: any
     archivedAt?: Date
     createdAt?: Date
@@ -65,6 +78,8 @@ interface ITask {
 }
 
 export type {
-ITaskBase, 
-ITask
+ITaskBase,
+ITask,
+ITaskNote,
+ITaskStatusHistory
 }

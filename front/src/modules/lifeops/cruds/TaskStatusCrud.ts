@@ -43,7 +43,9 @@ class TaskStatusCrud extends EntityCrud implements IEntityCrud {
 
   get headers(): IEntityCrudHeader[] {
     return [
-        {title: 'name',key:'name', align: 'start'}
+        {title: 'name',key:'name', align: 'start'},
+        {title: 'completesTask',key:'completesTask', align: 'start'},
+        {title: 'archivesTask',key:'archivesTask', align: 'start'}
     ]
   }
   
@@ -83,7 +85,9 @@ class TaskStatusCrud extends EntityCrud implements IEntityCrud {
   get fields(): IEntityCrudField[]{
     return [
         {name:'name',type:'string',label:'name',default:''},
-{name:'description',type:'longString',label:'description',default:''}
+{name:'description',type:'longString',label:'description',default:''},
+{name:'completesTask',type:'boolean',label:'completesTask',default:false},
+{name:'archivesTask',type:'boolean',label:'archivesTask',default:false}
     ]
   }
   

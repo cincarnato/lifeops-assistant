@@ -21,7 +21,6 @@ const TaskSchema = new mongoose.Schema<ITask>({
     urgencyScore: {type: Number, required: false, index: false, unique: false},
     dueDate: {type: Date, required: false, index: true, unique: false},
     scheduledDate: {type: Date, required: false, index: true, unique: false},
-    completedAt: {type: Date, required: false, index: false, unique: false},
     estimatedMinutes: {type: Number, required: false, index: false, unique: false},
     spentMinutes: {type: Number, required: false, index: false, unique: false},
     nextAction: {type: String, required: false, index: false, unique: false},
@@ -29,8 +28,17 @@ const TaskSchema = new mongoose.Schema<ITask>({
     emailMessageId: {type: String, required: false, index: true, unique: false},
     calendarEventId: {type: String, required: false, index: true, unique: false},
     tags: [{type: String, required: false, index: true, unique: false}],
-    notes: {type: String, required: false, index: false, unique: false},
+    notes: [{
+        date: {type: Date, required: false},
+        note: {type: String, required: true}
+    }],
+    statusHistory: [{
+        date: {type: Date, required: false},
+        previousStatus: {type: String, required: false},
+        newStatus: {type: String, required: false}
+    }],
     user: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true, unique: false},
+    completedAt: {type: Date, required: false, index: false, unique: false},
     archivedAt: {type: Date, required: false, index: false, unique: false}
 }, {timestamps: true});
 

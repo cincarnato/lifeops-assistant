@@ -70,7 +70,8 @@ async function InitLifeops() {
         {name: "Pendiente", description: "La tarea aun no fue iniciada."},
         {name: "En progreso", description: "La tarea esta siendo trabajada."},
         {name: "En espera", description: "La tarea depende de otra accion o respuesta."},
-        {name: "Completada", description: "La tarea fue finalizada."},
+        {name: "Completada", description: "La tarea fue finalizada.", completesTask: true},
+        {name: "Archivada", description: "La tarea fue finalizada.", archivesTask: true},
         {name: "Cancelada", description: "La tarea ya no corresponde realizarla."}
     ]);
 

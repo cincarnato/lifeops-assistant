@@ -8,6 +8,8 @@ const messages = {
       field: {
         name: 'Name',
         description: 'Description',
+        completesTask: 'Completes task',
+        archivesTask: 'Archives task',
       },
     },
     permission: {
@@ -26,6 +28,8 @@ const messages = {
       field: {
         name: 'Nombre',
         description: 'Descripción',
+        completesTask: 'Completa tarea',
+        archivesTask: 'Archiva tarea',
       },
     },
     permission: {
