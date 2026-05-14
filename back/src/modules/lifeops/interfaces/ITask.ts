@@ -46,10 +46,10 @@ interface ITaskBase {
 interface ITask {
     _id: string
     title: string
+    status?: string
     description?: string
     source?: string
     type?: string
-    status?: string
     priority?: string
     goals?: Array<any>
     project?: any

@@ -102,11 +102,11 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
   get fields(): IEntityCrudField[] {
     return [
       {name: 'title', type: 'string', label: 'title', default: '', sm: 6},
-      {name: 'status', type: 'string', label: 'status', default: '', sm: 6},
+      {name: 'status', type: 'string', label: 'status', default: null, sm: 6},
       {name: 'description', type: 'longString', label: 'description', default: ''},
-      {name: 'source', type: 'string', label: 'source', default: '', groupTab: 'CLASSIFICATION', sm: 4},
-      {name: 'type', type: 'string', label: 'type', default: '', groupTab: 'CLASSIFICATION', sm: 4},
-      {name: 'priority', type: 'string', label: 'priority', default: '', groupTab: 'CLASSIFICATION', sm: 4},
+      {name: 'source', type: 'string', label: 'source', default: null, groupTab: 'CLASSIFICATION', sm: 4},
+      {name: 'type', type: 'string', label: 'type', default: null, groupTab: 'CLASSIFICATION', sm: 4},
+      {name: 'priority', type: 'string', label: 'priority', default: null, groupTab: 'CLASSIFICATION', sm: 4},
       {name: 'tags', type: 'array.string', label: 'tags', default: [], groupTab: 'CLASSIFICATION'},
       {
         name: 'goals',
@@ -147,12 +147,12 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
       {name: 'valueScore', type: 'number', label: 'valueScore', default: 5, groupTab: 'SCORING'},
       {name: 'motivationScore', type: 'number', label: 'motivationScore', default: 5, groupTab: 'SCORING'},
       {name: 'effortScore', type: 'number', label: 'effortScore', default: 5, groupTab: 'SCORING'},
-      {name: 'urgencyScore', type: 'number', label: 'urgencyScore', default: null, groupTab: 'SCORING'},
+      {name: 'urgencyScore', type: 'number', label: 'urgencyScore', default: 5, groupTab: 'SCORING'},
       {name: 'dueDate', type: 'date', label: 'dueDate', default: null, groupTab: 'SCHEDULE'},
       {name: 'scheduledDate', type: 'date', label: 'scheduledDate', default: null, groupTab: 'SCHEDULE'},
       {name: 'estimatedMinutes', type: 'number', label: 'estimatedMinutes', default: 1, groupTab: 'EXECUTION'},
       {name: 'spentMinutes', type: 'number', label: 'spentMinutes', default: 1, groupTab: 'EXECUTION'},
-      {name: 'completedAt', type: 'date', label: 'completedAt', default: null, groupTab: 'EXECUTION'},
+      // {name: 'completedAt', type: 'date', label: 'completedAt', default: null, groupTab: 'EXECUTION'},
       {name: 'nextAction', type: 'string', label: 'nextAction', default: '', groupTab: 'EXECUTION'},
       {
         name: 'notes',

@@ -14,6 +14,8 @@ import CompanyTypeSchema from './schemas/lifeops/CompanyTypeSchema.js';
 import ClientTypeSchema from './schemas/lifeops/ClientTypeSchema.js';
 import AgentJobSchema from './schemas/lifeops/AgentJobSchema.js';
 import AgentJobExecutionSchema from './schemas/lifeops/AgentJobExecutionSchema.js';
+import MemorySchema from './schemas/lifeops/MemorySchema.js';
+import MemoryTypeSchema from './schemas/lifeops/MemoryTypeSchema.js';
 import GoogleConnectionSchema from './schemas/google/GoogleConnectionSchema.js';
 
 //Import schemas
@@ -35,6 +37,8 @@ const schemas = [
     ClientTypeSchema,
     AgentJobSchema,
     AgentJobExecutionSchema,
+    MemorySchema,
+    MemoryTypeSchema,
     //add schemas
 ];
 

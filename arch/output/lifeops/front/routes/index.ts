@@ -14,6 +14,8 @@ import CompanyTypeCrudRoute from "./CompanyTypeCrudRoute"
 import ClientTypeCrudRoute from "./ClientTypeCrudRoute"
 import AgentJobCrudRoute from "./AgentJobCrudRoute"
 import AgentJobExecutionCrudRoute from "./AgentJobExecutionCrudRoute"
+import MemoryCrudRoute from "./MemoryCrudRoute"
+import MemoryTypeCrudRoute from "./MemoryTypeCrudRoute"
 
 export const routes = [
     ...GoalCrudRoute,
@@ -30,7 +32,9 @@ export const routes = [
 ...CompanyTypeCrudRoute,
 ...ClientTypeCrudRoute,
 ...AgentJobCrudRoute,
-...AgentJobExecutionCrudRoute
+...AgentJobExecutionCrudRoute,
+...MemoryCrudRoute,
+...MemoryTypeCrudRoute
 ]
 
 export default routes

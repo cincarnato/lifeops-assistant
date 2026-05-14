@@ -9,6 +9,8 @@ import "../modules/lifeops/models/CompanyTypeModel.js";
 import "../modules/lifeops/models/ContactModel.js";
 import "../modules/lifeops/models/ContactTypeModel.js";
 import "../modules/lifeops/models/GoalModel.js";
+import "../modules/lifeops/models/MemoryModel.js";
+import "../modules/lifeops/models/MemoryTypeModel.js";
 import "../modules/lifeops/models/PriorityModel.js";
 import "../modules/lifeops/models/ProjectModel.js";
 import "../modules/lifeops/models/TaskModel.js";

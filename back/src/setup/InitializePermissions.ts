@@ -31,6 +31,8 @@ import {CompanyTypePermissions} from "../modules/lifeops/permissions/CompanyType
 import {ClientTypePermissions} from "../modules/lifeops/permissions/ClientTypePermissions.js";
 import {AgentJobPermissions} from "../modules/lifeops/permissions/AgentJobPermissions.js";
 import {AgentJobExecutionPermissions} from "../modules/lifeops/permissions/AgentJobExecutionPermissions.js";
+import {MemoryPermissions} from "../modules/lifeops/permissions/MemoryPermissions.js";
+import {MemoryTypePermissions} from "../modules/lifeops/permissions/MemoryTypePermissions.js";
 import {GoogleConnectionPermissions} from "../modules/google/permissions/GoogleConnectionPermissions.js";
 
 
@@ -74,6 +76,8 @@ function InitializePermissions() {
         ...Object.values(ClientTypePermissions),
         ...Object.values(AgentJobPermissions),
         ...Object.values(AgentJobExecutionPermissions),
+        ...Object.values(MemoryPermissions),
+        ...Object.values(MemoryTypePermissions),
         ...Object.values(GoogleConnectionPermissions),
 
     ]

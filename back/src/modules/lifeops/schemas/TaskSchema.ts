@@ -14,7 +14,7 @@ const TaskBaseSchema = z.object({
     valueScore: z.number().nullable().optional().default(5),
     motivationScore: z.number().nullable().optional().default(5),
     effortScore: z.number().nullable().optional().default(5),
-    urgencyScore: z.number().nullable().optional(),
+    urgencyScore: z.number().nullable().optional().default(5),
     dueDate: z.coerce.date().nullable().optional(),
     scheduledDate: z.coerce.date().nullable().optional(),
     estimatedMinutes: z.number().nullable().optional().default(1),
@@ -26,7 +26,7 @@ const TaskBaseSchema = z.object({
     tags: z.array(z.string()).optional().default([]),
     notes: z.array(
         z.object({
-            date:  z.coerce.date().nullable().optional(),
+            date: z.coerce.date().nullable().optional(),
             note: z.string().optional().default('')
         })
     ).optional().default([]),

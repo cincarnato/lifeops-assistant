@@ -35,6 +35,13 @@ const menu: MenuItem[] = [
         permission: 'task:create'
       },
       {
+        icon: 'mdi-brain',
+        text: 'memory.menu',
+        link: {name: "MemoryCrudPage"},
+        gallery: true,
+        permission: 'memory:manage'
+      },
+      {
         icon: 'mdi-robot-industrial-outline',
         text: 'agentjob.menu',
         link: {name: "AgentJobCrudPage"},
@@ -148,6 +155,13 @@ const menu: MenuItem[] = [
         link: {name: "ClientTypeCrudPage"},
         gallery: true,
         permission: 'clienttype:manage'
+      },
+      {
+        icon: 'mdi-brain',
+        text: 'memorytype.menu',
+        link: {name: "MemoryTypeCrudPage"},
+        gallery: true,
+        permission: 'memorytype:manage'
       },
     ]
   },

@@ -7,11 +7,18 @@ import TaskSourceCombobox from '../../comboboxes/TaskSourceCombobox.vue'
 import TaskTypeCombobox from '../../comboboxes/TaskTypeCombobox.vue'
 import TaskStatusCombobox from '../../comboboxes/TaskStatusCombobox.vue'
 import PriorityCombobox from '../../comboboxes/PriorityCombobox.vue'
+import TaskView from "@/modules/lifeops/components/TaskView.vue";
 
 </script>
 
 <template>
   <crud :entity="TaskCrud.instance">
+
+
+    <template v-slot:form="{operation, form}">
+      <task-view v-if="operation === 'view'" :item="form"></task-view>
+    </template>
+
     <template v-slot:field.source="{field, form}">
       <task-source-combobox
           v-model="form.source"

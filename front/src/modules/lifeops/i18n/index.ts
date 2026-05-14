@@ -15,6 +15,8 @@ import CompanyTypeMessages from "./CompanyType-i18n"
 import ClientTypeMessages from "./ClientType-i18n"
 import AgentJobMessages from "./AgentJob-i18n"
 import AgentJobExecutionMessages from "./AgentJobExecution-i18n"
+import MemoryMessages from "./Memory-i18n"
+import MemoryTypeMessages from "./MemoryType-i18n"
 
 const messages = merge.all([
     GoalMessages,
@@ -31,7 +33,9 @@ const messages = merge.all([
     CompanyTypeMessages,
     ClientTypeMessages,
     AgentJobMessages,
-    AgentJobExecutionMessages
+    AgentJobExecutionMessages,
+    MemoryMessages,
+    MemoryTypeMessages
 ])
 
 export default messages
