@@ -7,8 +7,8 @@ const MemoryBaseSchema = z.object({
     content: z.string().min(1,'validation.required'),
     type: z.string().min(1,'validation.required'),
     tags: z.array(z.string()).optional().default([]),
-    importance: z.enum(['low', 'medium', 'high']).optional().default('medium'),
-    source: z.enum(['manual', 'ai', 'conversation', 'email', 'calendar', 'task']).optional().default('manual')
+    priority: z.string().optional().default(''),
+    source: z.string().optional().default('manual')
 });
 
 const MemorySchema = MemoryBaseSchema

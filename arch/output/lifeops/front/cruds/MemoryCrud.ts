@@ -46,7 +46,7 @@ class MemoryCrud extends EntityCrud implements IEntityCrud {
     return [
         {title: 'title',key:'title', align: 'start'},
 {title: 'type',key:'type', align: 'start'},
-{title: 'importance',key:'importance', align: 'start'},
+{title: 'priority',key:'priority', align: 'start'},
 {title: 'source',key:'source', align: 'start'}
     ]
   }
@@ -92,8 +92,8 @@ type: [(v: any) => !!v || 'validation.required']
 {name:'content',type:'longString',label:'content',default:''},
 {name:'type',type:'string',label:'type',default:''},
 {name:'tags',type:'array.string',label:'tags',default:[]},
-{name:'importance',type:'enum',label:'importance',default:'medium',enum: ['low', 'medium', 'high']},
-{name:'source',type:'enum',label:'source',default:'manual',enum: ['manual', 'ai', 'conversation', 'email', 'calendar', 'task']}
+{name:'priority',type:'string',label:'priority',default:''},
+{name:'source',type:'string',label:'source',default:'manual'}
     ]
   }
   

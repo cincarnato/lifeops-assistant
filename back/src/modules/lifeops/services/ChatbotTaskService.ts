@@ -163,7 +163,7 @@ class ChatbotTaskService {
             "Para registrar o modificar tareas, elegi source, status, type y priority solo desde estas opciones disponibles por nombre:",
             this.formatTaskOptionNames(optionNames.task),
             "No llames list_task_options antes de registrar o modificar una tarea cuando puedas elegir una opcion desde la lista anterior.",
-            "Si el usuario pide una opcion de source, status, type o priority que no existe, podes crearla con create_task_source, create_task_status, create_task_type o create_priority.",
+            "Si el usuario pide una opcion de source, status, type o priority que no existe, podes crearla con create_source, create_task_status, create_task_type o create_priority.",
             "Para crear o modificar contactos, empresas o clientes, elegi type solo desde estas opciones disponibles por nombre:",
             this.formatEntityTypeOptionNames(optionNames.entityTypes),
             "No inventes IDs de empresas, clientes, contactos, proyectos u objetivos relacionados. Buscalos primero con la tool correspondiente; si no existen y el usuario quiere crearlos, crealos antes de usarlos como relacion.",

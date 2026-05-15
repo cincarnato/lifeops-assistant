@@ -115,7 +115,8 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
         default: [],
         ref: 'Goal',
         refDisplay: 'name',
-        groupTab: 'CONTEXT'
+        groupTab: 'CONTEXT',
+        addOnTheFly: true,
       },
       {
         name: 'project',
@@ -124,7 +125,8 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
         default: null,
         ref: 'Project',
         refDisplay: 'name',
-        groupTab: 'CONTEXT'
+        groupTab: 'CONTEXT',
+        addOnTheFly: true,
       },
       {
         name: 'client',
@@ -133,7 +135,8 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
         default: null,
         ref: 'Client',
         refDisplay: 'name',
-        groupTab: 'CONTEXT'
+        groupTab: 'CONTEXT',
+        addOnTheFly: true,
       },
       {
         name: 'contacts',
@@ -142,7 +145,8 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
         default: [],
         ref: 'Contact',
         refDisplay: 'displayName',
-        groupTab: 'CONTEXT'
+        groupTab: 'CONTEXT',
+        addOnTheFly: true,
       },
       {name: 'valueScore', type: 'number', label: 'valueScore', default: 5, groupTab: 'SCORING'},
       {name: 'motivationScore', type: 'number', label: 'motivationScore', default: 5, groupTab: 'SCORING'},

@@ -11,7 +11,7 @@ const messages = {
            content:'content',
            type:'type',
            tags:'tags',
-           importance:'importance',
+           priority:'priority',
            source:'source'
           }
       },
@@ -33,7 +33,7 @@ const messages = {
            content:'content',
            type:'type',
            tags:'tags',
-           importance:'importance',
+           priority:'priority',
            source:'source'
           }
       },

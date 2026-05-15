@@ -116,7 +116,7 @@ class ClientCrud extends EntityCrud implements IEntityCrud {
       {name: 'priorityScore', type: 'number', label: 'priorityScore', default: null},
       {name: 'website', type: 'string', label: 'website', default: ''},
       {name: 'emailDomains', type: 'array.string', label: 'emailDomains', default: []},
-      {name: 'company', type: 'ref', label: 'company', default: null, ref: 'Company', refDisplay: 'name'},
+      {name: 'company', type: 'ref', label: 'company', default: null, ref: 'Company', refDisplay: 'name', addOnTheFly: true},
       {
         name: 'mainContact',
         type: 'ref',

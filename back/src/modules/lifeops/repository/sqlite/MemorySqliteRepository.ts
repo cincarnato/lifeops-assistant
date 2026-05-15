@@ -22,7 +22,7 @@ class MemorySqliteRepository extends AbstractSqliteRepository<IMemory, IMemoryBa
 {name: "content", type: "TEXT", unique: undefined, primary: false},
 {name: "type", type: "TEXT", unique: undefined, primary: false},
 {name: "tags", type: "TEXT", unique: undefined, primary: false},
-{name: "importance", type: "TEXT", unique: undefined, primary: false},
+{name: "priority", type: "TEXT", unique: undefined, primary: false},
 {name: "source", type: "TEXT", unique: undefined, primary: false}
     ]
   
@@ -30,4 +30,3 @@ class MemorySqliteRepository extends AbstractSqliteRepository<IMemory, IMemoryBa
 
 export default MemorySqliteRepository
 export {MemorySqliteRepository}
-

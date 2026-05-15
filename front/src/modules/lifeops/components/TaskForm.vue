@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import CrudForm from "@drax/crud-vue/src/components/CrudForm.vue";
 import TaskCrud from "../cruds/TaskCrud";
-import TaskSourceCombobox from "../comboboxes/TaskSourceCombobox.vue";
+import SourceCombobox from "../comboboxes/SourceCombobox.vue";
 import TaskTypeCombobox from "../comboboxes/TaskTypeCombobox.vue";
 import TaskStatusCombobox from "../comboboxes/TaskStatusCombobox.vue";
 import PriorityCombobox from "../comboboxes/PriorityCombobox.vue";
@@ -17,7 +17,7 @@ import PriorityCombobox from "../comboboxes/PriorityCombobox.vue";
       @canceled="$emit('canceled')"
   >
     <template v-slot:field.source="{field, form}">
-      <task-source-combobox
+      <source-combobox
           v-model="form.source"
           :name="field.name"
           :label="field.label"

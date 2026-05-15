@@ -16,7 +16,7 @@ const ClientSchema = new mongoose.Schema<IClient>({
             priorityScore: {type: Number,   required: false, index: true, unique: false },
             website: {type: String,   required: false, index: false, unique: false },
             emailDomains: [{type: String,   required: false, index: true, unique: false }],
-            company: {type: mongoose.Schema.Types.ObjectId, ref: 'Company',  required: true, index: true, unique: false },
+            company: {type: mongoose.Schema.Types.ObjectId, ref: 'Company',  required: false, index: true, unique: false },
             mainContact: {type: mongoose.Schema.Types.ObjectId, ref: 'Contact',  required: false, index: true, unique: false },
             redmineProjectIds: [{type: String,   required: false, index: true, unique: false }],
             tags: [{type: String,   required: false, index: true, unique: false }],

@@ -14,6 +14,6 @@ import "../modules/lifeops/models/MemoryTypeModel.js";
 import "../modules/lifeops/models/PriorityModel.js";
 import "../modules/lifeops/models/ProjectModel.js";
 import "../modules/lifeops/models/TaskModel.js";
-import "../modules/lifeops/models/TaskSourceModel.js";
+import "../modules/lifeops/models/SourceModel.js";
 import "../modules/lifeops/models/TaskStatusModel.js";
 import "../modules/lifeops/models/TaskTypeModel.js";

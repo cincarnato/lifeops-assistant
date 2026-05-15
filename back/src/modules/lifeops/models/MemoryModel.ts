@@ -10,8 +10,8 @@ const MemorySchema = new mongoose.Schema<IMemory>({
             content: {type: String,   required: true, index: false, unique: false },
             type: {type: String,   required: true, index: true, unique: false },
             tags: [{type: String,   required: false, index: true, unique: false }],
-            importance: {type: String,  enum: ['low', 'medium', 'high'], required: false, index: true, unique: false },
-            source: {type: String,  enum: ['manual', 'ai', 'conversation', 'email', 'calendar', 'task'], required: false, index: true, unique: false }
+            priority: {type: String, required: false, index: true, unique: false },
+            source: {type: String,   required: false, index: true, unique: false }
 }, {timestamps: true});
 
 MemorySchema.plugin(uniqueValidator, {message: 'validation.unique'});

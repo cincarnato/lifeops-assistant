@@ -1,8 +1,9 @@
 import ClientTypeServiceFactory from "../../modules/lifeops/factory/services/ClientTypeServiceFactory.js";
 import CompanyTypeServiceFactory from "../../modules/lifeops/factory/services/CompanyTypeServiceFactory.js";
 import ContactTypeServiceFactory from "../../modules/lifeops/factory/services/ContactTypeServiceFactory.js";
+import MemoryTypeServiceFactory from "../../modules/lifeops/factory/services/MemoryTypeServiceFactory.js";
 import PriorityServiceFactory from "../../modules/lifeops/factory/services/PriorityServiceFactory.js";
-import TaskSourceServiceFactory from "../../modules/lifeops/factory/services/TaskSourceServiceFactory.js";
+import SourceServiceFactory from "../../modules/lifeops/factory/services/SourceServiceFactory.js";
 import TaskStatusServiceFactory from "../../modules/lifeops/factory/services/TaskStatusServiceFactory.js";
 import TaskTypeServiceFactory from "../../modules/lifeops/factory/services/TaskTypeServiceFactory.js";
 
@@ -50,6 +51,14 @@ async function InitLifeops() {
         {name: "Soporte", description: "Contacto para asistencia o seguimiento tecnico."}
     ]);
 
+    await seedIfEmpty(MemoryTypeServiceFactory.instance, [
+        {name: "Idea", description: "Concepto o posibilidad para evaluar o desarrollar."},
+        {name: "Decision", description: "Resolucion tomada que debe conservarse como referencia."},
+        {name: "Aprendizaje", description: "Conocimiento adquirido a partir de una experiencia o investigacion."},
+        {name: "Reflexion", description: "Observacion o analisis personal sobre un tema."},
+        {name: "Preferencia", description: "Gusto, criterio o configuracion preferida por el usuario."}
+    ]);
+
     await seedIfEmpty(PriorityServiceFactory.instance, [
         {name: "Baja", description: "Puede resolverse cuando haya disponibilidad.", color: "#22c55e"},
         {name: "Media", description: "Requiere seguimiento dentro del flujo normal.", color: "#eab308"},
@@ -57,7 +66,7 @@ async function InitLifeops() {
         {name: "Critica", description: "Debe atenderse con maxima prioridad.", color: "#ef4444"}
     ]);
 
-    await seedIfEmpty(TaskSourceServiceFactory.instance, [
+    await seedIfEmpty(SourceServiceFactory.instance, [
         {name: "Manual", description: "Tarea creada manualmente por el usuario."},
         {name: "Asistente", description: "Tarea creada por el asistente IA."},
         {name: "Email", description: "Tarea originada desde un correo."},

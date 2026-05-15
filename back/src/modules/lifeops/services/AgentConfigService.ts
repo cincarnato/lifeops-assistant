@@ -1,4 +1,4 @@
-import {BuilderTool, DraxAgent} from "@drax/ai-back"
+import {BuilderTool, DraxAgent, AiProviderFactory} from "@drax/ai-back"
 import type {
     DraxAgentConfig,
     DraxAgentPromptContext,
@@ -9,7 +9,7 @@ import type {
 } from "@drax/ai-back"
 import {TaskServiceFactory} from "../factory/services/TaskServiceFactory.js"
 import {TaskBaseSchema} from "../schemas/TaskSchema.js"
-import TaskSourceServiceFactory from "../factory/services/TaskSourceServiceFactory.js";
+import SourceServiceFactory from "../factory/services/SourceServiceFactory.js";
 import TaskStatusServiceFactory from "../factory/services/TaskStatusServiceFactory.js";
 import TaskTypeServiceFactory from "../factory/services/TaskTypeServiceFactory.js";
 import PriorityServiceFactory from "../factory/services/PriorityServiceFactory.js";
@@ -213,6 +213,7 @@ class AgentConfigService {
         const shouldAdaptToolBuilders = shouldFilterTools || Boolean(agent.onToolCall);
 
         return this.buildAgentConfig({
+            provider: AiProviderFactory.instance(process.env.AI_PROVIDER || "OpenAi"),
             systemPrompt: this.buildJobSystemPrompt(agent),
             toolBuilders: shouldAdaptToolBuilders
                 ? async context => {
@@ -295,7 +296,7 @@ class AgentConfigService {
 
     private async fetchTaskOptionNames(): Promise<TaskOptionNames> {
         const [sources, statuses, types, priorities] = await Promise.all([
-            TaskSourceServiceFactory.instance.fetchAll(),
+            SourceServiceFactory.instance.fetchAll(),
             TaskStatusServiceFactory.instance.fetchAll(),
             TaskTypeServiceFactory.instance.fetchAll(),
             PriorityServiceFactory.instance.fetchAll()

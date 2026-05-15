@@ -10,7 +10,7 @@ interface IClientBase {
     priorityScore?: number
     website?: string
     emailDomains?: Array<string>
-    company: any
+    company?: any
     mainContact?: any
     redmineProjectIds?: Array<string>
     tags?: Array<string>
@@ -33,7 +33,7 @@ interface IClient {
     priorityScore?: number
     website?: string
     emailDomains?: Array<string>
-    company: any
+    company?: any
     mainContact?: any
     redmineProjectIds?: Array<string>
     tags?: Array<string>

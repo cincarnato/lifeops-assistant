@@ -1,7 +1,7 @@
 import type {IDraxFieldFilter} from "@drax/crud-share";
 import type {IPromptTool} from "@drax/ai-back/types/interfaces/IAIProvider.js";
 import TaskServiceFactory from "../factory/services/TaskServiceFactory.js";
-import TaskSourceServiceFactory from "../factory/services/TaskSourceServiceFactory.js";
+import SourceServiceFactory from "../factory/services/SourceServiceFactory.js";
 import TaskStatusServiceFactory from "../factory/services/TaskStatusServiceFactory.js";
 import TaskTypeServiceFactory from "../factory/services/TaskTypeServiceFactory.js";
 import PriorityServiceFactory from "../factory/services/PriorityServiceFactory.js";
@@ -91,7 +91,7 @@ class ChatbotTaskTools {
 
     static async fetchTaskOptionNames(): Promise<TaskOptionNames> {
         const [sources, statuses, types, priorities] = await Promise.all([
-            TaskSourceServiceFactory.instance.fetchAll(),
+            SourceServiceFactory.instance.fetchAll(),
             TaskStatusServiceFactory.instance.fetchAll(),
             TaskTypeServiceFactory.instance.fetchAll(),
             PriorityServiceFactory.instance.fetchAll(),
@@ -328,7 +328,7 @@ class ChatbotTaskTools {
                 kind: "contact",
                 plural: "contacts",
                 serviceFactory: ContactServiceFactory,
-                requiredCreateFields: ["firstName", "displayName", "company"],
+                requiredCreateFields: ["firstName", "displayName"],
                 serialize: (entity: any) => this.serializeContact(entity),
                 createProperties: {
                     firstName: {type: "string"},
@@ -372,7 +372,7 @@ class ChatbotTaskTools {
                 kind: "client",
                 plural: "clients",
                 serviceFactory: ClientServiceFactory,
-                requiredCreateFields: ["name", "company"],
+                requiredCreateFields: ["name"],
                 serialize: (entity: any) => this.serializeClient(entity),
                 createProperties: {
                     name: {type: "string"},
@@ -566,7 +566,7 @@ class ChatbotTaskTools {
                 properties: {
                     title: {type: "string", description: "Titulo breve y accionable de la tarea."},
                     description: {type: "string", description: "Descripcion o contexto adicional."},
-                    source: {type: "string", description: "Nombre de TaskSource si el usuario eligio una opcion existente."},
+                    source: {type: "string", description: "Nombre de Source si el usuario eligio una opcion existente."},
                     type: {type: "string", description: "Nombre de TaskType si el usuario eligio una opcion existente."},
                     status: {type: "string", description: "Nombre de TaskStatus si el usuario eligio una opcion existente."},
                     priority: {type: "string", description: "Nombre de Priority si el usuario eligio una opcion existente."},
@@ -741,7 +741,7 @@ class ChatbotTaskTools {
                     id: {type: "string", description: "ID exacto de la tarea a modificar."},
                     title: {type: "string"},
                     description: {type: "string"},
-                    source: {type: "string", description: "Nombre de TaskSource."},
+                    source: {type: "string", description: "Nombre de Source."},
                     type: {type: "string", description: "Nombre de TaskType."},
                     status: {type: "string", description: "Nombre de TaskStatus."},
                     priority: {type: "string", description: "Nombre de Priority."},
@@ -784,7 +784,7 @@ class ChatbotTaskTools {
     private static listTaskOptionsTool(): IPromptTool {
         return {
             name: "list_task_options",
-            description: "Consulta de una sola vez todas las opciones disponibles de TaskSource, TaskStatus, TaskType y Priority.",
+            description: "Consulta de una sola vez todas las opciones disponibles de Source, TaskStatus, TaskType y Priority.",
             parameters: {
                 type: "object",
                 properties: {},
@@ -798,19 +798,19 @@ class ChatbotTaskTools {
 
     private static createTaskOptionTool(kind: TaskOptionKind): IPromptTool {
         const serviceMap = {
-            source: TaskSourceServiceFactory.instance,
+            source: SourceServiceFactory.instance,
             status: TaskStatusServiceFactory.instance,
             type: TaskTypeServiceFactory.instance,
             priority: PriorityServiceFactory.instance,
         };
         const entityLabelMap = {
-            source: "TaskSource",
+            source: "Source",
             status: "TaskStatus",
             type: "TaskType",
             priority: "Priority",
         };
         const toolNameMap = {
-            source: "create_task_source",
+            source: "create_source",
             status: "create_task_status",
             type: "create_task_type",
             priority: "create_priority",

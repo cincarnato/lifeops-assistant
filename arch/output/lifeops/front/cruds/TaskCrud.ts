@@ -13,7 +13,7 @@ import type{
 import TaskProvider from "../providers/TaskProvider";
 
 //Import EntityCrud Refs
-import TaskSourceCrud from "./TaskSourceCrud";
+import SourceCrud from "./SourceCrud";
 import TaskTypeCrud from "./TaskTypeCrud";
 import TaskStatusCrud from "./TaskStatusCrud";
 import GoalCrud from "./GoalCrud";
@@ -89,7 +89,7 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
   
   get refs(): IEntityCrudRefs{
     return {
-      TaskSource: TaskSourceCrud.instance ,
+      Source: SourceCrud.instance ,
 TaskType: TaskTypeCrud.instance ,
 TaskStatus: TaskStatusCrud.instance ,
 Goal: GoalCrud.instance ,
@@ -111,7 +111,7 @@ user: [(v: any) => !!v || 'validation.required']
     return [
         {name:'title',type:'string',label:'title',default:''},
 {name:'description',type:'longString',label:'description',default:''},
-{name:'source',type:'ref',label:'source',default:null,ref: 'TaskSource',refDisplay: 'name'},
+{name:'source',type:'ref',label:'source',default:null,ref: 'Source',refDisplay: 'name'},
 {name:'type',type:'ref',label:'type',default:null,ref: 'TaskType',refDisplay: 'name'},
 {name:'status',type:'ref',label:'status',default:null,ref: 'TaskStatus',refDisplay: 'name'},
 {name:'priority',type:'string',label:'priority',default:''},

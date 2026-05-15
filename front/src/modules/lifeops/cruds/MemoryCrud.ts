@@ -45,7 +45,7 @@ class MemoryCrud extends EntityCrud implements IEntityCrud {
     return [
       {title: 'title', key: 'title', align: 'start'},
       {title: 'type', key: 'type', align: 'start'},
-      {title: 'importance', key: 'importance', align: 'start'},
+      {title: 'priority', key: 'priority', align: 'start'},
       {title: 'source', key: 'source', align: 'start'}
     ]
   }
@@ -87,16 +87,10 @@ class MemoryCrud extends EntityCrud implements IEntityCrud {
     return [
       {name: 'title', type: 'string', label: 'title', default: ''},
       {name: 'content', type: 'longString', label: 'content', default: ''},
-      {name: 'type', type: 'string', label: 'type', default: null},
-      {name: 'tags', type: 'array.string', label: 'tags', default: []},
-      {name: 'importance', type: 'enum', label: 'importance', default: 'medium', enum: ['low', 'medium', 'high']},
-      {
-        name: 'source',
-        type: 'enum',
-        label: 'source',
-        default: 'manual',
-        enum: ['manual', 'ai', 'conversation', 'email', 'calendar', 'task']
-      }
+      {name: 'type', type: 'string', label: 'type', default: null, md: 4},
+      {name: 'priority', type: 'string', label: 'priority', default: null, md: 4},
+      {name: 'source', type: 'string', label: 'source', default: null, md: 4},
+      {name: 'tags', type: 'array.string', label: 'tags', default: []}
     ]
   }
 
@@ -183,6 +177,10 @@ class MemoryCrud extends EntityCrud implements IEntityCrud {
   }
 
   get isSavedQueriesEnabled() {
+    return true
+  }
+
+  get containerFluid(){
     return true
   }
 

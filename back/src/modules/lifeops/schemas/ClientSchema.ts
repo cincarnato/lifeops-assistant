@@ -13,7 +13,7 @@ const ClientBaseSchema = z.object({
     priorityScore: z.number().nullable().optional().default(null),
     website: z.string().optional().default(""),
     emailDomains: z.array(z.string()).optional().default([]),
-    company: z.coerce.string().min(1,'validation.required'),
+    company: z.coerce.string().optional().nullable(),
     mainContact: z.coerce.string().optional().nullable(),
     redmineProjectIds: z.array(z.string()).optional().default([]),
     tags: z.array(z.string()).optional().default([]),
@@ -25,7 +25,7 @@ const ClientBaseSchema = z.object({
 const ClientSchema = ClientBaseSchema
     .extend({
       _id: z.coerce.string(),
-       company: z.object({_id: z.coerce.string(), name: z.string()}),
+       company: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
 mainContact: z.object({_id: z.coerce.string(), displayName: z.string()}).nullable().optional(),
 user: z.object({_id: z.coerce.string(), username: z.string()})
     })

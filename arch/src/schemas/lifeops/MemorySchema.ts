@@ -31,16 +31,14 @@ const entitySchema: IEntitySchema = {
             default: [],
             index: true,
         },
-        importance: {
-            type: "enum",
-            enum: ["low", "medium", "high"],
-            default: "medium",
+        priority: {
+            type: "string",
+            default: "",
             header: true,
             index: true,
         },
         source: {
-            type: "enum",
-            enum: ["manual", "ai", "conversation", "email", "calendar", "task"],
+            type: "string",
             default: "manual",
             header: true,
             index: true,

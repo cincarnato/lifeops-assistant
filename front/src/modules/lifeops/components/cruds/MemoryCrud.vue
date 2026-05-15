@@ -3,6 +3,8 @@
 import MemoryCrud from '../../cruds/MemoryCrud'
 import {Crud} from "@drax/crud-vue";
 import MemoryTypeCombobox from "@/modules/lifeops/comboboxes/MemoryTypeCombobox.vue";
+import SourceCombobox from "@/modules/lifeops/comboboxes/SourceCombobox.vue";
+import PriorityCombobox from "@/modules/lifeops/comboboxes/PriorityCombobox.vue";
 
 </script>
 
@@ -13,6 +15,27 @@ import MemoryTypeCombobox from "@/modules/lifeops/comboboxes/MemoryTypeCombobox.
     <template v-slot:field.type="{field, form}">
       <memory-type-combobox
         v-model="form.type"
+        :name="field.name"
+        :label="field.label"
+        item-title="name"
+        item-value="name"
+      />
+    </template>
+
+
+    <template v-slot:field.source="{field, form}">
+      <source-combobox
+          v-model="form.source"
+          :name="field.name"
+          :label="field.label"
+          item-title="name"
+          item-value="name"
+      />
+    </template>
+
+    <template v-slot:field.priority="{field, form}">
+      <priority-combobox
+        v-model="form.priority"
         :name="field.name"
         :label="field.label"
         item-title="name"

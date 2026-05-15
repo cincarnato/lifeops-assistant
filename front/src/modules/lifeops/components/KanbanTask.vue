@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onBeforeMount, ref} from "vue";
+import {computed, onBeforeMount, onBeforeUnmount, ref} from "vue";
 import {useCrud, CrudDialog} from "@drax/crud-vue";
 import {formatDate} from "@drax/common-front";
 import TaskCrud from "../cruds/TaskCrud";
@@ -12,6 +12,49 @@ import TaskForm from "./TaskForm.vue";
 type KanbanColumn = {
   key: string
   title: string
+}
+
+type TaskCardPropertyKey =
+    "priority"
+    | "status"
+    | "description"
+    | "dueDate"
+    | "scheduledDate"
+    | "completedAt"
+    | "source"
+    | "type"
+    | "project"
+    | "client"
+    | "contacts"
+    | "goals"
+    | "tags"
+    | "user"
+    | "valueScore"
+    | "motivationScore"
+    | "effortScore"
+    | "urgencyScore"
+    | "estimatedMinutes"
+    | "spentMinutes"
+    | "nextAction"
+    | "redmineIssueId"
+    | "emailMessageId"
+    | "calendarEventId"
+    | "notes"
+    | "statusHistory"
+    | "createdAt"
+    | "updatedAt"
+    | "archivedAt";
+
+type TaskCardProperty = {
+  key: TaskCardPropertyKey
+  label: string
+  icon: string
+  group: string
+}
+
+type RenderedTaskCardProperty = TaskCardProperty & {
+  value: string
+  color?: string
 }
 
 const taskCrud = TaskCrud.instance;
@@ -36,12 +79,60 @@ const savingIds = ref<Set<string>>(new Set());
 const error = ref("");
 const draggedTaskId = ref<string | null>(null);
 const dragOverStatus = ref<string | null>(null);
+const dragPointer = ref({x: 0, y: 0});
+const pointerDragStart = ref<{
+  taskId: string
+  pointerId: number
+  startX: number
+  startY: number
+  source: HTMLElement
+} | null>(null);
+const draggedColumnKey = ref<string | null>(null);
+const dragOverColumnKey = ref<string | null>(null);
 const newTaskTitles = ref<Record<string, string>>({});
 const creatingStatuses = ref<Set<string>>(new Set());
-const inlineTitles = ref<Record<string, string>>({});
 const hiddenStatusKeys = ref<Set<string>>(new Set());
+const statusOrderKeys = ref<string[]>([]);
+const visibleCardPropertyKeys = ref<Set<TaskCardPropertyKey>>(new Set());
+const boardScrollEl = ref<HTMLElement | null>(null);
 
 const STATUS_VISIBILITY_STORAGE_KEY = "lifeops.kanbanTask.hiddenStatuses";
+const STATUS_ORDER_STORAGE_KEY = "lifeops.kanbanTask.statusOrder";
+const CARD_PROPERTY_STORAGE_KEY = "lifeops.kanbanTask.visibleCardProperties";
+
+const defaultVisibleCardPropertyKeys: TaskCardPropertyKey[] = ["priority", "dueDate"];
+
+const cardProperties: TaskCardProperty[] = [
+  {key: "priority", label: "Prioridad", icon: "mdi-flag-outline", group: "Basicas"},
+  {key: "status", label: "Estado", icon: "mdi-view-column-outline", group: "Basicas"},
+  {key: "description", label: "Descripcion", icon: "mdi-text-box-outline", group: "Basicas"},
+  {key: "type", label: "Tipo", icon: "mdi-shape-outline", group: "Clasificacion"},
+  {key: "source", label: "Origen", icon: "mdi-source-branch", group: "Clasificacion"},
+  {key: "dueDate", label: "Vencimiento", icon: "mdi-calendar-alert", group: "Fechas"},
+  {key: "scheduledDate", label: "Agendada", icon: "mdi-calendar-clock", group: "Fechas"},
+  {key: "completedAt", label: "Completada", icon: "mdi-check-circle-outline", group: "Fechas"},
+  {key: "createdAt", label: "Creada", icon: "mdi-plus-circle-outline", group: "Fechas"},
+  {key: "updatedAt", label: "Actualizada", icon: "mdi-update", group: "Fechas"},
+  {key: "archivedAt", label: "Archivada", icon: "mdi-archive-outline", group: "Fechas"},
+  {key: "project", label: "Proyecto", icon: "mdi-folder-open-outline", group: "Contexto"},
+  {key: "client", label: "Cliente", icon: "mdi-domain", group: "Contexto"},
+  {key: "contacts", label: "Contactos", icon: "mdi-account-multiple-outline", group: "Contexto"},
+  {key: "goals", label: "Objetivos", icon: "mdi-bullseye-arrow", group: "Contexto"},
+  {key: "tags", label: "Tags", icon: "mdi-tag-multiple-outline", group: "Contexto"},
+  {key: "user", label: "Usuario", icon: "mdi-account-circle-outline", group: "Contexto"},
+  {key: "valueScore", label: "Valor", icon: "mdi-chart-line", group: "Scoring"},
+  {key: "motivationScore", label: "Motivacion", icon: "mdi-lightning-bolt-outline", group: "Scoring"},
+  {key: "effortScore", label: "Esfuerzo", icon: "mdi-weight-lifter", group: "Scoring"},
+  {key: "urgencyScore", label: "Urgencia", icon: "mdi-alarm", group: "Scoring"},
+  {key: "estimatedMinutes", label: "Estimado", icon: "mdi-timer-sand", group: "Ejecucion"},
+  {key: "spentMinutes", label: "Invertido", icon: "mdi-timer-outline", group: "Ejecucion"},
+  {key: "nextAction", label: "Proxima accion", icon: "mdi-ray-start-arrow", group: "Ejecucion"},
+  {key: "redmineIssueId", label: "Redmine", icon: "mdi-ticket-outline", group: "Integraciones"},
+  {key: "emailMessageId", label: "Email", icon: "mdi-email-outline", group: "Integraciones"},
+  {key: "calendarEventId", label: "Calendario", icon: "mdi-calendar-link", group: "Integraciones"},
+  {key: "notes", label: "Notas", icon: "mdi-note-text-outline", group: "Actividad"},
+  {key: "statusHistory", label: "Historial", icon: "mdi-history", group: "Actividad"}
+];
 
 const fallbackStatuses: KanbanColumn[] = [
   {key: "TODO", title: "TODO"},
@@ -49,7 +140,7 @@ const fallbackStatuses: KanbanColumn[] = [
   {key: "DONE", title: "DONE"}
 ];
 
-const allColumns = computed<KanbanColumn[]>(() => {
+const baseColumns = computed<KanbanColumn[]>(() => {
   const statusColumns = statuses.value.map(status => ({
     key: status.name || "",
     title: status.name || "Sin estado"
@@ -72,25 +163,23 @@ const allColumns = computed<KanbanColumn[]>(() => {
       : [{key: "", title: "Sin estado"}, ...mergedColumns];
 });
 
-const visibleColumns = computed(() => {
-  return allColumns.value.filter(column => !hiddenStatusKeys.value.has(column.key));
+const allColumns = computed<KanbanColumn[]>(() => {
+  if (statusOrderKeys.value.length === 0) {
+    return baseColumns.value;
+  }
+
+  const columnsByKey = new Map(baseColumns.value.map(column => [column.key, column]));
+  const orderedColumns = statusOrderKeys.value
+      .map(key => columnsByKey.get(key))
+      .filter((column): column is KanbanColumn => Boolean(column));
+  const orderedKeys = new Set(orderedColumns.map(column => column.key));
+  const newColumns = baseColumns.value.filter(column => !orderedKeys.has(column.key));
+
+  return [...orderedColumns, ...newColumns];
 });
 
-const selectedStatusKeys = computed({
-  get() {
-    return allColumns.value
-        .filter(column => !hiddenStatusKeys.value.has(column.key))
-        .map(column => column.key);
-  },
-  set(value: string[]) {
-    const selectedKeys = new Set(value);
-    hiddenStatusKeys.value = new Set(
-        allColumns.value
-            .map(column => column.key)
-            .filter(key => !selectedKeys.has(key))
-    );
-    saveHiddenStatuses();
-  }
+const visibleColumns = computed(() => {
+  return allColumns.value.filter(column => !hiddenStatusKeys.value.has(column.key));
 });
 
 const tasksByStatus = computed(() => {
@@ -99,6 +188,22 @@ const tasksByStatus = computed(() => {
 
 const totalTasks = computed(() => tasks.value.length);
 const visibleTasks = computed(() => visibleColumns.value.reduce((total, column) => total + tasksByStatus.value(column.key).length, 0));
+const draggedTask = computed(() => tasks.value.find(task => taskId(task) === draggedTaskId.value) || null);
+const visibleCardPropertiesCount = computed(() => visibleCardPropertyKeys.value.size);
+const cardPropertyGroups = computed(() => {
+  const groups: Array<{name: string; properties: TaskCardProperty[]}> = [];
+
+  for (const property of cardProperties) {
+    let group = groups.find(item => item.name === property.group);
+    if (!group) {
+      group = {name: property.group, properties: []};
+      groups.push(group);
+    }
+    group.properties.push(property);
+  }
+
+  return groups;
+});
 
 function setSaving(taskId: string, value: boolean) {
   const next = new Set(savingIds.value);
@@ -132,13 +237,166 @@ function priorityColor(priority?: string) {
   return "default";
 }
 
+function entityName(entity: any) {
+  if (!entity) {
+    return "";
+  }
+
+  if (typeof entity === "string") {
+    return entity;
+  }
+
+  const fullName = [entity.firstName, entity.lastName].filter(Boolean).join(" ");
+
+  return entity.name
+      || entity.displayName
+      || entity.title
+      || entity.username
+      || entity.email
+      || fullName
+      || entity._id
+      || "";
+}
+
+function listNames(items?: Array<any>) {
+  return (items || []).map(item => entityName(item)).filter(Boolean).join(", ");
+}
+
+function formatCardDate(value?: Date | string | null) {
+  if (!value) {
+    return "";
+  }
+
+  return formatDate(String(value));
+}
+
+function formatMinutes(value?: number) {
+  if (typeof value !== "number") {
+    return "";
+  }
+
+  if (value < 60) {
+    return `${value} min`;
+  }
+
+  const hours = Math.floor(value / 60);
+  const minutes = value % 60;
+
+  return minutes ? `${hours} h ${minutes} min` : `${hours} h`;
+}
+
+function formatScore(value?: number) {
+  return typeof value === "number" ? value.toFixed(1) : "";
+}
+
+function notesCount(notes?: ITask["notes"]) {
+  if (!notes) {
+    return 0;
+  }
+
+  if (typeof notes === "string") {
+    return notes.trim() ? 1 : 0;
+  }
+
+  return notes.filter(note => note?.note).length;
+}
+
+function countLabel(count: number, singular: string, plural: string) {
+  if (count <= 0) {
+    return "";
+  }
+
+  return count === 1 ? `1 ${singular}` : `${count} ${plural}`;
+}
+
+function taskCardPropertyValue(task: ITask, key: TaskCardPropertyKey) {
+  const valueFormatters: Record<TaskCardPropertyKey, () => string> = {
+    priority: () => task.priority || "",
+    status: () => task.status || "",
+    description: () => task.description || "",
+    dueDate: () => formatCardDate(task.dueDate),
+    scheduledDate: () => formatCardDate(task.scheduledDate),
+    completedAt: () => formatCardDate(task.completedAt),
+    source: () => task.source || "",
+    type: () => task.type || "",
+    project: () => entityName(task.project),
+    client: () => entityName(task.client),
+    contacts: () => listNames(task.contacts),
+    goals: () => listNames(task.goals),
+    tags: () => (task.tags || []).filter(Boolean).join(", "),
+    user: () => entityName(task.user),
+    valueScore: () => formatScore(task.valueScore),
+    motivationScore: () => formatScore(task.motivationScore),
+    effortScore: () => formatScore(task.effortScore),
+    urgencyScore: () => formatScore(task.urgencyScore),
+    estimatedMinutes: () => formatMinutes(task.estimatedMinutes),
+    spentMinutes: () => formatMinutes(task.spentMinutes),
+    nextAction: () => task.nextAction || "",
+    redmineIssueId: () => task.redmineIssueId || "",
+    emailMessageId: () => task.emailMessageId || "",
+    calendarEventId: () => task.calendarEventId || "",
+    notes: () => countLabel(notesCount(task.notes), "nota", "notas"),
+    statusHistory: () => countLabel(task.statusHistory?.length || 0, "cambio", "cambios"),
+    createdAt: () => formatCardDate(task.createdAt),
+    updatedAt: () => formatCardDate(task.updatedAt),
+    archivedAt: () => formatCardDate(task.archivedAt)
+  };
+
+  return valueFormatters[key]().trim();
+}
+
+function renderedCardProperties(task: ITask) {
+  return cardProperties
+      .filter(property => visibleCardPropertyKeys.value.has(property.key))
+      .filter(property => property.key !== "priority" && property.key !== "dueDate")
+      .map<RenderedTaskCardProperty | null>(property => {
+        const value = taskCardPropertyValue(task, property.key);
+
+        if (!value) {
+          return null;
+        }
+
+        return {
+          ...property,
+          value,
+          color: property.key === "status" ? "secondary" : undefined
+        };
+      })
+      .filter((property): property is RenderedTaskCardProperty => Boolean(property));
+}
+
 function loadHiddenStatuses() {
   try {
     const storedValue = localStorage.getItem(STATUS_VISIBILITY_STORAGE_KEY);
     const storedKeys = storedValue ? JSON.parse(storedValue) : [];
     hiddenStatusKeys.value = new Set(Array.isArray(storedKeys) ? storedKeys : []);
-  } catch (e) {
+  } catch {
     hiddenStatusKeys.value = new Set();
+  }
+}
+
+function loadStatusOrder() {
+  try {
+    const storedValue = localStorage.getItem(STATUS_ORDER_STORAGE_KEY);
+    const storedKeys = storedValue ? JSON.parse(storedValue) : [];
+    statusOrderKeys.value = Array.isArray(storedKeys) ? storedKeys.filter(key => typeof key === "string") : [];
+  } catch {
+    statusOrderKeys.value = [];
+  }
+}
+
+function loadVisibleCardProperties() {
+  try {
+    const storedValue = localStorage.getItem(CARD_PROPERTY_STORAGE_KEY);
+    const storedKeys = storedValue ? JSON.parse(storedValue) : defaultVisibleCardPropertyKeys;
+    const availableKeys = new Set(cardProperties.map(property => property.key));
+    visibleCardPropertyKeys.value = new Set(
+        Array.isArray(storedKeys)
+            ? storedKeys.filter((key): key is TaskCardPropertyKey => availableKeys.has(key))
+            : defaultVisibleCardPropertyKeys
+    );
+  } catch {
+    visibleCardPropertyKeys.value = new Set(defaultVisibleCardPropertyKeys);
   }
 }
 
@@ -149,9 +407,119 @@ function saveHiddenStatuses() {
   );
 }
 
+function saveStatusOrder() {
+  localStorage.setItem(
+      STATUS_ORDER_STORAGE_KEY,
+      JSON.stringify(statusOrderKeys.value)
+  );
+}
+
+function saveVisibleCardProperties() {
+  localStorage.setItem(
+      CARD_PROPERTY_STORAGE_KEY,
+      JSON.stringify([...visibleCardPropertyKeys.value])
+  );
+}
+
+function isStatusVisible(key: string) {
+  return !hiddenStatusKeys.value.has(key);
+}
+
+function isCardPropertyVisible(key: TaskCardPropertyKey) {
+  return visibleCardPropertyKeys.value.has(key);
+}
+
+function setStatusVisible(key: string, visible: boolean) {
+  const next = new Set(hiddenStatusKeys.value);
+  if (visible) {
+    next.delete(key);
+  } else {
+    next.add(key);
+  }
+  hiddenStatusKeys.value = next;
+  saveHiddenStatuses();
+}
+
+function setCardPropertyVisible(key: TaskCardPropertyKey, visible: boolean) {
+  const next = new Set(visibleCardPropertyKeys.value);
+  if (visible) {
+    next.add(key);
+  } else {
+    next.delete(key);
+  }
+  visibleCardPropertyKeys.value = next;
+  saveVisibleCardProperties();
+}
+
 function showAllStatuses() {
   hiddenStatusKeys.value = new Set();
   saveHiddenStatuses();
+}
+
+function showDefaultCardProperties() {
+  visibleCardPropertyKeys.value = new Set(defaultVisibleCardPropertyKeys);
+  saveVisibleCardProperties();
+}
+
+function showAllCardProperties() {
+  visibleCardPropertyKeys.value = new Set(cardProperties.map(property => property.key));
+  saveVisibleCardProperties();
+}
+
+function resetStatusOrder() {
+  statusOrderKeys.value = [];
+  saveStatusOrder();
+}
+
+function persistColumnOrder(columns: KanbanColumn[]) {
+  statusOrderKeys.value = columns.map(column => column.key);
+  saveStatusOrder();
+}
+
+function moveColumn(key: string, direction: -1 | 1) {
+  const currentColumns = [...allColumns.value];
+  const currentIndex = currentColumns.findIndex(column => column.key === key);
+  const nextIndex = currentIndex + direction;
+
+  if (currentIndex < 0 || nextIndex < 0 || nextIndex >= currentColumns.length) {
+    return;
+  }
+
+  const [column] = currentColumns.splice(currentIndex, 1);
+  currentColumns.splice(nextIndex, 0, column);
+  persistColumnOrder(currentColumns);
+}
+
+function onColumnOrderDragStart(key: string) {
+  draggedColumnKey.value = key;
+}
+
+function onColumnOrderDragEnd() {
+  draggedColumnKey.value = null;
+  dragOverColumnKey.value = null;
+}
+
+function onColumnOrderDrop(targetKey: string) {
+  const sourceKey = draggedColumnKey.value;
+  draggedColumnKey.value = null;
+  dragOverColumnKey.value = null;
+
+  if (!sourceKey || sourceKey === targetKey) {
+    return;
+  }
+
+  const currentColumns = [...allColumns.value];
+  const sourceIndex = currentColumns.findIndex(column => column.key === sourceKey);
+  const targetIndex = currentColumns.findIndex(column => column.key === targetKey);
+
+  if (sourceIndex < 0 || targetIndex < 0) {
+    return;
+  }
+
+  const [column] = currentColumns.splice(sourceIndex, 1);
+  const nextTargetIndex = currentColumns.findIndex(currentColumn => currentColumn.key === targetKey);
+  currentColumns.splice(nextTargetIndex, 0, column);
+  persistColumnOrder(currentColumns);
 }
 
 async function loadBoard() {
@@ -165,10 +533,6 @@ async function loadBoard() {
 
     statuses.value = statusItems;
     tasks.value = taskItems;
-    inlineTitles.value = taskItems.reduce((acc, task) => {
-      acc[task._id] = task.title;
-      return acc;
-    }, {} as Record<string, string>);
   } catch (e: any) {
     error.value = e?.message || "No se pudo cargar el tablero";
   } finally {
@@ -218,30 +582,6 @@ async function moveTask(task: ITask, status: string) {
   }
 }
 
-async function saveInlineTitle(task: ITask) {
-  const title = (inlineTitles.value[taskId(task)] || "").trim();
-  if (!title || title === task.title) {
-    inlineTitles.value[taskId(task)] = task.title;
-    return;
-  }
-
-  const previousTitle = task.title;
-  task.title = title;
-  setSaving(taskId(task), true);
-  error.value = "";
-
-  try {
-    const updatedTask = await taskProvider.updatePartial(taskId(task), {title});
-    replaceTask(updatedTask);
-  } catch (e: any) {
-    task.title = previousTitle;
-    inlineTitles.value[taskId(task)] = previousTitle;
-    error.value = e?.message || "No se pudo actualizar la tarea";
-  } finally {
-    setSaving(taskId(task), false);
-  }
-}
-
 async function createInlineTask(status: string) {
   const title = (newTaskTitles.value[status] || "").trim();
   if (!title) {
@@ -254,7 +594,6 @@ async function createInlineTask(status: string) {
   try {
     const createdTask = await taskProvider.create({title, status} as any);
     tasks.value = [createdTask, ...tasks.value];
-    inlineTitles.value[createdTask._id] = createdTask.title;
     newTaskTitles.value[status] = "";
   } catch (e: any) {
     error.value = e?.message || "No se pudo crear la tarea";
@@ -268,26 +607,126 @@ function replaceTask(updatedTask: ITask) {
   if (index >= 0) {
     tasks.value.splice(index, 1, updatedTask);
   }
-  inlineTitles.value[taskId(updatedTask)] = updatedTask.title;
 }
 
-function onDragStart(task: ITask) {
-  draggedTaskId.value = taskId(task);
-}
-
-function onDragEnd() {
-  draggedTaskId.value = null;
-  dragOverStatus.value = null;
-}
-
-async function onDrop(status: string) {
-  const draggedTask = tasks.value.find(task => taskId(task) === draggedTaskId.value);
-  dragOverStatus.value = null;
-  draggedTaskId.value = null;
-
-  if (draggedTask) {
-    await moveTask(draggedTask, status);
+function clearTaskDrag() {
+  const dragStart = pointerDragStart.value;
+  if (dragStart?.source.hasPointerCapture(dragStart.pointerId)) {
+    dragStart.source.releasePointerCapture(dragStart.pointerId);
   }
+  pointerDragStart.value = null;
+  draggedTaskId.value = null;
+  dragOverStatus.value = null;
+  document.body.classList.remove("kanban-pointer-dragging");
+}
+
+function statusFromPoint(clientX: number, clientY: number) {
+  const element = document.elementFromPoint(clientX, clientY);
+  const column = element?.closest<HTMLElement>("[data-kanban-status]");
+  return column ? column.dataset.kanbanStatus ?? "" : null;
+}
+
+function updateDragOverFromPoint(clientX: number, clientY: number) {
+  const status = statusFromPoint(clientX, clientY);
+  if (status !== null) {
+    dragOverStatus.value = status;
+  } else {
+    dragOverStatus.value = null;
+  }
+}
+
+function autoScrollBoard(clientX: number) {
+  const board = boardScrollEl.value;
+  if (!board) {
+    return;
+  }
+
+  const rect = board.getBoundingClientRect();
+  const edgeSize = 72;
+  const scrollStep = 18;
+
+  if (clientX < rect.left + edgeSize) {
+    board.scrollLeft -= scrollStep;
+  } else if (clientX > rect.right - edgeSize) {
+    board.scrollLeft += scrollStep;
+  }
+}
+
+function onTaskPointerDown(task: ITask, event: PointerEvent) {
+  if (event.button !== 0) {
+    return;
+  }
+
+  const target = event.target as HTMLElement;
+  if (target.closest(".kanban-card__edit")) {
+    return;
+  }
+
+  const source = event.currentTarget as HTMLElement;
+  source.setPointerCapture(event.pointerId);
+
+  pointerDragStart.value = {
+    taskId: taskId(task),
+    pointerId: event.pointerId,
+    startX: event.clientX,
+    startY: event.clientY,
+    source
+  };
+
+  window.addEventListener("pointermove", onTaskPointerMove, {passive: false});
+  window.addEventListener("pointerup", onTaskPointerUp);
+  window.addEventListener("pointercancel", onTaskPointerCancel);
+}
+
+function onTaskPointerMove(event: PointerEvent) {
+  const dragStart = pointerDragStart.value;
+  if (!dragStart) {
+    return;
+  }
+  if (event.pointerId !== dragStart.pointerId) {
+    return;
+  }
+
+  const movedX = Math.abs(event.clientX - dragStart.startX);
+  const movedY = Math.abs(event.clientY - dragStart.startY);
+  if (!draggedTaskId.value && movedX + movedY < 6) {
+    return;
+  }
+
+  event.preventDefault();
+  draggedTaskId.value = dragStart.taskId;
+  dragPointer.value = {x: event.clientX, y: event.clientY};
+  document.body.classList.add("kanban-pointer-dragging");
+  autoScrollBoard(event.clientX);
+  updateDragOverFromPoint(event.clientX, event.clientY);
+}
+
+async function onTaskPointerUp(event: PointerEvent) {
+  if (event.pointerId !== pointerDragStart.value?.pointerId) {
+    return;
+  }
+
+  window.removeEventListener("pointermove", onTaskPointerMove);
+  window.removeEventListener("pointerup", onTaskPointerUp);
+  window.removeEventListener("pointercancel", onTaskPointerCancel);
+
+  const movedTaskId = draggedTaskId.value;
+  const targetStatus = movedTaskId ? statusFromPoint(event.clientX, event.clientY) : null;
+  clearTaskDrag();
+
+  if (movedTaskId && targetStatus !== null) {
+    const task = tasks.value.find(item => taskId(item) === movedTaskId);
+    if (task) {
+      await moveTask(task, targetStatus);
+    }
+  }
+}
+
+function onTaskPointerCancel() {
+  window.removeEventListener("pointermove", onTaskPointerMove);
+  window.removeEventListener("pointerup", onTaskPointerUp);
+  window.removeEventListener("pointercancel", onTaskPointerCancel);
+  clearTaskDrag();
 }
 
 function openCreate(status?: string) {
@@ -308,10 +747,19 @@ async function onFormSaved() {
 
 onBeforeMount(async () => {
   loadHiddenStatuses();
+  loadStatusOrder();
+  loadVisibleCardProperties();
   resetCrudStore();
   prepareFilters();
   prepareSort();
   await loadBoard();
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("pointermove", onTaskPointerMove);
+  window.removeEventListener("pointerup", onTaskPointerUp);
+  window.removeEventListener("pointercancel", onTaskPointerCancel);
+  clearTaskDrag();
 });
 </script>
 
@@ -329,6 +777,65 @@ onBeforeMount(async () => {
           <template #activator="{props}">
             <v-btn
                 v-bind="props"
+                prepend-icon="mdi-card-text-outline"
+                variant="tonal"
+            >
+              Propiedades
+              <v-chip
+                  class="ml-2"
+                  size="x-small"
+                  variant="flat"
+              >
+                {{ visibleCardPropertiesCount }}
+              </v-chip>
+            </v-btn>
+          </template>
+
+          <v-card class="kanban-property-selector" min-width="380">
+            <v-card-title class="text-subtitle-1">Propiedades de tarjeta</v-card-title>
+            <v-card-text>
+              <div class="kanban-property-groups">
+                <section
+                    v-for="group in cardPropertyGroups"
+                    :key="group.name"
+                    class="kanban-property-group"
+                >
+                  <div class="kanban-property-group__title">{{ group.name }}</div>
+                  <div class="kanban-property-list">
+                    <label
+                        v-for="property in group.properties"
+                        :key="property.key"
+                        class="kanban-property-row"
+                    >
+                      <v-checkbox
+                          :model-value="isCardPropertyVisible(property.key)"
+                          density="compact"
+                          hide-details
+                          color="primary"
+                          @update:model-value="setCardPropertyVisible(property.key, Boolean($event))"
+                      />
+                      <v-icon :icon="property.icon" size="18" class="text-medium-emphasis"/>
+                      <span>{{ property.label }}</span>
+                    </label>
+                  </div>
+                </section>
+              </div>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn variant="text" @click="showDefaultCardProperties">
+                Predeterminado
+              </v-btn>
+              <v-spacer/>
+              <v-btn variant="text" @click="showAllCardProperties">
+                Mostrar todas
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-menu>
+        <v-menu :close-on-content-click="false" location="bottom end">
+          <template #activator="{props}">
+            <v-btn
+                v-bind="props"
                 prepend-icon="mdi-view-column-outline"
                 variant="tonal"
             >
@@ -336,23 +843,56 @@ onBeforeMount(async () => {
             </v-btn>
           </template>
 
-          <v-card class="kanban-status-selector" min-width="280">
-            <v-card-title class="text-subtitle-1">Estados visibles</v-card-title>
+          <v-card class="kanban-status-selector" min-width="360">
+            <v-card-title class="text-subtitle-1">Estados y orden</v-card-title>
             <v-card-text>
-              <v-select
-                  v-model="selectedStatusKeys"
-                  :items="allColumns"
-                  item-title="title"
-                  item-value="key"
-                  multiple
-                  chips
-                  closable-chips
-                  density="compact"
-                  variant="outlined"
-                  hide-details
-              />
+              <div class="kanban-status-list">
+                <div
+                    v-for="(column, index) in allColumns"
+                    :key="column.key"
+                    class="kanban-status-row"
+                    :class="{'kanban-status-row--over': dragOverColumnKey === column.key}"
+                    draggable="true"
+                    @dragstart="onColumnOrderDragStart(column.key)"
+                    @dragend="onColumnOrderDragEnd"
+                    @dragover.prevent="dragOverColumnKey = column.key"
+                    @dragleave="dragOverColumnKey = null"
+                    @drop.prevent="onColumnOrderDrop(column.key)"
+                >
+                  <v-icon icon="mdi-drag" size="18" class="text-medium-emphasis kanban-status-row__drag"/>
+                  <v-checkbox
+                      :model-value="isStatusVisible(column.key)"
+                      density="compact"
+                      hide-details
+                      color="primary"
+                      @update:model-value="setStatusVisible(column.key, Boolean($event))"
+                  />
+                  <span class="kanban-status-row__title">{{ column.title }}</span>
+                  <v-btn
+                      icon="mdi-arrow-up"
+                      variant="text"
+                      density="comfortable"
+                      size="small"
+                      title="Subir"
+                      :disabled="index === 0"
+                      @click.stop="moveColumn(column.key, -1)"
+                  />
+                  <v-btn
+                      icon="mdi-arrow-down"
+                      variant="text"
+                      density="comfortable"
+                      size="small"
+                      title="Bajar"
+                      :disabled="index === allColumns.length - 1"
+                      @click.stop="moveColumn(column.key, 1)"
+                  />
+                </div>
+              </div>
             </v-card-text>
             <v-card-actions>
+              <v-btn variant="text" @click="resetStatusOrder">
+                Orden predeterminado
+              </v-btn>
               <v-spacer/>
               <v-btn variant="text" @click="showAllStatuses">
                 Mostrar todos
@@ -391,110 +931,153 @@ onBeforeMount(async () => {
 
     <v-progress-linear v-if="loading" indeterminate color="primary" class="mb-3"/>
 
-    <div class="kanban-board-scroll">
-      <div v-if="visibleColumns.length > 0" class="kanban-board">
-        <section
-            v-for="column in visibleColumns"
-            :key="column.key"
-            class="kanban-column"
-            :class="{'kanban-column--over': dragOverStatus === column.key}"
-            @dragover.prevent="dragOverStatus = column.key"
-            @dragleave="dragOverStatus = null"
-            @drop.prevent="onDrop(column.key)"
-        >
-          <header class="kanban-column__header">
-            <div>
-              <h2 class="text-subtitle-1 font-weight-medium">{{ column.title }}</h2>
-              <span class="text-caption text-medium-emphasis">
-                {{ tasksByStatus(column.key).length }} tareas
-              </span>
-            </div>
-            <v-btn
-                icon="mdi-plus"
-                variant="text"
-                size="small"
-                :title="`Crear en ${column.title}`"
-                @click="openCreate(column.key)"
-            />
-          </header>
-
-          <form class="kanban-create" @submit.prevent="createInlineTask(column.key)">
-            <v-text-field
-                v-model="newTaskTitles[column.key]"
-                placeholder="Nueva tarea"
-                density="compact"
-                variant="outlined"
-                hide-details
-                :disabled="creatingStatuses.has(column.key)"
-            />
-            <v-btn
-                icon="mdi-check"
-                size="small"
-                variant="text"
-                type="submit"
-                :loading="creatingStatuses.has(column.key)"
-            />
-          </form>
-
-          <div class="kanban-column__items">
-            <article
-                v-for="task in tasksByStatus(column.key)"
-                :key="task._id"
-                class="kanban-card"
-                :class="{'kanban-card--saving': savingIds.has(task._id)}"
-                draggable="true"
-                @dragstart="onDragStart(task)"
-                @dragend="onDragEnd"
-            >
-              <div class="kanban-card__top">
-                <v-icon icon="mdi-drag" size="18" class="text-medium-emphasis"/>
-                <v-btn
-                    icon="mdi-pencil-outline"
-                    variant="text"
-                    density="comfortable"
-                    size="small"
-                    title="Edicion detallada"
-                    @click="openEdit(task)"
-                />
+    <div ref="boardScrollEl" class="kanban-board-scroll">
+      <template v-if="visibleColumns.length > 0">
+        <div class="kanban-board">
+          <section
+              v-for="column in visibleColumns"
+              :key="column.key"
+              class="kanban-column"
+              :class="{'kanban-column--over': dragOverStatus === column.key}"
+              :data-kanban-status="column.key"
+          >
+            <header class="kanban-column__header">
+              <div>
+                <h2 class="text-subtitle-1 font-weight-medium">{{ column.title }}</h2>
+                <span class="text-caption text-medium-emphasis">
+                  {{ tasksByStatus(column.key).length }} tareas
+                </span>
               </div>
-
-              <v-textarea
-                  v-model="inlineTitles[task._id]"
-                  class="kanban-title"
-                  rows="2"
-                  auto-grow
-                  density="compact"
-                  variant="plain"
-                  hide-details
-                  @blur="saveInlineTitle(task)"
-                  @keydown.enter.exact.prevent="saveInlineTitle(task)"
+              <v-btn
+                  icon="mdi-plus"
+                  variant="text"
+                  size="small"
+                  :title="`Crear en ${column.title}`"
+                  @click="openCreate(column.key)"
               />
+            </header>
 
-              <div class="kanban-card__meta">
-                <v-chip
-                    v-if="task.priority"
-                    :color="priorityColor(task.priority)"
-                    size="x-small"
-                    variant="tonal"
-                >
-                  {{ task.priority }}
-                </v-chip>
-                <v-chip v-if="task.dueDate" size="x-small" variant="tonal">
-                  <v-icon icon="mdi-calendar" size="14" start/>
-                  {{ formatDate(String(task.dueDate)) }}
-                </v-chip>
-                <v-progress-circular
-                    v-if="savingIds.has(task._id)"
-                    indeterminate
-                    size="16"
-                    width="2"
-                    color="primary"
-                />
-              </div>
-            </article>
-          </div>
-        </section>
-      </div>
+            <form
+                class="kanban-create"
+                @submit.prevent="createInlineTask(column.key)"
+            >
+              <v-text-field
+                  v-model="newTaskTitles[column.key]"
+                  placeholder="Nueva tarea"
+                  density="compact"
+                  variant="outlined"
+                  hide-details
+                  :disabled="creatingStatuses.has(column.key)"
+              />
+              <v-btn
+                  icon="mdi-check"
+                  size="small"
+                  variant="text"
+                  type="submit"
+                  :loading="creatingStatuses.has(column.key)"
+              />
+            </form>
+
+            <div class="kanban-column__items">
+              <article
+                  v-for="task in tasksByStatus(column.key)"
+                  :key="task._id"
+                  class="kanban-card"
+                  :class="[
+                      `kanban-card--priority-${priorityColor(task.priority)}`,
+                      {
+                        'kanban-card--saving': savingIds.has(task._id),
+                        'kanban-card--dragging': draggedTaskId === task._id
+                      }
+                  ]"
+                  @pointerdown="onTaskPointerDown(task, $event)"
+              >
+                <div class="kanban-card__accent"/>
+
+                <div class="kanban-card__body">
+                  <div class="kanban-card__top">
+                    <v-chip
+                        v-if="isCardPropertyVisible('priority') && task.priority"
+                        :color="priorityColor(task.priority)"
+                        size="x-small"
+                        variant="tonal"
+                        class="kanban-priority-chip"
+                    >
+                      {{ task.priority }}
+                    </v-chip>
+                    <span v-else-if="isCardPropertyVisible('priority')" class="kanban-priority-placeholder">Sin prioridad</span>
+                    <span v-else/>
+
+                    <div class="kanban-card__tools">
+                      <v-icon icon="mdi-drag" size="18" class="text-medium-emphasis kanban-card__drag"/>
+                      <v-btn
+                          class="kanban-card__edit"
+                          icon="mdi-pencil-outline"
+                          variant="text"
+                          density="comfortable"
+                          size="small"
+                          title="Edicion detallada"
+                          @click="openEdit(task)"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="kanban-title">
+                    {{ task.title }}
+                  </div>
+
+                  <div v-if="renderedCardProperties(task).length" class="kanban-card__properties">
+                    <v-chip
+                        v-for="property in renderedCardProperties(task)"
+                        :key="property.key"
+                        :color="property.color"
+                        size="x-small"
+                        variant="tonal"
+                        class="kanban-property-chip"
+                    >
+                      <v-icon :icon="property.icon" size="14" start/>
+                      <span class="kanban-property-chip__label">{{ property.label }}</span>
+                      <span class="kanban-property-chip__value">{{ property.value }}</span>
+                    </v-chip>
+                  </div>
+
+                  <div class="kanban-card__meta">
+                    <v-chip
+                        v-if="isCardPropertyVisible('dueDate') && task.dueDate"
+                        size="x-small"
+                        variant="tonal"
+                        class="kanban-date-chip"
+                    >
+                      <v-icon icon="mdi-calendar" size="14" start/>
+                      {{ formatDate(String(task.dueDate)) }}
+                    </v-chip>
+                    <span v-else-if="isCardPropertyVisible('dueDate')" class="kanban-date-placeholder">
+                      <v-icon icon="mdi-calendar-blank-outline" size="14"/>
+                      Sin fecha
+                    </span>
+                    <span v-else/>
+                    <v-progress-circular
+                        v-if="savingIds.has(task._id)"
+                        indeterminate
+                        size="16"
+                        width="2"
+                        color="primary"
+                    />
+                  </div>
+                </div>
+              </article>
+            </div>
+          </section>
+        </div>
+
+        <div
+            v-if="draggedTask"
+            class="kanban-drag-ghost"
+            :style="{left: `${dragPointer.x}px`, top: `${dragPointer.y}px`}"
+        >
+          {{ draggedTask.title }}
+        </div>
+      </template>
 
       <v-alert
           v-else
@@ -526,6 +1109,8 @@ onBeforeMount(async () => {
   max-width: 100%;
   min-height: 100%;
   min-width: 0;
+  position: relative;
+  z-index: 2;
 }
 
 .kanban-toolbar {
@@ -543,8 +1128,90 @@ onBeforeMount(async () => {
   justify-content: flex-end;
 }
 
-.kanban-status-selector {
+.kanban-status-selector,
+.kanban-property-selector {
   border-radius: 8px;
+}
+
+.kanban-property-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.kanban-property-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kanban-property-group__title {
+  color: rgba(var(--v-theme-on-surface), 0.62);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.kanban-property-list {
+  display: grid;
+  gap: 4px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.kanban-property-row {
+  align-items: center;
+  border-radius: 6px;
+  cursor: pointer;
+  display: grid;
+  gap: 4px;
+  grid-template-columns: 34px 20px minmax(0, 1fr);
+  min-height: 34px;
+  padding-right: 6px;
+}
+
+.kanban-property-row:hover {
+  background: rgba(var(--v-theme-primary), 0.05);
+}
+
+.kanban-property-row span {
+  font-size: 0.84rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kanban-status-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kanban-status-row {
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  display: grid;
+  gap: 4px;
+  grid-template-columns: 24px 40px minmax(0, 1fr) 32px 32px;
+  min-height: 40px;
+  padding: 2px 4px;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.kanban-status-row--over {
+  background: rgba(var(--v-theme-primary), 0.05);
+  border-color: rgb(var(--v-theme-primary));
+}
+
+.kanban-status-row__drag {
+  cursor: grab;
+}
+
+.kanban-status-row__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .kanban-board-scroll {
@@ -558,26 +1225,33 @@ onBeforeMount(async () => {
 
 .kanban-board {
   display: flex;
-  gap: 12px;
+  gap: 14px;
   min-width: max-content;
 }
 
 .kanban-column {
-  background: rgb(var(--v-theme-surface));
-  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-  border-radius: 8px;
+  background:
+      linear-gradient(180deg, rgba(var(--v-theme-primary), 0.045), transparent 180px),
+      color-mix(in srgb, rgb(var(--v-theme-surface)) 88%, rgb(var(--v-theme-primary)) 12%);
+  border: 1px solid rgba(var(--v-border-color), calc(var(--v-border-opacity) + 0.08));
+  border-radius: 12px;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
   display: flex;
   flex: 0 0 320px;
   flex-direction: column;
   max-height: calc(100vh - 190px);
   min-height: 420px;
+  overflow: hidden;
   width: 320px;
-  transition: border-color 120ms ease, background-color 120ms ease;
+  transition: border-color 120ms ease, background-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
 }
 
 .kanban-column--over {
-  background: rgba(var(--v-theme-primary), 0.05);
+  background:
+      linear-gradient(180deg, rgba(var(--v-theme-primary), 0.12), rgba(var(--v-theme-primary), 0.045)),
+      color-mix(in srgb, rgb(var(--v-theme-surface)) 82%, rgb(var(--v-theme-primary)) 18%);
   border-color: rgb(var(--v-theme-primary));
+  box-shadow: 0 14px 34px rgba(var(--v-theme-primary), 0.18);
 }
 
 .kanban-column__header {
@@ -585,32 +1259,82 @@ onBeforeMount(async () => {
   border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
   display: flex;
   justify-content: space-between;
-  padding: 12px 12px 8px;
+  padding: 14px 14px 10px;
 }
 
 .kanban-create {
   align-items: center;
   display: grid;
-  gap: 4px;
+  gap: 6px;
   grid-template-columns: 1fr 32px;
-  padding: 10px 10px 6px;
+  padding: 10px 12px 8px;
+}
+
+.kanban-create :deep(.v-field) {
+  background: rgba(var(--v-theme-surface), 0.8);
+  border-radius: 10px;
 }
 
 .kanban-column__items {
+  background:
+      linear-gradient(180deg, rgba(var(--v-theme-background), 0.62), rgba(var(--v-theme-background), 0.28)),
+      rgba(var(--v-theme-surface), 0.42);
+  border-radius: 10px;
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+  margin: 0 10px 10px;
+  min-height: 260px;
   overflow-y: auto;
-  padding: 8px 10px 12px;
+  padding: 10px;
+  transition: background-color 120ms ease, outline-color 120ms ease;
+}
+
+.kanban-column--over .kanban-column__items {
+  outline: 2px dashed rgba(var(--v-theme-primary), 0.42);
+  outline-offset: -6px;
+}
+
+.kanban-drag-ghost {
+  background: rgb(var(--v-theme-surface));
+  border: 1px solid rgb(var(--v-theme-primary));
+  border-radius: 12px;
+  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.24);
+  color: rgb(var(--v-theme-on-surface));
+  font-size: 0.92rem;
+  font-weight: 600;
+  left: 0;
+  max-width: 280px;
+  min-width: 220px;
+  padding: 12px 14px;
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  transform: translate(12px, 12px);
+  user-select: none;
+  z-index: 10000;
 }
 
 .kanban-card {
-  background: rgb(var(--v-theme-background));
-  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-  border-radius: 8px;
+  background: rgb(var(--v-theme-surface));
+  border: 1px solid rgba(var(--v-border-color), calc(var(--v-border-opacity) + 0.06));
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
   cursor: grab;
-  padding: 8px;
+  display: flex;
+  min-height: 132px;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: border-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+}
+
+.kanban-card:hover {
+  border-color: rgba(var(--v-theme-primary), 0.38);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+  transform: translateY(-1px);
 }
 
 .kanban-card:active {
@@ -621,17 +1345,86 @@ onBeforeMount(async () => {
   opacity: 0.72;
 }
 
+.kanban-card--dragging {
+  border-color: rgb(var(--v-theme-primary));
+  box-shadow: 0 16px 32px rgba(var(--v-theme-primary), 0.18);
+  opacity: 0.72;
+  transform: scale(0.98);
+}
+
+.kanban-card__accent {
+  background: rgba(var(--v-theme-primary), 0.6);
+  flex: 0 0 6px;
+}
+
+.kanban-card--priority-error .kanban-card__accent {
+  background: rgb(var(--v-theme-error));
+}
+
+.kanban-card--priority-warning .kanban-card__accent {
+  background: rgb(var(--v-theme-warning));
+}
+
+.kanban-card--priority-success .kanban-card__accent {
+  background: rgb(var(--v-theme-success));
+}
+
+.kanban-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  padding: 10px 10px 9px 12px;
+}
+
 .kanban-card__top {
   align-items: center;
   display: flex;
   justify-content: space-between;
-  min-height: 28px;
+  min-height: 30px;
 }
 
-.kanban-title :deep(textarea) {
-  font-size: 0.95rem;
+.kanban-card__tools {
+  align-items: center;
+  display: flex;
+  gap: 2px;
+  margin-right: -4px;
+}
+
+.kanban-card__drag {
+  cursor: grab;
+}
+
+.kanban-title {
+  color: rgb(var(--v-theme-on-surface));
+  font-size: 0.98rem;
+  font-weight: 600;
   line-height: 1.35;
-  padding-top: 0;
+  padding: 8px 0 10px;
+}
+
+.kanban-card__properties {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding-bottom: 9px;
+}
+
+.kanban-property-chip {
+  max-width: 100%;
+}
+
+.kanban-property-chip__label {
+  color: rgba(var(--v-theme-on-surface), 0.62);
+  font-weight: 700;
+  margin-right: 4px;
+}
+
+.kanban-property-chip__value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .kanban-card__meta {
@@ -639,7 +1432,26 @@ onBeforeMount(async () => {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  justify-content: space-between;
+  margin-top: auto;
   min-height: 24px;
+}
+
+.kanban-priority-chip {
+  max-width: 180px;
+}
+
+.kanban-priority-placeholder,
+.kanban-date-placeholder {
+  align-items: center;
+  color: rgba(var(--v-theme-on-surface), 0.58);
+  display: inline-flex;
+  font-size: 0.72rem;
+  gap: 4px;
+}
+
+.kanban-date-chip {
+  max-width: 190px;
 }
 
 .kanban-empty {
@@ -663,6 +1475,10 @@ onBeforeMount(async () => {
   .kanban-column {
     flex-basis: 86vw;
     width: 86vw;
+  }
+
+  .kanban-property-list {
+    grid-template-columns: 1fr;
   }
 }
 </style>

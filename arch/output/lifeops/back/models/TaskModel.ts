@@ -8,7 +8,7 @@ import type {ITask} from '../interfaces/ITask'
 const TaskSchema = new mongoose.Schema<ITask>({
             title: {type: String,   required: true, index: true, unique: false },
             description: {type: String,   required: false, index: false, unique: false },
-            source: {type: mongoose.Schema.Types.ObjectId, ref: 'TaskSource',  required: false, index: true, unique: false },
+            source: {type: mongoose.Schema.Types.ObjectId, ref: 'Source',  required: false, index: true, unique: false },
             type: {type: mongoose.Schema.Types.ObjectId, ref: 'TaskType',  required: false, index: true, unique: false },
             status: {type: mongoose.Schema.Types.ObjectId, ref: 'TaskStatus',  required: false, index: true, unique: false },
             priority: {type: String,   required: false, index: true, unique: false },

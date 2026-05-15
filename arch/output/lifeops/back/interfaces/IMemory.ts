@@ -4,7 +4,7 @@ interface IMemoryBase {
     content: string
     type: string
     tags?: Array<string>
-    importance?: string
+    priority?: string
     source?: string
     createdAt?: Date
     updatedAt?: Date
@@ -16,7 +16,7 @@ interface IMemory {
     content: string
     type: string
     tags?: Array<string>
-    importance?: string
+    priority?: string
     source?: string
     createdAt?: Date
     updatedAt?: Date

@@ -130,10 +130,10 @@ const menu: MenuItem[] = [
       },
       {
         icon: 'mdi-source-branch',
-        text: 'tasksource.menu',
-        link: {name: "TaskSourceCrudPage"},
+        text: 'source.menu',
+        link: {name: "SourceCrudPage"},
         gallery: true,
-        permission: 'tasksource:manage'
+        permission: 'source:manage'
       },
       {
         icon: 'mdi-account-tag-outline',

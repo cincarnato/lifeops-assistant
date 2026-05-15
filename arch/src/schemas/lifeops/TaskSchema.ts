@@ -20,7 +20,7 @@ const entitySchema: IEntitySchema = {
         },
         source: {
             type: "ref",
-            ref: "TaskSource",
+            ref: "Source",
             refDisplay: "name",
             index: true,
             header: true,

@@ -7,7 +7,7 @@ async function InitializeSettings() {
     await settingService.createOrUpdate({
         category: 'General',
         key: 'AppName',
-        value: 'DraxApp',
+        value: 'LIFEOPS',
         label: 'String',
         type: 'string',
         prefix: '',

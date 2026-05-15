@@ -3,7 +3,7 @@
 import TaskCrud from '../../cruds/TaskCrud'
 import {Crud} from "@drax/crud-vue";
 import {formatDate} from "@drax/common-front"
-import TaskSourceCombobox from '../../comboboxes/TaskSourceCombobox.vue'
+import SourceCombobox from '../../comboboxes/SourceCombobox.vue'
 import TaskTypeCombobox from '../../comboboxes/TaskTypeCombobox.vue'
 import TaskStatusCombobox from '../../comboboxes/TaskStatusCombobox.vue'
 import PriorityCombobox from '../../comboboxes/PriorityCombobox.vue'
@@ -20,7 +20,7 @@ import TaskView from "@/modules/lifeops/components/TaskView.vue";
     </template>
 
     <template v-slot:field.source="{field, form}">
-      <task-source-combobox
+      <source-combobox
           v-model="form.source"
           :name="field.name"
           :label="field.label"
