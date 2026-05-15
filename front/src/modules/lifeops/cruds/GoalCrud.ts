@@ -83,7 +83,6 @@ class GoalCrud extends EntityCrud implements IEntityCrud {
   get rules(): IEntityCrudRules {
     return {
       name: [(v: any) => !!v || 'validation.required'],
-      user: [(v: any) => !!v || 'validation.required']
     }
   }
 

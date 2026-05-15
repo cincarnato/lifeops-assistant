@@ -89,8 +89,6 @@ class ContactCrud extends EntityCrud implements IEntityCrud {
     return {
       firstName: [(v: any) => !!v || 'validation.required'],
       displayName: [(v: any) => !!v || 'validation.required'],
-      company: [(v: any) => !!v || 'validation.required'],
-      user: [(v: any) => !!v || 'validation.required']
     }
   }
 

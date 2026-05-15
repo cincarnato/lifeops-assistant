@@ -208,7 +208,9 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
 
   get filters(): IEntityCrudFilter[] {
     return [
-      //{name: '_id', type: 'string', label: 'ID', default: '', operator: 'eq' },
+      {name: 'project', type: 'ref', label: 'project', default: null, operator: 'eq', ref: 'Project', refDisplay: 'name', cols: 12, sm: 4, md: 4, lg: 4, xl: 4},
+      {name: 'goals', type: 'ref', label: 'goals', default: null, operator: 'eq', ref: 'Goal', refDisplay: 'name', cols: 12, sm: 4, md: 4, lg: 4, xl: 4},
+      {name: 'client', type: 'ref', label: 'client', default: null, operator: 'eq', ref: 'Client', refDisplay: 'name', cols: 12, sm: 4, md: 4, lg: 4, xl: 4},
     ]
   }
 

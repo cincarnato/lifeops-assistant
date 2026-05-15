@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed, onBeforeMount, onBeforeUnmount, ref} from "vue";
-import {useCrud, CrudDialog} from "@drax/crud-vue";
+import {useCrud, CrudDialog, CrudFilters, CrudFiltersAction} from "@drax/crud-vue";
 import {formatDate} from "@drax/common-front";
 import TaskCrud from "../cruds/TaskCrud";
 import TaskProvider from "../providers/TaskProvider";
@@ -69,6 +69,7 @@ const {
   resetCrudStore,
   prepareFilters,
   prepareSort,
+  filters,
   setForm
 } = useCrud(taskCrud);
 
@@ -95,6 +96,7 @@ const hiddenStatusKeys = ref<Set<string>>(new Set());
 const statusOrderKeys = ref<string[]>([]);
 const visibleCardPropertyKeys = ref<Set<TaskCardPropertyKey>>(new Set());
 const boardScrollEl = ref<HTMLElement | null>(null);
+const filtersVisible = ref(false);
 
 const STATUS_VISIBILITY_STORAGE_KEY = "lifeops.kanbanTask.hiddenStatuses";
 const STATUS_ORDER_STORAGE_KEY = "lifeops.kanbanTask.statusOrder";
@@ -542,7 +544,13 @@ async function loadBoard() {
 
 async function fetchTasks() {
   const limit = 500;
-  const firstPage = await taskProvider.paginate({page: 1, limit, orderBy: "updatedAt", order: "desc"});
+  const firstPage = await taskProvider.paginate({
+    page: 1,
+    limit,
+    orderBy: "updatedAt",
+    order: "desc",
+    filters: filters.value
+  });
   const totalPages = Math.ceil(firstPage.total / limit);
 
   if (totalPages <= 1) {
@@ -551,7 +559,13 @@ async function fetchTasks() {
 
   const restPages = await Promise.all(
       Array.from({length: totalPages - 1}, (_, index) => (
-          taskProvider.paginate({page: index + 2, limit, orderBy: "updatedAt", order: "desc"})
+          taskProvider.paginate({
+            page: index + 2,
+            limit,
+            orderBy: "updatedAt",
+            order: "desc",
+            filters: filters.value
+          })
       ))
   );
 
@@ -745,6 +759,11 @@ async function onFormSaved() {
   await loadBoard();
 }
 
+async function clearBoardFilters() {
+  prepareFilters();
+  await loadBoard();
+}
+
 onBeforeMount(async () => {
   loadHiddenStatuses();
   loadStatusOrder();
@@ -773,6 +792,15 @@ onBeforeUnmount(() => {
         </div>
       </div>
       <div class="kanban-actions">
+        <v-btn
+            v-if="taskCrud.filtersEnable"
+            :prepend-icon="filtersVisible ? 'mdi-filter-off-outline' : 'mdi-filter-outline'"
+            variant="tonal"
+            density="compact"
+            @click="filtersVisible = !filtersVisible"
+        >
+          {{ filtersVisible ? "Ocultar filtros" : "Mostrar filtros" }}
+        </v-btn>
         <v-menu :close-on-content-click="false" location="bottom end">
           <template #activator="{props}">
             <v-btn
@@ -918,6 +946,25 @@ onBeforeUnmount(() => {
         </v-btn>
       </div>
     </div>
+
+    <v-expand-transition>
+      <v-card v-if="taskCrud.filtersEnable && filtersVisible" flat class="kanban-filters mb-3">
+        <div class="kanban-filters__fields">
+          <crud-filters
+              v-model="filters"
+              :entity="taskCrud"
+              @apply-filter="loadBoard"
+          />
+        </div>
+        <div class="kanban-filters__actions">
+          <crud-filters-action
+              :entity="taskCrud"
+              @apply-filter="loadBoard"
+              @clear-filter="clearBoardFilters"
+          />
+        </div>
+      </v-card>
+    </v-expand-transition>
 
     <v-alert
         v-if="error"
@@ -1126,6 +1173,64 @@ onBeforeUnmount(() => {
   flex-wrap: wrap;
   gap: 8px;
   justify-content: flex-end;
+}
+
+.kanban-actions :deep(.v-btn) {
+  min-height: 32px;
+}
+
+.kanban-filters {
+  align-items: center;
+  background: transparent;
+  display: flex;
+  gap: 8px;
+  padding: 0;
+}
+
+.kanban-filters__fields {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.kanban-filters__fields :deep(.v-card) {
+  background: transparent;
+}
+
+.kanban-filters__fields :deep(.v-row) {
+  margin: 0;
+}
+
+.kanban-filters__fields :deep(.v-col) {
+  padding: 0 4px;
+}
+
+.kanban-filters__fields :deep(.v-field) {
+  min-height: 36px;
+}
+
+.kanban-filters__fields :deep(.v-field__input) {
+  min-height: 34px;
+  padding-bottom: 4px;
+  padding-top: 4px;
+}
+
+.kanban-filters__actions {
+  flex: 0 0 auto;
+}
+
+.kanban-filters__actions :deep(.v-card-actions) {
+  gap: 6px;
+  min-height: 36px;
+  padding: 0;
+}
+
+.kanban-filters__actions :deep(.v-spacer) {
+  display: none;
+}
+
+.kanban-filters__actions :deep(.v-btn) {
+  min-height: 32px;
+  padding-inline: 10px;
 }
 
 .kanban-status-selector,
@@ -1470,6 +1575,19 @@ onBeforeUnmount(() => {
 
   .kanban-actions :deep(.v-btn) {
     flex: 1;
+  }
+
+  .kanban-filters {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .kanban-filters__fields :deep(.v-col) {
+    padding: 3px 0;
+  }
+
+  .kanban-filters__actions :deep(.v-card-actions) {
+    justify-content: flex-end;
   }
 
   .kanban-column {
