@@ -16,6 +16,10 @@ import AgentJobSchema from './schemas/lifeops/AgentJobSchema.js';
 import AgentJobExecutionSchema from './schemas/lifeops/AgentJobExecutionSchema.js';
 import MemorySchema from './schemas/lifeops/MemorySchema.js';
 import MemoryTypeSchema from './schemas/lifeops/MemoryTypeSchema.js';
+import PurposeSchema from './schemas/lifeops/PurposeSchema.js';
+import LifeAreaSchema from './schemas/lifeops/LifeAreaSchema.js';
+import HabitSchema from './schemas/lifeops/HabitSchema.js';
+import HabitLogSchema from './schemas/lifeops/HabitLogSchema.js';
 import GoogleConnectionSchema from './schemas/google/GoogleConnectionSchema.js';
 
 //Import schemas
@@ -39,6 +43,10 @@ const schemas = [
     AgentJobExecutionSchema,
     MemorySchema,
     MemoryTypeSchema,
+    PurposeSchema,
+    LifeAreaSchema,
+    HabitSchema,
+    HabitLogSchema,
     //add schemas
 ];
 

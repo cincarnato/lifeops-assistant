@@ -17,6 +17,10 @@ import AgentJobMessages from "./AgentJob-i18n"
 import AgentJobExecutionMessages from "./AgentJobExecution-i18n"
 import MemoryMessages from "./Memory-i18n"
 import MemoryTypeMessages from "./MemoryType-i18n"
+import PurposeMessages from "./Purpose-i18n"
+import LifeAreaMessages from "./LifeArea-i18n"
+import HabitMessages from "./Habit-i18n"
+import HabitLogMessages from "./HabitLog-i18n"
 
 const messages = merge.all([
     GoalMessages,
@@ -35,7 +39,11 @@ const messages = merge.all([
     AgentJobMessages,
     AgentJobExecutionMessages,
     MemoryMessages,
-    MemoryTypeMessages
+    MemoryTypeMessages,
+    PurposeMessages,
+    LifeAreaMessages,
+    HabitMessages,
+    HabitLogMessages
 ])
 
 export default messages

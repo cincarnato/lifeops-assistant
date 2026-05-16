@@ -33,6 +33,10 @@ import {AgentJobPermissions} from "../modules/lifeops/permissions/AgentJobPermis
 import {AgentJobExecutionPermissions} from "../modules/lifeops/permissions/AgentJobExecutionPermissions.js";
 import {MemoryPermissions} from "../modules/lifeops/permissions/MemoryPermissions.js";
 import {MemoryTypePermissions} from "../modules/lifeops/permissions/MemoryTypePermissions.js";
+import {PurposePermissions} from "../modules/lifeops/permissions/PurposePermissions.js";
+import {LifeAreaPermissions} from "../modules/lifeops/permissions/LifeAreaPermissions.js";
+import {HabitPermissions} from "../modules/lifeops/permissions/HabitPermissions.js";
+import {HabitLogPermissions} from "../modules/lifeops/permissions/HabitLogPermissions.js";
 import {GoogleConnectionPermissions} from "../modules/google/permissions/GoogleConnectionPermissions.js";
 
 
@@ -78,6 +82,10 @@ function InitializePermissions() {
         ...Object.values(AgentJobExecutionPermissions),
         ...Object.values(MemoryPermissions),
         ...Object.values(MemoryTypePermissions),
+        ...Object.values(PurposePermissions),
+        ...Object.values(LifeAreaPermissions),
+        ...Object.values(HabitPermissions),
+        ...Object.values(HabitLogPermissions),
         ...Object.values(GoogleConnectionPermissions),
 
     ]

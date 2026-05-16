@@ -6,15 +6,12 @@ interface IGoalBase {
     valueScore?: number
     motivationScore?: number
     effortScore?: number
+    lifeArea?: string
     timeHorizon?: string
     targetDate?: Date
     completedAt?: Date
     archivedAt?: Date
     progressPercent?: number
-    successCriteria?: string
-    purpose?: string
-    constraints?: Array<string>
-    tags?: Array<string>
     user: any
     createdAt?: Date
     updatedAt?: Date
@@ -28,15 +25,12 @@ interface IGoal {
     valueScore?: number
     motivationScore?: number
     effortScore?: number
+    lifeArea?: string
     timeHorizon?: string
     targetDate?: Date
     completedAt?: Date
     archivedAt?: Date
     progressPercent?: number
-    successCriteria?: string
-    purpose?: string
-    constraints?: Array<string>
-    tags?: Array<string>
     user: any
     createdAt?: Date
     updatedAt?: Date

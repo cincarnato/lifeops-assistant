@@ -172,8 +172,8 @@ class ChatbotTaskTools {
     private static serializeGoal(goal: any) {
         return this.serializeFields(goal, [
             "_id", "name", "description", "status", "priority", "valueScore", "motivationScore",
-            "effortScore", "timeHorizon", "targetDate", "completedAt", "archivedAt",
-            "progressPercent", "successCriteria", "purpose", "constraints", "tags", "createdAt", "updatedAt",
+            "effortScore", "lifeArea", "timeHorizon", "targetDate", "completedAt", "archivedAt",
+            "progressPercent", "createdAt", "updatedAt",
         ]);
     }
 
@@ -254,14 +254,11 @@ class ChatbotTaskTools {
                     valueScore: scoreProperty,
                     motivationScore: scoreProperty,
                     effortScore: scoreProperty,
+                    lifeArea: {type: "string"},
                     timeHorizon: {type: "string", enum: ["short_term", "medium_term", "long_term"]},
                     targetDate: {type: "string", description: "Fecha objetivo en formato ISO 8601."},
                     completedAt: {type: "string", description: "Fecha de completado en formato ISO 8601."},
                     progressPercent: {type: "number", minimum: 0, maximum: 100},
-                    successCriteria: {type: "string"},
-                    purpose: {type: "string"},
-                    constraints: tagArrayProperty,
-                    tags: tagArrayProperty,
                 },
                 updateProperties: {
                     name: {type: "string"},
@@ -271,15 +268,12 @@ class ChatbotTaskTools {
                     valueScore: scoreProperty,
                     motivationScore: scoreProperty,
                     effortScore: scoreProperty,
+                    lifeArea: {type: "string"},
                     timeHorizon: {type: "string", enum: ["short_term", "medium_term", "long_term"]},
                     targetDate: nullableDateProperty,
                     completedAt: nullableDateProperty,
                     archivedAt: nullableDateProperty,
                     progressPercent: {type: "number", minimum: 0, maximum: 100},
-                    successCriteria: {type: "string"},
-                    purpose: {type: "string"},
-                    constraints: tagArrayProperty,
-                    tags: tagArrayProperty,
                 },
             },
             {

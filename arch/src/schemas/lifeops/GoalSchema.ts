@@ -42,6 +42,12 @@ const entitySchema: IEntitySchema = {
             type: "number",
             default: 5,
         },
+        lifeArea: {
+            type: "string",
+            search: true,
+            index: true,
+            header: true,
+        },
         timeHorizon: {
             type: "enum",
             enum: ["short_term", "medium_term", "long_term"],
@@ -64,21 +70,6 @@ const entitySchema: IEntitySchema = {
             type: "number",
             default: 0,
             header: true,
-        },
-        successCriteria: {
-            type: "longString",
-        },
-        purpose: {
-            type: "longString",
-        },
-        constraints: {
-            type: "array.string",
-            default: [],
-        },
-        tags: {
-            type: "array.string",
-            default: [],
-            index: true,
         },
         user: {
             type: "ref",

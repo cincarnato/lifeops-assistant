@@ -21,8 +21,6 @@ import PriorityCombobox from '../../comboboxes/PriorityCombobox.vue'
     <template v-slot:item.priority="{value}">{{value}}</template>
     <template v-slot:item.targetDate="{value}">{{formatDate(value)}}</template>
     <template v-slot:item.completedAt="{value}">{{formatDate(value)}}</template>
-    <template v-slot:item.constraints="{value}"><v-chip v-for="v in value">{{v}}</v-chip></template>
-    <template v-slot:item.tags="{value}"><v-chip v-for="v in value">{{v}}</v-chip></template>
   </crud>
 </template>
 

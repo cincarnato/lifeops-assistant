@@ -46,6 +46,7 @@ class GoalCrud extends EntityCrud implements IEntityCrud {
     return [
       {title: 'name', key: 'name', align: 'start'},
       {title: 'priority', key: 'priority', align: 'start'},
+      {title: 'lifeArea', key: 'lifeArea', align: 'start'},
       {title: 'timeHorizon', key: 'timeHorizon', align: 'start'},
       {title: 'targetDate', key: 'targetDate', align: 'start'},
       {title: 'progressPercent', key: 'progressPercent', align: 'start'},
@@ -99,6 +100,7 @@ class GoalCrud extends EntityCrud implements IEntityCrud {
       {name: 'valueScore', type: 'number', label: 'valueScore', default: 5},
       {name: 'motivationScore', type: 'number', label: 'motivationScore', default: 5},
       {name: 'effortScore', type: 'number', label: 'effortScore', default: 5},
+      {name: 'lifeArea', type: 'string', label: 'lifeArea', default: ''},
       {
         name: 'timeHorizon',
         type: 'enum',
@@ -110,10 +112,6 @@ class GoalCrud extends EntityCrud implements IEntityCrud {
       {name: 'completedAt', type: 'date', label: 'completedAt', default: null},
       {name: 'archivedAt', type: 'date', label: 'archivedAt', default: null},
       {name: 'progressPercent', type: 'number', label: 'progressPercent', default: 0},
-      {name: 'successCriteria', type: 'longString', label: 'successCriteria', default: ''},
-      {name: 'purpose', type: 'longString', label: 'purpose', default: ''},
-      {name: 'constraints', type: 'array.string', label: 'constraints', default: []},
-      {name: 'tags', type: 'array.string', label: 'tags', default: []},
       // {name: 'user', type: 'ref', label: 'user', default: null, ref: 'User', refDisplay: 'username'}
     ]
   }

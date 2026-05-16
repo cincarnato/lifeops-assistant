@@ -41,6 +41,10 @@ import {AgentJobFastifyRoutes} from "../modules/lifeops/routes/AgentJobRoutes.js
 import {AgentJobExecutionFastifyRoutes} from "../modules/lifeops/routes/AgentJobExecutionRoutes.js"
 import {MemoryFastifyRoutes} from "../modules/lifeops/routes/MemoryRoutes.js"
 import {MemoryTypeFastifyRoutes} from "../modules/lifeops/routes/MemoryTypeRoutes.js"
+import {PurposeFastifyRoutes} from "../modules/lifeops/routes/PurposeRoutes.js"
+import {LifeAreaFastifyRoutes} from "../modules/lifeops/routes/LifeAreaRoutes.js"
+import {HabitFastifyRoutes} from "../modules/lifeops/routes/HabitRoutes.js"
+import {HabitLogFastifyRoutes} from "../modules/lifeops/routes/HabitLogRoutes.js"
 
 function FastifyServerFactory(rootDir:string) {
     const server = new FastifyServer(rootDir);
@@ -97,6 +101,10 @@ function FastifyServerFactory(rootDir:string) {
     server.fastifyRegister(AgentJobExecutionFastifyRoutes)
     server.fastifyRegister(MemoryFastifyRoutes)
     server.fastifyRegister(MemoryTypeFastifyRoutes)
+    server.fastifyRegister(PurposeFastifyRoutes)
+    server.fastifyRegister(LifeAreaFastifyRoutes)
+    server.fastifyRegister(HabitFastifyRoutes)
+    server.fastifyRegister(HabitLogFastifyRoutes)
     server.fastifyRegister(ChatbotTaskFastifyRoutes)
 
 

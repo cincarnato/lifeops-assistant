@@ -12,15 +12,12 @@ const GoalSchema = new mongoose.Schema<IGoal>({
             valueScore: {type: Number, min: 1, max: 10, default: 5,  required: false, index: false, unique: false },
             motivationScore: {type: Number, min: 1, max: 10, default: 5,  required: false, index: false, unique: false },
             effortScore: {type: Number, min: 1, max: 10, default: 5,  required: false, index: false, unique: false },
+            lifeArea: {type: String,   required: false, index: true, unique: false },
             timeHorizon: {type: String,  enum: ['short_term', 'medium_term', 'long_term'], default: 'medium_term', required: false, index: true, unique: false },
             targetDate: {type: Date,   required: false, index: true, unique: false },
             completedAt: {type: Date,   required: false, index: false, unique: false },
             archivedAt: {type: Date,   required: false, index: false, unique: false },
             progressPercent: {type: Number, min: 0, max: 100, default: 0,  required: false, index: false, unique: false },
-            successCriteria: {type: String,   required: false, index: false, unique: false },
-            purpose: {type: String,   required: false, index: false, unique: false },
-            constraints: [{type: String,   required: false, index: false, unique: false }],
-            tags: [{type: String,   required: false, index: true, unique: false }],
             user: {type: mongoose.Schema.Types.ObjectId, ref: 'User',  required: true, index: true, unique: false }
 }, {timestamps: true});
 

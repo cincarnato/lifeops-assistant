@@ -18,6 +18,10 @@ import AgentJobCrudRoute from "./AgentJobCrudRoute"
 import AgentJobExecutionCrudRoute from "./AgentJobExecutionCrudRoute"
 import MemoryCrudRoute from "./MemoryCrudRoute"
 import MemoryTypeCrudRoute from "./MemoryTypeCrudRoute"
+import PurposeCrudRoute from "./PurposeCrudRoute"
+import LifeAreaCrudRoute from "./LifeAreaCrudRoute"
+import HabitCrudRoute from "./HabitCrudRoute"
+import HabitLogCrudRoute from "./HabitLogCrudRoute"
 
 export const routes = [
     ...GoalCrudRoute,
@@ -37,6 +41,10 @@ export const routes = [
     ...AgentJobExecutionCrudRoute,
     ...MemoryCrudRoute,
     ...MemoryTypeCrudRoute,
+    ...PurposeCrudRoute,
+    ...LifeAreaCrudRoute,
+    ...HabitCrudRoute,
+    ...HabitLogCrudRoute,
     ...ChatbotTaskRoute,
     ...KanbanTaskRoute
 ]

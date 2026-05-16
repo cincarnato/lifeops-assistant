@@ -42,6 +42,27 @@ const menu: MenuItem[] = [
         permission: 'memory:manage'
       },
       {
+        icon: 'mdi-compass-outline',
+        text: 'purpose.menu',
+        link: {name: "PurposeCrudPage"},
+        gallery: true,
+        permission: 'purpose:manage'
+      },
+      {
+        icon: 'mdi-repeat',
+        text: 'habit.menu',
+        link: {name: "HabitCrudPage"},
+        gallery: true,
+        permission: 'habit:manage'
+      },
+      {
+        icon: 'mdi-calendar-check-outline',
+        text: 'habitlog.menu',
+        link: {name: "HabitLogCrudPage"},
+        gallery: true,
+        permission: 'habitlog:manage'
+      },
+      {
         icon: 'mdi-robot-industrial-outline',
         text: 'agentjob.menu',
         link: {name: "AgentJobCrudPage"},
@@ -96,6 +117,13 @@ const menu: MenuItem[] = [
         link: {name: "CompanyCrudPage"},
         gallery: true,
         permission: 'company:manage'
+      },
+      {
+        icon: 'mdi-shape-outline',
+        text: 'lifearea.menu',
+        link: {name: "LifeAreaCrudPage"},
+        gallery: true,
+        permission: 'lifearea:manage'
       },
 
 
