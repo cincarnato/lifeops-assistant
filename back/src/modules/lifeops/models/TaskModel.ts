@@ -9,6 +9,7 @@ const TaskSchema = new mongoose.Schema<ITask>({
     description: {type: String, required: false, index: false, unique: false},
     source: {type: String, required: false, index: true, unique: false},
     type: {type: String, required: false, index: true, unique: false},
+    lifeArea: {type: String, required: false, index: true, unique: false},
     status: {type: String, required: false, index: true, unique: false},
     priority: {type: String, required: false, index: true, unique: false},
     goals: [{type: mongoose.Schema.Types.ObjectId, ref: 'Goal', required: false, index: true, unique: false}],

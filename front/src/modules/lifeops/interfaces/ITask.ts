@@ -15,6 +15,7 @@ interface ITaskBase {
     description?: string
     source?: string
     type?: string
+    lifeArea?: string
     status?: string
     priority?: string
     goals?: Array<any>
@@ -49,6 +50,7 @@ interface ITask {
     description?: string
     source?: string
     type?: string
+    lifeArea?: string
     status?: string
     priority?: string
     goals?: Array<any>

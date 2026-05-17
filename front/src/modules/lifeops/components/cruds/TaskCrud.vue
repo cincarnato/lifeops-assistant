@@ -8,6 +8,7 @@ import TaskTypeCombobox from '../../comboboxes/TaskTypeCombobox.vue'
 import TaskStatusCombobox from '../../comboboxes/TaskStatusCombobox.vue'
 import PriorityCombobox from '../../comboboxes/PriorityCombobox.vue'
 import TaskView from "@/modules/lifeops/components/TaskView.vue";
+import LifeAreaCombobox from "@/modules/lifeops/comboboxes/LifeAreaCombobox.vue";
 
 </script>
 
@@ -19,15 +20,7 @@ import TaskView from "@/modules/lifeops/components/TaskView.vue";
       <task-view v-if="operation === 'view'" :item="form"></task-view>
     </template>
 
-    <template v-slot:field.source="{field, form}">
-      <source-combobox
-          v-model="form.source"
-          :name="field.name"
-          :label="field.label"
-          item-title="name"
-          item-value="name"
-      />
-    </template>
+
     <template v-slot:field.type="{field, form}">
       <task-type-combobox
           v-model="form.type"
@@ -46,6 +39,27 @@ import TaskView from "@/modules/lifeops/components/TaskView.vue";
           item-value="name"
       />
     </template>
+
+    <template v-slot:field.lifeArea="{field, form}">
+      <life-area-combobox
+        v-model="form.source"
+        :name="field.name"
+        :label="field.label"
+        item-title="name"
+        item-value="name"
+      />
+    </template>
+
+    <template v-slot:field.source="{field, form}">
+      <source-combobox
+        v-model="form.source"
+        :name="field.name"
+        :label="field.label"
+        item-title="name"
+        item-value="name"
+      />
+    </template>
+
     <template v-slot:field.priority="{field, form}">
       <priority-combobox
           v-model="form.priority"

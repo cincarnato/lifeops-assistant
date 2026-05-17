@@ -41,20 +41,7 @@ const menu: MenuItem[] = [
         gallery: true,
         permission: 'memory:manage'
       },
-      {
-        icon: 'mdi-compass-outline',
-        text: 'purpose.menu',
-        link: {name: "PurposeCrudPage"},
-        gallery: true,
-        permission: 'purpose:manage'
-      },
-      {
-        icon: 'mdi-repeat',
-        text: 'habit.menu',
-        link: {name: "HabitCrudPage"},
-        gallery: true,
-        permission: 'habit:manage'
-      },
+
       {
         icon: 'mdi-calendar-check-outline',
         text: 'habitlog.menu',
@@ -83,6 +70,20 @@ const menu: MenuItem[] = [
     text: 'Gestion',
     gallery: true,
     children: [
+      {
+        icon: 'mdi-compass-outline',
+        text: 'purpose.menu',
+        link: {name: "PurposeCrudPage"},
+        gallery: true,
+        permission: 'purpose:manage'
+      },
+      {
+        icon: 'mdi-repeat',
+        text: 'habit.menu',
+        link: {name: "HabitCrudPage"},
+        gallery: true,
+        permission: 'habit:manage'
+      },
       {
         icon: 'mdi-flag-checkered',
         text: 'goal.menu',
@@ -118,13 +119,7 @@ const menu: MenuItem[] = [
         gallery: true,
         permission: 'company:manage'
       },
-      {
-        icon: 'mdi-shape-outline',
-        text: 'lifearea.menu',
-        link: {name: "LifeAreaCrudPage"},
-        gallery: true,
-        permission: 'lifearea:manage'
-      },
+
 
 
     ]
@@ -162,6 +157,13 @@ const menu: MenuItem[] = [
         link: {name: "SourceCrudPage"},
         gallery: true,
         permission: 'source:manage'
+      },
+      {
+        icon: 'mdi-shape-outline',
+        text: 'lifearea.menu',
+        link: {name: "LifeAreaCrudPage"},
+        gallery: true,
+        permission: 'lifearea:manage'
       },
       {
         icon: 'mdi-account-tag-outline',

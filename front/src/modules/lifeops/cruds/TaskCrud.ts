@@ -49,6 +49,7 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
       {title: 'title', key: 'title', align: 'start'},
       {title: 'source', key: 'source', align: 'start'},
       {title: 'type', key: 'type', align: 'start'},
+      {title: 'lifeArea', key: 'lifeArea', align: 'start'},
       {title: 'status', key: 'status', align: 'start'},
       {title: 'priority', key: 'priority', align: 'start'},
       {title: 'project', key: 'project', align: 'start'},
@@ -56,7 +57,6 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
       {title: 'valueScore', key: 'valueScore', align: 'start'},
       {title: 'dueDate', key: 'dueDate', align: 'start'},
       {title: 'scheduledDate', key: 'scheduledDate', align: 'start'},
-      {title: 'statusHistory', key: 'statusHistory', align: 'start'},
       {title: 'user', key: 'user', align: 'start'}
     ]
   }
@@ -106,6 +106,7 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
       {name: 'description', type: 'longString', label: 'description', default: ''},
       {name: 'source', type: 'string', label: 'source', default: null, groupTab: 'CLASSIFICATION', sm: 4},
       {name: 'type', type: 'string', label: 'type', default: null, groupTab: 'CLASSIFICATION', sm: 4},
+      {name: 'lifeArea', type: 'string', label: 'lifeArea', default: null, groupTab: 'CLASSIFICATION', sm: 4},
       {name: 'priority', type: 'string', label: 'priority', default: null, groupTab: 'CLASSIFICATION', sm: 4},
       {name: 'tags', type: 'array.string', label: 'tags', default: [], groupTab: 'CLASSIFICATION'},
       {

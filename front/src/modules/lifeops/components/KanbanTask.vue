@@ -23,6 +23,7 @@ type TaskCardPropertyKey =
     | "completedAt"
     | "source"
     | "type"
+    | "lifeArea"
     | "project"
     | "client"
     | "contacts"
@@ -109,6 +110,7 @@ const cardProperties: TaskCardProperty[] = [
   {key: "status", label: "Estado", icon: "mdi-view-column-outline", group: "Basicas"},
   {key: "description", label: "Descripcion", icon: "mdi-text-box-outline", group: "Basicas"},
   {key: "type", label: "Tipo", icon: "mdi-shape-outline", group: "Clasificacion"},
+  {key: "lifeArea", label: "Area de vida", icon: "mdi-compass-outline", group: "Clasificacion"},
   {key: "source", label: "Origen", icon: "mdi-source-branch", group: "Clasificacion"},
   {key: "dueDate", label: "Vencimiento", icon: "mdi-calendar-alert", group: "Fechas"},
   {key: "scheduledDate", label: "Agendada", icon: "mdi-calendar-clock", group: "Fechas"},
@@ -321,6 +323,7 @@ function taskCardPropertyValue(task: ITask, key: TaskCardPropertyKey) {
     completedAt: () => formatCardDate(task.completedAt),
     source: () => task.source || "",
     type: () => task.type || "",
+    lifeArea: () => task.lifeArea || "",
     project: () => entityName(task.project),
     client: () => entityName(task.client),
     contacts: () => listNames(task.contacts),

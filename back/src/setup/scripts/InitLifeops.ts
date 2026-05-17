@@ -1,6 +1,7 @@
 import ClientTypeServiceFactory from "../../modules/lifeops/factory/services/ClientTypeServiceFactory.js";
 import CompanyTypeServiceFactory from "../../modules/lifeops/factory/services/CompanyTypeServiceFactory.js";
 import ContactTypeServiceFactory from "../../modules/lifeops/factory/services/ContactTypeServiceFactory.js";
+import LifeAreaServiceFactory from "../../modules/lifeops/factory/services/LifeAreaServiceFactory.js";
 import MemoryTypeServiceFactory from "../../modules/lifeops/factory/services/MemoryTypeServiceFactory.js";
 import PriorityServiceFactory from "../../modules/lifeops/factory/services/PriorityServiceFactory.js";
 import SourceServiceFactory from "../../modules/lifeops/factory/services/SourceServiceFactory.js";
@@ -49,6 +50,17 @@ async function InitLifeops() {
         {name: "Trabajo", description: "Contacto relacionado con trabajo u operaciones."},
         {name: "Comercial", description: "Contacto asociado a ventas o oportunidades."},
         {name: "Soporte", description: "Contacto para asistencia o seguimiento tecnico."}
+    ]);
+
+    await seedIfEmpty(LifeAreaServiceFactory.instance, [
+        {name: "Salud", description: "Bienestar fisico, mental y habitos saludables."},
+        {name: "Trabajo", description: "Carrera, empleo, proyectos y responsabilidades profesionales."},
+        {name: "Finanzas", description: "Ingresos, gastos, ahorro, inversion y patrimonio."},
+        {name: "Familia", description: "Vinculos familiares, cuidado y responsabilidades del hogar."},
+        {name: "Relaciones", description: "Amistades, pareja, red social y comunidad."},
+        {name: "Crecimiento", description: "Aprendizaje, desarrollo personal y habilidades."},
+        {name: "Hogar", description: "Casa, orden, mantenimiento y entorno cotidiano."},
+        {name: "Ocio", description: "Descanso, hobbies, entretenimiento y disfrute personal."}
     ]);
 
     await seedIfEmpty(MemoryTypeServiceFactory.instance, [
