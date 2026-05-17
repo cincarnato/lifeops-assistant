@@ -1,4 +1,4 @@
-import {BuilderTool, DraxAgent, AiProviderFactory} from "@drax/ai-back"
+import {BuilderTool, DraxAgentFactory, AiProviderFactory} from "@drax/ai-back"
 import type {
     DraxAgentConfig,
     DraxAgentPromptContext,
@@ -11,6 +11,12 @@ import {TaskServiceFactory} from "../factory/services/TaskServiceFactory.js"
 import {TaskBaseSchema} from "../schemas/TaskSchema.js"
 import {MemoryServiceFactory} from "../factory/services/MemoryServiceFactory.js"
 import {MemoryBaseSchema} from "../schemas/MemorySchema.js"
+import PurposeServiceFactory from "../factory/services/PurposeServiceFactory.js";
+import {PurposeBaseSchema} from "../schemas/PurposeSchema.js";
+import HabitServiceFactory from "../factory/services/HabitServiceFactory.js";
+import {HabitBaseSchema} from "../schemas/HabitSchema.js";
+import GoalServiceFactory from "../factory/services/GoalServiceFactory.js";
+import {GoalBaseSchema} from "../schemas/GoalSchema.js";
 import SourceServiceFactory from "../factory/services/SourceServiceFactory.js";
 import TaskStatusServiceFactory from "../factory/services/TaskStatusServiceFactory.js";
 import TaskTypeServiceFactory from "../factory/services/TaskTypeServiceFactory.js";
@@ -59,6 +65,9 @@ class AgentConfigService {
     private _systemPrompt = "";
     private _taskTool?: DraxAgentToolBuilder;
     private _memoryTool?: DraxAgentToolBuilder;
+    private _purposeTool?: DraxAgentToolBuilder;
+    private _habitTool?: DraxAgentToolBuilder;
+    private _goalTool?: DraxAgentToolBuilder;
     private _tools: AgentConfigToolSource[] = [];
     private _googleToolsInitialized = false;
     private _initialized = false;
@@ -84,7 +93,8 @@ class AgentConfigService {
 
     public async initializeAgent(): Promise<void> {
         await this.prepare();
-        DraxAgent.instance().configure(this.buildAgentConfig());
+        DraxAgentFactory.instance().configure(this.buildAgentConfig());
+        DraxAgentFactory.instance("mindset").configure(this.buildMindsetAgentConfig());
         this._initialized = true;
     }
 
@@ -92,7 +102,7 @@ class AgentConfigService {
         this._tools.push(tool);
 
         if (this._initialized) {
-            DraxAgent.instance().setTools(this.tools);
+            DraxAgentFactory.instance().setTools(this.tools);
         }
 
         return this;
@@ -109,6 +119,7 @@ class AgentConfigService {
     public async prepare(): Promise<void> {
         this.prepareTaskTool();
         this.prepareMemoryTool();
+        this.prepareMindsetTools();
         this.prepareGoogleTools();
         await this.prepareSystemPrompt();
     }
@@ -124,7 +135,7 @@ class AgentConfigService {
         const systemPrompt = await this.prepareSystemPrompt();
 
         if (this._initialized) {
-            DraxAgent.instance().setSystemPrompt(systemPrompt);
+            DraxAgentFactory.instance().setSystemPrompt(systemPrompt);
         }
 
         return systemPrompt;
@@ -147,7 +158,7 @@ class AgentConfigService {
             this._taskTool = new BuilderTool({
                 entityDescription: "Tareas",
                 entityName: "Task",
-                methods: ["search", "find", "create", "updatePartial", "groupBy"],
+                methods: ["search", "create", "updatePartial", "groupBy"],
                 schema: TaskBaseSchema,
                 service: TaskServiceFactory.instance
             });
@@ -161,13 +172,61 @@ class AgentConfigService {
             this._memoryTool = new BuilderTool({
                 entityDescription: "Memorias",
                 entityName: "Memory",
-                methods: ["search", "find", "create", "updatePartial", "groupBy"],
+                methods: ["search", "create", "updatePartial", "groupBy"],
                 schema: MemoryBaseSchema,
                 service: MemoryServiceFactory.instance
             });
         }
 
         return this._memoryTool;
+    }
+
+    public preparePurposeTool(): DraxAgentToolBuilder {
+        if (!this._purposeTool) {
+            this._purposeTool = new BuilderTool({
+                entityDescription: "Propósitos",
+                entityName: "Purpose",
+                methods: ["search", "create", "updatePartial"],
+                schema: PurposeBaseSchema,
+                service: PurposeServiceFactory.instance
+            });
+        }
+
+        return this._purposeTool;
+    }
+
+    public prepareHabitTool(): DraxAgentToolBuilder {
+        if (!this._habitTool) {
+            this._habitTool = new BuilderTool({
+                entityDescription: "Hábitos",
+                entityName: "Habit",
+                methods: ["search", "create", "updatePartial"],
+                schema: HabitBaseSchema,
+                service: HabitServiceFactory.instance
+            });
+        }
+
+        return this._habitTool;
+    }
+
+    public prepareGoalTool(): DraxAgentToolBuilder {
+        if (!this._goalTool) {
+            this._goalTool = new BuilderTool({
+                entityDescription: "Objetivos",
+                entityName: "Goal",
+                methods: ["search", "create", "updatePartial"],
+                schema: GoalBaseSchema,
+                service: GoalServiceFactory.instance
+            });
+        }
+
+        return this._goalTool;
+    }
+
+    public prepareMindsetTools(): void {
+        this.preparePurposeTool();
+        this.prepareHabitTool();
+        this.prepareGoalTool();
     }
 
     public prepareGoogleTools(): void {
@@ -209,10 +268,30 @@ class AgentConfigService {
         return this.prepareMemoryTool();
     }
 
+    public get purposeTool(): DraxAgentToolBuilder {
+        return this.preparePurposeTool();
+    }
+
+    public get habitTool(): DraxAgentToolBuilder {
+        return this.prepareHabitTool();
+    }
+
+    public get goalTool(): DraxAgentToolBuilder {
+        return this.prepareGoalTool();
+    }
+
     public get toolBuilders(): DraxAgentToolBuilderSource {
         return [
             this.taskTool,
             this.memoryTool
+        ];
+    }
+
+    public get mindsetToolBuilders(): DraxAgentToolBuilderSource {
+        return [
+            this.purposeTool,
+            this.habitTool,
+            this.goalTool
         ];
     }
 
@@ -245,6 +324,15 @@ class AgentConfigService {
             systemPrompt: this.systemPrompt,
             toolBuilders: this.toolBuilders,
             tools: this.tools,
+            ...overrides
+        };
+    }
+
+    public buildMindsetAgentConfig(overrides: Partial<DraxAgentConfig> = {}): DraxAgentConfig {
+        return {
+            systemPrompt: this.buildMindsetSystemPrompt(),
+            toolBuilders: this.mindsetToolBuilders,
+            tools: [],
             ...overrides
         };
     }
@@ -334,6 +422,20 @@ class AgentConfigService {
                 "Ejecuta este job de forma autonoma. Si realizas acciones con tools, resume que hiciste y el resultado final."
             ].join("\n");
         };
+    }
+
+    private buildMindsetSystemPrompt(): string {
+        const today = this.formatLocalDate(new Date());
+        const timeZone = this.getLocalTimeZone();
+        const timeZoneOffset = this.formatLocalTimeZoneOffset(new Date());
+
+        return [
+            "Sos un asistente especializado en mindset, propósito, hábitos y objetivos.",
+            "Responde de forma clara, breve y útil.",
+            "",
+            `Fecha actual del sistema: ${today}. Zona horaria local: ${timeZone} (${timeZoneOffset}).`,
+            "Usa las tools disponibles para consultar, crear o actualizar parcialmente propósitos, hábitos y objetivos cuando corresponda."
+        ].join("\n");
     }
 
     private async fetchOptionNames(): Promise<AgentOptionNames> {

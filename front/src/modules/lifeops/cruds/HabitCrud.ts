@@ -1,11 +1,10 @@
-
 import {EntityCrud, useCrudStore} from "@drax/crud-vue";
-import type{
+import type {
   IDraxCrudProvider,
   IEntityCrud,
   IEntityCrudField,
   IEntityCrudFilter,
-  IEntityCrudHeader, 
+  IEntityCrudHeader,
   IEntityCrudOperation,
   IEntityCrudPermissions,
   IEntityCrudRefs,
@@ -26,38 +25,38 @@ class HabitCrud extends EntityCrud implements IEntityCrud {
     this.name = 'Habit'
     this.store = useCrudStore(this.name)
   }
-  
+
   static get instance(): HabitCrud {
-    if(!HabitCrud.singleton){
+    if (!HabitCrud.singleton) {
       HabitCrud.singleton = new HabitCrud()
     }
     return HabitCrud.singleton
   }
 
-  get permissions(): IEntityCrudPermissions{
+  get permissions(): IEntityCrudPermissions {
     return {
-      manage: 'habit:manage', 
-      view: 'habit:view', 
-      create: 'habit:create', 
-      update: 'habit:update', 
+      manage: 'habit:manage',
+      view: 'habit:view',
+      create: 'habit:create',
+      update: 'habit:update',
       delete: 'habit:delete'
     }
   }
 
   get headers(): IEntityCrudHeader[] {
     return [
-        {title: 'name',key:'name', align: 'start'},
-{title: 'lifeArea',key:'lifeArea', align: 'start'},
-{title: 'active',key:'active', align: 'start'},
-{title: 'generateTask',key:'generateTask', align: 'start'}
+      {title: 'name', key: 'name', align: 'start'},
+      {title: 'lifeArea', key: 'lifeArea', align: 'start'},
+      {title: 'active', key: 'active', align: 'start'},
+      {title: 'generateTask', key: 'generateTask', align: 'start'}
     ]
   }
-  
+
   get selectedHeaders(): string[] {
     return this.headers.map(header => header.key)
   }
-  
-  get actionHeaders():IEntityCrudHeader[]{
+
+  get actionHeaders(): IEntityCrudHeader[] {
     return [
       {
         title: 'action.actions',
@@ -70,77 +69,87 @@ class HabitCrud extends EntityCrud implements IEntityCrud {
     ]
   }
 
-  get provider(): IDraxCrudProvider<any, any, any>{
+  get provider(): IDraxCrudProvider<any, any, any> {
     return HabitProvider.instance
   }
-  
-  get refs(): IEntityCrudRefs{
-    return {
-      
-    }
+
+  get refs(): IEntityCrudRefs {
+    return {}
   }
 
-  get rules():IEntityCrudRules{
+  get rules(): IEntityCrudRules {
     return {
       name: [(v: any) => !!v || 'validation.required'],
-frequency: [(v: any) => !!v || 'validation.required'],
-taskTemplate: []
+      frequency: [(v: any) => !!v || 'validation.required']
     }
   }
 
-  get fields(): IEntityCrudField[]{
+  get fields(): IEntityCrudField[] {
     return [
-        {name:'name',type:'string',label:'name',default:''},
-{name:'description',type:'longString',label:'description',default:''},
-{name:'lifeArea',type:'string',label:'lifeArea',default:''},
-{name:'active',type:'boolean',label:'active',default:true},
-{name:'frequency',type:'object',label:'frequency',default:{"type":null},objectFields: [{name:'type',type:'enum',label:'type',default:null,enum: ['daily', 'weekly', 'monthly']}]},
-{name:'generateTask',type:'boolean',label:'generateTask',default:false},
-{name:'taskTemplate',type:'object',label:'taskTemplate',default:{"title":"''","description":"''","estimatedMinutes":null,"priority":"''"},objectFields: [{name:'title',type:'string',label:'title',default:''},
-{name:'description',type:'longString',label:'description',default:''},
-{name:'estimatedMinutes',type:'number',label:'estimatedMinutes',default:null},
-{name:'priority',type:'string',label:'priority',default:''}]}
+      {name: 'name', type: 'string', label: 'name', default: ''},
+      {name: 'description', type: 'longString', label: 'description', default: ''},
+      {name: 'lifeArea', type: 'string', label: 'lifeArea', default: ''},
+      {name: 'active', type: 'boolean', label: 'active', default: true},
+      {
+        name: 'frequency',
+        type: 'object',
+        label: 'frequency',
+        default: {"type": null},
+        objectFields: [{name: 'type', type: 'enum', label: 'type', default: null, enum: ['daily', 'weekly', 'monthly']}]
+      },
+      {name: 'generateTask', type: 'boolean', label: 'generateTask', default: false},
+      {
+        name: 'taskTemplate',
+        type: 'object',
+        label: 'taskTemplate',
+        default: {"title": "", "description": "", "estimatedMinutes": null, "priority": ""},
+        objectFields: [
+          {name: 'title', type: 'string', label: 'title', default: ''},
+          {name: 'description', type: 'longString', label: 'description', default: ''},
+          {name: 'estimatedMinutes', type: 'number', label: 'estimatedMinutes', default: null},
+          {name: 'priority', type: 'string', label: 'priority', default: ''}]
+      }
     ]
   }
-  
-  get filters():IEntityCrudFilter[]{
+
+  get filters(): IEntityCrudFilter[] {
     return [
       //{name: '_id', type: 'string', label: 'ID', default: '', operator: 'eq' },
     ]
   }
-  
-  get isViewable(){
+
+  get isViewable() {
     return true
   }
 
-  get isEditable(){
+  get isEditable() {
     return true
   }
 
-  get isCreatable(){
+  get isCreatable() {
     return true
   }
 
-  get isDeletable(){
+  get isDeletable() {
     return true
   }
 
-  get isExportable(){
+  get isExportable() {
     return true
   }
 
-  get exportFormats(){
+  get exportFormats() {
     return ['CSV', 'JSON']
   }
 
-  get exportHeaders(){
+  get exportHeaders() {
     return ['_id']
   }
 
-  get isImportable(){
+  get isImportable() {
     return false
   }
-  
+
   get isColumnSelectable() {
     return true
   }
@@ -149,47 +158,43 @@ taskTemplate: []
     return true
   }
 
-  get importFormats(){
+  get importFormats() {
     return ['CSV', 'JSON']
   }
 
-  get dialogFullscreen(){
+  get dialogFullscreen() {
     return false
   }
-  
+
   get tabs() {
-    return [
-     
-    ]
+    return []
   }
-  
+
   get menus() {
-    return [
-     
-    ]
+    return []
   }
-  
+
   get searchEnable() {
     return true
   }
 
-   get filtersEnable(){
+  get filtersEnable() {
     return true
   }
 
-  get dynamicFiltersEnable(){
+  get dynamicFiltersEnable() {
     return true
   }
 
-  get isAiAssistable(){
+  get isAiAssistable() {
     return false
   }
 
   get navigationOperations(): IEntityCrudOperation[] {
     return ['view'] // edit, delete
   }
-  
-  get isSavedQueriesEnabled(){
+
+  get isSavedQueriesEnabled() {
     return true
   }
 
