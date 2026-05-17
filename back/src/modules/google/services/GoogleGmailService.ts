@@ -9,6 +9,10 @@ import type {
     GoogleGmailMessage,
     GoogleGmailMessageAddress,
     GoogleGmailMessageSummary,
+    GoogleGmailModifyLabelsOptions,
+    GoogleGmailModifyLabelsResult,
+    GoogleGmailSendOptions,
+    GoogleGmailSendResult,
 } from "../interfaces/IGoogleGmail";
 
 type GmailHeader = {
@@ -41,11 +45,13 @@ type GmailMessageResponse = GmailPart & {
 
 const GMAIL_READONLY_SCOPE = "https://www.googleapis.com/auth/gmail.readonly";
 const GMAIL_MODIFY_SCOPE = "https://www.googleapis.com/auth/gmail.modify";
+const GMAIL_SEND_SCOPE = "https://www.googleapis.com/auth/gmail.send";
+const GMAIL_FULL_SCOPE = "https://mail.google.com/";
 
 class GoogleGmailService {
 
     async listMessages(options: GoogleGmailListOptions): Promise<GoogleGmailListResult> {
-        const connection = await this.resolveConnection(options.userId, options.connectionId);
+        const connection = await this.resolveReadConnection(options.userId, options.connectionId);
         const accessToken = await this.getAccessToken(connection);
         const query = this.buildSearchQuery(options);
         const params = new URLSearchParams({
@@ -82,7 +88,7 @@ class GoogleGmailService {
     }
 
     async getMessage(options: GoogleGmailGetOptions): Promise<GoogleGmailMessage> {
-        const connection = await this.resolveConnection(options.userId, options.connectionId);
+        const connection = await this.resolveReadConnection(options.userId, options.connectionId);
         const accessToken = await this.getAccessToken(connection);
         const params = new URLSearchParams({format: "full"});
         const message = await this.gmailFetch<GmailMessageResponse>(
@@ -93,7 +99,54 @@ class GoogleGmailService {
         return this.mapFullMessage(message);
     }
 
-    private async resolveConnection(userId: string, connectionId?: string): Promise<IGoogleConnection> {
+    async sendMessage(options: GoogleGmailSendOptions): Promise<GoogleGmailSendResult> {
+        const connection = await this.resolveSendConnection(options.userId, options.connectionId);
+        const accessToken = await this.getAccessToken(connection);
+        const raw = this.encodeBase64Url(this.buildRawMessage(options));
+        const response = await this.gmailFetch<GoogleGmailSendResult>(
+            "https://gmail.googleapis.com/gmail/v1/users/me/messages/send",
+            accessToken,
+            {
+                method: "POST",
+                body: JSON.stringify({
+                    raw,
+                    threadId: options.threadId,
+                }),
+            }
+        );
+
+        return response;
+    }
+
+    async modifyLabels(options: GoogleGmailModifyLabelsOptions): Promise<GoogleGmailModifyLabelsResult> {
+        const addLabelIds = this.normalizeLabelIds(options.addLabelIds);
+        const removeLabelIds = this.normalizeLabelIds(options.removeLabelIds);
+        if (!addLabelIds.length && !removeLabelIds.length) {
+            throw new Error("google.gmail.labels.required");
+        }
+
+        const connection = await this.resolveModifyConnection(options.userId, options.connectionId);
+        const accessToken = await this.getAccessToken(connection);
+        const response = await this.gmailFetch<GoogleGmailModifyLabelsResult>(
+            `https://gmail.googleapis.com/gmail/v1/users/me/messages/${encodeURIComponent(options.messageId)}/modify`,
+            accessToken,
+            {
+                method: "POST",
+                body: JSON.stringify({
+                    addLabelIds,
+                    removeLabelIds,
+                }),
+            }
+        );
+
+        return {
+            id: response.id,
+            threadId: response.threadId,
+            labelIds: response.labelIds || [],
+        };
+    }
+
+    private async resolveReadConnection(userId: string, connectionId?: string): Promise<IGoogleConnection> {
         const service = GoogleConnectionServiceFactory.instance;
         const connection = connectionId
             ? await service.findById(connectionId)
@@ -110,10 +163,59 @@ class GoogleGmailService {
         return connection;
     }
 
+    private async resolveSendConnection(userId: string, connectionId?: string): Promise<IGoogleConnection> {
+        const service = GoogleConnectionServiceFactory.instance;
+        const connection = connectionId
+            ? await service.findById(connectionId)
+            : (await service.findBy("userId", userId, 20)).find(item => this.canSendGmail(item));
+
+        if (!connection || this.getConnectionUserId(connection) !== userId) {
+            throw new Error("google.connection.not_found");
+        }
+
+        if (!this.canSendGmail(connection)) {
+            throw new Error("google.gmail.send_scope.required");
+        }
+
+        return connection;
+    }
+
+    private async resolveModifyConnection(userId: string, connectionId?: string): Promise<IGoogleConnection> {
+        const service = GoogleConnectionServiceFactory.instance;
+        const connection = connectionId
+            ? await service.findById(connectionId)
+            : (await service.findBy("userId", userId, 20)).find(item => this.canModifyGmail(item));
+
+        if (!connection || this.getConnectionUserId(connection) !== userId) {
+            throw new Error("google.connection.not_found");
+        }
+
+        if (!this.canModifyGmail(connection)) {
+            throw new Error("google.gmail.modify_scope.required");
+        }
+
+        return connection;
+    }
+
     private canReadGmail(connection: IGoogleConnection): boolean {
         return connection.status === "active" && (
             connection.scope?.includes(GMAIL_READONLY_SCOPE) ||
-            connection.scope?.includes(GMAIL_MODIFY_SCOPE)
+            connection.scope?.includes(GMAIL_MODIFY_SCOPE) ||
+            connection.scope?.includes(GMAIL_FULL_SCOPE)
+        );
+    }
+
+    private canModifyGmail(connection: IGoogleConnection): boolean {
+        return connection.status === "active" && (
+            connection.scope?.includes(GMAIL_MODIFY_SCOPE) ||
+            connection.scope?.includes(GMAIL_FULL_SCOPE)
+        );
+    }
+
+    private canSendGmail(connection: IGoogleConnection): boolean {
+        return connection.status === "active" && (
+            connection.scope?.includes(GMAIL_SEND_SCOPE) ||
+            connection.scope?.includes(GMAIL_FULL_SCOPE)
         );
     }
 
@@ -182,6 +284,14 @@ class GoogleGmailService {
         return /\s/.test(trimmed) ? `"${trimmed.replace(/"/g, '\\"')}"` : trimmed;
     }
 
+    private normalizeLabelIds(labelIds?: string[]): string[] {
+        return Array.from(new Set(
+            (labelIds || [])
+                .map(labelId => labelId.trim())
+                .filter(Boolean)
+        ));
+    }
+
     private async getMessageMetadata(messageId: string, accessToken: string): Promise<GoogleGmailMessageSummary> {
         const params = new URLSearchParams({format: "metadata"});
         ["Subject", "From", "To", "Date"].forEach(header => params.append("metadataHeaders", header));
@@ -193,11 +303,14 @@ class GoogleGmailService {
         return this.mapMessageSummary(message);
     }
 
-    private async gmailFetch<T>(url: string, accessToken: string): Promise<T> {
+    private async gmailFetch<T>(url: string, accessToken: string, init: RequestInit = {}): Promise<T> {
         const response = await fetch(url, {
+            ...init,
             headers: {
                 Authorization: `Bearer ${accessToken}`,
                 Accept: "application/json",
+                ...(init.body ? {"Content-Type": "application/json"} : {}),
+                ...init.headers,
             },
         });
 
@@ -207,6 +320,75 @@ class GoogleGmailService {
         }
 
         return await response.json() as T;
+    }
+
+    private buildRawMessage(options: GoogleGmailSendOptions): string {
+        if (!options.to?.length) {
+            throw new Error("google.gmail.to.required");
+        }
+
+        const hasBody = Boolean(options.bodyText?.trim() || options.bodyHtml?.trim());
+        if (!hasBody) {
+            throw new Error("google.gmail.body.required");
+        }
+
+        const headers = [
+            `To: ${this.formatAddressHeader(options.to)}`,
+            ...(options.cc?.length ? [`Cc: ${this.formatAddressHeader(options.cc)}`] : []),
+            ...(options.bcc?.length ? [`Bcc: ${this.formatAddressHeader(options.bcc)}`] : []),
+            ...(options.replyTo ? [`Reply-To: ${this.sanitizeHeaderValue(options.replyTo)}`] : []),
+            `Subject: ${this.encodeHeaderValue(options.subject || "")}`,
+            "MIME-Version: 1.0",
+        ];
+
+        if (options.bodyHtml?.trim() && options.bodyText?.trim()) {
+            const boundary = `lifeops_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+            return [
+                ...headers,
+                `Content-Type: multipart/alternative; boundary="${boundary}"`,
+                "",
+                `--${boundary}`,
+                "Content-Type: text/plain; charset=UTF-8",
+                "Content-Transfer-Encoding: 8bit",
+                "",
+                options.bodyText,
+                `--${boundary}`,
+                "Content-Type: text/html; charset=UTF-8",
+                "Content-Transfer-Encoding: 8bit",
+                "",
+                options.bodyHtml,
+                `--${boundary}--`,
+                "",
+            ].join("\r\n");
+        }
+
+        const isHtml = Boolean(options.bodyHtml?.trim());
+        return [
+            ...headers,
+            `Content-Type: ${isHtml ? "text/html" : "text/plain"}; charset=UTF-8`,
+            "Content-Transfer-Encoding: 8bit",
+            "",
+            isHtml ? options.bodyHtml : options.bodyText,
+            "",
+        ].join("\r\n");
+    }
+
+    private formatAddressHeader(addresses: string[]): string {
+        return addresses
+            .map(address => this.sanitizeHeaderValue(address))
+            .filter(Boolean)
+            .join(", ");
+    }
+
+    private sanitizeHeaderValue(value: string): string {
+        return value.replace(/[\r\n]+/g, " ").trim();
+    }
+
+    private encodeHeaderValue(value: string): string {
+        const sanitized = this.sanitizeHeaderValue(value);
+        return /^[\x00-\x7F]*$/.test(sanitized)
+            ? sanitized
+            : `=?UTF-8?B?${Buffer.from(sanitized, "utf8").toString("base64")}?=`;
     }
 
     private mapFullMessage(message: GmailMessageResponse): GoogleGmailMessage {
@@ -301,6 +483,14 @@ class GoogleGmailService {
 
     private decodeBase64Url(value: string): string {
         return Buffer.from(value.replace(/-/g, "+").replace(/_/g, "/"), "base64").toString("utf8");
+    }
+
+    private encodeBase64Url(value: string): string {
+        return Buffer.from(value, "utf8")
+            .toString("base64")
+            .replace(/\+/g, "-")
+            .replace(/\//g, "_")
+            .replace(/=+$/g, "");
     }
 
     private htmlToText(value: string): string {

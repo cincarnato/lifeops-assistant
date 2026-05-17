@@ -56,6 +56,39 @@ type GoogleGmailGetOptions = {
     messageId: string;
 }
 
+type GoogleGmailSendOptions = {
+    userId: string;
+    connectionId?: string;
+    to: string[];
+    cc?: string[];
+    bcc?: string[];
+    subject?: string;
+    bodyText?: string;
+    bodyHtml?: string;
+    replyTo?: string;
+    threadId?: string;
+}
+
+type GoogleGmailSendResult = {
+    id: string;
+    threadId: string;
+    labelIds?: string[];
+}
+
+type GoogleGmailModifyLabelsOptions = {
+    userId: string;
+    connectionId?: string;
+    messageId: string;
+    addLabelIds?: string[];
+    removeLabelIds?: string[];
+}
+
+type GoogleGmailModifyLabelsResult = {
+    id: string;
+    threadId: string;
+    labelIds: string[];
+}
+
 type GoogleGmailListResult = {
     items: GoogleGmailMessageSummary[];
     nextPageToken?: string;
@@ -70,4 +103,8 @@ export type {
     GoogleGmailMessage,
     GoogleGmailMessageAddress,
     GoogleGmailMessageSummary,
+    GoogleGmailModifyLabelsOptions,
+    GoogleGmailModifyLabelsResult,
+    GoogleGmailSendOptions,
+    GoogleGmailSendResult,
 }

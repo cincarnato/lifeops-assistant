@@ -11,6 +11,8 @@ class GoogleGmailTools {
         return [
             this.listMessagesTool(context),
             this.getMessageTool(context),
+            this.sendMessageTool(context),
+            this.modifyLabelsTool(context),
         ];
     }
 
@@ -120,6 +122,115 @@ class GoogleGmailTools {
 
                 return await this.executeWithLog("google_gmail_get_message", args, payload, async () => {
                     return await GoogleGmailServiceFactory.instance.getMessage(payload);
+                });
+            },
+        };
+    }
+
+    private static sendMessageTool(context: GoogleGmailToolsContext): IPromptTool {
+        return {
+            name: "google_gmail_send_message",
+            description: "Envia un email desde Gmail del usuario autenticado. Requiere una conexion Google con permiso gmail.send.",
+            parameters: {
+                type: "object",
+                properties: {
+                    connectionId: {
+                        type: "string",
+                        description: "ID opcional de una conexion Google especifica. Si no se informa, se usa la primera conexion Gmail activa del usuario con permiso de envio.",
+                    },
+                    to: {
+                        type: "array",
+                        items: {type: "string"},
+                        minItems: 1,
+                        description: "Destinatarios principales. Usar emails validos o encabezados tipo Nombre <email@dominio.com>.",
+                    },
+                    cc: {
+                        type: "array",
+                        items: {type: "string"},
+                        description: "Destinatarios en copia.",
+                    },
+                    bcc: {
+                        type: "array",
+                        items: {type: "string"},
+                        description: "Destinatarios en copia oculta.",
+                    },
+                    subject: {type: "string", description: "Asunto del email."},
+                    bodyText: {type: "string", description: "Cuerpo del email en texto plano."},
+                    bodyHtml: {type: "string", description: "Cuerpo del email en HTML. Si se informa junto con bodyText, se envia multipart/alternative."},
+                    replyTo: {type: "string", description: "Direccion Reply-To opcional."},
+                    threadId: {type: "string", description: "Thread ID opcional para enviar dentro de una conversacion existente."},
+                },
+                required: ["to", "subject"],
+                additionalProperties: false,
+            },
+            execute: async (args: any) => {
+                const payload = {
+                    userId: context.userId,
+                    connectionId: args.connectionId ?? context.connectionId,
+                    to: args.to,
+                    cc: args.cc,
+                    bcc: args.bcc,
+                    subject: args.subject,
+                    bodyText: args.bodyText,
+                    bodyHtml: args.bodyHtml,
+                    replyTo: args.replyTo,
+                    threadId: args.threadId,
+                };
+
+                const loggedArgs = {
+                    ...args,
+                    bodyText: args.bodyText ? "[redacted]" : undefined,
+                    bodyHtml: args.bodyHtml ? "[redacted]" : undefined,
+                };
+
+                return await this.executeWithLog("google_gmail_send_message", loggedArgs, {
+                    ...payload,
+                    bodyText: payload.bodyText ? "[redacted]" : undefined,
+                    bodyHtml: payload.bodyHtml ? "[redacted]" : undefined,
+                }, async () => {
+                    return await GoogleGmailServiceFactory.instance.sendMessage(payload);
+                });
+            },
+        };
+    }
+
+    private static modifyLabelsTool(context: GoogleGmailToolsContext): IPromptTool {
+        return {
+            name: "google_gmail_modify_message_labels",
+            description: "Agrega o quita etiquetas de un email de Gmail del usuario autenticado. Requiere permiso gmail.modify. Usa IDs de labels Gmail, por ejemplo INBOX, STARRED, UNREAD o Label_123.",
+            parameters: {
+                type: "object",
+                properties: {
+                    connectionId: {
+                        type: "string",
+                        description: "ID opcional de una conexion Google especifica. Si no se informa, se usa la primera conexion Gmail activa del usuario con permiso de modificacion.",
+                    },
+                    messageId: {type: "string", description: "ID exacto del mensaje Gmail a etiquetar."},
+                    addLabelIds: {
+                        type: "array",
+                        items: {type: "string"},
+                        description: "IDs de labels a agregar al mensaje, por ejemplo STARRED, IMPORTANT o Label_123.",
+                    },
+                    removeLabelIds: {
+                        type: "array",
+                        items: {type: "string"},
+                        description: "IDs de labels a quitar del mensaje, por ejemplo UNREAD, INBOX o Label_123.",
+                    },
+                },
+                required: ["messageId"],
+                additionalProperties: false,
+            },
+            execute: async (args: any) => {
+                const payload = {
+                    userId: context.userId,
+                    connectionId: args.connectionId ?? context.connectionId,
+                    messageId: args.messageId,
+                    addLabelIds: args.addLabelIds,
+                    removeLabelIds: args.removeLabelIds,
+                };
+
+                return await this.executeWithLog("google_gmail_modify_message_labels", args, payload, async () => {
+                    return await GoogleGmailServiceFactory.instance.modifyLabels(payload);
                 });
             },
         };
