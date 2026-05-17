@@ -103,7 +103,7 @@ const STATUS_VISIBILITY_STORAGE_KEY = "lifeops.kanbanTask.hiddenStatuses";
 const STATUS_ORDER_STORAGE_KEY = "lifeops.kanbanTask.statusOrder";
 const CARD_PROPERTY_STORAGE_KEY = "lifeops.kanbanTask.visibleCardProperties";
 
-const defaultVisibleCardPropertyKeys: TaskCardPropertyKey[] = ["priority", "dueDate"];
+const defaultVisibleCardPropertyKeys: TaskCardPropertyKey[] = ["priority"];
 
 const cardProperties: TaskCardProperty[] = [
   {key: "priority", label: "Prioridad", icon: "mdi-flag-outline", group: "Basicas"},
@@ -1091,7 +1091,10 @@ onBeforeUnmount(() => {
                     </v-chip>
                   </div>
 
-                  <div class="kanban-card__meta">
+                  <div
+                      v-if="isCardPropertyVisible('dueDate') || savingIds.has(task._id)"
+                      class="kanban-card__meta"
+                  >
                     <v-chip
                         v-if="isCardPropertyVisible('dueDate') && task.dueDate"
                         size="x-small"
@@ -1431,7 +1434,7 @@ onBeforeUnmount(() => {
   box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
   cursor: grab;
   display: flex;
-  min-height: 132px;
+  min-height: 0;
   overflow: hidden;
   touch-action: none;
   user-select: none;

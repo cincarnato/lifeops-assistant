@@ -9,10 +9,13 @@ import type {
 } from "@drax/ai-back"
 import {TaskServiceFactory} from "../factory/services/TaskServiceFactory.js"
 import {TaskBaseSchema} from "../schemas/TaskSchema.js"
+import {MemoryServiceFactory} from "../factory/services/MemoryServiceFactory.js"
+import {MemoryBaseSchema} from "../schemas/MemorySchema.js"
 import SourceServiceFactory from "../factory/services/SourceServiceFactory.js";
 import TaskStatusServiceFactory from "../factory/services/TaskStatusServiceFactory.js";
 import TaskTypeServiceFactory from "../factory/services/TaskTypeServiceFactory.js";
 import PriorityServiceFactory from "../factory/services/PriorityServiceFactory.js";
+import MemoryTypeServiceFactory from "../factory/services/MemoryTypeServiceFactory.js";
 import GoogleCalendarTools from "../../google/tools/GoogleCalendarTools.js";
 import GoogleGmailTools from "../../google/tools/GoogleGmailTools.js";
 
@@ -21,6 +24,15 @@ interface TaskOptionNames {
     statuses: string[];
     types: string[];
     priorities: string[];
+}
+
+interface MemoryOptionNames {
+    types: string[];
+}
+
+interface AgentOptionNames {
+    tasks: TaskOptionNames;
+    memories: MemoryOptionNames;
 }
 
 interface AgentConfigJobAgent {
@@ -46,14 +58,20 @@ class AgentConfigService {
 
     private _systemPrompt = "";
     private _taskTool?: DraxAgentToolBuilder;
+    private _memoryTool?: DraxAgentToolBuilder;
     private _tools: AgentConfigToolSource[] = [];
     private _googleToolsInitialized = false;
     private _initialized = false;
-    private _taskOptionNames: TaskOptionNames = {
-        sources: [],
-        statuses: [],
-        types: [],
-        priorities: []
+    private _optionNames: AgentOptionNames = {
+        tasks: {
+            sources: [],
+            statuses: [],
+            types: [],
+            priorities: []
+        },
+        memories: {
+            types: []
+        }
     };
 
     public static get instance(): AgentConfigService {
@@ -90,13 +108,14 @@ class AgentConfigService {
 
     public async prepare(): Promise<void> {
         this.prepareTaskTool();
+        this.prepareMemoryTool();
         this.prepareGoogleTools();
         await this.prepareSystemPrompt();
     }
 
     public async prepareSystemPrompt(): Promise<string> {
-        this._taskOptionNames = await this.fetchTaskOptionNames();
-        this._systemPrompt = this.buildSystemPrompt(this._taskOptionNames);
+        this._optionNames = await this.fetchOptionNames();
+        this._systemPrompt = this.buildSystemPrompt(this._optionNames);
 
         return this._systemPrompt;
     }
@@ -137,6 +156,20 @@ class AgentConfigService {
         return this._taskTool;
     }
 
+    public prepareMemoryTool(): DraxAgentToolBuilder {
+        if (!this._memoryTool) {
+            this._memoryTool = new BuilderTool({
+                entityDescription: "Memorias",
+                entityName: "Memory",
+                methods: ["search", "find", "create", "updatePartial", "groupBy"],
+                schema: MemoryBaseSchema,
+                service: MemoryServiceFactory.instance
+            });
+        }
+
+        return this._memoryTool;
+    }
+
     public prepareGoogleTools(): void {
         if (this._googleToolsInitialized) {
             return;
@@ -172,9 +205,14 @@ class AgentConfigService {
         return this.prepareTaskTool();
     }
 
+    public get memoryTool(): DraxAgentToolBuilder {
+        return this.prepareMemoryTool();
+    }
+
     public get toolBuilders(): DraxAgentToolBuilderSource {
         return [
-            this.taskTool
+            this.taskTool,
+            this.memoryTool
         ];
     }
 
@@ -195,7 +233,11 @@ class AgentConfigService {
     }
 
     public get taskOptionNames(): TaskOptionNames {
-        return this._taskOptionNames;
+        return this._optionNames.tasks;
+    }
+
+    public get memoryOptionNames(): MemoryOptionNames {
+        return this._optionNames.memories;
     }
 
     public buildAgentConfig(overrides: Partial<DraxAgentConfig> = {}): DraxAgentConfig {
@@ -294,19 +336,25 @@ class AgentConfigService {
         };
     }
 
-    private async fetchTaskOptionNames(): Promise<TaskOptionNames> {
-        const [sources, statuses, types, priorities] = await Promise.all([
+    private async fetchOptionNames(): Promise<AgentOptionNames> {
+        const [sources, statuses, taskTypes, priorities, memoryTypes] = await Promise.all([
             SourceServiceFactory.instance.fetchAll(),
             TaskStatusServiceFactory.instance.fetchAll(),
             TaskTypeServiceFactory.instance.fetchAll(),
-            PriorityServiceFactory.instance.fetchAll()
+            PriorityServiceFactory.instance.fetchAll(),
+            MemoryTypeServiceFactory.instance.fetchAll()
         ]);
 
         return {
-            sources: this.serializeOptionNames(sources),
-            statuses: this.serializeOptionNames(statuses),
-            types: this.serializeOptionNames(types),
-            priorities: this.serializeOptionNames(priorities)
+            tasks: {
+                sources: this.serializeOptionNames(sources),
+                statuses: this.serializeOptionNames(statuses),
+                types: this.serializeOptionNames(taskTypes),
+                priorities: this.serializeOptionNames(priorities)
+            },
+            memories: {
+                types: this.serializeOptionNames(memoryTypes)
+            }
         };
     }
 
@@ -316,7 +364,7 @@ class AgentConfigService {
             .filter((name): name is string => typeof name === "string" && name.trim().length > 0);
     }
 
-    private buildSystemPrompt(options: TaskOptionNames): string {
+    private buildSystemPrompt(options: AgentOptionNames): string {
         const today = this.formatLocalDate(new Date());
         const tomorrow = this.addDays(today, 1);
         const timeZone = this.getLocalTimeZone();
@@ -331,10 +379,14 @@ class AgentConfigService {
             "",
             "Al crear o actualizar tareas, los campos source, type, status y priority guardan solo el nombre como string.",
             "Usa unicamente estos nombres disponibles para completar esos campos:",
-            `- source: ${this.formatOptionNames(options.sources)}`,
-            `- type: ${this.formatOptionNames(options.types)}`,
-            `- status: ${this.formatOptionNames(options.statuses)}`,
-            `- priority: ${this.formatOptionNames(options.priorities)}`
+            `- source: ${this.formatOptionNames(options.tasks.sources)}`,
+            `- type: ${this.formatOptionNames(options.tasks.types)}`,
+            `- status: ${this.formatOptionNames(options.tasks.statuses)}`,
+            `- priority: ${this.formatOptionNames(options.tasks.priorities)}`,
+            "",
+            "Al crear o actualizar memorias, el campo type guarda solo el nombre como string.",
+            "Usa unicamente estos nombres disponibles para completar ese campo:",
+            `- type: ${this.formatOptionNames(options.memories.types)}`
         ].join("\n");
     }
 
