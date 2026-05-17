@@ -158,7 +158,7 @@ class AgentConfigService {
             this._taskTool = new BuilderTool({
                 entityDescription: "Tareas",
                 entityName: "Task",
-                methods: ["search", "create", "updatePartial", "groupBy"],
+                methods: ["search", "findFirst", "findLast","create", "updatePartial", "groupBy"],
                 schema: TaskBaseSchema,
                 service: TaskServiceFactory.instance
             });
