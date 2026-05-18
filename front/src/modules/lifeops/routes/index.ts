@@ -1,4 +1,3 @@
-
 import GoalCrudRoute from "./GoalCrudRoute"
 import ProjectCrudRoute from "./ProjectCrudRoute"
 import ClientCrudRoute from "./ClientCrudRoute"
@@ -15,6 +14,7 @@ import ContactTypeCrudRoute from "./ContactTypeCrudRoute"
 import CompanyTypeCrudRoute from "./CompanyTypeCrudRoute"
 import ClientTypeCrudRoute from "./ClientTypeCrudRoute"
 import AgentJobCrudRoute from "./AgentJobCrudRoute"
+import AgentRoute from "./AgentRoute"
 import AgentJobExecutionCrudRoute from "./AgentJobExecutionCrudRoute"
 import MemoryCrudRoute from "./MemoryCrudRoute"
 import MemoryTypeCrudRoute from "./MemoryTypeCrudRoute"
@@ -24,29 +24,30 @@ import HabitCrudRoute from "./HabitCrudRoute"
 import HabitLogCrudRoute from "./HabitLogCrudRoute"
 
 export const routes = [
-    ...GoalCrudRoute,
-    ...ProjectCrudRoute,
-    ...ClientCrudRoute,
-    ...ContactCrudRoute,
-    ...CompanyCrudRoute,
-    ...TaskTypeCrudRoute,
-    ...TaskStatusCrudRoute,
-    ...SourceCrudRoute,
-    ...TaskCrudRoute,
-    ...PriorityCrudRoute,
-    ...ContactTypeCrudRoute,
-    ...CompanyTypeCrudRoute,
-    ...ClientTypeCrudRoute,
-    ...AgentJobCrudRoute,
-    ...AgentJobExecutionCrudRoute,
-    ...MemoryCrudRoute,
-    ...MemoryTypeCrudRoute,
-    ...PurposeCrudRoute,
-    ...LifeAreaCrudRoute,
-    ...HabitCrudRoute,
-    ...HabitLogCrudRoute,
-    ...ChatbotTaskRoute,
-    ...KanbanTaskRoute
+  ...GoalCrudRoute,
+  ...ProjectCrudRoute,
+  ...ClientCrudRoute,
+  ...ContactCrudRoute,
+  ...CompanyCrudRoute,
+  ...TaskTypeCrudRoute,
+  ...TaskStatusCrudRoute,
+  ...SourceCrudRoute,
+  ...TaskCrudRoute,
+  ...PriorityCrudRoute,
+  ...ContactTypeCrudRoute,
+  ...CompanyTypeCrudRoute,
+  ...ClientTypeCrudRoute,
+  ...AgentRoute,
+  ...AgentJobCrudRoute,
+  ...AgentJobExecutionCrudRoute,
+  ...MemoryCrudRoute,
+  ...MemoryTypeCrudRoute,
+  ...PurposeCrudRoute,
+  ...LifeAreaCrudRoute,
+  ...HabitCrudRoute,
+  ...HabitLogCrudRoute,
+  ...ChatbotTaskRoute,
+  ...KanbanTaskRoute
 ]
 
 export default routes

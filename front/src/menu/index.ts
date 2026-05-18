@@ -10,6 +10,34 @@ const menu: MenuItem[] = [
   },
   {
     icon: 'mdi-bullseye-arrow',
+    text: 'AGENT',
+    gallery: true,
+    children: [
+      {
+        icon: 'mdi-robot',
+        text: 'Agent',
+        link: {name: "Agent"},
+        gallery: true,
+        permission: 'agent:session'
+      },
+      {
+        icon: 'mdi-robot-industrial-outline',
+        text: 'agentjob.menu',
+        link: {name: "AgentJobCrudPage"},
+        gallery: true,
+        permission: 'agentjob:manage'
+      },
+      {
+        icon: 'mdi-progress-clock',
+        text: 'agentjobexecution.menu',
+        link: {name: "AgentJobExecutionCrudPage"},
+        gallery: true,
+        permission: 'agentjobexecution:manage'
+      },
+    ]
+  },
+  {
+    icon: 'mdi-bullseye-arrow',
     text: 'Core',
     gallery: true,
     children: [
@@ -27,13 +55,7 @@ const menu: MenuItem[] = [
         gallery: true,
         permission: 'task:view'
       },
-      {
-        icon: 'mdi-robot-outline',
-        text: 'Asistente de tareas',
-        link: {name: "ChatbotTaskPage"},
-        gallery: true,
-        permission: 'task:create'
-      },
+
       {
         icon: 'mdi-brain',
         text: 'memory.menu',
@@ -49,20 +71,7 @@ const menu: MenuItem[] = [
         gallery: true,
         permission: 'habitlog:manage'
       },
-      {
-        icon: 'mdi-robot-industrial-outline',
-        text: 'agentjob.menu',
-        link: {name: "AgentJobCrudPage"},
-        gallery: true,
-        permission: 'agentjob:manage'
-      },
-      {
-        icon: 'mdi-progress-clock',
-        text: 'agentjobexecution.menu',
-        link: {name: "AgentJobExecutionCrudPage"},
-        gallery: true,
-        permission: 'agentjobexecution:manage'
-      },
+
     ]
   },
   {
@@ -119,7 +128,6 @@ const menu: MenuItem[] = [
         gallery: true,
         permission: 'company:manage'
       },
-
 
 
     ]
@@ -323,8 +331,8 @@ const menu: MenuItem[] = [
       },
       {
         icon: 'mdi-robot',
-        text:'agentsession.menu',
-        link: { name: "AgentSessionCrudPage" },
+        text: 'agentsession.menu',
+        link: {name: "AgentSessionCrudPage"},
         gallery: true,
         permission: 'agentsession:manage'
       },
