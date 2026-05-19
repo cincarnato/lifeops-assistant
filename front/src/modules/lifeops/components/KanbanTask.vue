@@ -25,8 +25,6 @@ type TaskCardPropertyKey =
     | "type"
     | "lifeArea"
     | "project"
-    | "client"
-    | "contacts"
     | "goals"
     | "tags"
     | "user"
@@ -34,9 +32,6 @@ type TaskCardPropertyKey =
     | "motivationScore"
     | "effortScore"
     | "urgencyScore"
-    | "estimatedMinutes"
-    | "spentMinutes"
-    | "nextAction"
     | "redmineIssueId"
     | "emailMessageId"
     | "calendarEventId"
@@ -119,8 +114,6 @@ const cardProperties: TaskCardProperty[] = [
   {key: "updatedAt", label: "Actualizada", icon: "mdi-update", group: "Fechas"},
   {key: "archivedAt", label: "Archivada", icon: "mdi-archive-outline", group: "Fechas"},
   {key: "project", label: "Proyecto", icon: "mdi-folder-open-outline", group: "Contexto"},
-  {key: "client", label: "Cliente", icon: "mdi-domain", group: "Contexto"},
-  {key: "contacts", label: "Contactos", icon: "mdi-account-multiple-outline", group: "Contexto"},
   {key: "goals", label: "Objetivos", icon: "mdi-bullseye-arrow", group: "Contexto"},
   {key: "tags", label: "Tags", icon: "mdi-tag-multiple-outline", group: "Contexto"},
   {key: "user", label: "Usuario", icon: "mdi-account-circle-outline", group: "Contexto"},
@@ -128,9 +121,6 @@ const cardProperties: TaskCardProperty[] = [
   {key: "motivationScore", label: "Motivacion", icon: "mdi-lightning-bolt-outline", group: "Scoring"},
   {key: "effortScore", label: "Esfuerzo", icon: "mdi-weight-lifter", group: "Scoring"},
   {key: "urgencyScore", label: "Urgencia", icon: "mdi-alarm", group: "Scoring"},
-  {key: "estimatedMinutes", label: "Estimado", icon: "mdi-timer-sand", group: "Ejecucion"},
-  {key: "spentMinutes", label: "Invertido", icon: "mdi-timer-outline", group: "Ejecucion"},
-  {key: "nextAction", label: "Proxima accion", icon: "mdi-ray-start-arrow", group: "Ejecucion"},
   {key: "redmineIssueId", label: "Redmine", icon: "mdi-ticket-outline", group: "Integraciones"},
   {key: "emailMessageId", label: "Email", icon: "mdi-email-outline", group: "Integraciones"},
   {key: "calendarEventId", label: "Calendario", icon: "mdi-calendar-link", group: "Integraciones"},
@@ -274,21 +264,6 @@ function formatCardDate(value?: Date | string | null) {
   return formatDate(String(value));
 }
 
-function formatMinutes(value?: number) {
-  if (typeof value !== "number") {
-    return "";
-  }
-
-  if (value < 60) {
-    return `${value} min`;
-  }
-
-  const hours = Math.floor(value / 60);
-  const minutes = value % 60;
-
-  return minutes ? `${hours} h ${minutes} min` : `${hours} h`;
-}
-
 function formatScore(value?: number) {
   return typeof value === "number" ? value.toFixed(1) : "";
 }
@@ -325,8 +300,6 @@ function taskCardPropertyValue(task: ITask, key: TaskCardPropertyKey) {
     type: () => task.type || "",
     lifeArea: () => task.lifeArea || "",
     project: () => entityName(task.project),
-    client: () => entityName(task.client),
-    contacts: () => listNames(task.contacts),
     goals: () => listNames(task.goals),
     tags: () => (task.tags || []).filter(Boolean).join(", "),
     user: () => entityName(task.user),
@@ -334,9 +307,6 @@ function taskCardPropertyValue(task: ITask, key: TaskCardPropertyKey) {
     motivationScore: () => formatScore(task.motivationScore),
     effortScore: () => formatScore(task.effortScore),
     urgencyScore: () => formatScore(task.urgencyScore),
-    estimatedMinutes: () => formatMinutes(task.estimatedMinutes),
-    spentMinutes: () => formatMinutes(task.spentMinutes),
-    nextAction: () => task.nextAction || "",
     redmineIssueId: () => task.redmineIssueId || "",
     emailMessageId: () => task.emailMessageId || "",
     calendarEventId: () => task.calendarEventId || "",

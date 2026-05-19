@@ -56,18 +56,8 @@ const dateItems = computed<DetailItem[]>(() => compactDetails([
 
 const contextItems = computed<DetailItem[]>(() => compactDetails([
   {key: "project", label: "Proyecto", value: entityName(task.value?.project), icon: "mdi-folder-open-outline"},
-  {key: "client", label: "Cliente", value: entityName(task.value?.client), icon: "mdi-domain"},
   {key: "user", label: "Usuario", value: entityName(task.value?.user), icon: "mdi-account-circle-outline"}
 ]));
-
-const contacts = computed(() => {
-  return (task.value?.contacts || []).map(contact => ({
-    id: entityId(contact),
-    name: entityName(contact),
-    subtitle: entitySubtitle(contact),
-    initials: initials(entityName(contact))
-  })).filter(contact => contact.name);
-});
 
 const goals = computed(() => {
   return (task.value?.goals || []).map(goal => ({
@@ -79,23 +69,8 @@ const goals = computed(() => {
 const normalizedNotes = computed(() => normalizeNotes(task.value?.notes));
 const statusHistory = computed(() => task.value?.statusHistory || []);
 
-const timeProgress = computed(() => {
-  const estimated = task.value?.estimatedMinutes || 0;
-  const spent = task.value?.spentMinutes || 0;
-
-  if (!estimated || estimated <= 0) {
-    return spent > 0 ? 100 : 0;
-  }
-
-  return Math.min(Math.round((spent / estimated) * 100), 100);
-});
-
-const hasTimeTracking = computed(() => {
-  return Boolean(task.value?.estimatedMinutes || task.value?.spentMinutes);
-});
-
 const hasContext = computed(() => {
-  return contextItems.value.length > 0 || contacts.value.length > 0 || goals.value.length > 0 || Boolean(task.value?.tags?.length);
+  return contextItems.value.length > 0 || goals.value.length > 0 || Boolean(task.value?.tags?.length);
 });
 
 function compactDetails(items: Array<Omit<DetailItem, "value"> & {value?: string | number | null}>): DetailItem[] {
@@ -159,25 +134,6 @@ function entityName(entity: any) {
       || fullName
       || entity._id
       || "";
-}
-
-function entitySubtitle(entity: any) {
-  if (!entity || typeof entity === "string") {
-    return "";
-  }
-
-  return entity.role
-      || entity.position
-      || entity.type
-      || entity.email
-      || entity.phone
-      || "";
-}
-
-function initials(value: string) {
-  const parts = value.trim().split(/\s+/).filter(Boolean);
-
-  return parts.slice(0, 2).map(part => part[0]?.toUpperCase()).join("") || "TA";
 }
 
 function normalizeNotes(notes?: ITask["notes"]) {
@@ -278,32 +234,8 @@ function onStart() {
             </div>
           </div>
 
-          <div v-if="hasTimeTracking" class="task-view__time">
-            <div class="task-view__time-head">
-              <span>Tiempo</span>
-              <strong>{{ timeProgress }}%</strong>
-            </div>
-            <v-progress-linear
-                :model-value="timeProgress"
-                color="primary"
-                bg-color="surface-variant"
-                height="8"
-                rounded
-            />
-            <div class="task-view__time-values">
-              <div>
-                <span>Estimado</span>
-                <strong>{{ task.estimatedMinutes || 0 }} min</strong>
-              </div>
-              <div>
-                <span>Invertido</span>
-                <strong>{{ task.spentMinutes || 0 }} min</strong>
-              </div>
-            </div>
-          </div>
-
-          <v-alert v-if="!dateItems.length && !hasTimeTracking" type="info" variant="tonal" density="compact">
-            Sin fechas ni tracking cargados.
+          <v-alert v-if="!dateItems.length" type="info" variant="tonal" density="compact">
+            Sin fechas cargadas.
           </v-alert>
         </v-card-text>
       </v-card>
@@ -343,20 +275,6 @@ function onStart() {
             </div>
           </div>
 
-          <div v-if="contacts.length">
-            <span class="task-view__mini-label">Contactos</span>
-            <v-list class="task-view__list" density="comfortable">
-              <v-list-item v-for="contact in contacts" :key="contact.id" :subtitle="contact.subtitle">
-                <template #prepend>
-                  <v-avatar color="primary" size="40">
-                    <span class="text-white">{{ contact.initials }}</span>
-                  </v-avatar>
-                </template>
-                <v-list-item-title>{{ contact.name }}</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </div>
-
           <div v-if="task.tags?.length">
             <span class="task-view__mini-label">Tags</span>
             <div class="task-view__chips">
@@ -365,17 +283,6 @@ function onStart() {
               </v-chip>
             </div>
           </div>
-        </v-card-text>
-      </v-card>
-
-      <v-card v-if="task.nextAction" class="task-view__card" variant="outlined">
-        <v-card-title class="task-view__panel-title">
-          <v-icon icon="mdi-ray-start-arrow" color="primary"/>
-          Proxima accion
-        </v-card-title>
-        <v-card-text class="task-view__next-action">
-          <v-icon icon="mdi-checkbox-blank-outline" color="primary"/>
-          <p>{{ task.nextAction }}</p>
         </v-card-text>
       </v-card>
 
@@ -590,32 +497,6 @@ function onStart() {
   text-align: right;
 }
 
-.task-view__time {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding-top: 14px;
-}
-
-.task-view__time-head,
-.task-view__time-values {
-  align-items: center;
-  display: flex;
-  justify-content: space-between;
-}
-
-.task-view__time-values span {
-  color: rgba(var(--v-theme-on-surface), 0.62);
-  display: block;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.task-view__time-values div:last-child {
-  text-align: right;
-}
-
 .task-view__context {
   display: flex;
   flex-direction: column;
@@ -650,18 +531,6 @@ function onStart() {
   min-width: 0;
 }
 
-.task-view__list {
-  background: transparent;
-  padding: 0;
-}
-
-.task-view__next-action {
-  align-items: flex-start;
-  display: flex;
-  gap: 12px;
-}
-
-.task-view__next-action p,
 .task-view__note p {
   margin: 0;
 }

@@ -3,6 +3,7 @@ interface IMemoryBase {
     title: string
     content: string
     type: string
+    lifeArea?: string
     tags?: Array<string>
     priority?: string
     source?: string
@@ -15,6 +16,7 @@ interface IMemory {
     title: string
     content: string
     type: string
+    lifeArea?: string
     tags?: Array<string>
     priority?: string
     source?: string

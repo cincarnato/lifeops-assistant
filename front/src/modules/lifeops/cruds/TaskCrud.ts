@@ -14,8 +14,6 @@ import TaskProvider from "../providers/TaskProvider";
 //Import EntityCrud Refs
 import GoalCrud from "./GoalCrud";
 import ProjectCrud from "./ProjectCrud";
-import ClientCrud from "./ClientCrud";
-import ContactCrud from "./ContactCrud";
 import {UserCrud} from "@drax/identity-vue"
 
 class TaskCrud extends EntityCrud implements IEntityCrud {
@@ -53,7 +51,6 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
       {title: 'status', key: 'status', align: 'start'},
       {title: 'priority', key: 'priority', align: 'start'},
       {title: 'project', key: 'project', align: 'start'},
-      {title: 'client', key: 'client', align: 'start'},
       {title: 'valueScore', key: 'valueScore', align: 'start'},
       {title: 'dueDate', key: 'dueDate', align: 'start'},
       {title: 'scheduledDate', key: 'scheduledDate', align: 'start'},
@@ -86,8 +83,6 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
     return {
       Goal: GoalCrud.instance,
       Project: ProjectCrud.instance,
-      Client: ClientCrud.instance,
-      Contact: ContactCrud.instance,
       User: UserCrud.instance
     }
   }
@@ -129,36 +124,13 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
         groupTab: 'CONTEXT',
         addOnTheFly: true,
       },
-      {
-        name: 'client',
-        type: 'ref',
-        label: 'client',
-        default: null,
-        ref: 'Client',
-        refDisplay: 'name',
-        groupTab: 'CONTEXT',
-        addOnTheFly: true,
-      },
-      {
-        name: 'contacts',
-        type: 'array.ref',
-        label: 'contacts',
-        default: [],
-        ref: 'Contact',
-        refDisplay: 'displayName',
-        groupTab: 'CONTEXT',
-        addOnTheFly: true,
-      },
       {name: 'valueScore', type: 'number', label: 'valueScore', default: 5, groupTab: 'SCORING'},
       {name: 'motivationScore', type: 'number', label: 'motivationScore', default: 5, groupTab: 'SCORING'},
       {name: 'effortScore', type: 'number', label: 'effortScore', default: 5, groupTab: 'SCORING'},
       {name: 'urgencyScore', type: 'number', label: 'urgencyScore', default: 5, groupTab: 'SCORING'},
       {name: 'dueDate', type: 'date', label: 'dueDate', default: null, groupTab: 'SCHEDULE'},
       {name: 'scheduledDate', type: 'date', label: 'scheduledDate', default: null, groupTab: 'SCHEDULE'},
-      {name: 'estimatedMinutes', type: 'number', label: 'estimatedMinutes', default: 1, groupTab: 'EXECUTION'},
-      {name: 'spentMinutes', type: 'number', label: 'spentMinutes', default: 1, groupTab: 'EXECUTION'},
       // {name: 'completedAt', type: 'date', label: 'completedAt', default: null, groupTab: 'EXECUTION'},
-      {name: 'nextAction', type: 'string', label: 'nextAction', default: '', groupTab: 'EXECUTION'},
       {
         name: 'notes',
         type: 'array.object',
@@ -211,7 +183,6 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
     return [
       {name: 'project', type: 'ref', label: 'project', default: null, operator: 'eq', ref: 'Project', refDisplay: 'name', cols: 12, sm: 4, md: 4, lg: 4, xl: 4},
       {name: 'goals', type: 'ref', label: 'goals', default: null, operator: 'eq', ref: 'Goal', refDisplay: 'name', cols: 12, sm: 4, md: 4, lg: 4, xl: 4},
-      {name: 'client', type: 'ref', label: 'client', default: null, operator: 'eq', ref: 'Client', refDisplay: 'name', cols: 12, sm: 4, md: 4, lg: 4, xl: 4},
     ]
   }
 

@@ -75,8 +75,6 @@ import LifeAreaCombobox from "@/modules/lifeops/comboboxes/LifeAreaCombobox.vue"
     <template v-slot:item.priority="{value}">{{value}}</template>
     <template v-slot:item.goals="{value}">{{ value.map((v: any) => v.name).join(",") }}</template>
     <template v-slot:item.project="{value}">{{value?.name}}</template>
-    <template v-slot:item.client="{value}">{{value?.name}}</template>
-    <template v-slot:item.contacts="{value}">{{ value.map((v: any) => v.displayName).join(",") }}</template>
     <template v-slot:item.dueDate="{value}">{{formatDate(value)}}</template>
     <template v-slot:item.scheduledDate="{value}">{{formatDate(value)}}</template>
     <template v-slot:item.completedAt="{value}">{{formatDate(value)}}</template>

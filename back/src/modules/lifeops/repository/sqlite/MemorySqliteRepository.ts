@@ -9,7 +9,7 @@ class MemorySqliteRepository extends AbstractSqliteRepository<IMemory, IMemoryBa
     protected db: any;
     protected tableName: string = 'Memory';
     protected dataBaseFile: string;
-    protected searchFields: string[] = ['title', 'content', 'type'];
+    protected searchFields: string[] = ['title', 'content', 'type', 'lifeArea'];
     protected booleanFields: string[] = [];
     protected jsonFields: string[] = ['tags'];
     protected identifier: string = '_id';
@@ -21,6 +21,7 @@ class MemorySqliteRepository extends AbstractSqliteRepository<IMemory, IMemoryBa
         {name: "title", type: "TEXT", unique: undefined, primary: false},
 {name: "content", type: "TEXT", unique: undefined, primary: false},
 {name: "type", type: "TEXT", unique: undefined, primary: false},
+{name: "lifeArea", type: "TEXT", unique: undefined, primary: false},
 {name: "tags", type: "TEXT", unique: undefined, primary: false},
 {name: "priority", type: "TEXT", unique: undefined, primary: false},
 {name: "source", type: "TEXT", unique: undefined, primary: false}

@@ -9,15 +9,13 @@ class TaskSqliteRepository extends AbstractSqliteRepository<ITask, ITaskBase, IT
     protected db: any;
     protected tableName: string = 'Task';
     protected dataBaseFile: string;
-    protected searchFields: string[] = ['title', 'description', 'nextAction', 'redmineIssueId', 'emailMessageId', 'calendarEventId'];
+    protected searchFields: string[] = ['title', 'description', 'redmineIssueId', 'emailMessageId', 'calendarEventId'];
     protected booleanFields: string[] = [];
     protected jsonFields: string[] = ['tags', 'notes', 'statusHistory'];
     protected identifier: string = '_id';
     protected populateFields = [
         { field: 'goals', table: 'goals', identifier: '_id' },
 { field: 'project', table: 'project', identifier: '_id' },
-{ field: 'client', table: 'client', identifier: '_id' },
-{ field: 'contacts', table: 'contacts', identifier: '_id' },
 { field: 'user', table: 'user', identifier: '_id' }
     ]
     protected verbose: boolean = false;
@@ -31,8 +29,6 @@ class TaskSqliteRepository extends AbstractSqliteRepository<ITask, ITaskBase, IT
 {name: "priority", type: "TEXT", unique: undefined, primary: false},
 {name: "goals", type: "TEXT", unique: undefined, primary: false},
 {name: "project", type: "TEXT", unique: undefined, primary: false},
-{name: "client", type: "TEXT", unique: undefined, primary: false},
-{name: "contacts", type: "TEXT", unique: undefined, primary: false},
 {name: "valueScore", type: "NUMERIC", unique: undefined, primary: false},
 {name: "valueScore", type: "TEXT", unique: undefined, primary: false},
 {name: "motivationScore", type: "NUMERIC", unique: undefined, primary: false},
@@ -44,11 +40,6 @@ class TaskSqliteRepository extends AbstractSqliteRepository<ITask, ITaskBase, IT
 {name: "dueDate", type: "TEXT", unique: undefined, primary: false},
 {name: "scheduledDate", type: "TEXT", unique: undefined, primary: false},
 {name: "completedAt", type: "TEXT", unique: undefined, primary: false},
-{name: "estimatedMinutes", type: "NUMERIC", unique: undefined, primary: false},
-{name: "estimatedMinutes", type: "TEXT", unique: undefined, primary: false},
-{name: "spentMinutes", type: "NUMERIC", unique: undefined, primary: false},
-{name: "spentMinutes", type: "TEXT", unique: undefined, primary: false},
-{name: "nextAction", type: "TEXT", unique: undefined, primary: false},
 {name: "redmineIssueId", type: "TEXT", unique: undefined, primary: false},
 {name: "emailMessageId", type: "TEXT", unique: undefined, primary: false},
 {name: "calendarEventId", type: "TEXT", unique: undefined, primary: false},

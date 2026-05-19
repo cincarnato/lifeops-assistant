@@ -10,7 +10,7 @@ class MemoryMongoRepository extends AbstractMongoRepository<IMemory, IMemoryBase
     constructor() {
         super();
         this._model = MemoryModel;
-        this._searchFields = ['title', 'content', 'type'];
+        this._searchFields = ['title', 'content', 'type', 'lifeArea'];
         this._populateFields = [];
         this._lean = true
     }
@@ -19,4 +19,3 @@ class MemoryMongoRepository extends AbstractMongoRepository<IMemory, IMemoryBase
 
 export default MemoryMongoRepository
 export {MemoryMongoRepository}
-

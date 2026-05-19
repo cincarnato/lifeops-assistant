@@ -20,8 +20,6 @@ interface ITaskBase {
     priority?: string
     goals?: Array<any>
     project?: any
-    client?: any
-    contacts?: Array<any>
     valueScore?: number
     motivationScore?: number
     effortScore?: number
@@ -29,9 +27,6 @@ interface ITaskBase {
     dueDate?: Date
     scheduledDate?: Date
     completedAt?: Date
-    estimatedMinutes?: number
-    spentMinutes?: number
-    nextAction?: string
     redmineIssueId?: string
     emailMessageId?: string
     calendarEventId?: string
@@ -55,8 +50,6 @@ interface ITask {
     priority?: string
     goals?: Array<any>
     project?: any
-    client?: any
-    contacts?: Array<any>
     valueScore?: number
     motivationScore?: number
     effortScore?: number
@@ -64,9 +57,6 @@ interface ITask {
     dueDate?: Date
     scheduledDate?: Date
     completedAt?: Date
-    estimatedMinutes?: number
-    spentMinutes?: number
-    nextAction?: string
     redmineIssueId?: string
     emailMessageId?: string
     calendarEventId?: string

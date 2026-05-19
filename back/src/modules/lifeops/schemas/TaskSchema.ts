@@ -10,17 +10,12 @@ const TaskBaseSchema = z.object({
     priority: z.coerce.string().optional().nullable().default(null),
     goals: z.array(z.coerce.string()).optional().default([]),
     project: z.coerce.string().optional().nullable().default(null),
-    client: z.coerce.string().optional().nullable().default(null),
-    contacts: z.array(z.coerce.string()).optional().default([]),
     valueScore: z.number().nullable().optional().default(5),
     motivationScore: z.number().nullable().optional().default(5),
     effortScore: z.number().nullable().optional().default(5),
     urgencyScore: z.number().nullable().optional().default(5),
     dueDate: z.coerce.date().nullable().optional().default(null),
     scheduledDate: z.coerce.date().nullable().optional().default(null),
-    estimatedMinutes: z.number().nullable().optional().default(1),
-    spentMinutes: z.number().nullable().optional().default(1),
-    nextAction: z.string().optional(),
     redmineIssueId: z.string().optional(),
     emailMessageId: z.string().optional(),
     calendarEventId: z.string().optional(),
@@ -48,10 +43,6 @@ const TaskSchema = TaskBaseSchema
         _id: z.coerce.string(),
         goals: z.array(z.object({_id: z.coerce.string(), name: z.string()})).optional(),
         project: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
-        client: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
-        contacts: z.array(z.object({_id: z.coerce.string(), displayName: z.string()})).optional(),
-
-
         user: z.object({_id: z.coerce.string(), username: z.string()})
     })
 

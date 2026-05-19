@@ -2,6 +2,7 @@ import {BuilderTool, DraxAgentFactory, AiProviderFactory} from "@drax/ai-back"
 import type {
     DraxAgentConfig,
     DraxAgentPromptContext,
+    DraxAgentSystemPrompt,
     DraxAgentToolBuilder,
     DraxAgentToolBuilderSource,
     DraxAgentToolSource,
@@ -17,11 +18,20 @@ import HabitServiceFactory from "../factory/services/HabitServiceFactory.js";
 import {HabitBaseSchema} from "../schemas/HabitSchema.js";
 import GoalServiceFactory from "../factory/services/GoalServiceFactory.js";
 import {GoalBaseSchema} from "../schemas/GoalSchema.js";
+import ClientServiceFactory from "../factory/services/ClientServiceFactory.js";
+import {ClientBaseSchema} from "../schemas/ClientSchema.js";
+import CompanyServiceFactory from "../factory/services/CompanyServiceFactory.js";
+import {CompanyBaseSchema} from "../schemas/CompanySchema.js";
+import ContactServiceFactory from "../factory/services/ContactServiceFactory.js";
+import {ContactBaseSchema} from "../schemas/ContactSchema.js";
+import ProjectServiceFactory from "../factory/services/ProjectServiceFactory.js";
+import {ProjectBaseSchema} from "../schemas/ProjectSchema.js";
 import SourceServiceFactory from "../factory/services/SourceServiceFactory.js";
 import TaskStatusServiceFactory from "../factory/services/TaskStatusServiceFactory.js";
 import TaskTypeServiceFactory from "../factory/services/TaskTypeServiceFactory.js";
 import PriorityServiceFactory from "../factory/services/PriorityServiceFactory.js";
 import MemoryTypeServiceFactory from "../factory/services/MemoryTypeServiceFactory.js";
+import LifeAreaServiceFactory from "../factory/services/LifeAreaServiceFactory.js";
 import GoogleCalendarTools from "../../google/tools/GoogleCalendarTools.js";
 import GoogleGmailTools from "../../google/tools/GoogleGmailTools.js";
 
@@ -30,6 +40,7 @@ interface TaskOptionNames {
     statuses: string[];
     types: string[];
     priorities: string[];
+    lifeAreas: string[];
 }
 
 interface MemoryOptionNames {
@@ -39,6 +50,17 @@ interface MemoryOptionNames {
 interface AgentOptionNames {
     tasks: TaskOptionNames;
     memories: MemoryOptionNames;
+}
+
+interface ActivePurposePromptContext {
+    title: string;
+    statement: string;
+}
+
+interface GoalPromptContext {
+    _id: string;
+    name: string;
+    description?: string;
 }
 
 interface AgentConfigJobAgent {
@@ -68,6 +90,10 @@ class AgentConfigService {
     private _purposeTool?: DraxAgentToolBuilder;
     private _habitTool?: DraxAgentToolBuilder;
     private _goalTool?: DraxAgentToolBuilder;
+    private _clientTool?: DraxAgentToolBuilder;
+    private _companyTool?: DraxAgentToolBuilder;
+    private _contactTool?: DraxAgentToolBuilder;
+    private _projectTool?: DraxAgentToolBuilder;
     private _tools: AgentConfigToolSource[] = [];
     private _googleToolsInitialized = false;
     private _initialized = false;
@@ -76,7 +102,8 @@ class AgentConfigService {
             sources: [],
             statuses: [],
             types: [],
-            priorities: []
+            priorities: [],
+            lifeAreas: []
         },
         memories: {
             types: []
@@ -95,6 +122,7 @@ class AgentConfigService {
         await this.prepare();
         DraxAgentFactory.instance().configure(this.buildAgentConfig());
         DraxAgentFactory.instance("mindset").configure(this.buildMindsetAgentConfig());
+        DraxAgentFactory.instance("CRM", "Especialista en clientes, empresas y contactos").configure(this.buildCrmAgentConfig());
         this._initialized = true;
     }
 
@@ -119,6 +147,9 @@ class AgentConfigService {
     public async prepare(): Promise<void> {
         this.prepareTaskTool();
         this.prepareMemoryTool();
+        this.prepareClientTool();
+        this.prepareCrmTools();
+        this.prepareProjectTool();
         this.prepareMindsetTools();
         this.prepareGoogleTools();
         await this.prepareSystemPrompt();
@@ -135,7 +166,7 @@ class AgentConfigService {
         const systemPrompt = await this.prepareSystemPrompt();
 
         if (this._initialized) {
-            DraxAgentFactory.instance().setSystemPrompt(systemPrompt);
+            DraxAgentFactory.instance().setSystemPrompt(this.buildDefaultSystemPrompt());
         }
 
         return systemPrompt;
@@ -223,10 +254,72 @@ class AgentConfigService {
         return this._goalTool;
     }
 
+    public prepareClientTool(): DraxAgentToolBuilder {
+        if (!this._clientTool) {
+            this._clientTool = new BuilderTool({
+                entityDescription: "Clientes",
+                entityName: "Client",
+                methods: ["search", "create", "updatePartial"],
+                schema: ClientBaseSchema,
+                service: ClientServiceFactory.instance
+            });
+        }
+
+        return this._clientTool;
+    }
+
+    public prepareCompanyTool(): DraxAgentToolBuilder {
+        if (!this._companyTool) {
+            this._companyTool = new BuilderTool({
+                entityDescription: "Empresas",
+                entityName: "Company",
+                methods: ["search", "create", "updatePartial"],
+                schema: CompanyBaseSchema,
+                service: CompanyServiceFactory.instance
+            });
+        }
+
+        return this._companyTool;
+    }
+
+    public prepareContactTool(): DraxAgentToolBuilder {
+        if (!this._contactTool) {
+            this._contactTool = new BuilderTool({
+                entityDescription: "Contactos",
+                entityName: "Contact",
+                methods: ["search", "create", "updatePartial"],
+                schema: ContactBaseSchema,
+                service: ContactServiceFactory.instance
+            });
+        }
+
+        return this._contactTool;
+    }
+
+    public prepareProjectTool(): DraxAgentToolBuilder {
+        if (!this._projectTool) {
+            this._projectTool = new BuilderTool({
+                entityDescription: "Proyectos",
+                entityName: "Project",
+                methods: ["search", "create", "updatePartial"],
+                schema: ProjectBaseSchema,
+                service: ProjectServiceFactory.instance
+            });
+        }
+
+        return this._projectTool;
+    }
+
     public prepareMindsetTools(): void {
         this.preparePurposeTool();
         this.prepareHabitTool();
         this.prepareGoalTool();
+    }
+
+    public prepareCrmTools(): void {
+        this.prepareClientTool();
+        this.prepareCompanyTool();
+        this.prepareContactTool();
     }
 
     public prepareGoogleTools(): void {
@@ -280,10 +373,36 @@ class AgentConfigService {
         return this.prepareGoalTool();
     }
 
+    public get clientTool(): DraxAgentToolBuilder {
+        return this.prepareClientTool();
+    }
+
+    public get companyTool(): DraxAgentToolBuilder {
+        return this.prepareCompanyTool();
+    }
+
+    public get contactTool(): DraxAgentToolBuilder {
+        return this.prepareContactTool();
+    }
+
+    public get projectTool(): DraxAgentToolBuilder {
+        return this.prepareProjectTool();
+    }
+
     public get toolBuilders(): DraxAgentToolBuilderSource {
         return [
             this.taskTool,
-            this.memoryTool
+            this.memoryTool,
+            this.clientTool,
+            this.projectTool
+        ];
+    }
+
+    public get crmToolBuilders(): DraxAgentToolBuilderSource {
+        return [
+            this.clientTool,
+            this.companyTool,
+            this.contactTool
         ];
     }
 
@@ -321,7 +440,7 @@ class AgentConfigService {
 
     public buildAgentConfig(overrides: Partial<DraxAgentConfig> = {}): DraxAgentConfig {
         return {
-            systemPrompt: this.systemPrompt,
+            systemPrompt: this.buildDefaultSystemPrompt(),
             toolBuilders: this.toolBuilders,
             tools: this.tools,
             ...overrides
@@ -332,6 +451,15 @@ class AgentConfigService {
         return {
             systemPrompt: this.buildMindsetSystemPrompt(),
             toolBuilders: this.mindsetToolBuilders,
+            tools: [],
+            ...overrides
+        };
+    }
+
+    public buildCrmAgentConfig(overrides: Partial<DraxAgentConfig> = {}): DraxAgentConfig {
+        return {
+            systemPrompt: this.buildCrmSystemPrompt(),
+            toolBuilders: this.crmToolBuilders,
             tools: [],
             ...overrides
         };
@@ -424,6 +552,113 @@ class AgentConfigService {
         };
     }
 
+    private buildDefaultSystemPrompt(): DraxAgentSystemPrompt {
+        return async context => this.buildSystemPromptWithLifeOpsContext(context);
+    }
+
+    private async buildSystemPromptWithLifeOpsContext(context: DraxAgentPromptContext): Promise<string> {
+        const sections = [this.systemPrompt];
+        const lifeOpsContext = await this.buildLifeOpsPromptContext(context);
+
+        if (lifeOpsContext) {
+            sections.push("", lifeOpsContext);
+        }
+
+        return sections.join("\n");
+    }
+
+    private async buildLifeOpsPromptContext(context: DraxAgentPromptContext): Promise<string> {
+        try {
+            const userId = this.resolveContextUserId(context);
+            const [purpose, goals] = await Promise.all([
+                this.fetchActivePurposePromptContext(),
+                userId ? this.fetchGoalPromptContext(userId) : Promise.resolve([])
+            ]);
+
+            if (!purpose && goals.length === 0) {
+                return "";
+            }
+
+            return this.formatLifeOpsPromptContext(purpose, goals);
+        } catch (e) {
+            console.error("Error building LifeOps prompt context", {
+                name: e?.name,
+                message: e?.message,
+                stack: e?.stack
+            });
+
+            return "";
+        }
+    }
+
+    private async fetchActivePurposePromptContext(): Promise<ActivePurposePromptContext | null> {
+        const purposes = await PurposeServiceFactory.instance.findFirst(1, [
+            {field: "active", operator: "eq", value: true}
+        ]);
+        const purpose = purposes[0];
+
+        if (!purpose) {
+            return null;
+        }
+
+        return {
+            title: purpose.title,
+            statement: purpose.statement
+        };
+    }
+
+    private async fetchGoalPromptContext(userId: string): Promise<GoalPromptContext[]> {
+        const goals = await GoalServiceFactory.instance.find({
+            limit: 50,
+            orderBy: "name",
+            order: "asc",
+            filters: [
+                {field: "user", operator: "eq", value: userId}
+            ]
+        });
+
+        return goals
+            .filter(goal => goal?._id && goal?.name)
+            .map(goal => ({
+                _id: String(goal._id),
+                name: goal.name,
+                description: goal.description
+            }));
+    }
+
+    private formatLifeOpsPromptContext(
+        purpose: ActivePurposePromptContext | null,
+        goals: GoalPromptContext[]
+    ): string {
+        const lines = [
+            "[CONTEXTO LIFEOPS ACTIVO]",
+            "Usa este contexto como referencia estable para priorizar, interpretar y relacionar tareas, memorias, proyectos y recomendaciones."
+        ];
+
+        if (purpose) {
+            lines.push(
+                "",
+                "Proposito activo:",
+                `title: ${this.formatPromptValue(purpose.title)}`,
+                `statement: ${this.formatPromptValue(purpose.statement)}`
+            );
+        }
+
+        if (goals.length > 0) {
+            lines.push("", "Objetivos del usuario:");
+
+            for (const goal of goals) {
+                lines.push(
+                    `- _id: ${this.formatPromptValue(goal._id)}`,
+                    `  name: ${this.formatPromptValue(goal.name)}`,
+                    `  description: ${this.formatPromptValue(goal.description || "sin descripcion")}`
+                );
+            }
+        }
+
+        return lines.join("\n");
+    }
+
     private buildMindsetSystemPrompt(): string {
         const today = this.formatLocalDate(new Date());
         const timeZone = this.getLocalTimeZone();
@@ -438,12 +673,29 @@ class AgentConfigService {
         ].join("\n");
     }
 
+    private buildCrmSystemPrompt(): string {
+        const today = this.formatLocalDate(new Date());
+        const timeZone = this.getLocalTimeZone();
+        const timeZoneOffset = this.formatLocalTimeZoneOffset(new Date());
+
+        return [
+            "Sos un asistente especializado en CRM, clientes, empresas y contactos.",
+            "Responde de forma clara, breve y útil. Respondé siempre en texto plano. No uses emojis, markdown, asteriscos, ni símbolos decorativos.",
+            "",
+            `Fecha actual del sistema: ${today}. Zona horaria local: ${timeZone} (${timeZoneOffset}).`,
+            "Usa las tools disponibles para consultar, crear o actualizar parcialmente clientes, empresas y contactos cuando corresponda.",
+            "Antes de crear un cliente, empresa o contacto, buscá si ya existe para evitar duplicados.",
+            "Cuando relaciones contactos con clientes o empresas, usá los ids existentes obtenidos con las tools de búsqueda."
+        ].join("\n");
+    }
+
     private async fetchOptionNames(): Promise<AgentOptionNames> {
-        const [sources, statuses, taskTypes, priorities, memoryTypes] = await Promise.all([
+        const [sources, statuses, taskTypes, priorities, lifeAreas, memoryTypes] = await Promise.all([
             SourceServiceFactory.instance.fetchAll(),
             TaskStatusServiceFactory.instance.fetchAll(),
             TaskTypeServiceFactory.instance.fetchAll(),
             PriorityServiceFactory.instance.fetchAll(),
+            LifeAreaServiceFactory.instance.fetchAll(),
             MemoryTypeServiceFactory.instance.fetchAll()
         ]);
 
@@ -452,7 +704,8 @@ class AgentConfigService {
                 sources: this.serializeOptionNames(sources),
                 statuses: this.serializeOptionNames(statuses),
                 types: this.serializeOptionNames(taskTypes),
-                priorities: this.serializeOptionNames(priorities)
+                priorities: this.serializeOptionNames(priorities),
+                lifeAreas: this.serializeOptionNames(lifeAreas)
             },
             memories: {
                 types: this.serializeOptionNames(memoryTypes)
@@ -479,12 +732,15 @@ class AgentConfigService {
             `Cuando el usuario use fechas relativas como hoy, mañana, ayer, esta semana o este mes, calcula los rangos a partir de esa fecha actual.`,
             `Para consultar eventos de calendario de hoy, usa timeMin=${today}T00:00:00${timeZoneOffset} y timeMax=${tomorrow}T00:00:00${timeZoneOffset}.`,
             "",
-            "Al crear o actualizar tareas, los campos source, type, status y priority guardan solo el nombre como string.",
-            "Usa unicamente estos nombres disponibles para completar esos campos:",
+            "Al crear o actualizar tareas o memorias, los campos source, lifeArea y priority guardan solo el nombre como string y usan las mismas opciones disponibles para ambos tipos de entidad:",
             `- source: ${this.formatOptionNames(options.tasks.sources)}`,
+            `- lifeArea: ${this.formatOptionNames(options.tasks.lifeAreas)}`,
+            `- priority: ${this.formatOptionNames(options.tasks.priorities)}`,
+            "",
+            "Al crear o actualizar tareas, los campos type y status tambien guardan solo el nombre como string.",
+            "Usa unicamente estos nombres disponibles para completar esos campos:",
             `- type: ${this.formatOptionNames(options.tasks.types)}`,
             `- status: ${this.formatOptionNames(options.tasks.statuses)}`,
-            `- priority: ${this.formatOptionNames(options.tasks.priorities)}`,
             "",
             "Al crear o actualizar memorias, el campo type guarda solo el nombre como string.",
             "Usa unicamente estos nombres disponibles para completar ese campo:",
@@ -498,6 +754,12 @@ class AgentConfigService {
         }
 
         return names.join(", ");
+    }
+
+    private formatPromptValue(value: string): string {
+        return value
+            .replace(/\s+/g, " ")
+            .trim();
     }
 
     private resolveContextUserId(context: DraxAgentPromptContext): string | null {

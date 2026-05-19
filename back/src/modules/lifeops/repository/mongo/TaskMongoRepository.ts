@@ -10,8 +10,8 @@ class TaskMongoRepository extends AbstractMongoRepository<ITask, ITaskBase, ITas
     constructor() {
         super();
         this._model = TaskModel;
-        this._searchFields = ['title', 'description', 'nextAction'];
-        this._populateFields = ['goals', 'project', 'client', 'contacts', 'user'];
+        this._searchFields = ['title', 'description'];
+        this._populateFields = ['goals', 'project', 'user'];
         this._lean = true
     }
 

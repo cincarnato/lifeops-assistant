@@ -45,6 +45,7 @@ class MemoryCrud extends EntityCrud implements IEntityCrud {
     return [
       {title: 'title', key: 'title', align: 'start'},
       {title: 'type', key: 'type', align: 'start'},
+      {title: 'lifeArea', key: 'lifeArea', align: 'start'},
       {title: 'priority', key: 'priority', align: 'start'},
       {title: 'source', key: 'source', align: 'start'}
     ]
@@ -87,9 +88,10 @@ class MemoryCrud extends EntityCrud implements IEntityCrud {
     return [
       {name: 'title', type: 'string', label: 'title', default: ''},
       {name: 'content', type: 'longString', label: 'content', default: ''},
-      {name: 'type', type: 'string', label: 'type', default: null, md: 4},
-      {name: 'priority', type: 'string', label: 'priority', default: null, md: 4},
-      {name: 'source', type: 'string', label: 'source', default: null, md: 4},
+      {name: 'type', type: 'string', label: 'type', default: null, md: 3},
+      {name: 'lifeArea', type: 'string', label: 'lifeArea', default: null, md: 3},
+      {name: 'priority', type: 'string', label: 'priority', default: null, md: 3},
+      {name: 'source', type: 'string', label: 'source', default: null, md: 3},
       {name: 'tags', type: 'array.string', label: 'tags', default: []}
     ]
   }
