@@ -1,0 +1,16 @@
+{
+  "name": "LifeOps",
+  "short_name": "LifeOps",
+  "start_url": "/agent",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1976d2",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+}

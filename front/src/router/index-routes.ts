@@ -6,8 +6,8 @@ import modulesRoutes from './modules-routes'
 
 
 const routes = setupLayouts([
-  ...draxRoutes,
-  ...modulesRoutes
+  ...modulesRoutes,
+  ...draxRoutes
 ])
 
 

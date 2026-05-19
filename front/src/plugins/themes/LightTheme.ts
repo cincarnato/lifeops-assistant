@@ -3,10 +3,10 @@ import type {  ThemeDefinition } from 'vuetify'
 const LightTheme: ThemeDefinition = {
   dark: false,
   colors: {
-    background: '#fefefe',
+        background: '#fefefe',
     surface: '#ffffff',
-    toolbar: '#EEEEEE'
-    // primary: '#6200EE',
+    toolbar: '#EEEEEE',
+     primary: '#00DF78',
     // secondary: '#03DAC6',
     // 'primary-darken-1': '#3700B3',
     // 'secondary-darken-1': '#018786',

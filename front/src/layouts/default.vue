@@ -9,6 +9,7 @@ import {useRouter} from "vue-router";
 import { useDarkMode } from '../composables/useDarkMode.js'
 import NotificationButton from "../modules/base/components/NotificationButton.vue"
 import { DraxAgentButton} from "@drax/ai-vue";
+import logoLifeops from '@/assets/logo-lifeops.png'
 
 const {loadDarkMode} = useDarkMode()
 
@@ -39,7 +40,7 @@ const appName = computed(() => {
       <v-app-bar-nav-icon v-model="menu" @click="drawer=!drawer"/>
       <slot name="toolbar-left">
         <v-btn icon @click="push({name:'Root'})">
-          <v-icon>mdi-home</v-icon>
+          <v-img :src="logoLifeops" width="28" height="28" alt="LifeOps" />
         </v-btn>
        <v-app-bar-title> {{appName}}</v-app-bar-title>
       </slot>
@@ -71,6 +72,10 @@ const appName = computed(() => {
   min-height: 520px;
 }
 
+:deep(.v-btn .v-img) {
+  flex: 0 0 auto;
+}
+
 @media (max-width: 700px) {
   .default-layout__chatbot-task {
     height: calc(100vh - 136px);
@@ -78,4 +83,3 @@ const appName = computed(() => {
   }
 }
 </style>
-

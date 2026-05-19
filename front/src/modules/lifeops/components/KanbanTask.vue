@@ -62,6 +62,7 @@ const {
   operation,
   onCreate,
   onEdit,
+  onDelete,
   resetCrudStore,
   prepareFilters,
   prepareSort,
@@ -645,7 +646,7 @@ function onTaskPointerDown(task: ITask, event: PointerEvent) {
   }
 
   const target = event.target as HTMLElement;
-  if (target.closest(".kanban-card__edit")) {
+  if (target.closest(".kanban-card__action")) {
     return;
   }
 
@@ -725,6 +726,10 @@ function openCreate(status?: string) {
 
 function openEdit(task: ITask) {
   onEdit(task);
+}
+
+function openDelete(task: ITask) {
+  onDelete(task);
 }
 
 async function onFormSaved() {
@@ -1031,13 +1036,23 @@ onBeforeUnmount(() => {
                     <div class="kanban-card__tools">
                       <v-icon icon="mdi-drag" size="18" class="text-medium-emphasis kanban-card__drag"/>
                       <v-btn
-                          class="kanban-card__edit"
+                          class="kanban-card__action"
                           icon="mdi-pencil-outline"
                           variant="text"
                           density="comfortable"
                           size="small"
                           title="Edicion detallada"
-                          @click="openEdit(task)"
+                          @click.stop="openEdit(task)"
+                      />
+                      <v-btn
+                          class="kanban-card__action"
+                          icon="mdi-trash-can-outline"
+                          variant="text"
+                          density="comfortable"
+                          size="small"
+                          color="error"
+                          title="Eliminar tarea"
+                          @click.stop="openDelete(task)"
                       />
                     </div>
                   </div>
