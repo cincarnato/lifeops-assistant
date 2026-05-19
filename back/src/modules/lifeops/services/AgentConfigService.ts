@@ -458,11 +458,22 @@ class AgentConfigService {
         return this._optionNames.memories;
     }
 
+    private get logToolExecution(): boolean {
+        const value = process.env.AGENT_LOG_TOOL_EXECUTION;
+
+        if (value === undefined) {
+            return false;
+        }
+
+        return !["false", "0", "no", "off"].includes(value.trim().toLowerCase());
+    }
+
     public buildAgentConfig(overrides: Partial<DraxAgentConfig> = {}): DraxAgentConfig {
         return {
             systemPrompt: this.buildDefaultSystemPrompt(),
             toolBuilders: this.toolBuilders,
             tools: this.tools,
+            logToolExecution: this.logToolExecution,
             ...overrides
         };
     }
@@ -472,6 +483,7 @@ class AgentConfigService {
             systemPrompt: this.buildMindsetSystemPrompt(),
             toolBuilders: this.mindsetToolBuilders,
             tools: [],
+            logToolExecution: this.logToolExecution,
             ...overrides
         };
     }
@@ -481,6 +493,7 @@ class AgentConfigService {
             systemPrompt: this.buildCrmSystemPrompt(),
             toolBuilders: this.crmToolBuilders,
             tools: [],
+            logToolExecution: this.logToolExecution,
             ...overrides
         };
     }
