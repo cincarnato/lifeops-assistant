@@ -1,14 +1,10 @@
 
 import { z } from 'zod';
 
-const capitalizeFirstLetter = (value: string) => {
-    if (!value) return value;
-    return value.charAt(0).toLocaleUpperCase('es') + value.slice(1);
-};
 
 const CompanyBaseSchema = z.object({
-      name: z.string().min(1,'validation.required').transform(capitalizeFirstLetter),
-    legalName: z.string().optional().default("").transform(capitalizeFirstLetter),
+      name: z.string().min(1,'validation.required'),
+    legalName: z.string().optional().default(""),
     taxIdType: z.string().optional().default(""),
     taxIdNumber: z.string().optional().default(""),
     description: z.string().optional().default(""),

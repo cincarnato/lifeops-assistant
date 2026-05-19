@@ -1,15 +1,11 @@
 
 import { z } from 'zod';
 
-const capitalizeFirstLetter = (value: string) => {
-    if (!value) return value;
-    return value.charAt(0).toLocaleUpperCase('es') + value.slice(1);
-};
 
 const ContactBaseSchema = z.object({
-      firstName: z.string().min(1,'validation.required').transform(capitalizeFirstLetter),
-    lastName: z.string().optional().default("").transform(capitalizeFirstLetter),
-    displayName: z.string().min(1,'validation.required').transform(capitalizeFirstLetter),
+      firstName: z.string().min(1,'validation.required'),
+    lastName: z.string().optional().default(""),
+    displayName: z.string().min(1,'validation.required'),
     type: z.string().optional().default(""),
     priority: z.string().optional().default(""),
     client: z.coerce.string().optional().nullable(),

@@ -11,7 +11,20 @@ class ClientService extends AbstractService<IClient, IClientBase, IClientBase> {
         super(ClientRepository, baseSchema, fullSchema);
         
         this._validateOutput = true
+        this.transformCreate = this.normalizeCreateData.bind(this)
         
+    }
+
+    private async normalizeCreateData(data: IClientBase): Promise<IClientBase> {
+        return {
+            ...data,
+            name: this.capitalizeFirstLetter(data.name)
+        }
+    }
+
+    private capitalizeFirstLetter(value: string): string {
+        if (!value) return value
+        return value.charAt(0).toLocaleUpperCase('es') + value.slice(1)
     }
 
 }
