@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "866134708616",
+    "project_id": "lifeops-b7792",
+    "storage_bucket": "lifeops-b7792.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:866134708616:android:cdba18d45f0c6d1b4b2a3d",
+        "android_client_info": {
+          "package_name": "com.showvlad.lifeops_assistant_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXPYNrMu6larneUYg5KQD3bEwAwtM0K6k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -21,6 +21,8 @@ import LifeAreaSchema from './schemas/lifeops/LifeAreaSchema.js';
 import HabitSchema from './schemas/lifeops/HabitSchema.js';
 import HabitLogSchema from './schemas/lifeops/HabitLogSchema.js';
 import GoogleConnectionSchema from './schemas/google/GoogleConnectionSchema.js';
+import PushDeviceSchema from './schemas/push/PushDeviceSchema.js';
+import PushMessageSchema from './schemas/push/PushMessageSchema.js';
 
 //Import schemas
 
@@ -47,6 +49,8 @@ const schemas = [
     LifeAreaSchema,
     HabitSchema,
     HabitLogSchema,
+    PushDeviceSchema,
+    PushMessageSchema,
     //add schemas
 ];
 

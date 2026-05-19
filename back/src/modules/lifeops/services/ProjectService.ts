@@ -11,7 +11,20 @@ class ProjectService extends AbstractService<IProject, IProjectBase, IProjectBas
         super(ProjectRepository, baseSchema, fullSchema);
         
         this._validateOutput = true
+        this.transformCreate = this.normalizeCreateData.bind(this)
         
+    }
+
+    private async normalizeCreateData(data: IProjectBase): Promise<IProjectBase> {
+        return {
+            ...data,
+            name: this.capitalizeFirstLetter(data.name)
+        }
+    }
+
+    private capitalizeFirstLetter(value: string): string {
+        if (!value) return value
+        return value.charAt(0).toLocaleUpperCase('es') + value.slice(1)
     }
 
 }

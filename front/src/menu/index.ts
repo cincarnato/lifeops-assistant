@@ -239,6 +239,27 @@ const menu: MenuItem[] = [
     ]
   },
   {
+    icon: 'mdi-bell-ring-outline',
+    text: 'Push',
+    gallery: true,
+    children: [
+      {
+        icon: 'mdi-cellphone-link',
+        text: 'pushdevice.menu',
+        link: {name: "PushDeviceCrudPage"},
+        gallery: true,
+        permission: 'pushdevice:manage'
+      },
+      {
+        icon: 'mdi-message-badge-outline',
+        text: 'pushmessage.menu',
+        link: {name: "PushMessageCrudPage"},
+        gallery: true,
+        permission: 'pushmessage:manage'
+      },
+    ]
+  },
+  {
     icon: 'mdi-account-circle',
     text: 'admin',
     gallery: true,

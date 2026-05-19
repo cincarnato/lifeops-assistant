@@ -11,7 +11,20 @@ class PurposeService extends AbstractService<IPurpose, IPurposeBase, IPurposeBas
         super(PurposeRepository, baseSchema, fullSchema);
         
         this._validateOutput = true
+        this.transformCreate = this.normalizeCreateData.bind(this)
         
+    }
+
+    private async normalizeCreateData(data: IPurposeBase): Promise<IPurposeBase> {
+        return {
+            ...data,
+            title: this.capitalizeFirstLetter(data.title)
+        }
+    }
+
+    private capitalizeFirstLetter(value: string): string {
+        if (!value) return value
+        return value.charAt(0).toLocaleUpperCase('es') + value.slice(1)
     }
 
 }
