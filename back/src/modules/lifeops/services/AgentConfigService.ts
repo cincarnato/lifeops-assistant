@@ -33,6 +33,7 @@ import PriorityServiceFactory from "../factory/services/PriorityServiceFactory.j
 import MemoryTypeServiceFactory from "../factory/services/MemoryTypeServiceFactory.js";
 import LifeAreaServiceFactory from "../factory/services/LifeAreaServiceFactory.js";
 import GoogleCalendarTools from "../../google/tools/GoogleCalendarTools.js";
+import GoogleContactsTools from "../../google/tools/GoogleContactsTools.js";
 import GoogleGmailTools from "../../google/tools/GoogleGmailTools.js";
 import PushNotificationTools from "../../push/tools/PushNotificationTools.js";
 
@@ -346,6 +347,14 @@ class AgentConfigService {
                 }
 
                 return GoogleGmailTools.build({userId});
+            },
+            context => {
+                const userId = this.resolveContextUserId(context);
+                if (!userId) {
+                    return [];
+                }
+
+                return GoogleContactsTools.build({userId});
             }
         ]);
 

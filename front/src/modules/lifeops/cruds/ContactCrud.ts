@@ -11,10 +11,6 @@ import type {
   IEntityCrudRules
 } from "@drax/crud-share";
 import ContactProvider from "../providers/ContactProvider";
-
-//Import EntityCrud Refs
-import ClientCrud from "./ClientCrud";
-import CompanyCrud from "./CompanyCrud";
 import {UserCrud} from "@drax/identity-vue"
 
 class ContactCrud extends EntityCrud implements IEntityCrud {
@@ -45,13 +41,13 @@ class ContactCrud extends EntityCrud implements IEntityCrud {
 
   get headers(): IEntityCrudHeader[] {
     return [
-      {title: 'firstName', key: 'firstName', align: 'start'},
-      {title: 'lastName', key: 'lastName', align: 'start'},
       {title: 'displayName', key: 'displayName', align: 'start'},
-      {title: 'type', key: 'type', align: 'start'},
-      {title: 'priority', key: 'priority', align: 'start'},
-      {title: 'client', key: 'client', align: 'start'},
-      {title: 'company', key: 'company', align: 'start'},
+      {title: 'source', key: 'source', align: 'start'},
+      {title: 'status', key: 'status', align: 'start'},
+      {title: 'emails', key: 'emails', align: 'start', sortable: false},
+      {title: 'phones', key: 'phones', align: 'start', sortable: false},
+      {title: 'organization', key: 'organization', align: 'start', sortable: false},
+      {title: 'lastSyncedAt', key: 'lastSyncedAt', align: 'start'},
       // {title: 'user', key: 'user', align: 'start'}
     ]
   }
@@ -79,44 +75,123 @@ class ContactCrud extends EntityCrud implements IEntityCrud {
 
   get refs(): IEntityCrudRefs {
     return {
-      Client: ClientCrud.instance,
-      Company: CompanyCrud.instance,
       User: UserCrud.instance
     }
   }
 
   get rules(): IEntityCrudRules {
     return {
-      firstName: [(v: any) => !!v || 'validation.required'],
       displayName: [(v: any) => !!v || 'validation.required'],
     }
   }
 
   get fields(): IEntityCrudField[] {
     return [
-      {name: 'firstName', type: 'string', label: 'firstName', default: ''},
-      {name: 'lastName', type: 'string', label: 'lastName', default: ''},
-      {name: 'displayName', type: 'string', label: 'displayName', default: ''},
-      {name: 'aliases', type: 'array.string', label: 'aliases', default: []},
-      {name: 'type', type: 'string', label: 'type', default: ''},
       {
-        name: 'priority',
-        type: 'string',
-        label: 'priority',
-        default: ''
+        name: 'source',
+        type: 'enum',
+        label: 'source',
+        default: 'manual',
+        enum: ['manual', 'google', 'imported', 'api'],
+        groupTab: 'BASIC'
       },
-      {name: 'client', type: 'ref', label: 'client', default: null, ref: 'Client', refDisplay: 'name'},
-      {name: 'company', type: 'ref', label: 'company', default: null, ref: 'Company', refDisplay: 'name'},
-      {name: 'jobTitle', type: 'string', label: 'jobTitle', default: ''},
-      {name: 'department', type: 'string', label: 'department', default: ''},
-      {name: 'emails', type: 'array.string', label: 'emails', default: []},
-      {name: 'phones', type: 'array.string', label: 'phones', default: []},
-      {name: 'valueScore', type: 'number', label: 'valueScore', default: null},
-      {name: 'relationshipScore', type: 'number', label: 'relationshipScore', default: null},
-      {name: 'tags', type: 'array.string', label: 'tags', default: []},
-      {name: 'notes', type: 'longString', label: 'notes', default: ''},
+      {
+        name: 'status',
+        type: 'enum',
+        label: 'status',
+        default: 'active',
+        enum: ['active', 'archived', 'deleted'],
+        groupTab: 'BASIC'
+      },
+      {name: 'displayName', type: 'string', label: 'displayName', default: '', groupTab: 'BASIC'},
+      {name: 'givenName', type: 'string', label: 'givenName', default: '', groupTab: 'BASIC'},
+      {name: 'familyName', type: 'string', label: 'familyName', default: '', groupTab: 'BASIC'},
+      {name: 'nickname', type: 'string', label: 'nickname', default: '', groupTab: 'BASIC'},
+      {
+        name: 'emails',
+        type: 'array.object',
+        label: 'emails',
+        default: [],
+        groupTab: 'CONTACT',
+        objectFields: [
+          {name: 'value', type: 'string', label: 'value', default: ''},
+          {name: 'type', type: 'string', label: 'type', default: 'other'},
+          {name: 'primary', type: 'boolean', label: 'primary', default: false},
+          {name: 'displayName', type: 'string', label: 'displayName', default: ''},
+        ]
+      },
+      {
+        name: 'phones',
+        type: 'array.object',
+        label: 'phones',
+        default: [],
+        groupTab: 'CONTACT',
+        objectFields: [
+          {name: 'value', type: 'string', label: 'value', default: ''},
+          {name: 'normalizedValue', type: 'string', label: 'normalizedValue', default: ''},
+          {name: 'type', type: 'string', label: 'type', default: 'other'},
+          {name: 'primary', type: 'boolean', label: 'primary', default: false},
+        ]
+      },
+      {
+        name: 'organization',
+        type: 'object',
+        label: 'organization',
+        default: {name: '', title: '', department: '', domain: ''},
+        groupTab: 'ORGANIZATION',
+        objectFields: [
+          {name: 'name', type: 'string', label: 'name', default: ''},
+          {name: 'title', type: 'string', label: 'title', default: ''},
+          {name: 'department', type: 'string', label: 'department', default: ''},
+          {name: 'domain', type: 'string', label: 'domain', default: ''},
+        ]
+      },
+      {
+        name: 'addresses',
+        type: 'array.object',
+        label: 'addresses',
+        default: [],
+        groupTab: 'CONTACT',
+        objectFields: [
+          {name: 'formattedValue', type: 'string', label: 'formattedValue', default: ''},
+          {name: 'type', type: 'string', label: 'type', default: 'other'},
+          {name: 'streetAddress', type: 'string', label: 'streetAddress', default: ''},
+          {name: 'city', type: 'string', label: 'city', default: ''},
+          {name: 'region', type: 'string', label: 'region', default: ''},
+          {name: 'postalCode', type: 'string', label: 'postalCode', default: ''},
+          {name: 'country', type: 'string', label: 'country', default: ''},
+          {name: 'countryCode', type: 'string', label: 'countryCode', default: ''},
+          {name: 'primary', type: 'boolean', label: 'primary', default: false},
+        ]
+      },
+      {name: 'photoUrl', type: 'string', label: 'photoUrl', default: '', groupTab: 'CONTACT'},
+      {
+        name: 'birthday',
+        type: 'object',
+        label: 'birthday',
+        default: {year: null, month: null, day: null},
+        groupTab: 'CONTACT',
+        objectFields: [
+          {name: 'year', type: 'number', label: 'year', default: null},
+          {name: 'month', type: 'number', label: 'month', default: null},
+          {name: 'day', type: 'number', label: 'day', default: null},
+        ]
+      },
+      {name: 'tags', type: 'array.string', label: 'tags', default: [], groupTab: 'BASIC'},
+      {name: 'notes', type: 'longString', label: 'notes', default: '', groupTab: 'BASIC'},
+      {
+        name: 'externalProvider',
+        type: 'enum',
+        label: 'externalProvider',
+        default: null,
+        enum: ['google'],
+        groupTab: 'SYNC'
+      },
+      {name: 'externalId', type: 'string', label: 'externalId', default: '', groupTab: 'SYNC'},
+      {name: 'externalEtag', type: 'string', label: 'externalEtag', default: '', groupTab: 'SYNC'},
+      {name: 'externalRaw', type: 'object', label: 'externalRaw', default: null, groupTab: 'SYNC'},
+      {name: 'lastSyncedAt', type: 'date', label: 'lastSyncedAt', default: null, groupTab: 'SYNC'},
       // {name: 'user', type: 'ref', label: 'user', default: null, ref: 'User', refDisplay: 'username'},
-      {name: 'archivedAt', type: 'date', label: 'archivedAt', default: null}
     ]
   }
 
@@ -175,7 +250,7 @@ class ContactCrud extends EntityCrud implements IEntityCrud {
   }
 
   get tabs() {
-    return []
+    return ['BASIC', 'CONTACT', 'ORGANIZATION', 'SYNC']
   }
 
   get menus() {

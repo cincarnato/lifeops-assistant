@@ -8,7 +8,9 @@ type GoogleConnectionPermissionKey =
     | "modifyMails"
     | "readCalendar"
     | "createCalendarEvents"
-    | "modifyCalendarEvents";
+    | "modifyCalendarEvents"
+    | "readContacts"
+    | "createContacts";
 
 type GoogleConnectionPermission = {
     key: GoogleConnectionPermissionKey;
@@ -65,6 +67,16 @@ const GOOGLE_CONNECTION_PERMISSIONS: GoogleConnectionPermission[] = [
         key: "modifyCalendarEvents",
         label: "Modify calendar events",
         scope: "https://www.googleapis.com/auth/calendar.events",
+    },
+    {
+        key: "readContacts",
+        label: "Read contacts",
+        scope: "https://www.googleapis.com/auth/contacts.readonly",
+    },
+    {
+        key: "createContacts",
+        label: "Create contacts",
+        scope: "https://www.googleapis.com/auth/contacts",
     },
 ];
 

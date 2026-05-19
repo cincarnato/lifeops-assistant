@@ -239,6 +239,13 @@ const menu: MenuItem[] = [
         permission: 'googleconnection:view'
       },
       {
+        icon: 'mdi-account-sync-outline',
+        text: 'Sincronizar contactos',
+        link: {name: "GoogleContactsSyncPage"},
+        gallery: true,
+        permission: 'googleconnection:view'
+      },
+      {
         icon: 'mdi-table-cog',
         text: 'googleconnection.menu',
         link: {name: "GoogleConnectionCrudPage"},

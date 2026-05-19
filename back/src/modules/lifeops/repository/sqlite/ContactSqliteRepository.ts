@@ -9,37 +9,35 @@ class ContactSqliteRepository extends AbstractSqliteRepository<IContact, IContac
     protected db: any;
     protected tableName: string = 'Contact';
     protected dataBaseFile: string;
-    protected searchFields: string[] = ['firstName', 'lastName', 'displayName', 'aliases', 'jobTitle', 'department'];
+    protected searchFields: string[] = ['displayName', 'givenName', 'familyName', 'nickname', 'externalId'];
     protected booleanFields: string[] = [];
-    protected jsonFields: string[] = ['aliases', 'emails', 'phones', 'tags'];
+protected jsonFields: string[] = ['externalRaw', 'emails', 'phones', 'organization', 'addresses', 'birthday', 'tags'];
     protected identifier: string = '_id';
     protected populateFields = [
-        { field: 'client', table: 'client', identifier: '_id' },
-{ field: 'company', table: 'company', identifier: '_id' },
-{ field: 'user', table: 'user', identifier: '_id' }
+        { field: 'user', table: 'user', identifier: '_id' }
     ]
     protected verbose: boolean = false;
     protected tableFields: SqliteTableField[] = [
-        {name: "firstName", type: "TEXT", unique: undefined, primary: false},
-{name: "lastName", type: "TEXT", unique: undefined, primary: false},
+        {name: "source", type: "TEXT", unique: undefined, primary: false},
+{name: "externalProvider", type: "TEXT", unique: undefined, primary: false},
+{name: "externalId", type: "TEXT", unique: undefined, primary: false},
+{name: "externalEtag", type: "TEXT", unique: undefined, primary: false},
+{name: "externalRaw", type: "TEXT", unique: undefined, primary: false},
 {name: "displayName", type: "TEXT", unique: undefined, primary: false},
-{name: "type", type: "TEXT", unique: undefined, primary: false},
-{name: "priority", type: "TEXT", unique: undefined, primary: false},
-{name: "client", type: "TEXT", unique: undefined, primary: false},
-{name: "company", type: "TEXT", unique: undefined, primary: false},
-{name: "jobTitle", type: "TEXT", unique: undefined, primary: false},
-{name: "department", type: "TEXT", unique: undefined, primary: false},
-{name: "aliases", type: "TEXT", unique: undefined, primary: false},
+{name: "givenName", type: "TEXT", unique: undefined, primary: false},
+{name: "familyName", type: "TEXT", unique: undefined, primary: false},
+{name: "nickname", type: "TEXT", unique: undefined, primary: false},
 {name: "emails", type: "TEXT", unique: undefined, primary: false},
 {name: "phones", type: "TEXT", unique: undefined, primary: false},
-{name: "valueScore", type: "REAL", unique: undefined, primary: false},
-{name: "valueScore", type: "TEXT", unique: undefined, primary: false},
-{name: "relationshipScore", type: "REAL", unique: undefined, primary: false},
-{name: "relationshipScore", type: "TEXT", unique: undefined, primary: false},
-{name: "tags", type: "TEXT", unique: undefined, primary: false},
+{name: "organization", type: "TEXT", unique: undefined, primary: false},
+{name: "addresses", type: "TEXT", unique: undefined, primary: false},
+{name: "photoUrl", type: "TEXT", unique: undefined, primary: false},
+{name: "birthday", type: "TEXT", unique: undefined, primary: false},
 {name: "notes", type: "TEXT", unique: undefined, primary: false},
+{name: "tags", type: "TEXT", unique: undefined, primary: false},
+{name: "status", type: "TEXT", unique: undefined, primary: false},
+{name: "lastSyncedAt", type: "TEXT", unique: undefined, primary: false},
 {name: "user", type: "TEXT", unique: undefined, primary: false},
-{name: "archivedAt", type: "TEXT", unique: undefined, primary: false}
     ]
   
 }

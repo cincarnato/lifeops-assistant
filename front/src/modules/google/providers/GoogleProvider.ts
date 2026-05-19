@@ -13,6 +13,12 @@ import type {
   IGoogleCalendarItem,
   IGoogleCalendarListOptions,
 } from "@/modules/google/interfaces/IGoogleCalendar";
+import type {
+  IGoogleContactsListOptions,
+  IGoogleContactsListResult,
+  IGoogleContactsSyncInput,
+  IGoogleContactsSyncResult,
+} from "@/modules/google/interfaces/IGoogleContacts";
 
 
 class GoogleProvider {
@@ -125,6 +131,18 @@ class GoogleProvider {
   async createCalendarEvent(payload: IGoogleCalendarCreateEventInput): Promise<IGoogleCalendarEvent> {
     const url = `${this.basePath}/calendar/events`
     return await this.httpClient.post(url, payload, {timeout: 120000}) as IGoogleCalendarEvent
+  }
+
+  async listContacts(options: IGoogleContactsListOptions = {}): Promise<IGoogleContactsListResult> {
+    const params = this.createQueryParams(options)
+    const query = params.toString()
+    const url = `${this.basePath}/contacts${query ? `?${query}` : ''}`
+    return await this.httpClient.get(url, {timeout: 120000}) as IGoogleContactsListResult
+  }
+
+  async syncContacts(payload: IGoogleContactsSyncInput): Promise<IGoogleContactsSyncResult> {
+    const url = `${this.basePath}/contacts/sync`
+    return await this.httpClient.post(url, payload, {timeout: 120000}) as IGoogleContactsSyncResult
   }
 
   private createQueryParams(options: Record<string, any>): URLSearchParams {

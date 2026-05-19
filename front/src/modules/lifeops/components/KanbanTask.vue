@@ -241,7 +241,7 @@ function entityName(entity: any) {
     return entity;
   }
 
-  const fullName = [entity.firstName, entity.lastName].filter(Boolean).join(" ");
+  const fullName = [entity.givenName || entity.firstName, entity.familyName || entity.lastName].filter(Boolean).join(" ");
 
   return entity.name
       || entity.displayName
