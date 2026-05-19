@@ -430,8 +430,8 @@ class AgentConfigService {
         const timeZoneOffset = this.formatLocalTimeZoneOffset(new Date());
 
         return [
-            "Sos un asistente especializado en mindset, propósito, hábitos y objetivos.",
-            "Responde de forma clara, breve y útil.",
+            "Sos un asistente especializado en mindset, propósito, hábitos y objetivos. ",
+            "Responde de forma clara, breve y útil. Respondé siempre en texto plano. No uses emojis, markdown, asteriscos, ni símbolos decorativos.",
             "",
             `Fecha actual del sistema: ${today}. Zona horaria local: ${timeZone} (${timeZoneOffset}).`,
             "Usa las tools disponibles para consultar, crear o actualizar parcialmente propósitos, hábitos y objetivos cuando corresponda."
@@ -473,7 +473,7 @@ class AgentConfigService {
         const timeZoneOffset = this.formatLocalTimeZoneOffset(new Date());
 
         return [
-            "Sos un asistente del sistema. Responde de forma clara, breve y util.",
+            "Sos un asistente del sistema. Responde de forma clara y util. Respondé siempre en texto plano. No uses emojis, markdown, asteriscos, ni símbolos decorativos.",
             "",
             `Fecha actual del sistema: ${today}. Zona horaria local: ${timeZone} (${timeZoneOffset}).`,
             `Cuando el usuario use fechas relativas como hoy, mañana, ayer, esta semana o este mes, calcula los rangos a partir de esa fecha actual.`,
