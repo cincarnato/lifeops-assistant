@@ -34,6 +34,7 @@ import MemoryTypeServiceFactory from "../factory/services/MemoryTypeServiceFacto
 import LifeAreaServiceFactory from "../factory/services/LifeAreaServiceFactory.js";
 import GoogleCalendarTools from "../../google/tools/GoogleCalendarTools.js";
 import GoogleGmailTools from "../../google/tools/GoogleGmailTools.js";
+import PushNotificationTools from "../../push/tools/PushNotificationTools.js";
 
 interface TaskOptionNames {
     sources: string[];
@@ -96,6 +97,7 @@ class AgentConfigService {
     private _projectTool?: DraxAgentToolBuilder;
     private _tools: AgentConfigToolSource[] = [];
     private _googleToolsInitialized = false;
+    private _pushToolsInitialized = false;
     private _initialized = false;
     private _optionNames: AgentOptionNames = {
         tasks: {
@@ -152,6 +154,7 @@ class AgentConfigService {
         this.prepareProjectTool();
         this.prepareMindsetTools();
         this.prepareGoogleTools();
+        this.preparePushTools();
         await this.prepareSystemPrompt();
     }
 
@@ -347,6 +350,23 @@ class AgentConfigService {
         ]);
 
         this._googleToolsInitialized = true;
+    }
+
+    public preparePushTools(): void {
+        if (this._pushToolsInitialized) {
+            return;
+        }
+
+        this.addTool(context => {
+            const userId = this.resolveContextUserId(context);
+            if (!userId) {
+                return [];
+            }
+
+            return PushNotificationTools.build({userId});
+        });
+
+        this._pushToolsInitialized = true;
     }
 
     public get systemPrompt(): string {
@@ -744,7 +764,9 @@ class AgentConfigService {
             "",
             "Al crear o actualizar memorias, el campo type guarda solo el nombre como string.",
             "Usa unicamente estos nombres disponibles para completar ese campo:",
-            `- type: ${this.formatOptionNames(options.memories.types)}`
+            `- type: ${this.formatOptionNames(options.memories.types)}`,
+            "",
+            "Cuando necesites avisarle algo al usuario fuera del chat, podes enviarle una push notification usando la tool disponible."
         ].join("\n");
     }
 
