@@ -11,6 +11,7 @@ const CompanyBaseSchema = z.object({
     type: z.string().optional().default(""),
     status: z.enum(['active', 'inactive', 'archived']).optional().default('active'),
     website: z.string().optional().default(""),
+    aliases: z.array(z.string()).optional().default([]),
     emailDomains: z.array(z.string()).optional().default([]),
     tags: z.array(z.string()).optional().default([]),
     notes: z.string().optional().default(""),

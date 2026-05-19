@@ -11,6 +11,7 @@ const ClientBaseSchema = z.object({
     relationshipScore: z.number().nullable().optional().default(null),
     priorityScore: z.number().nullable().optional().default(null),
     website: z.string().optional().default(""),
+    aliases: z.array(z.string()).optional().default([]),
     emailDomains: z.array(z.string()).optional().default([]),
     company: z.coerce.string().optional().nullable(),
     mainContact: z.coerce.string().optional().nullable(),

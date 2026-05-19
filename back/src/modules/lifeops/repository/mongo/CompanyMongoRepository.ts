@@ -10,7 +10,7 @@ class CompanyMongoRepository extends AbstractMongoRepository<ICompany, ICompanyB
     constructor() {
         super();
         this._model = CompanyModel;
-        this._searchFields = ['name', 'legalName', 'taxIdType', 'taxIdNumber', 'description', 'website'];
+        this._searchFields = ['name', 'aliases', 'legalName', 'taxIdType', 'taxIdNumber', 'description', 'website'];
         this._populateFields = ['user'];
         this._lean = true
     }
@@ -19,4 +19,3 @@ class CompanyMongoRepository extends AbstractMongoRepository<ICompany, ICompanyB
 
 export default CompanyMongoRepository
 export {CompanyMongoRepository}
-

@@ -12,6 +12,7 @@ const ContactBaseSchema = z.object({
     company: z.coerce.string().optional().nullable(),
     jobTitle: z.string().optional().default(""),
     department: z.string().optional().default(""),
+    aliases: z.array(z.string()).optional().default([]),
     emails: z.array(z.string()).optional().default([]),
     phones: z.array(z.string()).optional().default([]),
     valueScore: z.number().nullable().optional().default(null),

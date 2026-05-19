@@ -9,9 +9,9 @@ class ProjectSqliteRepository extends AbstractSqliteRepository<IProject, IProjec
     protected db: any;
     protected tableName: string = 'Project';
     protected dataBaseFile: string;
-    protected searchFields: string[] = ['name', 'description'];
+    protected searchFields: string[] = ['name', 'aliases', 'description'];
     protected booleanFields: string[] = [];
-    protected jsonFields: string[] = ['tags'];
+    protected jsonFields: string[] = ['aliases', 'tags'];
     protected identifier: string = '_id';
     protected populateFields = [
         { field: 'goals', table: 'goals', identifier: '_id' },
@@ -38,6 +38,7 @@ class ProjectSqliteRepository extends AbstractSqliteRepository<IProject, IProjec
 {name: "completedAt", type: "TEXT", unique: undefined, primary: false},
 {name: "progressPercent", type: "REAL", unique: undefined, primary: false},
 {name: "progressPercent", type: "TEXT", unique: undefined, primary: false},
+{name: "aliases", type: "TEXT", unique: undefined, primary: false},
 {name: "tags", type: "TEXT", unique: undefined, primary: false},
 {name: "user", type: "TEXT", unique: undefined, primary: false},
 {name: "archivedAt", type: "TEXT", unique: undefined, primary: false}

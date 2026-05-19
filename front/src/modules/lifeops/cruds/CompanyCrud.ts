@@ -87,6 +87,7 @@ class CompanyCrud extends EntityCrud implements IEntityCrud {
     return [
       {name: 'name', type: 'string', label: 'name', default: ''},
       {name: 'legalName', type: 'string', label: 'legalName', default: ''},
+      {name: 'aliases', type: 'array.string', label: 'aliases', default: []},
       {name: 'taxIdType', type: 'string', label: 'taxIdType', default: ''},
       {name: 'taxIdNumber', type: 'string', label: 'taxIdNumber', default: ''},
       {name: 'description', type: 'longString', label: 'description', default: ''},

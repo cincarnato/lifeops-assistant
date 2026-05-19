@@ -9,9 +9,9 @@ class ClientSqliteRepository extends AbstractSqliteRepository<IClient, IClientBa
     protected db: any;
     protected tableName: string = 'Client';
     protected dataBaseFile: string;
-    protected searchFields: string[] = ['name', 'description', 'website'];
+    protected searchFields: string[] = ['name', 'aliases', 'description', 'website'];
     protected booleanFields: string[] = [];
-    protected jsonFields: string[] = ['emailDomains', 'redmineProjectIds', 'tags'];
+    protected jsonFields: string[] = ['aliases', 'emailDomains', 'redmineProjectIds', 'tags'];
     protected identifier: string = '_id';
     protected populateFields = [
         { field: 'company', table: 'company', identifier: '_id' },
@@ -32,6 +32,7 @@ class ClientSqliteRepository extends AbstractSqliteRepository<IClient, IClientBa
 {name: "priorityScore", type: "REAL", unique: undefined, primary: false},
 {name: "priorityScore", type: "TEXT", unique: undefined, primary: false},
 {name: "website", type: "TEXT", unique: undefined, primary: false},
+{name: "aliases", type: "TEXT", unique: undefined, primary: false},
 {name: "emailDomains", type: "TEXT", unique: undefined, primary: false},
 {name: "company", type: "TEXT", unique: undefined, primary: false},
 {name: "mainContact", type: "TEXT", unique: undefined, primary: false},

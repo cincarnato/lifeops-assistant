@@ -9,6 +9,7 @@ interface IClientBase {
     relationshipScore?: number
     priorityScore?: number
     website?: string
+    aliases?: Array<string>
     emailDomains?: Array<string>
     company?: any
     mainContact?: any
@@ -32,6 +33,7 @@ interface IClient {
     relationshipScore?: number
     priorityScore?: number
     website?: string
+    aliases?: Array<string>
     emailDomains?: Array<string>
     company?: any
     mainContact?: any

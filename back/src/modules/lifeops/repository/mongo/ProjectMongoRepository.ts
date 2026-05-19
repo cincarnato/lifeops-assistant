@@ -10,7 +10,7 @@ class ProjectMongoRepository extends AbstractMongoRepository<IProject, IProjectB
     constructor() {
         super();
         this._model = ProjectModel;
-        this._searchFields = ['name', 'description'];
+        this._searchFields = ['name', 'aliases', 'description'];
         this._populateFields = ['goals', 'client', 'user'];
         this._lean = true
     }
@@ -19,4 +19,3 @@ class ProjectMongoRepository extends AbstractMongoRepository<IProject, IProjectB
 
 export default ProjectMongoRepository
 export {ProjectMongoRepository}
-

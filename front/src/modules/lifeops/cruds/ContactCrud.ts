@@ -97,6 +97,7 @@ class ContactCrud extends EntityCrud implements IEntityCrud {
       {name: 'firstName', type: 'string', label: 'firstName', default: ''},
       {name: 'lastName', type: 'string', label: 'lastName', default: ''},
       {name: 'displayName', type: 'string', label: 'displayName', default: ''},
+      {name: 'aliases', type: 'array.string', label: 'aliases', default: []},
       {name: 'type', type: 'string', label: 'type', default: ''},
       {
         name: 'priority',

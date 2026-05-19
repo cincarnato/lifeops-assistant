@@ -8,6 +8,7 @@ interface ICompanyBase {
     type?: string
     status?: string
     website?: string
+    aliases?: Array<string>
     emailDomains?: Array<string>
     tags?: Array<string>
     notes?: string
@@ -27,6 +28,7 @@ interface ICompany {
     type?: string
     status?: string
     website?: string
+    aliases?: Array<string>
     emailDomains?: Array<string>
     tags?: Array<string>
     notes?: string

@@ -9,9 +9,9 @@ class CompanySqliteRepository extends AbstractSqliteRepository<ICompany, ICompan
     protected db: any;
     protected tableName: string = 'Company';
     protected dataBaseFile: string;
-    protected searchFields: string[] = ['name', 'legalName', 'taxIdType', 'taxIdNumber', 'description', 'website'];
+    protected searchFields: string[] = ['name', 'aliases', 'legalName', 'taxIdType', 'taxIdNumber', 'description', 'website'];
     protected booleanFields: string[] = [];
-    protected jsonFields: string[] = ['emailDomains', 'tags'];
+    protected jsonFields: string[] = ['aliases', 'emailDomains', 'tags'];
     protected identifier: string = '_id';
     protected populateFields = [
         { field: 'user', table: 'user', identifier: '_id' }
@@ -26,6 +26,7 @@ class CompanySqliteRepository extends AbstractSqliteRepository<ICompany, ICompan
 {name: "type", type: "TEXT", unique: undefined, primary: false},
 {name: "status", type: "TEXT", unique: undefined, primary: false},
 {name: "website", type: "TEXT", unique: undefined, primary: false},
+{name: "aliases", type: "TEXT", unique: undefined, primary: false},
 {name: "emailDomains", type: "TEXT", unique: undefined, primary: false},
 {name: "tags", type: "TEXT", unique: undefined, primary: false},
 {name: "notes", type: "TEXT", unique: undefined, primary: false},
@@ -37,4 +38,3 @@ class CompanySqliteRepository extends AbstractSqliteRepository<ICompany, ICompan
 
 export default CompanySqliteRepository
 export {CompanySqliteRepository}
-

@@ -50,12 +50,18 @@ const menu: MenuItem[] = [
       },
       {
         icon: 'mdi-view-dashboard-outline',
-        text: 'Kanban',
+        text: 'Kanban Tareas',
         link: {name: "KanbanTaskPage"},
         gallery: true,
         permission: 'task:view'
       },
-
+      {
+        icon: 'mdi-briefcase-outline',
+        text: 'project.menu',
+        link: {name: "ProjectCrudPage"},
+        gallery: true,
+        permission: 'project:manage'
+      },
       {
         icon: 'mdi-brain',
         text: 'memory.menu',
@@ -64,6 +70,22 @@ const menu: MenuItem[] = [
         permission: 'memory:manage'
       },
 
+
+
+    ]
+  },
+  {
+    icon: 'mdi-bullseye-arrow',
+    text: 'Habitos',
+    gallery: true,
+    children: [
+      {
+        icon: 'mdi-repeat',
+        text: 'habit.menu',
+        link: {name: "HabitCrudPage"},
+        gallery: true,
+        permission: 'habit:manage'
+      },
       {
         icon: 'mdi-calendar-check-outline',
         text: 'habitlog.menu',
@@ -71,7 +93,6 @@ const menu: MenuItem[] = [
         gallery: true,
         permission: 'habitlog:manage'
       },
-
     ]
   },
   {
@@ -86,13 +107,7 @@ const menu: MenuItem[] = [
         gallery: true,
         permission: 'purpose:manage'
       },
-      {
-        icon: 'mdi-repeat',
-        text: 'habit.menu',
-        link: {name: "HabitCrudPage"},
-        gallery: true,
-        permission: 'habit:manage'
-      },
+
       {
         icon: 'mdi-flag-checkered',
         text: 'goal.menu',
@@ -100,13 +115,7 @@ const menu: MenuItem[] = [
         gallery: true,
         permission: 'goal:manage'
       },
-      {
-        icon: 'mdi-briefcase-outline',
-        text: 'project.menu',
-        link: {name: "ProjectCrudPage"},
-        gallery: true,
-        permission: 'project:manage'
-      },
+
       {
         icon: 'mdi-domain',
         text: 'client.menu',

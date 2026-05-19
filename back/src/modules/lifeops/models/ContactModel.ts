@@ -15,6 +15,7 @@ const ContactSchema = new mongoose.Schema<IContact>({
             company: {type: mongoose.Schema.Types.ObjectId, ref: 'Company',  required: false, index: true, unique: false },
             jobTitle: {type: String,   required: false, index: false, unique: false },
             department: {type: String,   required: false, index: false, unique: false },
+            aliases: [{type: String,   required: false, index: true, unique: false }],
             emails: [{type: String,   required: false, index: true, unique: false }],
             phones: [{type: String,   required: false, index: false, unique: false }],
             valueScore: {type: Number,   required: false, index: false, unique: false },

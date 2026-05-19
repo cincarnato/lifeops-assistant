@@ -9,9 +9,9 @@ class ContactSqliteRepository extends AbstractSqliteRepository<IContact, IContac
     protected db: any;
     protected tableName: string = 'Contact';
     protected dataBaseFile: string;
-    protected searchFields: string[] = ['firstName', 'lastName', 'displayName', 'jobTitle', 'department'];
+    protected searchFields: string[] = ['firstName', 'lastName', 'displayName', 'aliases', 'jobTitle', 'department'];
     protected booleanFields: string[] = [];
-    protected jsonFields: string[] = ['emails', 'phones', 'tags'];
+    protected jsonFields: string[] = ['aliases', 'emails', 'phones', 'tags'];
     protected identifier: string = '_id';
     protected populateFields = [
         { field: 'client', table: 'client', identifier: '_id' },
@@ -29,6 +29,7 @@ class ContactSqliteRepository extends AbstractSqliteRepository<IContact, IContac
 {name: "company", type: "TEXT", unique: undefined, primary: false},
 {name: "jobTitle", type: "TEXT", unique: undefined, primary: false},
 {name: "department", type: "TEXT", unique: undefined, primary: false},
+{name: "aliases", type: "TEXT", unique: undefined, primary: false},
 {name: "emails", type: "TEXT", unique: undefined, primary: false},
 {name: "phones", type: "TEXT", unique: undefined, primary: false},
 {name: "valueScore", type: "REAL", unique: undefined, primary: false},

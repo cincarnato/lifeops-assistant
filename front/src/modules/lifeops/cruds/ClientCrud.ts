@@ -95,6 +95,7 @@ class ClientCrud extends EntityCrud implements IEntityCrud {
     return [
       {name: 'name', type: 'string', label: 'name', default: ''},
       {name: 'description', type: 'longString', label: 'description', default: ''},
+      {name: 'aliases', type: 'array.string', label: 'aliases', default: []},
       {name: 'type', type: 'string', label: 'type', default: ''},
       {
         name: 'status',

@@ -14,6 +14,7 @@ const CompanySchema = new mongoose.Schema<ICompany>({
             type: {type: String,   required: false, index: true, unique: false },
             status: {type: String,  enum: ['active', 'inactive', 'archived'], required: false, index: true, unique: false },
             website: {type: String,   required: false, index: false, unique: false },
+            aliases: [{type: String,   required: false, index: true, unique: false }],
             emailDomains: [{type: String,   required: false, index: true, unique: false }],
             tags: [{type: String,   required: false, index: true, unique: false }],
             notes: {type: String,   required: false, index: false, unique: false },

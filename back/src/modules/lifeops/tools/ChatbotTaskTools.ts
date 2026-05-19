@@ -178,7 +178,7 @@ class ChatbotTaskTools {
         return this.serializeFields(project, [
             "_id", "name", "description", "status", "priority", "goals", "client", "valueScore",
             "motivationScore", "effortScore", "priorityScore", "startDate", "targetDate", "completedAt",
-            "progressPercent", "tags", "archivedAt", "createdAt", "updatedAt",
+            "progressPercent", "aliases", "tags", "archivedAt", "createdAt", "updatedAt",
         ]);
     }
 
@@ -186,7 +186,7 @@ class ChatbotTaskTools {
         return this.serializeFields(contact, [
             "_id", "firstName", "lastName", "displayName", "type", "status", "priority", "client",
             "company", "jobTitle", "department", "emails", "phones", "valueScore", "relationshipScore",
-            "tags", "notes", "archivedAt", "createdAt", "updatedAt",
+            "aliases", "tags", "notes", "archivedAt", "createdAt", "updatedAt",
         ]);
     }
 
@@ -194,14 +194,14 @@ class ChatbotTaskTools {
         return this.serializeFields(client, [
             "_id", "name", "description", "type", "status", "priority", "valueScore", "relationshipScore",
             "priorityScore", "website", "emailDomains", "company", "mainContact", "redmineProjectIds",
-            "tags", "notes", "archivedAt", "createdAt", "updatedAt",
+            "aliases", "tags", "notes", "archivedAt", "createdAt", "updatedAt",
         ]);
     }
 
     private static serializeCompany(company: any) {
         return this.serializeFields(company, [
             "_id", "name", "legalName", "taxIdType", "taxIdNumber", "description", "type", "status",
-            "website", "emailDomains", "tags", "notes", "archivedAt", "createdAt", "updatedAt",
+            "website", "aliases", "emailDomains", "tags", "notes", "archivedAt", "createdAt", "updatedAt",
         ]);
     }
 
@@ -294,6 +294,7 @@ class ChatbotTaskTools {
                     targetDate: {type: "string", description: "Fecha objetivo en formato ISO 8601."},
                     completedAt: {type: "string", description: "Fecha de completado en formato ISO 8601."},
                     progressPercent: {type: "number", minimum: 0, maximum: 100},
+                    aliases: tagArrayProperty,
                     tags: tagArrayProperty,
                 },
                 updateProperties: {
@@ -312,6 +313,7 @@ class ChatbotTaskTools {
                     completedAt: nullableDateProperty,
                     archivedAt: nullableDateProperty,
                     progressPercent: {type: ["number", "null"], minimum: 0, maximum: 100},
+                    aliases: tagArrayProperty,
                     tags: tagArrayProperty,
                 },
             },
@@ -336,6 +338,7 @@ class ChatbotTaskTools {
                     phones: tagArrayProperty,
                     valueScore: scoreProperty,
                     relationshipScore: scoreProperty,
+                    aliases: tagArrayProperty,
                     tags: tagArrayProperty,
                     notes: {type: "string"},
                 },
@@ -354,6 +357,7 @@ class ChatbotTaskTools {
                     phones: tagArrayProperty,
                     valueScore: {type: ["number", "null"]},
                     relationshipScore: {type: ["number", "null"]},
+                    aliases: tagArrayProperty,
                     tags: tagArrayProperty,
                     notes: {type: "string"},
                     archivedAt: nullableDateProperty,
@@ -375,6 +379,7 @@ class ChatbotTaskTools {
                     relationshipScore: scoreProperty,
                     priorityScore: {type: "number"},
                     website: {type: "string"},
+                    aliases: tagArrayProperty,
                     emailDomains: tagArrayProperty,
                     company: {type: "string", description: "ID de la empresa relacionada."},
                     mainContact: {type: "string", description: "ID del contacto principal."},
@@ -392,6 +397,7 @@ class ChatbotTaskTools {
                     relationshipScore: {type: ["number", "null"]},
                     priorityScore: {type: ["number", "null"]},
                     website: {type: "string"},
+                    aliases: tagArrayProperty,
                     emailDomains: tagArrayProperty,
                     company: {type: "string", description: "ID de la empresa relacionada."},
                     mainContact: {type: ["string", "null"], description: "ID del contacto principal o null para limpiar."},
@@ -416,6 +422,7 @@ class ChatbotTaskTools {
                     type: {type: "string", description: "Nombre de CompanyType si el usuario eligio una opcion existente."},
                     status: {type: "string", enum: ["active", "inactive", "archived"]},
                     website: {type: "string"},
+                    aliases: tagArrayProperty,
                     emailDomains: tagArrayProperty,
                     tags: tagArrayProperty,
                     notes: {type: "string"},
@@ -429,6 +436,7 @@ class ChatbotTaskTools {
                     type: {type: "string", description: "Nombre de CompanyType."},
                     status: {type: "string", enum: ["active", "inactive", "archived"]},
                     website: {type: "string"},
+                    aliases: tagArrayProperty,
                     emailDomains: tagArrayProperty,
                     tags: tagArrayProperty,
                     notes: {type: "string"},

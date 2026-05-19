@@ -19,6 +19,7 @@ const ProjectSchema = new mongoose.Schema<IProject>({
             targetDate: {type: Date,   required: false, index: true, unique: false },
             completedAt: {type: Date,   required: false, index: false, unique: false },
             progressPercent: {type: Number,   required: false, index: false, unique: false },
+            aliases: [{type: String,   required: false, index: true, unique: false }],
             tags: [{type: String,   required: false, index: true, unique: false }],
             user: {type: mongoose.Schema.Types.ObjectId, ref: 'User',  required: true, index: true, unique: false },
             archivedAt: {type: Date,   required: false, index: false, unique: false }

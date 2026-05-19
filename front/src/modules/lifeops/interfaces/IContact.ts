@@ -9,6 +9,7 @@ interface IContactBase {
     company: any
     jobTitle?: string
     department?: string
+    aliases?: Array<string>
     emails?: Array<string>
     phones?: Array<string>
     valueScore?: number
@@ -32,6 +33,7 @@ interface IContact {
     company: any
     jobTitle?: string
     department?: string
+    aliases?: Array<string>
     emails?: Array<string>
     phones?: Array<string>
     valueScore?: number

@@ -13,6 +13,7 @@ interface IProjectBase {
     targetDate?: Date
     completedAt?: Date
     progressPercent?: number
+    aliases?: Array<string>
     tags?: Array<string>
     user: any
     archivedAt?: Date
@@ -35,6 +36,7 @@ interface IProject {
     targetDate?: Date
     completedAt?: Date
     progressPercent?: number
+    aliases?: Array<string>
     tags?: Array<string>
     user: any
     archivedAt?: Date
