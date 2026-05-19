@@ -68,9 +68,34 @@ class GoogleContactsService {
     }
 
     async createContact(options: GoogleContactsCreateOptions): Promise<GoogleContact> {
+        console.info("google.contacts.create_requested", {
+            userId: options.userId,
+            connectionId: options.connectionId,
+            hasDisplayName: Boolean(options.contact.displayName),
+            emailCount: options.contact.emailAddresses?.length || 0,
+            phoneCount: options.contact.phoneNumbers?.length || 0,
+        });
+
         const connection = await this.resolveConnection(options.userId, options.connectionId, true);
+        console.info("google.contacts.create_connection_resolved", {
+            userId: options.userId,
+            connectionId: connection._id,
+            scope: connection.scope,
+            status: connection.status,
+        });
+
         const accessToken = await this.getAccessToken(connection);
         const body = this.buildCreateContactBody(options.contact);
+        console.info("google.contacts.create_body_built", {
+            userId: options.userId,
+            connectionId: connection._id,
+            hasNames: Boolean(body.names?.length),
+            emailCount: body.emailAddresses?.length || 0,
+            phoneCount: body.phoneNumbers?.length || 0,
+            organizationCount: body.organizations?.length || 0,
+            addressCount: body.addresses?.length || 0,
+            hasBiography: Boolean(body.biographies?.length),
+        });
 
         const response = await this.peopleFetch<any>(
             `https://people.googleapis.com/v1/people:createContact?${new URLSearchParams({
@@ -83,7 +108,30 @@ class GoogleContactsService {
             }
         );
 
-        return this.mapContact(response);
+        const googleContact = this.mapContact(response);
+        console.info("google.contacts.create_response", {
+            userId: options.userId,
+            connectionId: connection._id,
+            resourceName: googleContact.resourceName,
+        });
+
+        return googleContact;
+    }
+
+    async createContactFromLifeOps(contact: IContact): Promise<GoogleContact> {
+        const userId = this.getContactUserId(contact);
+        console.info("google.contacts.create_from_lifeops", {
+            contactId: contact._id,
+            userId,
+            source: contact.source,
+            externalProvider: contact.externalProvider,
+            hasExternalId: Boolean(contact.externalId),
+        });
+
+        return this.createContact({
+            userId,
+            contact: this.mapLifeOpsContactToGoogleCreateInput(contact),
+        });
     }
 
     async syncContacts(options: GoogleContactsSyncOptions): Promise<GoogleContactsSyncResult> {
@@ -143,22 +191,60 @@ class GoogleContactsService {
     }
 
     private async resolveConnection(userId: string, connectionId?: string, requireWrite = false): Promise<IGoogleConnection> {
+        console.info("google.contacts.resolve_connection_started", {
+            userId,
+            connectionId,
+            requireWrite,
+        });
+
         const service = GoogleConnectionServiceFactory.instance;
         const connection = connectionId
             ? await service.findById(connectionId)
             : (await service.findBy("userId", userId, 20)).find(item => requireWrite ? this.canWriteContacts(item) : this.canReadContacts(item));
 
         if (!connection || this.getConnectionUserId(connection) !== userId) {
+            console.warn("google.contacts.resolve_connection_not_found", {
+                userId,
+                connectionId,
+                requireWrite,
+                foundConnection: Boolean(connection),
+                foundConnectionUserId: connection ? this.getConnectionUserId(connection) : undefined,
+                foundConnectionStatus: connection?.status,
+                foundConnectionScope: connection?.scope,
+            });
             throw new Error("google.connection.not_found");
         }
 
         if (requireWrite && !this.canWriteContacts(connection)) {
+            console.warn("google.contacts.resolve_connection_missing_write_scope", {
+                userId,
+                connectionId: connection._id,
+                status: connection.status,
+                scope: connection.scope,
+                requiredScope: CONTACTS_SCOPE,
+            });
             throw new Error("google.contacts.write_scope.required");
         }
 
         if (!requireWrite && !this.canReadContacts(connection)) {
+            console.warn("google.contacts.resolve_connection_missing_read_scope", {
+                userId,
+                connectionId: connection._id,
+                status: connection.status,
+                scope: connection.scope,
+                requiredScopes: [CONTACTS_READONLY_SCOPE, CONTACTS_SCOPE],
+            });
             throw new Error("google.contacts.scope.required");
         }
+
+        console.info("google.contacts.resolve_connection_succeeded", {
+            userId,
+            connectionId: connection._id,
+            requireWrite,
+            status: connection.status,
+            canReadContacts: this.canReadContacts(connection),
+            canWriteContacts: this.canWriteContacts(connection),
+        });
 
         return connection;
     }
@@ -393,6 +479,46 @@ class GoogleContactsService {
                 countryCode: address.countryCode || "",
                 primary: Boolean(address.primary),
             }));
+    }
+
+    private getContactUserId(contact: IContact): string {
+        const user = contact.user;
+        if (typeof user === "string") {
+            return user;
+        }
+        return user?._id?.toString?.() || user?.id?.toString?.() || "";
+    }
+
+    private mapLifeOpsContactToGoogleCreateInput(contact: IContact): GoogleContactsCreateOptions["contact"] {
+        return {
+            displayName: contact.displayName,
+            givenName: contact.givenName,
+            familyName: contact.familyName,
+            emailAddresses: contact.emails?.map(email => ({
+                value: email.value,
+                type: email.type,
+            })),
+            phoneNumbers: contact.phones?.map(phone => ({
+                value: phone.value,
+                type: phone.type,
+            })),
+            organizations: contact.organization ? [{
+                name: contact.organization.name,
+                title: contact.organization.title,
+                department: contact.organization.department,
+            }] : undefined,
+            addresses: contact.addresses?.map(address => ({
+                formattedValue: address.formattedValue,
+                streetAddress: address.streetAddress,
+                city: address.city,
+                region: address.region,
+                postalCode: address.postalCode,
+                country: address.country,
+                countryCode: address.countryCode,
+                type: address.type,
+            })),
+            biography: contact.notes,
+        };
     }
 
     private mergeContactEmails(existing: IContactEmail[], incoming: IContactEmail[]): IContactEmail[] {

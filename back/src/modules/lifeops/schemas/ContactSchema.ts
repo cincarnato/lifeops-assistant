@@ -65,10 +65,7 @@ const ContactBaseSchema = z.object({
 const ContactSchema = ContactBaseSchema
     .extend({
         _id: z.coerce.string(),
-        user: z.union([
-            z.coerce.string(),
-            z.object({_id: z.coerce.string(), username: z.string()})
-        ])
+        user: z.object({_id: z.coerce.string(), username: z.string()})
     });
 
 export default ContactSchema;

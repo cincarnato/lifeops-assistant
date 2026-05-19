@@ -87,14 +87,7 @@ class ContactCrud extends EntityCrud implements IEntityCrud {
 
   get fields(): IEntityCrudField[] {
     return [
-      {
-        name: 'source',
-        type: 'enum',
-        label: 'source',
-        default: 'manual',
-        enum: ['manual', 'google', 'imported', 'api'],
-        groupTab: 'BASIC'
-      },
+
       {
         name: 'status',
         type: 'enum',
@@ -107,6 +100,14 @@ class ContactCrud extends EntityCrud implements IEntityCrud {
       {name: 'givenName', type: 'string', label: 'givenName', default: '', groupTab: 'BASIC'},
       {name: 'familyName', type: 'string', label: 'familyName', default: '', groupTab: 'BASIC'},
       {name: 'nickname', type: 'string', label: 'nickname', default: '', groupTab: 'BASIC'},
+      {
+        name: 'source',
+        type: 'enum',
+        label: 'source',
+        default: 'manual',
+        enum: ['manual', 'google', 'imported', 'api'],
+        groupTab: 'BASIC'
+      },
       {
         name: 'emails',
         type: 'array.object',
