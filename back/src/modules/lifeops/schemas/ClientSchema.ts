@@ -1,8 +1,12 @@
 import {z} from 'zod';
 
+const capitalizeFirstLetter = (value: string) => {
+    if (!value) return value;
+    return value.charAt(0).toLocaleUpperCase('es') + value.slice(1);
+};
 
 const ClientBaseSchema = z.object({
-    name: z.string().min(1, 'validation.required'),
+    name: z.string().min(1, 'validation.required').transform(capitalizeFirstLetter),
     description: z.string().optional().default(""),
     type: z.string().optional().default(""),
     status: z.enum(['active', 'inactive', 'prospect', 'paused', 'archived']).optional().default('active'),
