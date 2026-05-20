@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {computed, onBeforeUnmount, onMounted, ref} from 'vue'
+import type {ComputedRef, Ref} from 'vue'
 import {useDraxAgent} from '@drax/ai-vue'
 import type {ITask} from '../interfaces/ITask'
 import TaskProvider from '../providers/TaskProvider'
@@ -48,10 +49,18 @@ const {
 
 const draxAgentWithTextToSpeechProviders = draxAgent as typeof draxAgent & {
   selectTextToSpeechProvider?: (provider: string) => void
-  selectedTextToSpeechProvider?: {value: string}
-  selectedTextToSpeechProviderLabel?: {value: string}
-  textToSpeechProviderItems?: {value: Array<{props?: {disabled?: boolean}, title: string, value: string}>}
-  textToSpeechProvidersLoading?: {value: boolean}
+  selectedTextToSpeechProvider?: Ref<string>
+  selectedTextToSpeechProviderLabel?: Ref<string>
+  textToSpeechProviderItems?: ComputedRef<TextToSpeechProviderItem[]> | Ref<TextToSpeechProviderItem[]>
+  textToSpeechProvidersLoading?: Ref<boolean>
+}
+
+type TextToSpeechProviderItem = {
+  props?: {
+    disabled?: boolean
+  }
+  title: string
+  value: string
 }
 
 type Particle = {
