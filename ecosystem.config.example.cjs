@@ -42,13 +42,28 @@ const commonEnv = {
 	EMAIL_RATE_LIMIT: '10',
 
 	//IA
+	AI_PROVIDER: 'GoogleAi',
 	OPENAI_API_KEY: '',
 	OPENAI_MODEL: 'gpt-5.4',
 	OPENAI_VISION_MODEL: 'gpt-5.4',
+	GOOGLE_AI_API_KEY: '',
+	GOOGLE_AI_MODEL: 'models/gemini-3-flash-preview',
+	AGENT_LOG_TOOL_EXECUTION: 'false',
 
 	//JOBS
 	AGENT_JOB_INTERVAL_MS: '60000',
 	AGENT_JOB_RUN_LIMIT: '25',
+
+	//PUSH (Firebase Cloud Messaging)
+	FIREBASE_PROJECT_ID: '',
+	FIREBASE_SERVICE_ACCOUNT_PATH: '',
+
+	//TTS
+	ELEVENLABS_API_KEY: '',
+	ELEVENLABS_BASE_URL: 'https://api.elevenlabs.io',
+	ELEVENLABS_MODEL: 'eleven_multilingual_v2',
+	ELEVENLABS_VOICE_ID: 'f6QiCN38OikU9jJdqQ7Z',
+	ELEVENLABS_OUTPUT_FORMAT: 'mp3_44100_128',
 };
 
 module.exports = {
