@@ -43,7 +43,9 @@ const TaskSchema = TaskBaseSchema
         _id: z.coerce.string(),
         goals: z.array(z.object({_id: z.coerce.string(), name: z.string()})).optional(),
         project: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
-        user: z.object({_id: z.coerce.string(), username: z.string()})
+        user: z.object({_id: z.coerce.string(), username: z.string()}),
+        createdAt: z.coerce.date().nullable().optional(),
+        updatedAt: z.coerce.date().nullable().optional(),
     })
 
 export default TaskSchema;

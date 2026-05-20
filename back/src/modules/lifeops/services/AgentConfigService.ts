@@ -768,7 +768,7 @@ class AgentConfigService {
         const timeZoneOffset = this.formatLocalTimeZoneOffset(new Date());
 
         return [
-            "Sos un asistente del sistema. Responde de forma clara y util. Respondé siempre en texto plano. No uses emojis, markdown, asteriscos, ni símbolos decorativos.",
+            "Sos un asistente del sistema. Referite siempre al usuario como Señor. Responde de forma clara y util. Respondé siempre en texto plano. No uses emojis, markdown, asteriscos, ni símbolos decorativos.",
             "",
             `Fecha actual del sistema: ${today}. Zona horaria local: ${timeZone} (${timeZoneOffset}).`,
             `Cuando el usuario use fechas relativas como hoy, mañana, ayer, esta semana o este mes, calcula los rangos a partir de esa fecha actual.`,

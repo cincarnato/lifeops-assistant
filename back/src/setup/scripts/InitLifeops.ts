@@ -88,12 +88,12 @@ async function InitLifeops() {
     ]);
 
     await seedIfEmpty(TaskStatusServiceFactory.instance, [
-        {name: "Pendiente", description: "La tarea aun no fue iniciada."},
-        {name: "En progreso", description: "La tarea esta siendo trabajada."},
-        {name: "En espera", description: "La tarea depende de otra accion o respuesta."},
-        {name: "Completada", description: "La tarea fue finalizada.", completesTask: true},
-        {name: "Archivada", description: "La tarea fue finalizada.", archivesTask: true},
-        {name: "Cancelada", description: "La tarea ya no corresponde realizarla."}
+        {name: "Pendiente", description: "La tarea aun no fue iniciada.", color: "#64748b"},
+        {name: "En progreso", description: "La tarea esta siendo trabajada.", color: "#3b82f6"},
+        {name: "En espera", description: "La tarea depende de otra accion o respuesta.", color: "#eab308"},
+        {name: "Completada", description: "La tarea fue finalizada.", color: "#22c55e", completesTask: true},
+        {name: "Archivada", description: "La tarea fue finalizada.", color: "#8b5cf6", archivesTask: true},
+        {name: "Cancelada", description: "La tarea ya no corresponde realizarla.", color: "#ef4444"}
     ]);
 
     await seedIfEmpty(TaskTypeServiceFactory.instance, [

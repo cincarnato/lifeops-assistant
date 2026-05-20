@@ -37,7 +37,9 @@ const AgentJobBaseSchema = z.object({
 const AgentJobSchema = AgentJobBaseSchema
     .extend({
         _id: z.coerce.string(),
-        createdBy: z.object({_id: z.coerce.string(), username: z.string()}).nullable().optional()
+        createdBy: z.object({_id: z.coerce.string(), username: z.string()}).nullable().optional(),
+        createdAt: z.coerce.date().nullable().optional(),
+        updatedAt: z.coerce.date().nullable().optional(),
     })
 
 export default AgentJobSchema;

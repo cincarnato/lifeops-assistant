@@ -16,7 +16,14 @@ const menu: MenuItem[] = [
       {
         icon: 'mdi-robot',
         text: 'Agent',
-        link: {name: "Agent"},
+        link: {name: "AgentPage"},
+        gallery: true,
+        permission: 'agent:session'
+      },
+      {
+        icon: 'mdi-robot',
+        text: 'Agent Cine',
+        link: {name: "AgentCinePage"},
         gallery: true,
         permission: 'agent:session'
       },

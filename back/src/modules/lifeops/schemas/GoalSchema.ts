@@ -1,9 +1,8 @@
-
-import { z } from 'zod';
+import {z} from 'zod';
 
 
 const GoalBaseSchema = z.object({
-      name: z.string().min(1,'validation.required'),
+    name: z.string().min(1, 'validation.required'),
     description: z.string().optional(),
     priority: z.string().optional().default(""),
     valueScore: z.number().min(1).max(10).nullable().optional().default(5),
@@ -15,13 +14,15 @@ const GoalBaseSchema = z.object({
     completedAt: z.coerce.date().nullable().optional(),
     archivedAt: z.coerce.date().nullable().optional(),
     progressPercent: z.number().min(0).max(100).nullable().optional().default(0),
-    user: z.string().min(1,'validation.required')
+    user: z.string().min(1, 'validation.required')
 });
 
 const GoalSchema = GoalBaseSchema
     .extend({
-      _id: z.coerce.string(),
-       user: z.object({_id: z.coerce.string(), username: z.string()})
+        _id: z.coerce.string(),
+        user: z.object({_id: z.coerce.string(), username: z.string()}),
+        createdAt: z.coerce.date().nullable().optional(),
+        updatedAt: z.coerce.date().nullable().optional(),
     })
 
 export default GoalSchema;

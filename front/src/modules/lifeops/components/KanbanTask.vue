@@ -98,6 +98,7 @@ const filtersVisible = ref(false);
 const STATUS_VISIBILITY_STORAGE_KEY = "lifeops.kanbanTask.hiddenStatuses";
 const STATUS_ORDER_STORAGE_KEY = "lifeops.kanbanTask.statusOrder";
 const CARD_PROPERTY_STORAGE_KEY = "lifeops.kanbanTask.visibleCardProperties";
+const DEFAULT_TASK_STATUS_COLOR = "#64748b";
 
 const defaultVisibleCardPropertyKeys: TaskCardPropertyKey[] = ["priority"];
 
@@ -177,6 +178,8 @@ const visibleColumns = computed(() => {
   return allColumns.value.filter(column => !hiddenStatusKeys.value.has(column.key));
 });
 
+const statusesByName = computed(() => new Map(statuses.value.map(status => [status.name || "", status])));
+
 const tasksByStatus = computed(() => {
   return (status: string) => tasks.value.filter(task => (task.status || "") === status);
 });
@@ -230,6 +233,16 @@ function priorityColor(priority?: string) {
   if (value.includes("medium") || value.includes("media")) return "warning";
   if (value.includes("low") || value.includes("baja")) return "success";
   return "default";
+}
+
+function taskStatusColor(status?: string) {
+  return statusesByName.value.get(status || "")?.color || DEFAULT_TASK_STATUS_COLOR;
+}
+
+function kanbanColumnStyle(status: string) {
+  return {
+    "--kanban-status-color": taskStatusColor(status)
+  };
 }
 
 function entityName(entity: any) {
@@ -335,7 +348,7 @@ function renderedCardProperties(task: ITask) {
         return {
           ...property,
           value,
-          color: property.key === "status" ? "secondary" : undefined
+          color: property.key === "status" ? taskStatusColor(task.status) : undefined
         };
       })
       .filter((property): property is RenderedTaskCardProperty => Boolean(property));
@@ -965,10 +978,14 @@ onBeforeUnmount(() => {
               class="kanban-column"
               :class="{'kanban-column--over': dragOverStatus === column.key}"
               :data-kanban-status="column.key"
+              :style="kanbanColumnStyle(column.key)"
           >
             <header class="kanban-column__header">
               <div>
-                <h2 class="text-subtitle-1 font-weight-medium">{{ column.title }}</h2>
+                <h2 class="text-subtitle-1 font-weight-medium kanban-column__title">
+                  <span class="kanban-column__color"/>
+                  <span>{{ column.title }}</span>
+                </h2>
                 <span class="text-caption text-medium-emphasis">
                   {{ tasksByStatus(column.key).length }} tareas
                 </span>
@@ -1326,12 +1343,13 @@ onBeforeUnmount(() => {
 }
 
 .kanban-column {
+  --kanban-status-color: #64748b;
   background:
-      linear-gradient(180deg, rgba(var(--v-theme-primary), 0.045), transparent 180px),
-      color-mix(in srgb, rgb(var(--v-theme-surface)) 88%, rgb(var(--v-theme-primary)) 12%);
-  border: 1px solid rgba(var(--v-border-color), calc(var(--v-border-opacity) + 0.08));
+      linear-gradient(180deg, color-mix(in srgb, var(--kanban-status-color) 12%, transparent), transparent 180px),
+      color-mix(in srgb, rgb(var(--v-theme-surface)) 90%, var(--kanban-status-color) 10%);
+  border: 1px solid color-mix(in srgb, var(--kanban-status-color) 38%, rgba(var(--v-border-color), var(--v-border-opacity)));
   border-radius: 12px;
-  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--kanban-status-color) 18%, transparent);
   display: flex;
   flex: 0 0 320px;
   flex-direction: column;
@@ -1344,18 +1362,40 @@ onBeforeUnmount(() => {
 
 .kanban-column--over {
   background:
-      linear-gradient(180deg, rgba(var(--v-theme-primary), 0.12), rgba(var(--v-theme-primary), 0.045)),
-      color-mix(in srgb, rgb(var(--v-theme-surface)) 82%, rgb(var(--v-theme-primary)) 18%);
-  border-color: rgb(var(--v-theme-primary));
-  box-shadow: 0 14px 34px rgba(var(--v-theme-primary), 0.18);
+      linear-gradient(180deg, color-mix(in srgb, var(--kanban-status-color) 20%, transparent), color-mix(in srgb, var(--kanban-status-color) 8%, transparent)),
+      color-mix(in srgb, rgb(var(--v-theme-surface)) 82%, var(--kanban-status-color) 18%);
+  border-color: var(--kanban-status-color);
+  box-shadow: 0 14px 34px color-mix(in srgb, var(--kanban-status-color) 26%, transparent);
 }
 
 .kanban-column__header {
   align-items: flex-start;
-  border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border-bottom: 1px solid color-mix(in srgb, var(--kanban-status-color) 30%, rgba(var(--v-border-color), var(--v-border-opacity)));
   display: flex;
   justify-content: space-between;
   padding: 14px 14px 10px;
+}
+
+.kanban-column__title {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  min-width: 0;
+}
+
+.kanban-column__title span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kanban-column__color {
+  background: var(--kanban-status-color);
+  border-radius: 999px;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--kanban-status-color) 18%, transparent);
+  flex: 0 0 10px;
+  height: 10px;
+  width: 10px;
 }
 
 .kanban-create {
@@ -1377,13 +1417,14 @@ onBeforeUnmount(() => {
       rgba(var(--v-theme-surface), 0.42);
   border-radius: 10px;
   display: flex;
-  flex: 1;
+  flex: 1 1 auto;
   flex-direction: column;
   gap: 10px;
   margin: 0 10px 10px;
-  min-height: 260px;
+  min-height: 0;
   overflow-y: auto;
   padding: 10px;
+  scrollbar-gutter: stable;
   transition: background-color 120ms ease, outline-color 120ms ease;
 }
 
@@ -1419,6 +1460,7 @@ onBeforeUnmount(() => {
   box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
   cursor: grab;
   display: flex;
+  flex: 0 0 auto;
   min-height: 0;
   overflow: hidden;
   touch-action: none;

@@ -19,7 +19,8 @@ const HabitBaseSchema = z.object({
 const HabitSchema = HabitBaseSchema
     .extend({
         _id: z.coerce.string(),
-
+        createdAt: z.coerce.date().nullable().optional(),
+        updatedAt: z.coerce.date().nullable().optional(),
     })
 
 export default HabitSchema;

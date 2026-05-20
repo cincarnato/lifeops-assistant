@@ -20,6 +20,7 @@ class TaskStatusSqliteRepository extends AbstractSqliteRepository<ITaskStatus, I
     protected tableFields: SqliteTableField[] = [
         {name: "name", type: "TEXT", unique: undefined, primary: false},
 {name: "description", type: "TEXT", unique: undefined, primary: false},
+{name: "color", type: "TEXT", unique: false, primary: false},
 {name: "completesTask", type: "INTEGER", unique: false, primary: false},
 {name: "archivesTask", type: "INTEGER", unique: false, primary: false}
     ]

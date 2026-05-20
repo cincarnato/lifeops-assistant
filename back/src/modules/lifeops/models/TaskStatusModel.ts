@@ -8,6 +8,7 @@ import type {ITaskStatus} from '../interfaces/ITaskStatus'
 const TaskStatusSchema = new mongoose.Schema<ITaskStatus>({
             name: {type: String,   required: true, index: true, unique: false },
             description: {type: String,   required: false, index: false, unique: false },
+            color: {type: String,   required: false, index: false, unique: false, default: "#64748b" },
             completesTask: {type: Boolean, required: false, index: false, unique: false, default: false },
             archivesTask: {type: Boolean, required: false, index: false, unique: false, default: false }
 }, {timestamps: true});

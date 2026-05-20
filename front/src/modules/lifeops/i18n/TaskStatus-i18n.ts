@@ -8,6 +8,7 @@ const messages = {
       field: {
         name: 'Name',
         description: 'Description',
+        color: 'Color',
         completesTask: 'Completes task',
         archivesTask: 'Archives task',
       },
@@ -28,6 +29,7 @@ const messages = {
       field: {
         name: 'Nombre',
         description: 'Descripción',
+        color: 'Color',
         completesTask: 'Completa tarea',
         archivesTask: 'Archiva tarea',
       },
