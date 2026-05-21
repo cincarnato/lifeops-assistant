@@ -19,6 +19,7 @@ import type {
     GoogleContactsSyncItem,
     GoogleContactsSyncOptions,
     GoogleContactsSyncResult,
+    GoogleContactsUpdateOptions,
 } from "../interfaces/IGoogleContacts";
 
 const CONTACTS_READONLY_SCOPE = "https://www.googleapis.com/auth/contacts.readonly";
@@ -130,6 +131,74 @@ class GoogleContactsService {
 
         return this.createContact({
             userId,
+            contact: this.mapLifeOpsContactToGoogleCreateInput(contact),
+        });
+    }
+
+    async updateContact(options: GoogleContactsUpdateOptions): Promise<GoogleContact> {
+        console.info("google.contacts.update_requested", {
+            userId: options.userId,
+            connectionId: options.connectionId,
+            resourceName: options.resourceName,
+            hasDisplayName: Boolean(options.contact.displayName),
+            emailCount: options.contact.emailAddresses?.length || 0,
+            phoneCount: options.contact.phoneNumbers?.length || 0,
+        });
+
+        const connection = await this.resolveConnection(options.userId, options.connectionId, true);
+        const accessToken = await this.getAccessToken(connection);
+        const body = this.buildUpdateContactBody(options);
+        const params = new URLSearchParams({
+            updatePersonFields: [
+                "names",
+                "emailAddresses",
+                "phoneNumbers",
+                "organizations",
+                "addresses",
+                "biographies",
+                "nicknames",
+                "birthdays",
+            ].join(","),
+            personFields: this.resolvePersonFields(),
+        });
+
+        const response = await this.peopleFetch<any>(
+            `https://people.googleapis.com/v1/${encodeURI(options.resourceName)}:updateContact?${params.toString()}`,
+            accessToken,
+            {
+                method: "PATCH",
+                body: JSON.stringify(body),
+            }
+        );
+
+        const googleContact = this.mapContact(response);
+        console.info("google.contacts.update_response", {
+            userId: options.userId,
+            connectionId: connection._id,
+            resourceName: googleContact.resourceName,
+        });
+
+        return googleContact;
+    }
+
+    async updateContactFromLifeOps(contact: IContact): Promise<GoogleContact> {
+        if (!contact.externalId) {
+            throw new Error("google.contacts.external_id.required");
+        }
+
+        const userId = this.getContactUserId(contact);
+        console.info("google.contacts.update_from_lifeops", {
+            contactId: contact._id,
+            userId,
+            resourceName: contact.externalId,
+            externalProvider: contact.externalProvider,
+            hasExternalEtag: Boolean(contact.externalEtag),
+        });
+
+        return this.updateContact({
+            userId,
+            resourceName: contact.externalId,
+            etag: contact.externalEtag,
             contact: this.mapLifeOpsContactToGoogleCreateInput(contact),
         });
     }
@@ -494,6 +563,7 @@ class GoogleContactsService {
             displayName: contact.displayName,
             givenName: contact.givenName,
             familyName: contact.familyName,
+            nickname: contact.nickname,
             emailAddresses: contact.emails?.map(email => ({
                 value: email.value,
                 type: email.type,
@@ -517,6 +587,7 @@ class GoogleContactsService {
                 countryCode: address.countryCode,
                 type: address.type,
             })),
+            birthday: contact.birthday,
             biography: contact.notes,
         };
     }
@@ -620,10 +691,29 @@ class GoogleContactsService {
             organizations: contact.organizations?.filter(item => item.name || item.title || item.department),
             addresses: contact.addresses?.filter(item => item.formattedValue || item.streetAddress || item.city || item.region || item.postalCode || item.country),
             urls: this.mapValueFields(contact.urls),
+            nicknames: contact.nickname ? [{
+                value: contact.nickname,
+            }] : undefined,
+            birthdays: contact.birthday && (contact.birthday.year || contact.birthday.month || contact.birthday.day) ? [{
+                date: {
+                    year: contact.birthday.year || undefined,
+                    month: contact.birthday.month || undefined,
+                    day: contact.birthday.day || undefined,
+                },
+            }] : undefined,
             biographies: contact.biography ? [{
                 value: contact.biography,
                 contentType: "TEXT_PLAIN",
             }] : undefined,
+        };
+    }
+
+    private buildUpdateContactBody(options: GoogleContactsUpdateOptions): any {
+        const body = this.buildCreateContactBody(options.contact);
+        return {
+            ...body,
+            resourceName: options.resourceName,
+            etag: options.etag,
         };
     }
 

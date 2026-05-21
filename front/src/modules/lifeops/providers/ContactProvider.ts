@@ -17,7 +17,10 @@ class ContactProvider extends AbstractCrudRestProvider<IContact, IContactBase, I
     return ContactProvider.singleton
   }
 
+  async syncGoogle(id: string): Promise<IContact> {
+    return await this.httpClient.post(`${this.basePath}/${id}/sync-google`, {}, {timeout: 120000}) as IContact
+  }
+
 }
 
 export default ContactProvider
-

@@ -13,6 +13,19 @@ async function ContactFastifyRoutes(fastify, options) {
     fastify.get('/api/contacts/find', {schema: schemas.findSchema}, (req,rep) => controller.find(req,rep))
     
     fastify.get('/api/contacts/search', {schema: schemas.searchSchema}, (req,rep) => controller.search(req,rep))
+
+    fastify.post('/api/contacts/:id/sync-google', {
+        schema: {
+            tags: ['Contact'],
+            params: {
+                type: 'object',
+                required: ['id'],
+                properties: {
+                    id: {type: 'string'},
+                },
+            },
+        },
+    }, (req, rep) => controller.syncGoogle(req as any, rep))
     
     fastify.get('/api/contacts/:id', {schema: schemas.findByIdSchema}, (req,rep) => controller.findById(req,rep))
     

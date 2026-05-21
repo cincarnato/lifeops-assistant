@@ -72,17 +72,27 @@ type GoogleContactsCreateInput = {
     givenName?: string;
     familyName?: string;
     middleName?: string;
+    nickname?: string;
     emailAddresses?: GoogleContactField[];
     phoneNumbers?: GoogleContactField[];
     organizations?: GoogleContactOrganization[];
     addresses?: GoogleContactAddress[];
     urls?: GoogleContactField[];
+    birthday?: GoogleContactBirthday;
     biography?: string;
 }
 
 type GoogleContactsCreateOptions = {
     userId: string;
     connectionId?: string;
+    contact: GoogleContactsCreateInput;
+}
+
+type GoogleContactsUpdateOptions = {
+    userId: string;
+    connectionId?: string;
+    resourceName: string;
+    etag?: string;
     contact: GoogleContactsCreateInput;
 }
 
@@ -120,6 +130,7 @@ export type {
     GoogleContactOrganization,
     GoogleContactsCreateInput,
     GoogleContactsCreateOptions,
+    GoogleContactsUpdateOptions,
     GoogleContactsListOptions,
     GoogleContactsListResult,
     GoogleContactsSyncItem,

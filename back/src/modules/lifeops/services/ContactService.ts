@@ -110,7 +110,30 @@ class ContactService extends AbstractService<IContact, IContactBase, IContactBas
             googleResourceName: googleContact.resourceName,
         })
 
-        await this.updatePartial(contact._id, {
+        await this.saveGoogleSyncMetadata(contact, googleContact)
+
+        console.info("contact.google.metadata_saved", {
+            contactId: contact._id,
+            googleResourceName: googleContact.resourceName,
+        })
+    }
+
+    async syncContactToGoogle(contactId: string): Promise<IContact> {
+        const contact = await this.findById(contactId)
+        if (!contact) {
+            throw new Error("contact.not_found")
+        }
+
+        const {default: GoogleContactsServiceFactory} = await import("../../google/factory/GoogleContactsServiceFactory.js")
+        const googleContact = contact.externalProvider === 'google' && contact.externalId
+            ? await GoogleContactsServiceFactory.instance.updateContactFromLifeOps(contact)
+            : await GoogleContactsServiceFactory.instance.createContactFromLifeOps(contact)
+
+        return await this.saveGoogleSyncMetadata(contact, googleContact)
+    }
+
+    private async saveGoogleSyncMetadata(contact: IContact, googleContact: any): Promise<IContact> {
+        return await this.updatePartial(contact._id, {
             externalProvider: 'google',
             externalId: googleContact.resourceName,
             externalEtag: googleContact.etag || '',
@@ -118,11 +141,6 @@ class ContactService extends AbstractService<IContact, IContactBase, IContactBas
             lastSyncedAt: new Date(),
             tags: Array.from(new Set([...(contact.tags || []), 'google'])),
         } as any)
-
-        console.info("contact.google.metadata_saved", {
-            contactId: contact._id,
-            googleResourceName: googleContact.resourceName,
-        })
     }
 
 }
