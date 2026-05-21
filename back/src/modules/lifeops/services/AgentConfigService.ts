@@ -483,6 +483,7 @@ class AgentConfigService {
             toolBuilders: this.toolBuilders,
             tools: this.tools,
             logToolExecution: this.logToolExecution,
+            toolMaxIterations: 10,
             ...overrides
         };
     }
