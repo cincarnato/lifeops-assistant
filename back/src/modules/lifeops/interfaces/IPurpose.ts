@@ -4,6 +4,7 @@ interface IPurposeBase {
     statement: string
     isPrimary?: boolean
     active?: boolean
+    user: any
     createdAt?: Date
     updatedAt?: Date
 }
@@ -14,6 +15,7 @@ interface IPurpose {
     statement: string
     isPrimary?: boolean
     active?: boolean
+    user: any
     createdAt?: Date
     updatedAt?: Date
 }

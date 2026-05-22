@@ -9,7 +9,8 @@ const PurposeSchema = new mongoose.Schema<IPurpose>({
             title: {type: String,   required: true, index: true, unique: false },
             statement: {type: String,   required: true, index: false, unique: false },
             isPrimary: {type: Boolean,   required: false, index: true, unique: false },
-            active: {type: Boolean,   required: false, index: true, unique: false }
+            active: {type: Boolean,   required: false, index: true, unique: false },
+            user: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true, unique: false}
 }, {timestamps: true});
 
 PurposeSchema.plugin(uniqueValidator, {message: 'validation.unique'});

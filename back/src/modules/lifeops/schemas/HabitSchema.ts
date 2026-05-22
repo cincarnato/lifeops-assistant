@@ -13,12 +13,14 @@ const HabitBaseSchema = z.object({
         description: z.string().optional(),
         estimatedMinutes: z.number().nullable().optional(),
         priority: z.string().optional()
-    }).nullable().default({"title": "", "description": "", "estimatedMinutes": null, "priority": ""})
+    }).nullable().default({"title": "", "description": "", "estimatedMinutes": null, "priority": ""}),
+    user: z.coerce.string().min(1, 'validation.required')
 });
 
 const HabitSchema = HabitBaseSchema
     .extend({
         _id: z.coerce.string(),
+        user: z.object({_id: z.coerce.string(), username: z.string()}),
         createdAt: z.coerce.date().nullable().optional(),
         updatedAt: z.coerce.date().nullable().optional(),
     })

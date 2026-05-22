@@ -4,9 +4,6 @@ import BaseAgent from "./BaseAgent.js"
 
 class CrmAgent extends BaseAgent {
     public override async prepare(): Promise<void> {
-        this.prepareClientTool();
-        this.prepareCompanyTool();
-        this.prepareContactTool();
         await super.prepare();
     }
 
@@ -26,10 +23,10 @@ class CrmAgent extends BaseAgent {
     }
 
     private get crmToolBuilders(): DraxAgentToolBuilderSource {
-        return [
-            this.clientTool,
-            this.companyTool,
-            this.contactTool
+        return context => [
+            this.buildClientTool(context),
+            this.buildCompanyTool(context),
+            this.buildContactTool(context)
         ];
     }
 

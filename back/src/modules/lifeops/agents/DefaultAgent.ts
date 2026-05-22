@@ -4,11 +4,6 @@ import BaseAgent from "./BaseAgent.js"
 
 class DefaultAgent extends BaseAgent {
     public override async prepare(): Promise<void> {
-        this.prepareTaskTool();
-        this.prepareMemoryTool();
-        this.prepareClientTool();
-        this.prepareProjectTool();
-        this.prepareContactTool();
         this.prepareGoogleTools();
         this.preparePushTools();
         await super.prepare();
@@ -41,12 +36,12 @@ class DefaultAgent extends BaseAgent {
     }
 
     private get toolBuilders(): DraxAgentToolBuilderSource {
-        return [
-            this.taskTool,
-            this.memoryTool,
-            this.clientTool,
-            this.projectTool,
-            this.contactTool
+        return context => [
+            this.buildTaskTool(context),
+            this.buildMemoryTool(context),
+            this.buildClientTool(context),
+            this.buildProjectTool(context),
+            this.buildContactTool(context)
         ];
     }
 

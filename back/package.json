@@ -29,7 +29,7 @@
     "@drax/settings-back": "^3.39.0",
     "@drax/dashboard-back": "^3.39.0",
     "@drax/audit-back": "^3.39.0",
-    "@drax/ai-back": "^3.43.0",
+    "@drax/ai-back": "^3.44.0",
     "@graphql-tools/load-files": "^7.0.0",
     "@graphql-tools/merge": "^9.0.0",
     "better-sqlite3": "^12.8.0",

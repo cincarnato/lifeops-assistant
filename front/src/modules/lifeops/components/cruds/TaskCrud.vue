@@ -42,7 +42,7 @@ import LifeAreaCombobox from "@/modules/lifeops/comboboxes/LifeAreaCombobox.vue"
 
     <template v-slot:field.lifeArea="{field, form}">
       <life-area-combobox
-        v-model="form.source"
+        v-model="form.lifeArea"
         :name="field.name"
         :label="field.label"
         item-title="name"

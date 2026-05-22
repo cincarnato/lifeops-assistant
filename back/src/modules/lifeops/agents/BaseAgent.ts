@@ -1,5 +1,6 @@
-import {BuilderTool} from "@drax/ai-back"
+import {BuildContextTool} from "@drax/ai-back"
 import type {
+    BuildContextToolOptions,
     DraxAgentConfig,
     DraxAgentPromptContext,
     DraxAgentToolBuilder,
@@ -34,6 +35,15 @@ import GoogleCalendarTools from "../../google/tools/GoogleCalendarTools.js";
 import GoogleContactsTools from "../../google/tools/GoogleContactsTools.js";
 import GoogleGmailTools from "../../google/tools/GoogleGmailTools.js";
 import PushNotificationTools from "../../push/tools/PushNotificationTools.js";
+import TaskPermissions from "../permissions/TaskPermissions.js";
+import MemoryPermissions from "../permissions/MemoryPermissions.js";
+import PurposePermissions from "../permissions/PurposePermissions.js";
+import HabitPermissions from "../permissions/HabitPermissions.js";
+import GoalPermissions from "../permissions/GoalPermissions.js";
+import ClientPermissions from "../permissions/ClientPermissions.js";
+import CompanyPermissions from "../permissions/CompanyPermissions.js";
+import ContactPermissions from "../permissions/ContactPermissions.js";
+import ProjectPermissions from "../permissions/ProjectPermissions.js";
 
 interface TaskOptionNames {
     sources: string[];
@@ -70,15 +80,6 @@ type AgentConfigToolSource =
 
 abstract class BaseAgent {
     private _systemPrompt = "";
-    private _taskTool?: DraxAgentToolBuilder;
-    private _memoryTool?: DraxAgentToolBuilder;
-    private _purposeTool?: DraxAgentToolBuilder;
-    private _habitTool?: DraxAgentToolBuilder;
-    private _goalTool?: DraxAgentToolBuilder;
-    private _clientTool?: DraxAgentToolBuilder;
-    private _companyTool?: DraxAgentToolBuilder;
-    private _contactTool?: DraxAgentToolBuilder;
-    private _projectTool?: DraxAgentToolBuilder;
     private _tools: AgentConfigToolSource[] = [];
     private _googleToolsInitialized = false;
     private _pushToolsInitialized = false;
@@ -128,130 +129,137 @@ abstract class BaseAgent {
         return this.prepareSystemPrompt();
     }
 
-    public prepareTaskTool(): DraxAgentToolBuilder {
-        if (!this._taskTool) {
-            this._taskTool = new BuilderTool({
-                entityDescription: "Tareas",
-                entityName: "Task",
-                methods: ["search", "findFirst", "findLast", "create", "updatePartial", "groupBy"],
-                schema: TaskBaseSchema,
-                service: TaskServiceFactory.instance
-            });
-        }
-
-        return this._taskTool;
+    protected buildTaskTool(context: DraxAgentPromptContext): DraxAgentToolBuilder {
+        return this.buildContextTool({
+            entityDescription: "Tareas",
+            entityName: "Task",
+            methods: ["search", "findFirst", "findLast", "create", "updatePartial", "groupBy"],
+            schema: TaskBaseSchema.omit({user: true}),
+            service: TaskServiceFactory.instance,
+            permission: TaskPermissions,
+            userFilter: true,
+            userSetter: true,
+            userAssert: true
+        }, context);
     }
 
-    public prepareMemoryTool(): DraxAgentToolBuilder {
-        if (!this._memoryTool) {
-            this._memoryTool = new BuilderTool({
-                entityDescription: "Memorias",
-                entityName: "Memory",
-                methods: ["search", "create", "updatePartial", "groupBy"],
-                schema: MemoryBaseSchema,
-                service: MemoryServiceFactory.instance
-            });
-        }
-
-        return this._memoryTool;
+    protected buildMemoryTool(context: DraxAgentPromptContext): DraxAgentToolBuilder {
+        return this.buildContextTool({
+            entityDescription: "Memorias",
+            entityName: "Memory",
+            methods: ["search", "create", "updatePartial", "groupBy"],
+            schema: MemoryBaseSchema.omit({user: true}),
+            service: MemoryServiceFactory.instance,
+            permission: MemoryPermissions,
+            userFilter: true,
+            userSetter: true,
+            userAssert: true
+        }, context);
     }
 
-    public preparePurposeTool(): DraxAgentToolBuilder {
-        if (!this._purposeTool) {
-            this._purposeTool = new BuilderTool({
-                entityDescription: "Propósitos",
-                entityName: "Purpose",
-                methods: ["search", "create", "updatePartial"],
-                schema: PurposeBaseSchema,
-                service: PurposeServiceFactory.instance
-            });
-        }
-
-        return this._purposeTool;
+    protected buildPurposeTool(context: DraxAgentPromptContext): DraxAgentToolBuilder {
+        return this.buildContextTool({
+            entityDescription: "Propósitos",
+            entityName: "Purpose",
+            methods: ["search", "create", "updatePartial"],
+            schema: PurposeBaseSchema.omit({user: true}),
+            service: PurposeServiceFactory.instance,
+            permission: PurposePermissions,
+            userFilter: true,
+            userSetter: true,
+            userAssert: true
+        }, context);
     }
 
-    public prepareHabitTool(): DraxAgentToolBuilder {
-        if (!this._habitTool) {
-            this._habitTool = new BuilderTool({
-                entityDescription: "Hábitos",
-                entityName: "Habit",
-                methods: ["search", "create", "updatePartial"],
-                schema: HabitBaseSchema,
-                service: HabitServiceFactory.instance
-            });
-        }
-
-        return this._habitTool;
+    protected buildHabitTool(context: DraxAgentPromptContext): DraxAgentToolBuilder {
+        return this.buildContextTool({
+            entityDescription: "Hábitos",
+            entityName: "Habit",
+            methods: ["search", "create", "updatePartial"],
+            schema: HabitBaseSchema.omit({user: true}),
+            service: HabitServiceFactory.instance,
+            permission: HabitPermissions,
+            userFilter: true,
+            userSetter: true,
+            userAssert: true
+        }, context);
     }
 
-    public prepareGoalTool(): DraxAgentToolBuilder {
-        if (!this._goalTool) {
-            this._goalTool = new BuilderTool({
-                entityDescription: "Objetivos",
-                entityName: "Goal",
-                methods: ["search", "create", "updatePartial"],
-                schema: GoalBaseSchema,
-                service: GoalServiceFactory.instance
-            });
-        }
-
-        return this._goalTool;
+    protected buildGoalTool(context: DraxAgentPromptContext): DraxAgentToolBuilder {
+        return this.buildContextTool({
+            entityDescription: "Objetivos",
+            entityName: "Goal",
+            methods: ["search", "create", "updatePartial"],
+            schema: GoalBaseSchema.omit({user: true}),
+            service: GoalServiceFactory.instance,
+            permission: GoalPermissions,
+            userFilter: true,
+            userSetter: true,
+            userAssert: true
+        }, context);
     }
 
-    public prepareClientTool(): DraxAgentToolBuilder {
-        if (!this._clientTool) {
-            this._clientTool = new BuilderTool({
-                entityDescription: "Clientes",
-                entityName: "Client",
-                methods: ["search", "create", "updatePartial"],
-                schema: ClientBaseSchema,
-                service: ClientServiceFactory.instance
-            });
-        }
-
-        return this._clientTool;
+    protected buildClientTool(context: DraxAgentPromptContext): DraxAgentToolBuilder {
+        return this.buildContextTool({
+            entityDescription: "Clientes",
+            entityName: "Client",
+            methods: ["search", "create", "updatePartial"],
+            schema: ClientBaseSchema.omit({user: true}),
+            service: ClientServiceFactory.instance,
+            permission: ClientPermissions,
+            userFilter: true,
+            userSetter: true,
+            userAssert: true
+        }, context);
     }
 
-    public prepareCompanyTool(): DraxAgentToolBuilder {
-        if (!this._companyTool) {
-            this._companyTool = new BuilderTool({
-                entityDescription: "Empresas",
-                entityName: "Company",
-                methods: ["search", "create", "updatePartial"],
-                schema: CompanyBaseSchema,
-                service: CompanyServiceFactory.instance
-            });
-        }
-
-        return this._companyTool;
+    protected buildCompanyTool(context: DraxAgentPromptContext): DraxAgentToolBuilder {
+        return this.buildContextTool({
+            entityDescription: "Empresas",
+            entityName: "Company",
+            methods: ["search", "create", "updatePartial"],
+            schema: CompanyBaseSchema.omit({user: true}),
+            service: CompanyServiceFactory.instance,
+            permission: CompanyPermissions,
+            userFilter: true,
+            userSetter: true,
+            userAssert: true
+        }, context);
     }
 
-    public prepareContactTool(): DraxAgentToolBuilder {
-        if (!this._contactTool) {
-            this._contactTool = new BuilderTool({
-                entityDescription: "Contactos",
-                entityName: "Contact",
-                methods: ["search", "create", "updatePartial"],
-                schema: ContactBaseSchema,
-                service: ContactServiceFactory.instance
-            });
-        }
-
-        return this._contactTool;
+    protected buildContactTool(context: DraxAgentPromptContext): DraxAgentToolBuilder {
+        return this.buildContextTool({
+            entityDescription: "Contactos",
+            entityName: "Contact",
+            methods: ["search", "create", "updatePartial"],
+            schema: ContactBaseSchema.omit({user: true}),
+            service: ContactServiceFactory.instance,
+            permission: ContactPermissions,
+            userFilter: true,
+            userSetter: true,
+            userAssert: true
+        }, context);
     }
 
-    public prepareProjectTool(): DraxAgentToolBuilder {
-        if (!this._projectTool) {
-            this._projectTool = new BuilderTool({
-                entityDescription: "Proyectos",
-                entityName: "Project",
-                methods: ["search", "create", "updatePartial"],
-                schema: ProjectBaseSchema,
-                service: ProjectServiceFactory.instance
-            });
-        }
+    protected buildProjectTool(context: DraxAgentPromptContext): DraxAgentToolBuilder {
+        return this.buildContextTool({
+            entityDescription: "Proyectos",
+            entityName: "Project",
+            methods: ["search", "create", "updatePartial"],
+            schema: ProjectBaseSchema.omit({user: true}),
+            service: ProjectServiceFactory.instance,
+            permission: ProjectPermissions,
+            userFilter: true,
+            userSetter: true,
+            userAssert: true
+        }, context);
+    }
 
-        return this._projectTool;
+    protected buildContextTool(
+        options: Omit<BuildContextToolOptions, "context">,
+        context: DraxAgentPromptContext
+    ): DraxAgentToolBuilder {
+        return BuildContextTool.fromPromptContext(options, context);
     }
 
     public prepareGoogleTools(): void {
@@ -310,42 +318,6 @@ abstract class BaseAgent {
         return this._systemPrompt;
     }
 
-    public get taskTool(): DraxAgentToolBuilder {
-        return this.prepareTaskTool();
-    }
-
-    public get memoryTool(): DraxAgentToolBuilder {
-        return this.prepareMemoryTool();
-    }
-
-    public get purposeTool(): DraxAgentToolBuilder {
-        return this.preparePurposeTool();
-    }
-
-    public get habitTool(): DraxAgentToolBuilder {
-        return this.prepareHabitTool();
-    }
-
-    public get goalTool(): DraxAgentToolBuilder {
-        return this.prepareGoalTool();
-    }
-
-    public get clientTool(): DraxAgentToolBuilder {
-        return this.prepareClientTool();
-    }
-
-    public get companyTool(): DraxAgentToolBuilder {
-        return this.prepareCompanyTool();
-    }
-
-    public get contactTool(): DraxAgentToolBuilder {
-        return this.prepareContactTool();
-    }
-
-    public get projectTool(): DraxAgentToolBuilder {
-        return this.prepareProjectTool();
-    }
-
     public get tools(): DraxAgentToolSource {
         return async (context: DraxAgentPromptContext) => {
             const tools = await Promise.all(
@@ -390,7 +362,7 @@ abstract class BaseAgent {
         try {
             const userId = this.resolveContextUserId(context);
             const [purpose, goals] = await Promise.all([
-                this.fetchActivePurposePromptContext(),
+                userId ? this.fetchActivePurposePromptContext(userId) : Promise.resolve(null),
                 userId ? this.fetchGoalPromptContext(userId) : Promise.resolve([])
             ]);
 
@@ -410,9 +382,10 @@ abstract class BaseAgent {
         }
     }
 
-    private async fetchActivePurposePromptContext(): Promise<ActivePurposePromptContext | null> {
+    private async fetchActivePurposePromptContext(userId: string): Promise<ActivePurposePromptContext | null> {
         const purposes = await PurposeServiceFactory.instance.findFirst(1, [
-            {field: "active", operator: "eq", value: true}
+            {field: "active", operator: "eq", value: true},
+            {field: "user", operator: "eq", value: userId}
         ]);
         const purpose = purposes[0];
 
@@ -518,16 +491,17 @@ abstract class BaseAgent {
             "Sos asistente del sistema. Usuario=Señor. Responde claro, util, texto plano; sin emojis, markdown, asteriscos ni adornos.",
             `Fecha=${today}. TZ=${timeZone} (${timeZoneOffset}). Relativas: rangos desde Fecha. Calendario hoy: timeMin=${today}T00:00:00${timeZoneOffset}, timeMax=${tomorrow}T00:00:00${timeZoneOffset}.`,
             "Tareas/Task y Memorias/Memory: campos source/lifeArea/priority=nombre string; solo opciones:",
-            `- source: ${this.formatOptionNames(options.tasks.sources)}`,
+            `- source: ${this.formatOptionNames(options.tasks.sources)}. Default: Asistente`,
             `- lifeArea: ${this.formatOptionNames(options.tasks.lifeAreas)}`,
-            `- priority: ${this.formatOptionNames(options.tasks.priorities)}`,
+            `- priority: ${this.formatOptionNames(options.tasks.priorities)}.`,
             "Tareas/Task: type/status solo opciones; ",
             `- Task.type: ${this.formatOptionNames(options.tasks.types)}`,
             `- Task.status: ${this.formatOptionNames(options.tasks.statuses)}`,
             `- Task.project: _id Project; Busca _id en tool Project.`,
             `- Task.goals: _id[] Goal; Busca ids con tools Goal.`,
             `Memory.type=nombre string; solo opciones: ${this.formatOptionNames(options.memories.types)}`,
-            "Mail: to=email valido del contacto buscado. Avisos fuera del chat: push notification."
+            "Mail: to=email valido del contacto buscado. Avisos fuera del chat: push notification.",
+            "Cuando el usuario no especifique atributos como source, priority, lifeArea, type y status usa tu criterio para completarlo, si no esta nada claro pregunta."
         ].join("\n");
     }
 

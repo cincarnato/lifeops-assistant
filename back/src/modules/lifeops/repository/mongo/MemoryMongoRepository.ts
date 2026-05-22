@@ -11,7 +11,7 @@ class MemoryMongoRepository extends AbstractMongoRepository<IMemory, IMemoryBase
         super();
         this._model = MemoryModel;
         this._searchFields = ['title', 'content', 'type', 'lifeArea'];
-        this._populateFields = [];
+        this._populateFields = ['user'];
         this._lean = true
     }
 

@@ -7,6 +7,7 @@ interface IMemoryBase {
     tags?: Array<string>
     priority?: string
     source?: string
+    user: any
     createdAt?: Date
     updatedAt?: Date
 }
@@ -20,6 +21,7 @@ interface IMemory {
     tags?: Array<string>
     priority?: string
     source?: string
+    user: any
     createdAt?: Date
     updatedAt?: Date
 }

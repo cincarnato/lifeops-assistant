@@ -19,7 +19,8 @@ const HabitSchema = new mongoose.Schema<IHabit>({
             description: {type: String,   required: false, index: false, unique: false },
             estimatedMinutes: {type: Number,   required: false, index: false, unique: false },
             priority: {type: String,   required: false, index: false, unique: false } 
-            }
+            },
+            user: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true, unique: false}
 }, {timestamps: true});
 
 HabitSchema.plugin(uniqueValidator, {message: 'validation.unique'});

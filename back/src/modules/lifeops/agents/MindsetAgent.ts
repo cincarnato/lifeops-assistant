@@ -4,9 +4,6 @@ import BaseAgent from "./BaseAgent.js"
 
 class MindsetAgent extends BaseAgent {
     public override async prepare(): Promise<void> {
-        this.preparePurposeTool();
-        this.prepareHabitTool();
-        this.prepareGoalTool();
         await super.prepare();
     }
 
@@ -26,10 +23,10 @@ class MindsetAgent extends BaseAgent {
     }
 
     private get mindsetToolBuilders(): DraxAgentToolBuilderSource {
-        return [
-            this.purposeTool,
-            this.habitTool,
-            this.goalTool
+        return context => [
+            this.buildPurposeTool(context),
+            this.buildHabitTool(context),
+            this.buildGoalTool(context)
         ];
     }
 

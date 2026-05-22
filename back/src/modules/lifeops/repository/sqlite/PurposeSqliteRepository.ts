@@ -14,18 +14,18 @@ class PurposeSqliteRepository extends AbstractSqliteRepository<IPurpose, IPurpos
     protected jsonFields: string[] = [];
     protected identifier: string = '_id';
     protected populateFields = [
-        
+        { field: 'user', table: 'user', identifier: '_id' }
     ]
     protected verbose: boolean = false;
     protected tableFields: SqliteTableField[] = [
         {name: "title", type: "TEXT", unique: undefined, primary: false},
 {name: "statement", type: "TEXT", unique: undefined, primary: false},
 {name: "isPrimary", type: "TEXT", unique: undefined, primary: false},
-{name: "active", type: "TEXT", unique: undefined, primary: false}
+{name: "active", type: "TEXT", unique: undefined, primary: false},
+{name: "user", type: "TEXT", unique: undefined, primary: false}
     ]
   
 }
 
 export default PurposeSqliteRepository
 export {PurposeSqliteRepository}
-

@@ -10,6 +10,7 @@ interface IHabitBase {
     description?: string
     estimatedMinutes?: number
     priority?: string}
+    user: any
     createdAt?: Date
     updatedAt?: Date
 }
@@ -26,6 +27,7 @@ interface IHabit {
     description?: string
     estimatedMinutes?: number
     priority?: string}
+    user: any
     createdAt?: Date
     updatedAt?: Date
 }

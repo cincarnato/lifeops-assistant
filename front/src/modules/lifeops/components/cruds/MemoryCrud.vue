@@ -5,6 +5,7 @@ import {Crud} from "@drax/crud-vue";
 import MemoryTypeCombobox from "@/modules/lifeops/comboboxes/MemoryTypeCombobox.vue";
 import SourceCombobox from "@/modules/lifeops/comboboxes/SourceCombobox.vue";
 import PriorityCombobox from "@/modules/lifeops/comboboxes/PriorityCombobox.vue";
+import LifeAreaCombobox from "@/modules/lifeops/comboboxes/LifeAreaCombobox.vue";
 
 </script>
 
@@ -30,6 +31,16 @@ import PriorityCombobox from "@/modules/lifeops/comboboxes/PriorityCombobox.vue"
           :label="field.label"
           item-title="name"
           item-value="name"
+      />
+    </template>
+
+    <template v-slot:field.lifeArea="{field, form}">
+      <life-area-combobox
+        v-model="form.lifeArea"
+        :name="field.name"
+        :label="field.label"
+        item-title="name"
+        item-value="name"
       />
     </template>
 

@@ -9,12 +9,14 @@ const MemoryBaseSchema = z.object({
     lifeArea: z.coerce.string().optional().nullable().default(null),
     tags: z.array(z.string()).optional().default([]),
     priority: z.string().optional().default(''),
-    source: z.string().optional().default('manual')
+    source: z.string().optional().default('manual'),
+    user: z.coerce.string().min(1, 'validation.required')
 });
 
 const MemorySchema = MemoryBaseSchema
     .extend({
       _id: z.coerce.string(),
+        user: z.object({_id: z.coerce.string(), username: z.string()}),
         createdAt: z.coerce.date().nullable().optional(),
         updatedAt: z.coerce.date().nullable().optional(),
     })

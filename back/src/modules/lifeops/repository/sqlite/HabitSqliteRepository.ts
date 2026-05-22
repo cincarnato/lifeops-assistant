@@ -14,7 +14,7 @@ class HabitSqliteRepository extends AbstractSqliteRepository<IHabit, IHabitBase,
     protected jsonFields: string[] = ['frequency', 'taskTemplate'];
     protected identifier: string = '_id';
     protected populateFields = [
-        
+        { field: 'user', table: 'user', identifier: '_id' }
     ]
     protected verbose: boolean = false;
     protected tableFields: SqliteTableField[] = [
@@ -24,11 +24,11 @@ class HabitSqliteRepository extends AbstractSqliteRepository<IHabit, IHabitBase,
 {name: "active", type: "TEXT", unique: undefined, primary: false},
 {name: "frequency", type: "TEXT", unique: undefined, primary: false},
 {name: "generateTask", type: "TEXT", unique: undefined, primary: false},
-{name: "taskTemplate", type: "TEXT", unique: undefined, primary: false}
+{name: "taskTemplate", type: "TEXT", unique: undefined, primary: false},
+{name: "user", type: "TEXT", unique: undefined, primary: false}
     ]
   
 }
 
 export default HabitSqliteRepository
 export {HabitSqliteRepository}
-

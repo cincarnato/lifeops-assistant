@@ -14,7 +14,7 @@ class MemorySqliteRepository extends AbstractSqliteRepository<IMemory, IMemoryBa
     protected jsonFields: string[] = ['tags'];
     protected identifier: string = '_id';
     protected populateFields = [
-        
+        { field: 'user', table: 'user', identifier: '_id' }
     ]
     protected verbose: boolean = false;
     protected tableFields: SqliteTableField[] = [
@@ -24,7 +24,8 @@ class MemorySqliteRepository extends AbstractSqliteRepository<IMemory, IMemoryBa
 {name: "lifeArea", type: "TEXT", unique: undefined, primary: false},
 {name: "tags", type: "TEXT", unique: undefined, primary: false},
 {name: "priority", type: "TEXT", unique: undefined, primary: false},
-{name: "source", type: "TEXT", unique: undefined, primary: false}
+{name: "source", type: "TEXT", unique: undefined, primary: false},
+{name: "user", type: "TEXT", unique: undefined, primary: false}
     ]
   
 }
