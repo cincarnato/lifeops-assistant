@@ -10,13 +10,13 @@ class PriorityService extends AbstractService<IPriority, IPriorityBase, IPriorit
 
     constructor(PriorityRepository: IPriorityRepository, baseSchema?: ZodObject<ZodRawShape>, fullSchema?: ZodObject<ZodRawShape>) {
         super(PriorityRepository, baseSchema, fullSchema);
-        
+
         this._validateOutput = true
         this.onCreated = async () => AgentConfigService.instance.refreshSystemPromptOnTaskOptionsChange()
         this.onUpdated = async () => AgentConfigService.instance.refreshSystemPromptOnTaskOptionsChange()
         this.onUpdatedPartial = async () => AgentConfigService.instance.refreshSystemPromptOnTaskOptionsChange()
         this.onDeleted = async () => AgentConfigService.instance.refreshSystemPromptOnTaskOptionsChange()
-        
+
     }
 
 }

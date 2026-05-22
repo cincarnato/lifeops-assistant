@@ -10,13 +10,13 @@ class TaskStatusService extends AbstractService<ITaskStatus, ITaskStatusBase, IT
 
     constructor(TaskStatusRepository: ITaskStatusRepository, baseSchema?: ZodObject<ZodRawShape>, fullSchema?: ZodObject<ZodRawShape>) {
         super(TaskStatusRepository, baseSchema, fullSchema);
-        
+
         this._validateOutput = true
         this.onCreated = async () => AgentConfigService.instance.refreshSystemPromptOnTaskOptionsChange()
         this.onUpdated = async () => AgentConfigService.instance.refreshSystemPromptOnTaskOptionsChange()
         this.onUpdatedPartial = async () => AgentConfigService.instance.refreshSystemPromptOnTaskOptionsChange()
         this.onDeleted = async () => AgentConfigService.instance.refreshSystemPromptOnTaskOptionsChange()
-        
+
     }
 
 }
