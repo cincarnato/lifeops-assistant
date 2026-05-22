@@ -7,6 +7,12 @@ import type {IClient} from '../interfaces/IClient'
 
 const ClientSchema = new mongoose.Schema<IClient>({
             name: {type: String,   required: true, index: true, unique: false },
+            legalName: {type: String,   required: false, index: false, unique: false },
+            taxCondition: {type: String,   required: false, index: false, unique: false },
+            taxIdType: {type: String,   required: false, index: false, unique: false },
+            taxIdNumber: {type: String,   required: false, index: false, unique: false },
+            taxAddress: {type: String,   required: false, index: false, unique: false },
+            taxEmail: {type: String,   required: false, index: false, unique: false },
             description: {type: String,   required: false, index: false, unique: false },
             type: {type: String,   required: false, index: true, unique: false },
             status: {type: String,  enum: ['active', 'inactive', 'prospect', 'paused', 'archived'], required: false, index: true, unique: false },

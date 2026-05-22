@@ -11,7 +11,7 @@ import {MediaPermissions, FilePermissions} from "@drax/media-back";
 import {SettingPermissions} from "@drax/settings-back";
 import {DashboardPermissions} from "@drax/dashboard-back";
 import {AuditPermissions} from "@drax/audit-back";
-import {AILogPermissions, AIPermissions, AgentSessionPermissions, AgentPermissions, TTSPermissions} from "@drax/ai-back";
+import {AILogPermissions, AIPermissions, AgentSessionPermissions, AgentPermissions, TTSPermissions, TTSVoicePermissions} from "@drax/ai-back";
 import {CrudSavedQueryPermissions} from "@drax/crud-back";
 
 import {BasePermissions} from "../modules/base/permissions/BasePermissions.js";
@@ -60,6 +60,7 @@ function InitializePermissions() {
         ...Object.values(AILogPermissions),
         ...Object.values(AIPermissions),
         ...Object.values(TTSPermissions),
+        ...Object.values(TTSVoicePermissions),
         ...Object.values(AgentSessionPermissions),
         ...Object.values(AgentPermissions),
 

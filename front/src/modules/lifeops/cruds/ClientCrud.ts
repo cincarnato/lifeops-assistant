@@ -93,41 +93,50 @@ class ClientCrud extends EntityCrud implements IEntityCrud {
 
   get fields(): IEntityCrudField[] {
     return [
-      {name: 'name', type: 'string', label: 'name', default: ''},
-      {name: 'description', type: 'longString', label: 'description', default: ''},
-      {name: 'aliases', type: 'array.string', label: 'aliases', default: []},
-      {name: 'type', type: 'string', label: 'type', default: ''},
+      {name: 'name', type: 'string', label: 'name', default: '', groupTab: 'BASIC'},
+      {name: 'description', type: 'longString', label: 'description', default: '', groupTab: 'BASIC'},
+      {name: 'aliases', type: 'array.string', label: 'aliases', default: [], groupTab: 'BASIC'},
+      {name: 'type', type: 'string', label: 'type', default: '', groupTab: 'BASIC'},
       {
         name: 'status',
         type: 'enum',
         label: 'status',
         default: 'active',
-        enum: ['active', 'inactive', 'prospect', 'paused', 'archived']
+        enum: ['active', 'inactive', 'prospect', 'paused', 'archived'],
+        groupTab: 'BASIC'
       },
       {
         name: 'priority',
         type: 'string',
         label: 'priority',
-        default: ''
+        default: '',
+        groupTab: 'BASIC'
       },
-      {name: 'valueScore', type: 'number', label: 'valueScore', default: 5},
-      {name: 'relationshipScore', type: 'number', label: 'relationshipScore', default: null},
-      {name: 'priorityScore', type: 'number', label: 'priorityScore', default: null},
-      {name: 'website', type: 'string', label: 'website', default: ''},
-      {name: 'emailDomains', type: 'array.string', label: 'emailDomains', default: []},
-      {name: 'company', type: 'ref', label: 'company', default: null, ref: 'Company', refDisplay: 'name', addOnTheFly: true},
+      {name: 'valueScore', type: 'number', label: 'valueScore', default: 5, groupTab: 'BASIC'},
+      {name: 'relationshipScore', type: 'number', label: 'relationshipScore', default: null, groupTab: 'BASIC'},
+      {name: 'priorityScore', type: 'number', label: 'priorityScore', default: null, groupTab: 'BASIC'},
+      {name: 'website', type: 'string', label: 'website', default: '', groupTab: 'BASIC'},
+      {name: 'emailDomains', type: 'array.string', label: 'emailDomains', default: [], groupTab: 'BASIC'},
+      {name: 'legalName', type: 'string', label: 'legalName', default: '', groupTab: 'FACTURACION'},
+      {name: 'taxCondition', type: 'string', label: 'taxCondition', default: '', groupTab: 'FACTURACION'},
+      {name: 'taxIdType', type: 'string', label: 'taxIdType', default: '', groupTab: 'FACTURACION'},
+      {name: 'taxIdNumber', type: 'string', label: 'taxIdNumber', default: '', groupTab: 'FACTURACION'},
+      {name: 'taxAddress', type: 'longString', label: 'taxAddress', default: '', groupTab: 'FACTURACION'},
+      {name: 'taxEmail', type: 'string', label: 'taxEmail', default: '', groupTab: 'FACTURACION'},
+      {name: 'company', type: 'ref', label: 'company', default: null, ref: 'Company', refDisplay: 'name', addOnTheFly: true, groupTab: 'BASIC'},
       {
         name: 'mainContact',
         type: 'ref',
         label: 'mainContact',
         default: null,
         ref: 'Contact',
-        refDisplay: 'displayName'
+        refDisplay: 'displayName',
+        groupTab: 'BASIC'
       },
-      {name: 'redmineProjectIds', type: 'array.string', label: 'redmineProjectIds', default: []},
-      {name: 'tags', type: 'array.string', label: 'tags', default: []},
-      {name: 'notes', type: 'longString', label: 'notes', default: ''},
-      {name: 'archivedAt', type: 'date', label: 'archivedAt', default: null}
+      {name: 'redmineProjectIds', type: 'array.string', label: 'redmineProjectIds', default: [], groupTab: 'BASIC'},
+      {name: 'tags', type: 'array.string', label: 'tags', default: [], groupTab: 'BASIC'},
+      {name: 'notes', type: 'longString', label: 'notes', default: '', groupTab: 'BASIC'},
+      {name: 'archivedAt', type: 'date', label: 'archivedAt', default: null, groupTab: 'BASIC'}
 // {name:'user',type:'ref',label:'user',default:null,ref: 'User',refDisplay: 'username'},
     ]
   }
@@ -187,7 +196,7 @@ class ClientCrud extends EntityCrud implements IEntityCrud {
   }
 
   get tabs() {
-    return []
+    return ['BASIC', 'FACTURACION']
   }
 
   get menus() {

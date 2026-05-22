@@ -1,11 +1,10 @@
-
 import {EntityCrud, useCrudStore} from "@drax/crud-vue";
-import type{
+import type {
   IDraxCrudProvider,
   IEntityCrud,
   IEntityCrudField,
   IEntityCrudFilter,
-  IEntityCrudHeader, 
+  IEntityCrudHeader,
   IEntityCrudOperation,
   IEntityCrudPermissions,
   IEntityCrudRefs,
@@ -26,35 +25,35 @@ class LifeAreaCrud extends EntityCrud implements IEntityCrud {
     this.name = 'LifeArea'
     this.store = useCrudStore(this.name)
   }
-  
+
   static get instance(): LifeAreaCrud {
-    if(!LifeAreaCrud.singleton){
+    if (!LifeAreaCrud.singleton) {
       LifeAreaCrud.singleton = new LifeAreaCrud()
     }
     return LifeAreaCrud.singleton
   }
 
-  get permissions(): IEntityCrudPermissions{
+  get permissions(): IEntityCrudPermissions {
     return {
-      manage: 'lifearea:manage', 
-      view: 'lifearea:view', 
-      create: 'lifearea:create', 
-      update: 'lifearea:update', 
+      manage: 'lifearea:manage',
+      view: 'lifearea:view',
+      create: 'lifearea:create',
+      update: 'lifearea:update',
       delete: 'lifearea:delete'
     }
   }
 
   get headers(): IEntityCrudHeader[] {
     return [
-        {title: 'name',key:'name', align: 'start'}
+      {title: 'name', key: 'name', align: 'start'}
     ]
   }
-  
+
   get selectedHeaders(): string[] {
     return this.headers.map(header => header.key)
   }
-  
-  get actionHeaders():IEntityCrudHeader[]{
+
+  get actionHeaders(): IEntityCrudHeader[] {
     return [
       {
         title: 'action.actions',
@@ -67,67 +66,65 @@ class LifeAreaCrud extends EntityCrud implements IEntityCrud {
     ]
   }
 
-  get provider(): IDraxCrudProvider<any, any, any>{
+  get provider(): IDraxCrudProvider<any, any, any> {
     return LifeAreaProvider.instance
   }
-  
-  get refs(): IEntityCrudRefs{
-    return {
-      
-    }
+
+  get refs(): IEntityCrudRefs {
+    return {}
   }
 
-  get rules():IEntityCrudRules{
+  get rules(): IEntityCrudRules {
     return {
       name: [(v: any) => !!v || 'validation.required']
     }
   }
 
-  get fields(): IEntityCrudField[]{
+  get fields(): IEntityCrudField[] {
     return [
-        {name:'name',type:'string',label:'name',default:''},
-{name:'description',type:'longString',label:'description',default:''}
+      {name: 'name', type: 'string', label: 'name', default: ''},
+      {name: 'description', type: 'longString', label: 'description', default: ''}
     ]
   }
-  
-  get filters():IEntityCrudFilter[]{
+
+  get filters(): IEntityCrudFilter[] {
     return [
       //{name: '_id', type: 'string', label: 'ID', default: '', operator: 'eq' },
     ]
   }
-  
-  get isViewable(){
+
+  get isViewable() {
     return true
   }
 
-  get isEditable(){
+  get isEditable() {
     return true
   }
 
-  get isCreatable(){
+  get isCreatable() {
     return true
   }
 
-  get isDeletable(){
+  get isDeletable() {
     return true
   }
 
-  get isExportable(){
+  get isExportable() {
     return true
   }
 
-  get exportFormats(){
+  get exportFormats() {
     return ['CSV', 'JSON']
   }
 
-  get exportHeaders(){
+  get exportHeaders() {
     return ['_id']
   }
 
-  get isImportable(){
+  get isImportable() {
     return false
   }
-  
+
   get isColumnSelectable() {
     return true
   }
@@ -136,47 +133,43 @@ class LifeAreaCrud extends EntityCrud implements IEntityCrud {
     return true
   }
 
-  get importFormats(){
+  get importFormats() {
     return ['CSV', 'JSON']
   }
 
-  get dialogFullscreen(){
+  get dialogFullscreen() {
     return false
   }
-  
+
   get tabs() {
-    return [
-     
-    ]
+    return []
   }
-  
+
   get menus() {
-    return [
-     
-    ]
+    return []
   }
-  
+
   get searchEnable() {
     return true
   }
 
-   get filtersEnable(){
+  get filtersEnable() {
     return true
   }
 
-  get dynamicFiltersEnable(){
+  get dynamicFiltersEnable() {
     return true
   }
 
-  get isAiAssistable(){
+  get isAiAssistable() {
     return false
   }
 
   get navigationOperations(): IEntityCrudOperation[] {
     return ['view'] // edit, delete
   }
-  
-  get isSavedQueriesEnabled(){
+
+  get isSavedQueriesEnabled() {
     return true
   }
 

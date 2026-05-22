@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {computed, onBeforeUnmount, onMounted, ref} from 'vue'
-import type {ComputedRef, Ref} from 'vue'
 import {useDraxAgent} from '@drax/ai-vue'
 import type {ITask} from '../interfaces/ITask'
 import TaskProvider from '../providers/TaskProvider'
@@ -19,9 +18,11 @@ const {
   messagesContainer,
   navigationEnabled,
   selectAgent,
+  selectTextToSpeechVoice,
   selectedAgent,
   selectedAgentIdentifier,
-  selectedVoiceName,
+  selectedTextToSpeechVoiceLabel,
+  selectedTextToSpeechVoiceSelection,
   sendMessage,
   sessionId,
   showAgentSelector,
@@ -38,6 +39,8 @@ const {
   textToSpeechEnabled,
   textToSpeechSpeaking,
   textToSpeechSupported,
+  textToSpeechVoiceItems,
+  textToSpeechVoicesLoading,
   toggleNavigation,
   toggleSpeechAutoSend,
   toggleSpeechRecognition,
@@ -46,22 +49,6 @@ const {
   visualBotButtonLabel,
   visualBotVisible,
 } = draxAgent
-
-const draxAgentWithTextToSpeechProviders = draxAgent as typeof draxAgent & {
-  selectTextToSpeechProvider?: (provider: string) => void
-  selectedTextToSpeechProvider?: Ref<string>
-  selectedTextToSpeechProviderLabel?: Ref<string>
-  textToSpeechProviderItems?: ComputedRef<TextToSpeechProviderItem[]> | Ref<TextToSpeechProviderItem[]>
-  textToSpeechProvidersLoading?: Ref<boolean>
-}
-
-type TextToSpeechProviderItem = {
-  props?: {
-    disabled?: boolean
-  }
-  title: string
-  value: string
-}
 
 type Particle = {
   alpha: number
@@ -74,15 +61,7 @@ type Particle = {
 
 const particlesCanvas = ref<HTMLCanvasElement | null>(null)
 const activePointerId = ref<number | null>(null)
-const textToSpeechProviderMenuOpen = ref(false)
-const selectedTextToSpeechProvider = draxAgentWithTextToSpeechProviders.selectedTextToSpeechProvider ?? ref('browser')
-const selectedTextToSpeechProviderLabel = draxAgentWithTextToSpeechProviders.selectedTextToSpeechProviderLabel ?? selectedVoiceName
-const textToSpeechProvidersLoading = draxAgentWithTextToSpeechProviders.textToSpeechProvidersLoading ?? ref(false)
-const textToSpeechProviderItems = draxAgentWithTextToSpeechProviders.textToSpeechProviderItems ?? computed(() => [{
-  props: {disabled: true},
-  title: selectedTextToSpeechProviderLabel.value,
-  value: selectedTextToSpeechProvider.value,
-}])
+const textToSpeechVoiceMenuOpen = ref(false)
 const taskProvider = TaskProvider.instance
 const taskItems = ref<ITask[]>([])
 const taskPage = ref(1)
@@ -141,7 +120,7 @@ const activeTools = computed(() => [
   {icon: navigationEnabled.value ? '⌖' : '⊘', label: navigationEnabled.value ? 'AUTO NAVIGATION' : 'NAVIGATION OFF'},
   {
     icon: textToSpeechEnabled.value ? '▰' : '▱',
-    label: textToSpeechEnabled.value ? `VOICE ${selectedTextToSpeechProviderLabel.value}` : 'TEXT ONLY MODE',
+    label: textToSpeechEnabled.value ? `VOICE ${selectedTextToSpeechVoiceLabel.value}` : 'TEXT ONLY MODE',
   },
 ])
 const taskPageLabel = computed(() => `${taskPage.value}/${taskTotalPages.value}`)
@@ -173,17 +152,17 @@ function handleAgentChange(event: Event) {
   selectAgent(target?.value)
 }
 
-function toggleTextToSpeechProviderMenu() {
-  if (textToSpeechProvidersLoading.value) {
+function toggleTextToSpeechVoiceMenu() {
+  if (textToSpeechVoicesLoading.value) {
     return
   }
 
-  textToSpeechProviderMenuOpen.value = !textToSpeechProviderMenuOpen.value
+  textToSpeechVoiceMenuOpen.value = !textToSpeechVoiceMenuOpen.value
 }
 
-function handleTextToSpeechProviderSelect(provider: string) {
-  draxAgentWithTextToSpeechProviders.selectTextToSpeechProvider?.(provider)
-  textToSpeechProviderMenuOpen.value = false
+function handleTextToSpeechVoiceSelect(voice: string) {
+  selectTextToSpeechVoice(voice)
+  textToSpeechVoiceMenuOpen.value = false
 }
 
 async function loadTaskPage(page: number) {
@@ -382,35 +361,36 @@ onBeforeUnmount(() => {
       >
         {{ textToSpeechEnabled ? 'VOICE' : 'TEXT' }}
       </button>
-      <div v-if="textToSpeechSupported" class="agent-cine__tts-provider">
+      <div v-if="textToSpeechSupported" class="agent-cine__tts-voice">
         <button
           type="button"
           aria-haspopup="menu"
-          :aria-expanded="textToSpeechProviderMenuOpen"
-          :disabled="textToSpeechProvidersLoading"
-          :title="`Elegir proveedor de voz: ${selectedTextToSpeechProviderLabel}`"
-          @click="toggleTextToSpeechProviderMenu"
+          :aria-expanded="textToSpeechVoiceMenuOpen"
+          :disabled="textToSpeechVoicesLoading"
+          :title="`Elegir voz: ${selectedTextToSpeechVoiceLabel}`"
+          @click="toggleTextToSpeechVoiceMenu"
         >
-          {{ textToSpeechProvidersLoading ? 'VOICE ...' : 'VOICE SYS' }}
+          {{ textToSpeechVoicesLoading ? 'VOICE ...' : 'VOICE SYS' }}
         </button>
 
         <div
-          v-if="textToSpeechProviderMenuOpen"
-          class="agent-cine__tts-provider-menu"
+          v-if="textToSpeechVoiceMenuOpen"
+          class="agent-cine__tts-voice-menu"
           role="menu"
         >
-          <span>VOICE PROVIDER</span>
+          <span>VOICE</span>
           <button
-            v-for="provider in textToSpeechProviderItems"
-            :key="provider.value"
+            v-for="voice in textToSpeechVoiceItems"
+            :key="voice.value"
             type="button"
             role="menuitemradio"
-            :aria-checked="provider.value === selectedTextToSpeechProvider"
-            :disabled="provider.props?.disabled"
-            @click="handleTextToSpeechProviderSelect(provider.value)"
+            :aria-checked="voice.value === selectedTextToSpeechVoiceSelection"
+            :disabled="voice.props.disabled"
+            @click="handleTextToSpeechVoiceSelect(voice.value)"
           >
-            <i>{{ provider.value === selectedTextToSpeechProvider ? '✓' : '◇' }}</i>
-            <strong>{{ provider.title }}</strong>
+            <i>{{ voice.value === selectedTextToSpeechVoiceSelection ? '✓' : '◇' }}</i>
+            <strong>{{ voice.title }}</strong>
+            <small>{{ voice.subtitle }}</small>
           </button>
         </div>
       </div>
@@ -735,17 +715,17 @@ onBeforeUnmount(() => {
   max-width: min(260px, 38vw);
 }
 
-.agent-cine__tts-provider {
+.agent-cine__tts-voice {
   position: relative;
 }
 
-.agent-cine__tts-provider-menu {
+.agent-cine__tts-voice-menu {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
   z-index: 20;
   display: flex;
-  width: min(320px, calc(100vw - 32px));
+  width: min(360px, calc(100vw - 32px));
   max-height: 320px;
   overflow-y: auto;
   flex-direction: column;
@@ -758,7 +738,7 @@ onBeforeUnmount(() => {
   backdrop-filter: blur(16px);
 }
 
-.agent-cine__tts-provider-menu > span {
+.agent-cine__tts-voice-menu > span {
   padding: 4px 8px 6px;
   color: rgba(225, 226, 231, 0.42);
   font-family: "JetBrains Mono", ui-monospace, monospace;
@@ -766,37 +746,48 @@ onBeforeUnmount(() => {
   letter-spacing: 0.12em;
 }
 
-.agent-cine__tts-provider-menu button {
+.agent-cine__tts-voice-menu button {
   display: grid;
   grid-template-columns: 18px minmax(0, 1fr);
   align-items: center;
   gap: 8px;
   width: 100%;
-  min-height: 34px;
-  padding: 0 10px;
+  min-height: 44px;
+  padding: 6px 10px;
   border-radius: 6px;
   text-align: left;
 }
 
-.agent-cine__tts-provider-menu button[aria-checked="true"] {
+.agent-cine__tts-voice-menu button[aria-checked="true"] {
   color: var(--cyan);
   background: rgba(0, 242, 255, 0.08);
   border-color: rgba(0, 242, 255, 0.42);
 }
 
-.agent-cine__tts-provider-menu i {
+.agent-cine__tts-voice-menu i {
   color: var(--cyan);
   font-style: normal;
 }
 
-.agent-cine__tts-provider-menu strong {
+.agent-cine__tts-voice-menu strong,
+.agent-cine__tts-voice-menu small {
   overflow: hidden;
   font-family: "JetBrains Mono", ui-monospace, monospace;
-  font-size: 10px;
-  font-weight: 600;
   text-overflow: ellipsis;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+.agent-cine__tts-voice-menu strong {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.agent-cine__tts-voice-menu small {
+  display: block;
+  margin-top: 3px;
+  color: rgba(225, 226, 231, 0.42);
+  font-size: 9px;
 }
 
 .agent-cine__new-session {

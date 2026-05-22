@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import {computed} from "vue";
 import type {ITask} from "../interfaces/ITask";
+import {CrudRefDisplay} from "@drax/crud-vue"
+import ProjectCrud from "@/modules/lifeops/cruds/ProjectCrud.js";
+import GoalCrud from "@/modules/lifeops/cruds/GoalCrud.js";
+
 
 const props = defineProps<{
   task?: ITask | null
@@ -9,11 +13,6 @@ const props = defineProps<{
 
 const task = computed(() => props.task || props.item || null);
 
-const emit = defineEmits<{
-  back: []
-  edit: [task: ITask]
-  start: [task: ITask]
-}>();
 
 type ScoreItem = {
   key: string
@@ -32,7 +31,13 @@ type DetailItem = {
 
 const scoreItems = computed<ScoreItem[]>(() => [
   {key: "value", label: "Valor", value: task.value?.valueScore, icon: "mdi-chart-line", color: "primary"},
-  {key: "motivation", label: "Motivacion", value: task.value?.motivationScore, icon: "mdi-lightning-bolt-outline", color: "success"},
+  {
+    key: "motivation",
+    label: "Motivacion",
+    value: task.value?.motivationScore,
+    icon: "mdi-lightning-bolt-outline",
+    color: "success"
+  },
   {key: "effort", label: "Esfuerzo", value: task.value?.effortScore, icon: "mdi-weight-lifter", color: "error"},
   {key: "urgency", label: "Urgencia", value: task.value?.urgencyScore, icon: "mdi-alarm", color: "warning"}
 ]);
@@ -40,48 +45,52 @@ const scoreItems = computed<ScoreItem[]>(() => [
 const classificationItems = computed<DetailItem[]>(() => compactDetails([
   {key: "source", label: "Origen", value: task.value?.source, icon: "mdi-source-branch"},
   {key: "type", label: "Tipo", value: task.value?.type, icon: "mdi-shape-outline"},
+  {key: "status", label: "Estado", value: task.value?.status, icon: "mdi-list-status"},
+  {key: "lifeArea", label: "Area", value: task.value?.lifeArea, icon: "mdi-image-area"},
+  {key: "project", label: "Proyecto", value: task.value?.project, icon: "mdi-folder-open-outline"},
+  {key: "goals", label: "Objetivos", value: task.value?.goals, icon: "mdi-folder-open-outline"},
   {key: "redmineIssueId", label: "Redmine", value: task.value?.redmineIssueId, icon: "mdi-ticket-outline"},
   {key: "emailMessageId", label: "Email", value: task.value?.emailMessageId, icon: "mdi-email-outline"},
   {key: "calendarEventId", label: "Calendario", value: task.value?.calendarEventId, icon: "mdi-calendar-link"}
 ]));
 
 const dateItems = computed<DetailItem[]>(() => compactDetails([
-  {key: "dueDate", label: "Vencimiento", value: formatDateTime(task.value?.dueDate), icon: "mdi-calendar-alert"},
-  {key: "scheduledDate", label: "Agendada", value: formatDateTime(task.value?.scheduledDate), icon: "mdi-calendar-clock"},
-  {key: "completedAt", label: "Completada", value: formatDateTime(task.value?.completedAt), icon: "mdi-check-circle-outline"},
   {key: "createdAt", label: "Creada", value: formatDateTime(task.value?.createdAt), icon: "mdi-plus-circle-outline"},
   {key: "updatedAt", label: "Actualizada", value: formatDateTime(task.value?.updatedAt), icon: "mdi-update"},
+  {key: "dueDate", label: "Vencimiento", value: formatDateTime(task.value?.dueDate), icon: "mdi-calendar-alert"},
+  {
+    key: "scheduledDate",
+    label: "Agendada",
+    value: formatDateTime(task.value?.scheduledDate),
+    icon: "mdi-calendar-clock"
+  },
+  {
+    key: "completedAt",
+    label: "Completada",
+    value: formatDateTime(task.value?.completedAt),
+    icon: "mdi-check-circle-outline"
+  },
   {key: "archivedAt", label: "Archivada", value: formatDateTime(task.value?.archivedAt), icon: "mdi-archive-outline"}
 ]));
 
-const contextItems = computed<DetailItem[]>(() => compactDetails([
-  {key: "project", label: "Proyecto", value: entityName(task.value?.project), icon: "mdi-folder-open-outline"},
-  {key: "user", label: "Usuario", value: entityName(task.value?.user), icon: "mdi-account-circle-outline"}
-]));
-
-const goals = computed(() => {
-  return (task.value?.goals || []).map(goal => ({
-    id: entityId(goal),
-    name: entityName(goal)
-  })).filter(goal => goal.name);
-});
 
 const normalizedNotes = computed(() => normalizeNotes(task.value?.notes));
 const statusHistory = computed(() => task.value?.statusHistory || []);
 
-const hasContext = computed(() => {
-  return contextItems.value.length > 0 || goals.value.length > 0 || Boolean(task.value?.tags?.length);
-});
 
-function compactDetails(items: Array<Omit<DetailItem, "value"> & {value?: string | number | null}>): DetailItem[] {
+function compactDetails(items: Array<Omit<DetailItem, "value"> & { value?: string | number | null }>): DetailItem[] {
   return items
-      .map(item => ({...item, value: displayValue(item.value)}))
-      .filter(item => item.value !== "");
+    .map(item => ({...item, value: displayValue(item.value)}))
+    .filter(item => item.value !== "");
 }
 
 function displayValue(value?: string | number | null) {
   if (value === undefined || value === null) {
     return "";
+  }
+
+  if(Array.isArray(value)) {
+    return value
   }
 
   return String(value).trim();
@@ -111,30 +120,6 @@ function formatScore(value?: number) {
   return typeof value === "number" ? value.toFixed(1) : "-";
 }
 
-function entityId(entity: any) {
-  return entity?._id || entity?.id || entityName(entity);
-}
-
-function entityName(entity: any) {
-  if (!entity) {
-    return "";
-  }
-
-  if (typeof entity === "string") {
-    return entity;
-  }
-
-  const fullName = [entity.givenName || entity.firstName, entity.familyName || entity.lastName].filter(Boolean).join(" ");
-
-  return entity.name
-      || entity.displayName
-      || entity.title
-      || entity.username
-      || entity.email
-      || fullName
-      || entity._id
-      || "";
-}
 
 function normalizeNotes(notes?: ITask["notes"]) {
   if (!notes) {
@@ -149,17 +134,6 @@ function normalizeNotes(notes?: ITask["notes"]) {
   return notes.filter(note => note?.note);
 }
 
-function onEdit() {
-  if (task.value) {
-    emit("edit", task.value);
-  }
-}
-
-function onStart() {
-  if (task.value) {
-    emit("start", task.value);
-  }
-}
 </script>
 
 <template>
@@ -173,27 +147,28 @@ function onStart() {
       </div>
 
       <div class="task-view__appbar-actions">
-<!--        <v-btn-->
-<!--            icon="mdi-pencil-outline"-->
-<!--            variant="text"-->
-<!--            density="comfortable"-->
-<!--            title="Editar"-->
-<!--            @click="onEdit"-->
-<!--        />-->
+        <!--        <v-btn-->
+        <!--            icon="mdi-pencil-outline"-->
+        <!--            variant="text"-->
+        <!--            density="comfortable"-->
+        <!--            title="Editar"-->
+        <!--            @click="onEdit"-->
+        <!--        />-->
       </div>
     </header>
+
 
     <main class="task-view__content">
       <section class="task-view__hero">
         <div class="task-view__chips">
           <v-chip v-if="task.priority" color="primary" variant="flat" size="small">
-            {{ task.priority }}
+            Prioridad: {{ task.priority }}
           </v-chip>
           <v-chip v-if="task.status" color="secondary" variant="tonal" size="small">
-            {{ task.status }}
+            Estado: {{ task.status }}
           </v-chip>
           <v-chip v-if="task.type" color="info" variant="tonal" size="small">
-            {{ task.type }}
+            Tipo: {{ task.type }}
           </v-chip>
         </div>
       </section>
@@ -209,10 +184,10 @@ function onStart() {
         <h3 class="task-view__section-heading">Scoring</h3>
         <div class="task-view__score-grid">
           <v-card
-              v-for="score in scoreItems"
-              :key="score.key"
-              class="task-view__score-card"
-              variant="outlined"
+            v-for="score in scoreItems"
+            :key="score.key"
+            class="task-view__score-card"
+            variant="outlined"
           >
             <v-icon :icon="score.icon" :color="score.color" size="28"/>
             <span class="task-view__score-label">{{ score.label }}</span>
@@ -248,33 +223,23 @@ function onStart() {
               <v-icon :icon="item.icon" size="20"/>
               <span>{{ item.label }}</span>
             </div>
-            <strong>{{ item.value }}</strong>
-          </div>
-        </v-card-text>
-      </v-card>
+            <strong>
+              <crud-ref-display v-if="item.key === 'project'"
+                                :entity="ProjectCrud.instance"
+                                :value="item.value"
+                                display-field="name"
+              ></crud-ref-display>
+              <crud-ref-display v-else-if="item.key === 'goals'"
+                                :entity="GoalCrud.instance"
+                                :value="item.value"
+                                display-field="name"
+              ></crud-ref-display>
+              <template v-else>
+                {{ item.value }}
+              </template>
 
-      <v-card v-if="hasContext" class="task-view__card" variant="outlined">
-        <v-card-title class="task-view__section-title">Contexto</v-card-title>
-        <v-card-text class="task-view__context">
-          <div v-if="contextItems.length" class="task-view__context-grid">
-            <div v-for="item in contextItems" :key="item.key" class="task-view__context-item">
-              <span>{{ item.label }}</span>
-              <div>
-                <v-icon :icon="item.icon" size="20"/>
-                <strong>{{ item.value }}</strong>
-              </div>
-            </div>
+            </strong>
           </div>
-
-          <div v-if="goals.length">
-            <span class="task-view__mini-label">Objetivos</span>
-            <div class="task-view__chips">
-              <v-chip v-for="goal in goals" :key="goal.id" size="small" variant="tonal" color="primary">
-                {{ goal.name }}
-              </v-chip>
-            </div>
-          </div>
-
           <div v-if="task.tags?.length">
             <span class="task-view__mini-label">Tags</span>
             <div class="task-view__chips">
@@ -284,7 +249,9 @@ function onStart() {
             </div>
           </div>
         </v-card-text>
+
       </v-card>
+
 
       <v-card class="task-view__card" variant="outlined">
         <v-card-title class="task-view__panel-title">
@@ -293,7 +260,8 @@ function onStart() {
           <v-chip class="ml-auto" size="x-small" variant="tonal">{{ normalizedNotes.length }}</v-chip>
         </v-card-title>
         <v-card-text v-if="normalizedNotes.length" class="task-view__stack">
-          <div v-for="(note, index) in normalizedNotes" :key="`${note.date || index}-${note.note}`" class="task-view__note">
+          <div v-for="(note, index) in normalizedNotes" :key="`${note.date || index}-${note.note}`"
+               class="task-view__note">
             <div class="task-view__note-meta">
               <strong>Nota {{ index + 1 }}</strong>
               <span v-if="note.date">{{ formatDateTime(note.date) }}</span>
@@ -310,7 +278,8 @@ function onStart() {
           Historial de estado
         </v-card-title>
         <v-card-text class="task-view__stack">
-          <div v-for="(history, index) in statusHistory" :key="`${history.date || index}-${history.newStatus}`" class="task-view__history">
+          <div v-for="(history, index) in statusHistory" :key="`${history.date || index}-${history.newStatus}`"
+               class="task-view__history">
             <span>{{ formatDateTime(history.date) || "Sin fecha" }}</span>
             <strong>{{ history.previousStatus || "Sin estado" }} -> {{ history.newStatus || "Sin estado" }}</strong>
           </div>
@@ -318,14 +287,14 @@ function onStart() {
       </v-card>
     </main>
 
-<!--    <v-btn-->
-<!--        class="task-view__fab"-->
-<!--        icon="mdi-play"-->
-<!--        color="primary"-->
-<!--        size="large"-->
-<!--        elevation="8"-->
-<!--        @click="onStart"-->
-<!--    />-->
+    <!--    <v-btn-->
+    <!--        class="task-view__fab"-->
+    <!--        icon="mdi-play"-->
+    <!--        color="primary"-->
+    <!--        size="large"-->
+    <!--        elevation="8"-->
+    <!--        @click="onStart"-->
+    <!--    />-->
   </v-sheet>
 
   <v-alert v-else type="info" variant="tonal">

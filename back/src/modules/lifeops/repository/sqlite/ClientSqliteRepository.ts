@@ -9,7 +9,7 @@ class ClientSqliteRepository extends AbstractSqliteRepository<IClient, IClientBa
     protected db: any;
     protected tableName: string = 'Client';
     protected dataBaseFile: string;
-    protected searchFields: string[] = ['name', 'aliases', 'description', 'website'];
+    protected searchFields: string[] = ['name', 'aliases', 'legalName', 'taxCondition', 'taxIdType', 'taxIdNumber', 'taxAddress', 'taxEmail', 'description', 'website'];
     protected booleanFields: string[] = [];
     protected jsonFields: string[] = ['aliases', 'emailDomains', 'redmineProjectIds', 'tags'];
     protected identifier: string = '_id';
@@ -21,6 +21,12 @@ class ClientSqliteRepository extends AbstractSqliteRepository<IClient, IClientBa
     protected verbose: boolean = false;
     protected tableFields: SqliteTableField[] = [
         {name: "name", type: "TEXT", unique: undefined, primary: false},
+{name: "legalName", type: "TEXT", unique: undefined, primary: false},
+{name: "taxCondition", type: "TEXT", unique: undefined, primary: false},
+{name: "taxIdType", type: "TEXT", unique: undefined, primary: false},
+{name: "taxIdNumber", type: "TEXT", unique: undefined, primary: false},
+{name: "taxAddress", type: "TEXT", unique: undefined, primary: false},
+{name: "taxEmail", type: "TEXT", unique: undefined, primary: false},
 {name: "description", type: "TEXT", unique: undefined, primary: false},
 {name: "type", type: "TEXT", unique: undefined, primary: false},
 {name: "status", type: "TEXT", unique: undefined, primary: false},

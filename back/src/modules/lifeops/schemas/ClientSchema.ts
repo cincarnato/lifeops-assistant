@@ -3,6 +3,12 @@ import {z} from 'zod';
 
 const ClientBaseSchema = z.object({
     name: z.string().min(1, 'validation.required'),
+    legalName: z.string().optional().default(""),
+    taxCondition: z.string().optional().default(""),
+    taxIdType: z.string().optional().default(""),
+    taxIdNumber: z.string().optional().default(""),
+    taxAddress: z.string().optional().default(""),
+    taxEmail: z.string().optional().default(""),
     description: z.string().optional().default(""),
     type: z.string().optional().default(""),
     status: z.enum(['active', 'inactive', 'prospect', 'paused', 'archived']).optional().default('active'),

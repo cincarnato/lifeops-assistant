@@ -8,6 +8,52 @@ const menu: MenuItem[] = [
     gallery: false,
     auth: false
   },
+
+  {
+    icon: 'mdi-bullseye-arrow',
+    text: 'Core',
+    gallery: true,
+    children: [
+      {
+        icon: 'mdi-format-list-checks',
+        text: 'task.menu',
+        link: {name: "TaskCrudPage"},
+        gallery: true,
+        permission: 'task:manage'
+      },
+      {
+        icon: 'mdi-view-dashboard-outline',
+        text: 'Kanban Tareas',
+        link: {name: "KanbanTaskPage"},
+        gallery: true,
+        permission: 'task:view'
+      },
+      {
+        icon: 'mdi-briefcase-outline',
+        text: 'project.menu',
+        link: {name: "ProjectCrudPage"},
+        gallery: true,
+        permission: 'project:manage'
+      },
+      {
+        icon: 'mdi-brain',
+        text: 'memory.menu',
+        link: {name: "MemoryCrudPage"},
+        gallery: true,
+        permission: 'memory:manage'
+      },
+      {
+        icon: 'mdi-calendar-check-outline',
+        text: 'habitlog.menu',
+        link: {name: "HabitLogCrudPage"},
+        gallery: true,
+        permission: 'habitlog:manage'
+      },
+
+
+    ]
+  },
+
   {
     icon: 'mdi-bullseye-arrow',
     text: 'AGENT',
@@ -45,84 +91,9 @@ const menu: MenuItem[] = [
   },
   {
     icon: 'mdi-bullseye-arrow',
-    text: 'Core',
-    gallery: true,
-    children: [
-      {
-        icon: 'mdi-format-list-checks',
-        text: 'task.menu',
-        link: {name: "TaskCrudPage"},
-        gallery: true,
-        permission: 'task:manage'
-      },
-      {
-        icon: 'mdi-view-dashboard-outline',
-        text: 'Kanban Tareas',
-        link: {name: "KanbanTaskPage"},
-        gallery: true,
-        permission: 'task:view'
-      },
-      {
-        icon: 'mdi-briefcase-outline',
-        text: 'project.menu',
-        link: {name: "ProjectCrudPage"},
-        gallery: true,
-        permission: 'project:manage'
-      },
-      {
-        icon: 'mdi-brain',
-        text: 'memory.menu',
-        link: {name: "MemoryCrudPage"},
-        gallery: true,
-        permission: 'memory:manage'
-      },
-
-
-
-    ]
-  },
-  {
-    icon: 'mdi-bullseye-arrow',
-    text: 'Habitos',
-    gallery: true,
-    children: [
-      {
-        icon: 'mdi-repeat',
-        text: 'habit.menu',
-        link: {name: "HabitCrudPage"},
-        gallery: true,
-        permission: 'habit:manage'
-      },
-      {
-        icon: 'mdi-calendar-check-outline',
-        text: 'habitlog.menu',
-        link: {name: "HabitLogCrudPage"},
-        gallery: true,
-        permission: 'habitlog:manage'
-      },
-    ]
-  },
-  {
-    icon: 'mdi-bullseye-arrow',
     text: 'Gestion',
     gallery: true,
     children: [
-      {
-        icon: 'mdi-compass-outline',
-        text: 'purpose.menu',
-        link: {name: "PurposeCrudPage"},
-        gallery: true,
-        permission: 'purpose:manage'
-      },
-
-      {
-        icon: 'mdi-flag-checkered',
-        text: 'goal.menu',
-        link: {name: "GoalCrudPage"},
-        gallery: true,
-        permission: 'goal:manage'
-      },
-
       {
         icon: 'mdi-domain',
         text: 'client.menu',
@@ -148,6 +119,37 @@ const menu: MenuItem[] = [
 
     ]
   },
+  {
+    icon: 'mdi-bullseye-arrow',
+    text: 'Horizonte',
+    gallery: true,
+    children: [
+      {
+        icon: 'mdi-compass-outline',
+        text: 'purpose.menu',
+        link: {name: "PurposeCrudPage"},
+        gallery: true,
+        permission: 'purpose:manage'
+      },
+
+      {
+        icon: 'mdi-flag-checkered',
+        text: 'goal.menu',
+        link: {name: "GoalCrudPage"},
+        gallery: true,
+        permission: 'goal:manage'
+      },
+      {
+        icon: 'mdi-repeat',
+        text: 'habit.menu',
+        link: {name: "HabitCrudPage"},
+        gallery: true,
+        permission: 'habit:manage'
+      },
+
+    ]
+  },
+
   {
     icon: 'mdi-bullseye-arrow',
     text: 'Config',
@@ -360,13 +362,7 @@ const menu: MenuItem[] = [
         gallery: true,
         permission: 'file:manage'
       },
-      {
-        icon: 'mdi-robot',
-        text: 'ailog.menu',
-        link: {name: "AILogCrudPage"},
-        gallery: true,
-        permission: 'ailog:manage'
-      },
+
       {
         icon: 'mdi-lock-check',
         text: 'Password Policy',
@@ -375,10 +371,24 @@ const menu: MenuItem[] = [
       },
       {
         icon: 'mdi-robot',
+        text: 'ailog.menu',
+        link: {name: "AILogCrudPage"},
+        gallery: true,
+        permission: 'ailog:manage'
+      },
+      {
+        icon: 'mdi-robot',
         text: 'agentsession.menu',
         link: {name: "AgentSessionCrudPage"},
         gallery: true,
         permission: 'agentsession:manage'
+      },
+      {
+        icon: 'mdi-account-voice',
+        text:'ttsvoice.menu',
+        link: { name: "TTSVoiceCrudPage" },
+        gallery: true,
+        permission: 'ttsvoice:manage'
       },
     ]
   },

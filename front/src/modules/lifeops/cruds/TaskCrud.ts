@@ -103,17 +103,6 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
       {name: 'type', type: 'string', label: 'type', default: null, groupTab: 'CLASSIFICATION', sm: 4},
       {name: 'lifeArea', type: 'string', label: 'lifeArea', default: null, groupTab: 'CLASSIFICATION', sm: 4},
       {name: 'priority', type: 'string', label: 'priority', default: null, groupTab: 'CLASSIFICATION', sm: 4},
-      {name: 'tags', type: 'array.string', label: 'tags', default: [], groupTab: 'CLASSIFICATION'},
-      {
-        name: 'goals',
-        type: 'array.ref',
-        label: 'goals',
-        default: [],
-        ref: 'Goal',
-        refDisplay: 'name',
-        groupTab: 'CONTEXT',
-        addOnTheFly: true,
-      },
       {
         name: 'project',
         type: 'ref',
@@ -121,16 +110,30 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
         default: null,
         ref: 'Project',
         refDisplay: 'name',
-        groupTab: 'CONTEXT',
-        addOnTheFly: true,
+        groupTab: 'CLASSIFICATION',
+        addOnTheFly: true, sm: 4
       },
+      {
+        name: 'goals',
+        type: 'array.ref',
+        label: 'goals',
+        default: [],
+        ref: 'Goal',
+        refDisplay: 'name',
+        groupTab: 'CLASSIFICATION',
+        addOnTheFly: true, sm: 4
+      },
+
+      {name: 'tags', type: 'array.string', label: 'tags', default: [], groupTab: 'CLASSIFICATION'},
+
       {name: 'valueScore', type: 'number', label: 'valueScore', default: 5, groupTab: 'SCORING'},
       {name: 'motivationScore', type: 'number', label: 'motivationScore', default: 5, groupTab: 'SCORING'},
       {name: 'effortScore', type: 'number', label: 'effortScore', default: 5, groupTab: 'SCORING'},
       {name: 'urgencyScore', type: 'number', label: 'urgencyScore', default: 5, groupTab: 'SCORING'},
       {name: 'dueDate', type: 'date', label: 'dueDate', default: null, groupTab: 'SCHEDULE'},
       {name: 'scheduledDate', type: 'date', label: 'scheduledDate', default: null, groupTab: 'SCHEDULE'},
-      // {name: 'completedAt', type: 'date', label: 'completedAt', default: null, groupTab: 'EXECUTION'},
+       {name: 'completedAt', type: 'date', label: 'completedAt', default: null, groupTab: 'SCHEDULE', readonly: true},
+      {name: 'archivedAt', type: 'date', label: 'archivedAt', default: null, groupTab: 'SCHEDULE', readonly: true},
       {
         name: 'notes',
         type: 'array.object',
@@ -163,7 +166,7 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
       {name: 'emailMessageId', type: 'string', label: 'emailMessageId', default: '', groupTab: 'INTEGRATIONS'},
       {name: 'calendarEventId', type: 'string', label: 'calendarEventId', default: '', groupTab: 'INTEGRATIONS'},
       // {name: 'user', type: 'ref', label: 'user', default: null, ref: 'User', refDisplay: 'username'},
-      {name: 'archivedAt', type: 'date', label: 'archivedAt', default: null, groupTab: 'EXECUTION'}
+
     ]
   }
 
@@ -235,7 +238,7 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
   }
 
   get tabs() {
-    return ['CLASSIFICATION', 'CONTEXT', 'NOTES','HISTORY', 'SCORING', 'SCHEDULE', 'EXECUTION', 'INTEGRATIONS']
+    return ['CLASSIFICATION','SCORING', 'NOTES', 'SCHEDULE', 'INTEGRATIONS']
   }
 
   get menus() {

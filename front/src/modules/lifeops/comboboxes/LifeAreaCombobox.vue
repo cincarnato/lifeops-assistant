@@ -52,6 +52,8 @@ const field: IEntityCrudField = {
   <crud-autocomplete
     v-model="valueModel"
     :field="field"
+    :item-title="itemTitle"
+    :item-value="itemValue"
     :entity="LifeAreaCrud.instance"
     :hint="hint"
     :persistent-hint="persistentHint"

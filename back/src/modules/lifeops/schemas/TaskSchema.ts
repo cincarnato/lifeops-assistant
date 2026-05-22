@@ -26,13 +26,7 @@ const TaskBaseSchema = z.object({
             note: z.string().optional().default('')
         })
     ).optional().default([]),
-    statusHistory: z.array(
-        z.object({
-            date: z.coerce.date().nullable().optional(),
-            previousStatus: z.string().nullable().optional(),
-            newStatus: z.string().nullable().optional()
-        })
-    ).optional().default([]),
+
     user: z.coerce.string().min(1, 'validation.required'),
     completedAt: z.coerce.date().nullable().optional(),
     archivedAt: z.coerce.date().nullable().optional()
@@ -46,6 +40,13 @@ const TaskSchema = TaskBaseSchema
         user: z.object({_id: z.coerce.string(), username: z.string()}),
         createdAt: z.coerce.date().nullable().optional(),
         updatedAt: z.coerce.date().nullable().optional(),
+        statusHistory: z.array(
+            z.object({
+                date: z.coerce.date().nullable().optional(),
+                previousStatus: z.string().nullable().optional(),
+                newStatus: z.string().nullable().optional()
+            })
+        ).optional().default([]),
     })
 
 export default TaskSchema;
