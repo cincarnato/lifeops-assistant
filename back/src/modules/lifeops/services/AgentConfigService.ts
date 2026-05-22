@@ -151,9 +151,13 @@ class AgentConfigService {
         this.prepareTaskTool();
         this.prepareMemoryTool();
         this.prepareClientTool();
-        this.prepareCrmTools();
+        this.preparePurposeTool();
+        this.prepareHabitTool();
+        this.prepareGoalTool();
+        this.prepareClientTool();
+        this.prepareCompanyTool();
+        this.prepareContactTool();
         this.prepareProjectTool();
-        this.prepareMindsetTools();
         this.prepareGoogleTools();
         this.preparePushTools();
         await this.prepareSystemPrompt();
@@ -314,17 +318,6 @@ class AgentConfigService {
         return this._projectTool;
     }
 
-    public prepareMindsetTools(): void {
-        this.preparePurposeTool();
-        this.prepareHabitTool();
-        this.prepareGoalTool();
-    }
-
-    public prepareCrmTools(): void {
-        this.prepareClientTool();
-        this.prepareCompanyTool();
-        this.prepareContactTool();
-    }
 
     public prepareGoogleTools(): void {
         if (this._googleToolsInitialized) {
@@ -423,7 +416,8 @@ class AgentConfigService {
             this.taskTool,
             this.memoryTool,
             this.clientTool,
-            this.projectTool
+            this.projectTool,
+            this.contactTool
         ];
     }
 
@@ -459,13 +453,6 @@ class AgentConfigService {
         };
     }
 
-    public get taskOptionNames(): TaskOptionNames {
-        return this._optionNames.tasks;
-    }
-
-    public get memoryOptionNames(): MemoryOptionNames {
-        return this._optionNames.memories;
-    }
 
     private get logToolExecution(): boolean {
         const value = process.env.AGENT_LOG_TOOL_EXECUTION;
@@ -702,35 +689,7 @@ class AgentConfigService {
         return lines.join("\n");
     }
 
-    private buildMindsetSystemPrompt(): string {
-        const today = this.formatLocalDate(new Date());
-        const timeZone = this.getLocalTimeZone();
-        const timeZoneOffset = this.formatLocalTimeZoneOffset(new Date());
 
-        return [
-            "Sos un asistente especializado en mindset, propósito, hábitos y objetivos. ",
-            "Responde de forma clara, breve y útil. Respondé siempre en texto plano. No uses emojis, markdown, asteriscos, ni símbolos decorativos.",
-            "",
-            `Fecha actual del sistema: ${today}. Zona horaria local: ${timeZone} (${timeZoneOffset}).`,
-            "Usa las tools disponibles para consultar, crear o actualizar parcialmente propósitos, hábitos y objetivos cuando corresponda."
-        ].join("\n");
-    }
-
-    private buildCrmSystemPrompt(): string {
-        const today = this.formatLocalDate(new Date());
-        const timeZone = this.getLocalTimeZone();
-        const timeZoneOffset = this.formatLocalTimeZoneOffset(new Date());
-
-        return [
-            "Sos un asistente especializado en CRM, clientes, empresas y contactos.",
-            "Responde de forma clara, breve y útil. Respondé siempre en texto plano. No uses emojis, markdown, asteriscos, ni símbolos decorativos.",
-            "",
-            `Fecha actual del sistema: ${today}. Zona horaria local: ${timeZone} (${timeZoneOffset}).`,
-            "Usa las tools disponibles para consultar, crear o actualizar parcialmente clientes, empresas y contactos cuando corresponda.",
-            "Antes de crear un cliente, empresa o contacto, buscá si ya existe para evitar duplicados.",
-            "Cuando relaciones contactos con clientes o empresas, usá los ids existentes obtenidos con las tools de búsqueda."
-        ].join("\n");
-    }
 
     private async fetchOptionNames(): Promise<AgentOptionNames> {
         const [sources, statuses, taskTypes, priorities, lifeAreas, memoryTypes] = await Promise.all([
@@ -782,6 +741,36 @@ class AgentConfigService {
             `- Task.goals: _id[] Goal; Busca ids con tools Goal.`,
             `Memory.type=nombre string; solo opciones: ${this.formatOptionNames(options.memories.types)}`,
             "Mail: to=email valido del contacto buscado. Avisos fuera del chat: push notification."
+        ].join("\n");
+    }
+
+    private buildMindsetSystemPrompt(): string {
+        const today = this.formatLocalDate(new Date());
+        const timeZone = this.getLocalTimeZone();
+        const timeZoneOffset = this.formatLocalTimeZoneOffset(new Date());
+
+        return [
+            "Sos un asistente especializado en mindset, propósito, hábitos y objetivos. ",
+            "Responde de forma clara, breve y útil. Respondé siempre en texto plano. No uses emojis, markdown, asteriscos, ni símbolos decorativos.",
+            "",
+            `Fecha actual del sistema: ${today}. Zona horaria local: ${timeZone} (${timeZoneOffset}).`,
+            "Usa las tools disponibles para consultar, crear o actualizar parcialmente propósitos, hábitos y objetivos cuando corresponda."
+        ].join("\n");
+    }
+
+    private buildCrmSystemPrompt(): string {
+        const today = this.formatLocalDate(new Date());
+        const timeZone = this.getLocalTimeZone();
+        const timeZoneOffset = this.formatLocalTimeZoneOffset(new Date());
+
+        return [
+            "Sos un asistente especializado en CRM, clientes, empresas y contactos.",
+            "Responde de forma clara, breve y útil. Respondé siempre en texto plano. No uses emojis, markdown, asteriscos, ni símbolos decorativos.",
+            "",
+            `Fecha actual del sistema: ${today}. Zona horaria local: ${timeZone} (${timeZoneOffset}).`,
+            "Usa las tools disponibles para consultar, crear o actualizar parcialmente clientes, empresas y contactos cuando corresponda.",
+            "Antes de crear un cliente, empresa o contacto, buscá si ya existe para evitar duplicados.",
+            "Cuando relaciones contactos con clientes o empresas, usá los ids existentes obtenidos con las tools de búsqueda."
         ].join("\n");
     }
 
