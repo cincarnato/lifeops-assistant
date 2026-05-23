@@ -25,7 +25,7 @@ type ScoreItem = {
 type DetailItem = {
   key: string
   label: string
-  value: string
+  value: string | number | Record<string, unknown> | Array<unknown>
   icon: string
 };
 
@@ -78,22 +78,38 @@ const normalizedNotes = computed(() => normalizeNotes(task.value?.notes));
 const statusHistory = computed(() => task.value?.statusHistory || []);
 
 
-function compactDetails(items: Array<Omit<DetailItem, "value"> & { value?: string | number | null }>): DetailItem[] {
+function compactDetails(items: Array<Omit<DetailItem, "value"> & { value?: unknown }>): DetailItem[] {
   return items
     .map(item => ({...item, value: displayValue(item.value)}))
-    .filter(item => item.value !== "");
+    .filter(item => hasDetailValue(item.value));
 }
 
-function displayValue(value?: string | number | null) {
+function displayValue(value?: unknown): DetailItem["value"] | "" {
   if (value === undefined || value === null) {
     return "";
   }
 
-  if(Array.isArray(value)) {
-    return value
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  if (typeof value === "object") {
+    return value as Record<string, unknown>;
+  }
+
+  if (typeof value === "number") {
+    return value;
   }
 
   return String(value).trim();
+}
+
+function hasDetailValue(value: DetailItem["value"] | "") {
+  if (Array.isArray(value)) {
+    return value.length > 0;
+  }
+
+  return value !== "";
 }
 
 function formatDateTime(value?: Date | string | null) {
