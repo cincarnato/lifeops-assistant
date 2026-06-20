@@ -2,6 +2,7 @@ import HomePage from '@/modules/base/pages/home/index.vue'
 import LoginPage from "@/modules/base/pages/user/LoginPage.vue";
 import PoliticaPrivacidad from "@/modules/base/pages/info/PoliticaPrivacidad.vue";
 import CondicionesServicio from "@/modules/base/pages/info/CondicionesServicio.vue";
+import AccountPrivacyPage from "@/modules/base/pages/account/AccountPrivacyPage.vue";
 import NotificationTestPage from "@/modules/base/pages/notification/NotificationTestPage.vue";
 
 const baseRoutes = [
@@ -52,6 +53,14 @@ const baseRoutes = [
     component: CondicionesServicio,
     meta: {
       auth: false,
+    }
+  },
+  {
+    name: 'AccountPrivacy',
+    path: '/account/privacy',
+    component: AccountPrivacyPage,
+    meta: {
+      auth: true,
     }
   },
 ]

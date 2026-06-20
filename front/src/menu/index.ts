@@ -8,6 +8,13 @@ const menu: MenuItem[] = [
     gallery: false,
     auth: false
   },
+  {
+    icon: 'mdi-shield-account-outline',
+    text: 'Privacidad y cuenta',
+    link: {name: "AccountPrivacy"},
+    gallery: false,
+    auth: true
+  },
 
   {
     icon: 'mdi-bullseye-arrow',

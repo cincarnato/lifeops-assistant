@@ -1,4 +1,3 @@
-import {OAuth2Client} from "google-auth-library";
 import GoogleConnectionServiceFactory from "../factory/services/GoogleConnectionServiceFactory.js";
 import type {IGoogleConnection} from "../interfaces/IGoogleConnection";
 import type {
@@ -132,32 +131,7 @@ class GoogleCalendarService {
     }
 
     private async getAccessToken(connection: IGoogleConnection): Promise<string> {
-        const expiryTime = connection.expiryDate ? new Date(connection.expiryDate).getTime() : 0;
-        if (connection.accessToken && expiryTime > Date.now() + 60000) {
-            return connection.accessToken;
-        }
-
-        const client = new OAuth2Client({
-            clientId: process.env.GOOGLE_CLIENT_ID,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        });
-        client.setCredentials({
-            refresh_token: connection.refreshToken,
-        });
-
-        const {credentials} = await client.refreshAccessToken();
-        const accessToken = credentials.access_token;
-        if (!accessToken) {
-            throw new Error("google.access_token.required");
-        }
-
-        await GoogleConnectionServiceFactory.instance.updatePartial(connection._id, {
-            accessToken,
-            expiryDate: credentials.expiry_date ? new Date(credentials.expiry_date) : new Date(Date.now() + 3600000),
-            lastUsedAt: new Date(),
-        } as any);
-
-        return accessToken;
+        return await GoogleConnectionServiceFactory.instance.getValidAccessToken(connection);
     }
 
     private async calendarFetch<T>(url: string, accessToken: string, options: RequestInit = {}): Promise<T> {

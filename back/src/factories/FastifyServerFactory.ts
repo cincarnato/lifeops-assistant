@@ -23,6 +23,7 @@ import {GoogleGmailFastifyRoutes} from "../modules/google/routes/GoogleGmailRout
 import {GoogleCalendarFastifyRoutes} from "../modules/google/routes/GoogleCalendarRoutes.js"
 import {GoogleContactsFastifyRoutes} from "../modules/google/routes/GoogleContactsRoutes.js"
 import {HealthRoutes} from "../modules/base/routes/HealthRoutes.js"
+import {AccountRoutes} from "../modules/base/routes/AccountRoutes.js"
 import {NotificationFastifyRoutes} from "../modules/base/routes/NotificationRoutes.js"
 import {GoalFastifyRoutes} from "../modules/lifeops/routes/GoalRoutes.js"
 import {ProjectFastifyRoutes} from "../modules/lifeops/routes/ProjectRoutes.js"
@@ -88,6 +89,7 @@ function FastifyServerFactory(rootDir:string) {
     server.fastifyRegister(GoogleCalendarFastifyRoutes)
     server.fastifyRegister(GoogleContactsFastifyRoutes)
     server.fastifyRegister(HealthRoutes)
+    server.fastifyRegister(AccountRoutes)
     server.fastifyRegister(NotificationFastifyRoutes)
     server.fastifyRegister(GoalFastifyRoutes)
     server.fastifyRegister(ProjectFastifyRoutes)
