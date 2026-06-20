@@ -11,7 +11,7 @@ import {projectPasswordPolicy} from "./data/policies/PasswordPolicy.js";
 import InitLifeops from "./scripts/InitLifeops.js";
 import initializeAgent from "./InitializeAgent.js";
 
-async function SetupDrax(){
+async function SetupDrax(seed: boolean = false){
 
     //Load Identity Drax Config from enviroment variables
     LoadCommonConfigFromEnv()
@@ -41,10 +41,16 @@ async function SetupDrax(){
 
     await CreateSystemRoles()
 
-    await InitLifeops()
 
+    if(seed){
+        await InitLifeops()
+    }
 
     await initializeAgent()
+
+
+
+
 }
 
 export default SetupDrax

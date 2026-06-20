@@ -2,7 +2,7 @@ import path from "path";
 import {fileURLToPath} from "url";
 
 import SetupDrax from './setup/SetupDrax.js'
-await SetupDrax()
+await SetupDrax(true)
 
 const ROOT_DIR = path.dirname(fileURLToPath(import.meta.url));
 
