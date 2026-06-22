@@ -63,6 +63,18 @@ const appName = computed(() => {
       <router-view/>
     </v-main>
 
+    <v-footer v-if="!isAuthenticated()" class="default-layout__public-footer">
+      <div class="default-layout__public-footer-content">
+        <router-link :to="{ name: 'CondicionesServicio' }" class="default-layout__public-footer-link">
+          Condiciones de servicio
+        </router-link>
+        <span class="default-layout__public-footer-separator">|</span>
+        <router-link :to="{ name: 'PoliticaPrivacidad' }" class="default-layout__public-footer-link">
+          Política de privacidad
+        </router-link>
+      </div>
+    </v-footer>
+
   </v-app>
 </template>
 
@@ -76,10 +88,48 @@ const appName = computed(() => {
   flex: 0 0 auto;
 }
 
+.default-layout__public-footer {
+  background: transparent;
+  color: rgba(var(--v-theme-on-background), 0.7);
+  justify-content: center;
+  min-height: 48px;
+  padding-bottom: 16px;
+  padding-top: 8px;
+}
+
+.default-layout__public-footer-content {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.875rem;
+  gap: 8px;
+  justify-content: center;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.default-layout__public-footer-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.default-layout__public-footer-link:hover {
+  color: rgb(var(--v-theme-primary));
+  text-decoration: underline;
+}
+
+.default-layout__public-footer-separator {
+  color: rgba(var(--v-theme-on-background), 0.4);
+}
+
 @media (max-width: 700px) {
   .default-layout__chatbot-task {
     height: calc(100vh - 136px);
     min-height: 420px;
+  }
+
+  .default-layout__public-footer {
+    padding-inline: 16px;
   }
 }
 </style>
