@@ -43,7 +43,7 @@ const messages = {
         type: 'Tipo',
         status: 'Estado',
         website: 'Sitio web',
-        emailDomains: 'Dominios de email',
+        emailDomains: 'Dominios de correo electrónico',
         tags: 'Etiquetas',
         notes: 'Notas',
         user: 'Usuario',

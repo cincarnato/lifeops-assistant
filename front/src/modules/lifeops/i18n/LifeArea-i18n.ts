@@ -3,38 +3,38 @@ const messages = {
   en: {
   
     lifearea: {
-          entity: 'LifeArea',
-          menu: 'LifeArea',
-          crud: 'Manage LifeArea',
+          entity: 'Life Area',
+          menu: 'Life Areas',
+          crud: 'Manage Life Area',
           field:{
-                       name:'name',
-           description:'description'
+                       name:'Name',
+           description:'Description'
           }
       },
       permission: {
-              'lifearea:view': 'View LifeArea',
-              'lifearea:create': 'Create LifeArea',
-              'lifearea:update': 'Edit LifeArea',
-              'lifearea:delete': 'Delete LifeArea',
-              'lifearea:manage': 'Manage LifeArea',
+              'lifearea:view': 'View Life Area',
+              'lifearea:create': 'Create Life Area',
+              'lifearea:update': 'Edit Life Area',
+              'lifearea:delete': 'Delete Life Area',
+              'lifearea:manage': 'Manage Life Area',
       }
   },
   es: {
      lifearea: {
-          entity: 'LifeArea',
-          menu: 'LifeArea',
-          crud: 'Gestionar LifeArea',
+          entity: 'Área de vida',
+          menu: 'Áreas de vida',
+          crud: 'Gestionar área de vida',
           field:{
-                       name:'name',
-           description:'description'
+                       name:'Nombre',
+           description:'Descripción'
           }
       },
      permission: {
-              'lifearea:view': 'Ver LifeArea',
-              'lifearea:create': 'Crear LifeArea',
-              'lifearea:update': 'Editar LifeArea',
-              'lifearea:delete': 'Eliminar LifeArea',
-              'lifearea:manage': 'Gestionar LifeArea',
+              'lifearea:view': 'Ver área de vida',
+              'lifearea:create': 'Crear área de vida',
+              'lifearea:update': 'Editar área de vida',
+              'lifearea:delete': 'Eliminar área de vida',
+              'lifearea:manage': 'Gestionar área de vida',
      }
   }
 }

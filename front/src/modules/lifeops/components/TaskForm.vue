@@ -5,6 +5,7 @@ import SourceCombobox from "../comboboxes/SourceCombobox.vue";
 import TaskTypeCombobox from "../comboboxes/TaskTypeCombobox.vue";
 import TaskStatusCombobox from "../comboboxes/TaskStatusCombobox.vue";
 import PriorityCombobox from "../comboboxes/PriorityCombobox.vue";
+import LifeAreaCombobox from "@/modules/lifeops/comboboxes/LifeAreaCombobox.vue";
 </script>
 
 <template>
@@ -52,5 +53,16 @@ import PriorityCombobox from "../comboboxes/PriorityCombobox.vue";
           item-value="name"
       />
     </template>
+
+    <template v-slot:field.lifeArea="{field, form}">
+      <life-area-combobox
+        v-model="form.lifeArea"
+        :name="field.name"
+        :label="field.label"
+        item-title="name"
+        item-value="name"
+      />
+    </template>
+
   </crud-form>
 </template>

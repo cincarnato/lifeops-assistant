@@ -9,8 +9,8 @@ const messages = {
         name: 'Name',
         description: 'Description',
         color: 'Color',
-        completesTask: 'Completes task',
-        archivesTask: 'Archives task',
+        completesTask: 'Completes Task',
+        archivesTask: 'Archives Task',
       },
     },
     permission: {
@@ -30,8 +30,8 @@ const messages = {
         name: 'Nombre',
         description: 'Descripción',
         color: 'Color',
-        completesTask: 'Completa tarea',
-        archivesTask: 'Archiva tarea',
+        completesTask: 'Completa la tarea',
+        archivesTask: 'Archiva la tarea',
       },
     },
     permission: {

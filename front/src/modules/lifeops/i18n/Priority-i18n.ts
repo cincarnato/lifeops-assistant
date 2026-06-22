@@ -4,12 +4,12 @@ const messages = {
   
     priority: {
           entity: 'Priority',
-          menu: 'Priority',
+          menu: 'Priorities',
           crud: 'Manage Priority',
           field:{
-                       name:'name',
-           description:'description',
-           color:'color'
+                       name:'Name',
+           description:'Description',
+           color:'Color'
           }
       },
       permission: {
@@ -22,21 +22,21 @@ const messages = {
   },
   es: {
      priority: {
-          entity: 'Priority',
-          menu: 'Priority',
-          crud: 'Gestionar Priority',
+          entity: 'Prioridad',
+          menu: 'Prioridades',
+          crud: 'Gestionar prioridad',
           field:{
-                       name:'name',
-           description:'description',
-           color:'color'
+                       name:'Nombre',
+           description:'Descripción',
+           color:'Color'
           }
       },
      permission: {
-              'priority:view': 'Ver Priority',
-              'priority:create': 'Crear Priority',
-              'priority:update': 'Editar Priority',
-              'priority:delete': 'Eliminar Priority',
-              'priority:manage': 'Gestionar Priority',
+              'priority:view': 'Ver prioridad',
+              'priority:create': 'Crear prioridad',
+              'priority:update': 'Editar prioridad',
+              'priority:delete': 'Eliminar prioridad',
+              'priority:manage': 'Gestionar prioridad',
      }
   }
 }

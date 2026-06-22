@@ -4,20 +4,20 @@ const messages = {
   
     habit: {
           entity: 'Habit',
-          menu: 'Habit',
+          menu: 'Habits',
           crud: 'Manage Habit',
           field:{
-                       name:'name',
-           description:'description',
-           lifeArea:'lifeArea',
-           active:'active',
-           frequency:'frequency',
-           type: 'type',
-           generateTask:'generateTask',
-           taskTemplate:'taskTemplate',
-           title: 'title',
-           estimatedMinutes: 'estimatedMinutes',
-           priority: 'priority'
+                       name:'Name',
+           description:'Description',
+           lifeArea:'Life Area',
+           active:'Active',
+           frequency:'Frequency',
+           type: 'Type',
+           generateTask:'Generate Task',
+           taskTemplate:'Task Template',
+           title: 'Title',
+           estimatedMinutes: 'Estimated Minutes',
+           priority: 'Priority'
           }
       },
       permission: {
@@ -30,29 +30,29 @@ const messages = {
   },
   es: {
      habit: {
-          entity: 'Habit',
-          menu: 'Habit',
-          crud: 'Gestionar Habit',
+          entity: 'Hábito',
+          menu: 'Hábitos',
+          crud: 'Gestionar hábito',
           field:{
-                       name:'name',
-           description:'description',
-           lifeArea:'lifeArea',
-           active:'active',
-           frequency:'frequency',
-           type: 'type',
-           generateTask:'generateTask',
-           taskTemplate:'taskTemplate',
-           title: 'title',
-           estimatedMinutes: 'estimatedMinutes',
-           priority: 'priority'
+                       name:'Nombre',
+           description:'Descripción',
+           lifeArea:'Área de vida',
+           active:'Activo',
+           frequency:'Frecuencia',
+           type: 'Tipo',
+           generateTask:'Generar tarea',
+           taskTemplate:'Plantilla de tarea',
+           title: 'Título',
+           estimatedMinutes: 'Minutos estimados',
+           priority: 'Prioridad'
           }
       },
      permission: {
-              'habit:view': 'Ver Habit',
-              'habit:create': 'Crear Habit',
-              'habit:update': 'Editar Habit',
-              'habit:delete': 'Eliminar Habit',
-              'habit:manage': 'Gestionar Habit',
+              'habit:view': 'Ver hábito',
+              'habit:create': 'Crear hábito',
+              'habit:update': 'Editar hábito',
+              'habit:delete': 'Eliminar hábito',
+              'habit:manage': 'Gestionar hábito',
      }
   }
 }

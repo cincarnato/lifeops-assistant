@@ -4,13 +4,13 @@ const messages = {
   
     purpose: {
           entity: 'Purpose',
-          menu: 'Purpose',
+          menu: 'Purposes',
           crud: 'Manage Purpose',
           field:{
-                       title:'title',
-           statement:'statement',
-           isPrimary:'isPrimary',
-           active:'active'
+                       title:'Title',
+           statement:'Statement',
+           isPrimary:'Primary',
+           active:'Active'
           }
       },
       permission: {
@@ -23,22 +23,22 @@ const messages = {
   },
   es: {
      purpose: {
-          entity: 'Purpose',
-          menu: 'Purpose',
-          crud: 'Gestionar Purpose',
+          entity: 'Propósito',
+          menu: 'Propósitos',
+          crud: 'Gestionar propósito',
           field:{
-                       title:'title',
-           statement:'statement',
-           isPrimary:'isPrimary',
-           active:'active'
+                       title:'Título',
+           statement:'Declaración',
+           isPrimary:'Principal',
+           active:'Activo'
           }
       },
      permission: {
-              'purpose:view': 'Ver Purpose',
-              'purpose:create': 'Crear Purpose',
-              'purpose:update': 'Editar Purpose',
-              'purpose:delete': 'Eliminar Purpose',
-              'purpose:manage': 'Gestionar Purpose',
+              'purpose:view': 'Ver propósito',
+              'purpose:create': 'Crear propósito',
+              'purpose:update': 'Editar propósito',
+              'purpose:delete': 'Eliminar propósito',
+              'purpose:manage': 'Gestionar propósito',
      }
   }
 }

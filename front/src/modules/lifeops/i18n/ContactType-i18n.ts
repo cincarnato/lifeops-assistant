@@ -24,7 +24,7 @@ const messages = {
       crud: 'Gestionar tipo de contacto',
       field: {
         name: 'Nombre',
-        description: 'Descripcion',
+        description: 'Descripción',
       },
     },
     permission: {

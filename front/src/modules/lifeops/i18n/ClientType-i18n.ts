@@ -24,7 +24,7 @@ const messages = {
       crud: 'Gestionar tipo de cliente',
       field: {
         name: 'Nombre',
-        description: 'Descripcion',
+        description: 'Descripción',
       },
     },
     permission: {
