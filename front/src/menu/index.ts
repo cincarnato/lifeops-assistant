@@ -20,6 +20,9 @@ const menu: MenuItem[] = [
     icon: 'mdi-bullseye-arrow',
     text: 'Core',
     gallery: true,
+    cols: 12,
+    md:6,
+    lg:4,
     children: [
       {
         icon: 'mdi-format-list-checks',
@@ -65,6 +68,9 @@ const menu: MenuItem[] = [
     icon: 'mdi-bullseye-arrow',
     text: 'AGENT',
     gallery: true,
+    cols: 12,
+    md:6,
+    lg:4,
     children: [
       {
         icon: 'mdi-robot',
@@ -100,6 +106,9 @@ const menu: MenuItem[] = [
     icon: 'mdi-bullseye-arrow',
     text: 'Gestion',
     gallery: true,
+    cols: 12,
+    md:6,
+    lg:4,
     children: [
       {
         icon: 'mdi-domain',
@@ -130,6 +139,9 @@ const menu: MenuItem[] = [
     icon: 'mdi-bullseye-arrow',
     text: 'Horizonte',
     gallery: true,
+    cols: 12,
+    md:6,
+    lg:4,
     children: [
       {
         icon: 'mdi-compass-outline',
@@ -161,6 +173,9 @@ const menu: MenuItem[] = [
     icon: 'mdi-bullseye-arrow',
     text: 'Config',
     gallery: true,
+    cols: 12,
+    md:6,
+    lg:4,
     children: [
 
       {
@@ -232,6 +247,9 @@ const menu: MenuItem[] = [
     icon: 'mdi-google',
     text: 'Google',
     gallery: true,
+    cols: 12,
+    md:6,
+    lg:4,
     children: [
       {
         icon: 'mdi-link-variant',
@@ -274,6 +292,9 @@ const menu: MenuItem[] = [
     icon: 'mdi-bell-ring-outline',
     text: 'Push',
     gallery: true,
+    cols: 12,
+    md:6,
+    lg:4,
     children: [
       {
         icon: 'mdi-cellphone-link',
@@ -295,6 +316,9 @@ const menu: MenuItem[] = [
     icon: 'mdi-account-circle',
     text: 'admin',
     gallery: true,
+    cols: 12,
+    md:6,
+    lg:4,
     permission: 'user:manage',
     children: [
       {
@@ -404,6 +428,9 @@ const menu: MenuItem[] = [
     text: 'info',
     gallery: true,
     auth: false,
+    cols: 12,
+    md:6,
+    lg:4,
     children: [
       {
         icon: 'mdi-information-outline',

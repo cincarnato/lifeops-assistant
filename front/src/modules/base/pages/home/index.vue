@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import GalleryMenuPro from "@/components/GalleryMenuPro/GalleryMenuPro.vue";
+import GalleryMenuCompact from "@/components/GalleryMenuCompact/GalleryMenuCompact.vue";
 import menu from '../../../../menu'
 
 </script>
 
 <template>
-  <GalleryMenuPro :menu="menu" />
+  <GalleryMenuCompact :menu="menu" />
 </template>
 
 <style scoped>
