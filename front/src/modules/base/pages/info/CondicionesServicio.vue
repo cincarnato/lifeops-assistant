@@ -37,7 +37,7 @@
       <p><strong>Responsable:</strong> Cristian Incarnato</p>
       <p><strong>País:</strong> Argentina</p>
       <p><strong>Correo electrónico de contacto:</strong> cristian.cdi@gmail.com</p>
-      <p><strong>Sitio web:</strong> https://lifeops.showvlad.com/</p>
+      <p><strong>Sitio web:</strong> https://jarvops.com/</p>
 
       <p>
         En adelante, el responsable de LifeOps podrá ser denominado “LifeOps”, “nosotros” o “el prestador”.
@@ -575,7 +575,7 @@
       <p>El tratamiento de los datos personales se encuentra regulado por la Política de Privacidad de LifeOps, disponible en:</p>
 
       <p>
-        <RouterLink :to="{name: 'PoliticaPrivacidad'}">https://lifeops.showvlad.com/politica-privacidad</RouterLink>
+        <RouterLink :to="{name: 'PoliticaPrivacidad'}">https://jarvops.com/politica-privacidad</RouterLink>
       </p>
 
       <p>La Política de Privacidad describe, entre otros aspectos:</p>
@@ -655,7 +655,7 @@
 
       <ul>
         <li>La opción <strong>Desactivar cuenta</strong> dentro de la página <strong>Privacidad y cuenta</strong> de la aplicación.</li>
-        <li>La página https://lifeops.showvlad.com/account/privacy.</li>
+        <li>La página https://jarvops.com/account/privacy.</li>
         <li>Un correo dirigido a cristian.cdi@gmail.com.</li>
       </ul>
 
@@ -877,7 +877,7 @@
 
       <p><strong>Responsable:</strong> Cristian Incarnato</p>
       <p><strong>Correo electrónico:</strong> cristian.cdi@gmail.com</p>
-      <p><strong>Sitio web:</strong> https://lifeops.showvlad.com/</p>
+      <p><strong>Sitio web:</strong> https://jarvops.com/</p>
       <p><strong>Domicilio:</strong> Buenos Aires, Argentina</p>
       <p><strong>País:</strong> Argentina</p>
     </section>

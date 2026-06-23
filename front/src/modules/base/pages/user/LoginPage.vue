@@ -4,7 +4,7 @@ import {IdentityLogin} from "@drax/identity-vue";
 import {useDisplay, useTheme} from 'vuetify'
 import {useRouter} from "vue-router";
 import GoogleLogin from "@/modules/google/components/GoogleLogin.vue";
-import logoLifeops from '@/assets/logo-lifeops.png'
+import logoLifeops from '@/assets/jarvops_120.png'
 
 
 const router = useRouter()
@@ -29,18 +29,19 @@ const TITLE_SEC = import.meta.env.VITE_TITLE_SEC || 'SCAFFOLD';
   <v-container fluid class="fill-height">
     <v-row justify="center" align="center">
       <v-col cols="12" sm="8" md="6" lg="5">
-        <div class="login-logo-wrap pb-1">
+        <div class="login-logo-wrap">
           <v-img
             :src="logoLifeops"
             alt="LifeOps"
             class="login-logo"
-            :width="mobile ? 176 : 240"
+            :width="mobile ? 120 : 120"
             eager
           />
         </div>
         <h2 class="pb-1 text-center default-cursor" :class="mobile ? 'text-h4' : 'text-h3'">
           <span class="pa-3 font-weight-medium rounded logo">{{ TITLE_MAIN }}</span> {{ TITLE_SEC }}
         </h2>
+        <br>
         <IdentityLogin @loginSuccess="onLoginSuccess" recovery></IdentityLogin>
 
         <div class="d-flex justify-center mt-4 mb-2">

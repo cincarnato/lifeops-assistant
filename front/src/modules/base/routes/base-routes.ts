@@ -1,4 +1,5 @@
 import HomePage from '@/modules/base/pages/home/index.vue'
+import LandingPage from '@/modules/base/pages/landing/LandingPage.vue'
 import LoginPage from "@/modules/base/pages/user/LoginPage.vue";
 import PoliticaPrivacidad from "@/modules/base/pages/info/PoliticaPrivacidad.vue";
 import CondicionesServicio from "@/modules/base/pages/info/CondicionesServicio.vue";
@@ -7,11 +8,11 @@ import NotificationTestPage from "@/modules/base/pages/notification/Notification
 
 const baseRoutes = [
   {
-    name: 'Root',
+    name: 'LandingPage',
     path: '/',
-    component: HomePage,
+    component: LandingPage,
     meta: {
-      auth: true,
+      auth: false,
     }
   },
   {

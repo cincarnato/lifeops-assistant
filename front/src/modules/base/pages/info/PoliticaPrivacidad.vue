@@ -37,7 +37,7 @@
       <p><strong>País:</strong> Argentina</p>
       <p><strong>Jurisdicción:</strong> Buenos Aires</p>
       <p><strong>Correo electrónico de contacto:</strong> cristian.cdi@gmail.com</p>
-      <p><strong>Sitio web:</strong> https://lifeops.showvlad.com/</p>
+      <p><strong>Sitio web:</strong> https://jarvops.com/</p>
 
       <p>
         Las consultas relacionadas con privacidad, acceso a datos o eliminación de información pueden enviarse al correo
@@ -403,7 +403,7 @@
 
       <ul>
         <li>La opción <strong>Desactivar cuenta</strong> disponible en la página <strong>Privacidad y cuenta</strong> dentro de la aplicación.</li>
-        <li>El formulario de eliminación de datos disponible en https://lifeops.showvlad.com/account/privacy.</li>
+        <li>El formulario de eliminación de datos disponible en https://jarvops.com/account/privacy.</li>
         <li>Un correo electrónico dirigido a cristian.cdi@gmail.com.</li>
       </ul>
 
@@ -577,7 +577,7 @@
 
       <p><strong>Responsable:</strong> Cristian Incarnato</p>
       <p><strong>Correo electrónico:</strong> cristian.cdi@gmail.com</p>
-      <p><strong>Sitio web:</strong> https://lifeops.showvlad.com/</p>
+      <p><strong>Sitio web:</strong> https://jarvops.com/</p>
       <p><strong>Dirección:</strong> Buenos Aires, Argentina</p>
       <p><strong>País:</strong> Argentina</p>
     </section>
