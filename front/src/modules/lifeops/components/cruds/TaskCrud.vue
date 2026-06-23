@@ -1,5 +1,6 @@
 
 <script setup lang="ts">
+import {ref} from 'vue'
 import TaskCrud from '../../cruds/TaskCrud'
 import {Crud} from "@drax/crud-vue";
 import {formatDate} from "@drax/common-front"
@@ -9,6 +10,50 @@ import TaskStatusCombobox from '../../comboboxes/TaskStatusCombobox.vue'
 import PriorityCombobox from '../../comboboxes/PriorityCombobox.vue'
 import TaskView from "@/modules/lifeops/components/TaskView.vue";
 import LifeAreaCombobox from "@/modules/lifeops/comboboxes/LifeAreaCombobox.vue";
+import TaskProvider from "@/modules/lifeops/providers/TaskProvider";
+import type {ITask} from "@/modules/lifeops/interfaces/ITask";
+
+const triagingIds = ref<Set<string>>(new Set())
+const snackbar = ref(false)
+const snackbarMessage = ref('')
+const snackbarColor = ref<'success' | 'error'>('success')
+
+function getItem(item: any): ITask {
+  return (item?.raw ?? item) as ITask
+}
+
+function setTriaging(id: string, value: boolean) {
+  const next = new Set(triagingIds.value)
+  if (value) {
+    next.add(id)
+  } else {
+    next.delete(id)
+  }
+  triagingIds.value = next
+}
+
+function showSnackbar(message: string, color: 'success' | 'error') {
+  snackbarMessage.value = message
+  snackbarColor.value = color
+  snackbar.value = true
+}
+
+async function triageTask(item: any) {
+  const task = getItem(item)
+  if (!task?._id || triagingIds.value.has(task._id)) return
+
+  setTriaging(task._id, true)
+  try {
+    const triaged = await TaskProvider.instance.triage(task._id)
+    Object.assign(task, triaged)
+    showSnackbar('Tarea analizada y actualizada con IA', 'success')
+  } catch (e: any) {
+    console.error('Error triaging task:', e)
+    showSnackbar(e?.message ?? 'No se pudo analizar la tarea con IA', 'error')
+  } finally {
+    setTriaging(task._id, false)
+  }
+}
 
 </script>
 
@@ -81,7 +126,26 @@ import LifeAreaCombobox from "@/modules/lifeops/comboboxes/LifeAreaCombobox.vue"
     <template v-slot:item.tags="{value}"><v-chip v-for="v in value">{{v}}</v-chip></template>
     <template v-slot:item.user="{value}">{{value?.username}}</template>
     <template v-slot:item.archivedAt="{value}">{{formatDate(value)}}</template>
+    <template v-slot:item.actions="{item}">
+      <v-tooltip text="Analizar con IA">
+        <template #activator="{ props }">
+          <v-btn
+              v-bind="props"
+              icon="mdi-auto-fix"
+              variant="text"
+              color="primary"
+              :loading="triagingIds.has(getItem(item)._id)"
+              :disabled="triagingIds.has(getItem(item)._id)"
+              @click.stop="triageTask(item)"
+          />
+        </template>
+      </v-tooltip>
+    </template>
   </crud>
+
+  <v-snackbar v-model="snackbar" :color="snackbarColor" timeout="4000">
+    {{ snackbarMessage }}
+  </v-snackbar>
 </template>
 
 <style scoped>

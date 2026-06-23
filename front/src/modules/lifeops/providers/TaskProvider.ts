@@ -17,7 +17,10 @@ class TaskProvider extends AbstractCrudRestProvider<ITask, ITaskBase, ITaskBase>
     return TaskProvider.singleton
   }
 
+  async triage(id: string): Promise<ITask> {
+    return await this.httpClient.post(`${this.basePath}/${id}/triage`, {}, {timeout: 120000}) as ITask
+  }
+
 }
 
 export default TaskProvider
-

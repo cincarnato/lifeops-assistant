@@ -52,8 +52,13 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
       {title: 'priority', key: 'priority', align: 'start'},
       {title: 'project', key: 'project', align: 'start'},
       {title: 'valueScore', key: 'valueScore', align: 'start'},
+      {title: 'motivationScore', key: 'motivationScore', align: 'start'},
+      {title: 'effortScore', key: 'effortScore', align: 'start'},
+      {title: 'urgencyScore', key: 'urgencyScore', align: 'start'},
       {title: 'dueDate', key: 'dueDate', align: 'start'},
       {title: 'scheduledDate', key: 'scheduledDate', align: 'start'},
+      {title: 'completedAt', key: 'completedAt', align: 'start'},
+      {title: 'archivedAt', key: 'archivedAt', align: 'start'},
       {title: 'user', key: 'user', align: 'start'}
     ]
   }
@@ -126,10 +131,10 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
 
       {name: 'tags', type: 'array.string', label: 'tags', default: [], groupTab: 'CLASSIFICATION'},
 
-      {name: 'valueScore', type: 'number', label: 'valueScore', default: 5, groupTab: 'SCORING', md: 3},
-      {name: 'motivationScore', type: 'number', label: 'motivationScore', default: 5, groupTab: 'SCORING', md: 3},
-      {name: 'effortScore', type: 'number', label: 'effortScore', default: 5, groupTab: 'SCORING', md: 3},
-      {name: 'urgencyScore', type: 'number', label: 'urgencyScore', default: 5, groupTab: 'SCORING', md: 3},
+      {name: 'valueScore', type: 'number', label: 'valueScore', default: null, groupTab: 'SCORING', md: 3},
+      {name: 'motivationScore', type: 'number', label: 'motivationScore', default: null, groupTab: 'SCORING', md: 3},
+      {name: 'effortScore', type: 'number', label: 'effortScore', default: null, groupTab: 'SCORING', md: 3},
+      {name: 'urgencyScore', type: 'number', label: 'urgencyScore', default: null, groupTab: 'SCORING', md: 3},
       {name: 'dueDate', type: 'date', label: 'dueDate', default: null, groupTab: 'SCHEDULE'},
       {name: 'scheduledDate', type: 'date', label: 'scheduledDate', default: null, groupTab: 'SCHEDULE'},
        {name: 'completedAt', type: 'date', label: 'completedAt', default: null, groupTab: 'SCHEDULE', readonly: true},

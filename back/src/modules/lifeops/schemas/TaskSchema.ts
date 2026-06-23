@@ -10,10 +10,10 @@ const TaskBaseSchema = z.object({
     priority: z.coerce.string().optional().nullable().default(null),
     goals: z.array(z.coerce.string()).optional().default([]),
     project: z.coerce.string().optional().nullable().default(null),
-    valueScore: z.number().nullable().optional().default(5),
-    motivationScore: z.number().nullable().optional().default(5),
-    effortScore: z.number().nullable().optional().default(5),
-    urgencyScore: z.number().nullable().optional().default(5),
+    valueScore: z.number().nullable().optional().default(null),
+    motivationScore: z.number().nullable().optional().default(null),
+    effortScore: z.number().nullable().optional().default(null),
+    urgencyScore: z.number().nullable().optional().default(null),
     dueDate: z.coerce.date().nullable().optional().default(null),
     scheduledDate: z.coerce.date().nullable().optional().default(null),
     redmineIssueId: z.string().optional(),
@@ -28,8 +28,7 @@ const TaskBaseSchema = z.object({
     ).optional().default([]),
 
     user: z.coerce.string().min(1, 'validation.required'),
-    completedAt: z.coerce.date().nullable().optional(),
-    archivedAt: z.coerce.date().nullable().optional()
+
 });
 
 const TaskSchema = TaskBaseSchema
@@ -47,6 +46,8 @@ const TaskSchema = TaskBaseSchema
                 newStatus: z.string().nullable().optional()
             })
         ).optional().default([]),
+        completedAt: z.coerce.date().nullable().optional().default(null),
+        archivedAt: z.coerce.date().nullable().optional().default(null)
     })
 
 export default TaskSchema;

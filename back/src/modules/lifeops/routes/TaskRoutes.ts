@@ -13,6 +13,19 @@ async function TaskFastifyRoutes(fastify, options) {
     fastify.get('/api/tasks/find', {schema: schemas.findSchema}, (req,rep) => controller.find(req,rep))
     
     fastify.get('/api/tasks/search', {schema: schemas.searchSchema}, (req,rep) => controller.search(req,rep))
+
+    fastify.post('/api/tasks/:id/triage', {
+        schema: {
+            tags: ['Task'],
+            params: {
+                type: 'object',
+                required: ['id'],
+                properties: {
+                    id: {type: 'string'},
+                },
+            },
+        },
+    }, (req, rep) => controller.triage(req as any, rep))
     
     fastify.get('/api/tasks/:id', {schema: schemas.findByIdSchema}, (req,rep) => controller.findById(req,rep))
     
