@@ -41,6 +41,11 @@ type TaskCardPropertyKey =
     | "updatedAt"
     | "archivedAt";
 
+type ScoreTaskCardPropertyKey = Extract<
+    TaskCardPropertyKey,
+    "valueScore" | "motivationScore" | "effortScore" | "urgencyScore"
+>;
+
 type TaskCardProperty = {
   key: TaskCardPropertyKey
   label: string
@@ -105,12 +110,14 @@ const CARD_PROPERTY_STORAGE_KEY = "lifeops.kanbanTask.visibleCardProperties";
 const DEFAULT_TASK_STATUS_COLOR = "#64748b";
 
 const defaultVisibleCardPropertyKeys: TaskCardPropertyKey[] = ["priority"];
-const scorePropertyColors: Partial<Record<TaskCardPropertyKey, string>> = {
+const scorePropertyKeys: ScoreTaskCardPropertyKey[] = ["valueScore", "motivationScore", "effortScore", "urgencyScore"];
+const scorePropertyColors: Record<ScoreTaskCardPropertyKey, string> = {
   valueScore: "primary",
   motivationScore: "success",
   effortScore: "error",
   urgencyScore: "warning"
 };
+const scoreValues = Array.from({length: 10}, (_, index) => index + 1);
 
 const cardProperties: TaskCardProperty[] = [
   {key: "priority", label: "Prioridad", icon: "mdi-flag-outline", group: "Basicas"},
@@ -308,8 +315,8 @@ function formatScore(value?: number) {
   return typeof value === "number" ? String(Math.round(value)) : "";
 }
 
-function isScoreProperty(key: TaskCardPropertyKey) {
-  return ["valueScore", "motivationScore", "effortScore", "urgencyScore"].includes(key);
+function isScoreProperty(key: TaskCardPropertyKey): key is ScoreTaskCardPropertyKey {
+  return scorePropertyKeys.includes(key as ScoreTaskCardPropertyKey);
 }
 
 function notesCount(notes?: ITask["notes"]) {
@@ -378,7 +385,9 @@ function renderedCardProperties(task: ITask) {
         return {
           ...property,
           value,
-          color: property.key === "status" ? taskStatusColor(task.status) : scorePropertyColors[property.key]
+          color: property.key === "status"
+              ? taskStatusColor(task.status)
+              : isScoreProperty(property.key) ? scorePropertyColors[property.key] : undefined
         };
       })
       .filter((property): property is RenderedTaskCardProperty => Boolean(property));
@@ -653,6 +662,37 @@ async function triageTask(task: ITask) {
   }
 }
 
+async function updateTaskScore(task: ITask, key: TaskCardPropertyKey, value: number) {
+  if (!isScoreProperty(key)) {
+    return;
+  }
+
+  const id = taskId(task);
+  if (!id || savingIds.value.has(id)) {
+    return;
+  }
+
+  const previousValue = task[key];
+  if (previousValue === value) {
+    return;
+  }
+
+  task[key] = value;
+  setSaving(id, true);
+  error.value = "";
+  try {
+    const updatedTask = await taskProvider.updatePartial(id, {[key]: value} as Partial<ITask>);
+    replaceTask(updatedTask);
+    showSnackbar("Puntaje actualizado", "success");
+  } catch (e: any) {
+    task[key] = previousValue;
+    console.error("Error updating task score:", e);
+    showSnackbar(e?.message || "No se pudo actualizar el puntaje", "error");
+  } finally {
+    setSaving(id, false);
+  }
+}
+
 function replaceTask(updatedTask: ITask) {
   const index = tasks.value.findIndex(task => taskId(task) === taskId(updatedTask));
   if (index >= 0) {
@@ -709,7 +749,7 @@ function onTaskPointerDown(task: ITask, event: PointerEvent) {
   }
 
   const target = event.target as HTMLElement;
-  if (target.closest(".kanban-card__action")) {
+  if (target.closest(".kanban-card__action, .kanban-score-chip, .kanban-score-menu")) {
     return;
   }
 
@@ -1149,24 +1189,52 @@ onBeforeUnmount(() => {
                         v-for="property in renderedCardProperties(task)"
                         :key="property.key"
                     >
-                      <v-tooltip
+                      <v-menu
                           v-if="isScoreProperty(property.key)"
-                          :text="property.label"
-                          location="top"
+                          location="bottom"
+                          :close-on-content-click="true"
                       >
-                        <template #activator="{ props }">
-                          <v-chip
-                              v-bind="props"
-                              :color="property.color"
-                              size="x-small"
-                              variant="tonal"
-                              class="kanban-property-chip"
+                        <template #activator="{ props: menuProps }">
+                          <v-tooltip
+                              :text="property.label"
+                              location="top"
                           >
-                            <v-icon :icon="property.icon" size="14" start/>
-                            <span class="kanban-property-chip__value">{{ property.value }}</span>
-                          </v-chip>
+                            <template #activator="{ props: tooltipProps }">
+                              <v-chip
+                                  v-bind="{...tooltipProps, ...menuProps}"
+                                  :color="property.color"
+                                  :disabled="savingIds.has(task._id)"
+                                  size="x-small"
+                                  variant="tonal"
+                                  class="kanban-property-chip kanban-score-chip"
+                                  @click.stop
+                              >
+                                <v-icon :icon="property.icon" size="14" start/>
+                                <span class="kanban-property-chip__value">{{ property.value }}</span>
+                              </v-chip>
+                            </template>
+                          </v-tooltip>
                         </template>
-                      </v-tooltip>
+
+                        <v-card class="kanban-score-menu" @click.stop>
+                          <v-card-subtitle class="kanban-score-menu__title">
+                            {{ property.label }}
+                          </v-card-subtitle>
+                          <div class="kanban-score-menu__grid">
+                            <v-btn
+                                v-for="scoreValue in scoreValues"
+                                :key="scoreValue"
+                                :color="Number(property.value) === scoreValue ? property.color : undefined"
+                                :variant="Number(property.value) === scoreValue ? 'flat' : 'text'"
+                                size="small"
+                                class="kanban-score-menu__option"
+                                @click.stop="updateTaskScore(task, property.key, scoreValue)"
+                            >
+                              {{ scoreValue }}
+                            </v-btn>
+                          </div>
+                        </v-card>
+                      </v-menu>
                       <v-chip
                           v-else
                           :color="property.color"
@@ -1643,6 +1711,31 @@ onBeforeUnmount(() => {
 
 .kanban-property-chip {
   max-width: 100%;
+}
+
+.kanban-score-chip {
+  cursor: pointer;
+}
+
+.kanban-score-menu {
+  padding: 6px;
+}
+
+.kanban-score-menu__title {
+  font-size: 0.76rem;
+  min-height: 0;
+  padding: 2px 4px 6px;
+}
+
+.kanban-score-menu__grid {
+  display: grid;
+  gap: 4px;
+  grid-template-columns: repeat(5, 30px);
+}
+
+.kanban-score-menu__option {
+  min-width: 30px;
+  padding: 0;
 }
 
 .kanban-property-chip__label {
