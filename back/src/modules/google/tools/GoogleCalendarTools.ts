@@ -45,6 +45,47 @@ class GoogleCalendarTools {
         };
     }
 
+    private static buildTemporalDebugContext() {
+        const now = new Date();
+        const today = this.formatLocalDate(now);
+        const tomorrow = this.addDays(today, 1);
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "timezone local del servidor";
+        const timeZoneOffset = this.formatLocalTimeZoneOffset(now);
+
+        return {
+            nowIso: now.toISOString(),
+            localDate: today,
+            tomorrow,
+            timeZone,
+            timeZoneOffset,
+        };
+    }
+
+    private static formatLocalDate(date: Date): string {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+
+        return `${year}-${month}-${day}`;
+    }
+
+    private static addDays(date: string, days: number): string {
+        const [year, month, day] = date.split("-").map(Number);
+        const nextDate = new Date(year, month - 1, day + days);
+
+        return this.formatLocalDate(nextDate);
+    }
+
+    private static formatLocalTimeZoneOffset(date: Date): string {
+        const offsetMinutes = -date.getTimezoneOffset();
+        const sign = offsetMinutes >= 0 ? "+" : "-";
+        const absoluteMinutes = Math.abs(offsetMinutes);
+        const hours = String(Math.floor(absoluteMinutes / 60)).padStart(2, "0");
+        const minutes = String(absoluteMinutes % 60).padStart(2, "0");
+
+        return `${sign}${hours}:${minutes}`;
+    }
+
     private static async executeWithLog<T>(toolName: string, args: any, payload: any, execute: () => Promise<T>): Promise<T> {
         console.info(`[GoogleCalendarTools] ${toolName} called`, {
             args,
@@ -57,6 +98,8 @@ class GoogleCalendarTools {
                 itemCount: Array.isArray((result as any)?.items) ? (result as any).items.length : undefined,
                 hasNextPageToken: Boolean((result as any)?.nextPageToken),
                 resultId: (result as any)?.id,
+                resultStart: (result as any)?.start,
+                resultEnd: (result as any)?.end,
             });
 
             return result;
@@ -169,6 +212,7 @@ class GoogleCalendarTools {
                 additionalProperties: false,
             },
             execute: async (args: any) => {
+                const temporalDebugContext = this.buildTemporalDebugContext();
                 const payload = {
                     userId: context.userId,
                     connectionId: args.connectionId ?? context.connectionId,
@@ -182,6 +226,15 @@ class GoogleCalendarTools {
                         attendees: args.attendees,
                     },
                 };
+
+                console.info("[GoogleCalendarTools] google_calendar_create_event temporal_debug", {
+                    temporalDebugContext,
+                    requestedStart: args.start,
+                    requestedEnd: args.end,
+                    expectedTomorrowDate: temporalDebugContext.tomorrow,
+                    startMatchesTomorrowDate: args.start?.date === temporalDebugContext.tomorrow
+                        || typeof args.start?.dateTime === "string" && args.start.dateTime.startsWith(`${temporalDebugContext.tomorrow}T`),
+                });
 
                 return await this.executeWithLog("google_calendar_create_event", args, payload, async () => {
                     return await GoogleCalendarServiceFactory.instance.createEvent(payload);

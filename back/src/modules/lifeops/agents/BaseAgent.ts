@@ -348,7 +348,11 @@ abstract class BaseAgent {
     }
 
     protected async buildSystemPromptWithLifeOpsContext(context: DraxAgentPromptContext): Promise<string> {
-        const sections = [this.systemPrompt];
+        const sections = [
+            this.systemPrompt,
+            "",
+            this.buildTemporalPromptContext()
+        ];
         const lifeOpsContext = await this.buildLifeOpsPromptContext(context);
 
         if (lifeOpsContext) {
@@ -482,14 +486,8 @@ abstract class BaseAgent {
     }
 
     private buildSystemPrompt(options: AgentOptionNames): string {
-        const today = this.formatLocalDate(new Date());
-        const tomorrow = this.addDays(today, 1);
-        const timeZone = this.getLocalTimeZone();
-        const timeZoneOffset = this.formatLocalTimeZoneOffset(new Date());
-
         return [
             "Sos asistente del sistema. Usuario=Señor. Responde claro, util, texto plano; sin emojis, markdown, asteriscos ni adornos.",
-            `Fecha=${today}. TZ=${timeZone} (${timeZoneOffset}). Relativas: rangos desde Fecha. Calendario hoy: timeMin=${today}T00:00:00${timeZoneOffset}, timeMax=${tomorrow}T00:00:00${timeZoneOffset}.`,
             "Tareas/Task y Memorias/Memory: campos source/lifeArea/priority=nombre string; solo opciones:",
             `- source: ${this.formatOptionNames(options.tasks.sources)}. Default: Asistente`,
             `- lifeArea: ${this.formatOptionNames(options.tasks.lifeAreas)}`,
@@ -502,6 +500,22 @@ abstract class BaseAgent {
             `Memory.type=nombre string; solo opciones: ${this.formatOptionNames(options.memories.types)}`,
             "Mail: to=email valido del contacto buscado. Avisos fuera del chat: push notification.",
             "Cuando el usuario no especifique atributos como source, priority, lifeArea, type y status usa tu criterio para completarlo, si no esta nada claro pregunta."
+        ].join("\n");
+    }
+
+    private buildTemporalPromptContext(): string {
+        const now = new Date();
+        const today = this.formatLocalDate(now);
+        const tomorrow = this.addDays(today, 1);
+        const timeZone = this.getLocalTimeZone();
+        const timeZoneOffset = this.formatLocalTimeZoneOffset(now);
+
+        return [
+            "[CONTEXTO TEMPORAL ACTUAL]",
+            `Ahora=${now.toISOString()}. Fecha=${today}. Manana=${tomorrow}. TZ=${timeZone} (${timeZoneOffset}).`,
+            `Relativas: interpreta "hoy" como ${today} y "manana" como ${tomorrow}, siempre desde Fecha y TZ actuales.`,
+            `Calendario hoy: timeMin=${today}T00:00:00${timeZoneOffset}, timeMax=${tomorrow}T00:00:00${timeZoneOffset}.`,
+            `Calendario manana: timeMin=${tomorrow}T00:00:00${timeZoneOffset}. Para crear eventos con hora usa dateTime ISO 8601 e incluye timeZone=${timeZone}.`
         ].join("\n");
     }
 
