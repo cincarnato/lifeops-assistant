@@ -74,6 +74,7 @@ const tasks = ref<ITask[]>([]);
 const statuses = ref<ITaskStatus[]>([]);
 const loading = ref(false);
 const savingIds = ref<Set<string>>(new Set());
+const triagingIds = ref<Set<string>>(new Set());
 const error = ref("");
 const draggedTaskId = ref<string | null>(null);
 const dragOverStatus = ref<string | null>(null);
@@ -94,6 +95,9 @@ const statusOrderKeys = ref<string[]>([]);
 const visibleCardPropertyKeys = ref<Set<TaskCardPropertyKey>>(new Set());
 const boardScrollEl = ref<HTMLElement | null>(null);
 const filtersVisible = ref(false);
+const snackbar = ref(false);
+const snackbarMessage = ref("");
+const snackbarColor = ref<"success" | "error">("success");
 
 const STATUS_VISIBILITY_STORAGE_KEY = "lifeops.kanbanTask.hiddenStatuses";
 const STATUS_ORDER_STORAGE_KEY = "lifeops.kanbanTask.statusOrder";
@@ -101,6 +105,12 @@ const CARD_PROPERTY_STORAGE_KEY = "lifeops.kanbanTask.visibleCardProperties";
 const DEFAULT_TASK_STATUS_COLOR = "#64748b";
 
 const defaultVisibleCardPropertyKeys: TaskCardPropertyKey[] = ["priority"];
+const scorePropertyColors: Partial<Record<TaskCardPropertyKey, string>> = {
+  valueScore: "primary",
+  motivationScore: "success",
+  effortScore: "error",
+  urgencyScore: "warning"
+};
 
 const cardProperties: TaskCardProperty[] = [
   {key: "priority", label: "Prioridad", icon: "mdi-flag-outline", group: "Basicas"},
@@ -213,6 +223,22 @@ function setSaving(taskId: string, value: boolean) {
   savingIds.value = next;
 }
 
+function setTriaging(taskId: string, value: boolean) {
+  const next = new Set(triagingIds.value);
+  if (value) {
+    next.add(taskId);
+  } else {
+    next.delete(taskId);
+  }
+  triagingIds.value = next;
+}
+
+function showSnackbar(message: string, color: "success" | "error") {
+  snackbarMessage.value = message;
+  snackbarColor.value = color;
+  snackbar.value = true;
+}
+
 function setCreating(status: string, value: boolean) {
   const next = new Set(creatingStatuses.value);
   if (value) {
@@ -279,7 +305,11 @@ function formatCardDate(value?: Date | string | null) {
 }
 
 function formatScore(value?: number) {
-  return typeof value === "number" ? value.toFixed(1) : "";
+  return typeof value === "number" ? String(Math.round(value)) : "";
+}
+
+function isScoreProperty(key: TaskCardPropertyKey) {
+  return ["valueScore", "motivationScore", "effortScore", "urgencyScore"].includes(key);
 }
 
 function notesCount(notes?: ITask["notes"]) {
@@ -348,7 +378,7 @@ function renderedCardProperties(task: ITask) {
         return {
           ...property,
           value,
-          color: property.key === "status" ? taskStatusColor(task.status) : undefined
+          color: property.key === "status" ? taskStatusColor(task.status) : scorePropertyColors[property.key]
         };
       })
       .filter((property): property is RenderedTaskCardProperty => Boolean(property));
@@ -600,6 +630,26 @@ async function createInlineTask(status: string) {
     error.value = e?.message || "No se pudo crear la tarea";
   } finally {
     setCreating(status, false);
+  }
+}
+
+async function triageTask(task: ITask) {
+  const id = taskId(task);
+  if (!id || triagingIds.value.has(id)) {
+    return;
+  }
+
+  setTriaging(id, true);
+  error.value = "";
+  try {
+    const triaged = await taskProvider.triage(id);
+    replaceTask(triaged);
+    showSnackbar("Tarea analizada y actualizada con IA", "success");
+  } catch (e: any) {
+    console.error("Error triaging task:", e);
+    showSnackbar(e?.message || "No se pudo analizar la tarea con IA", "error");
+  } finally {
+    setTriaging(id, false);
   }
 }
 
@@ -1052,6 +1102,22 @@ onBeforeUnmount(() => {
 
                     <div class="kanban-card__tools">
                       <v-icon icon="mdi-drag" size="18" class="text-medium-emphasis kanban-card__drag"/>
+                      <v-tooltip text="Analizar con IA">
+                        <template #activator="{ props }">
+                          <v-btn
+                              v-bind="props"
+                              class="kanban-card__action"
+                              icon="mdi-auto-fix"
+                              variant="text"
+                              density="comfortable"
+                              size="small"
+                              color="primary"
+                              :loading="triagingIds.has(task._id)"
+                              :disabled="triagingIds.has(task._id)"
+                              @click.stop="triageTask(task)"
+                          />
+                        </template>
+                      </v-tooltip>
                       <v-btn
                           class="kanban-card__action"
                           icon="mdi-pencil-outline"
@@ -1079,18 +1145,40 @@ onBeforeUnmount(() => {
                   </div>
 
                   <div v-if="renderedCardProperties(task).length" class="kanban-card__properties">
-                    <v-chip
+                    <template
                         v-for="property in renderedCardProperties(task)"
                         :key="property.key"
-                        :color="property.color"
-                        size="x-small"
-                        variant="tonal"
-                        class="kanban-property-chip"
                     >
-                      <v-icon :icon="property.icon" size="14" start/>
-                      <span class="kanban-property-chip__label">{{ property.label }}</span>
-                      <span class="kanban-property-chip__value">{{ property.value }}</span>
-                    </v-chip>
+                      <v-tooltip
+                          v-if="isScoreProperty(property.key)"
+                          :text="property.label"
+                          location="top"
+                      >
+                        <template #activator="{ props }">
+                          <v-chip
+                              v-bind="props"
+                              :color="property.color"
+                              size="x-small"
+                              variant="tonal"
+                              class="kanban-property-chip"
+                          >
+                            <v-icon :icon="property.icon" size="14" start/>
+                            <span class="kanban-property-chip__value">{{ property.value }}</span>
+                          </v-chip>
+                        </template>
+                      </v-tooltip>
+                      <v-chip
+                          v-else
+                          :color="property.color"
+                          size="x-small"
+                          variant="tonal"
+                          class="kanban-property-chip"
+                      >
+                        <v-icon :icon="property.icon" size="14" start/>
+                        <span class="kanban-property-chip__label">{{ property.label }}</span>
+                        <span class="kanban-property-chip__value">{{ property.value }}</span>
+                      </v-chip>
+                    </template>
                   </div>
 
                   <div
@@ -1156,6 +1244,10 @@ onBeforeUnmount(() => {
           @canceled="dialog = false"
       />
     </crud-dialog>
+
+    <v-snackbar v-model="snackbar" :color="snackbarColor" timeout="4000">
+      {{ snackbarMessage }}
+    </v-snackbar>
   </v-container>
 </template>
 
