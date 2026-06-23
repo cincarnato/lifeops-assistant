@@ -30,7 +30,7 @@ const appName = computed(() => {
 
     <v-app-bar density="compact" v-if="isAuthenticated()" >
       <slot name="toolbar-left">
-        <v-btn icon @click="push({name:'HomePage'})">
+        <v-btn icon @click="push({name:'Home'})">
           <v-img :src="logoJarvops" width="28" height="28" alt="LifeOps" />
         </v-btn>
         {{appName}}

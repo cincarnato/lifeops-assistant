@@ -39,7 +39,7 @@ const appName = computed(() => {
     <v-app-bar v-if="isAuthenticated()" >
       <v-app-bar-nav-icon v-model="menu" @click="drawer=!drawer"/>
       <slot name="toolbar-left">
-        <v-btn icon @click="push({name:'HomePage'})">
+        <v-btn icon @click="push({name:'Home'})">
           <v-img :src="logoJarvops" width="28" height="28" alt="LifeOps" />
         </v-btn>
        <v-app-bar-title> {{appName}}</v-app-bar-title>
