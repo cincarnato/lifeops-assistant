@@ -67,6 +67,7 @@ class GoogleCalendarService {
             throw new Error("google.calendar.event.required");
         }
 
+        const recurrence = this.normalizeRecurrence(event.recurrence);
         const response = await this.calendarFetch<any>(
             `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(event.calendarId)}/events`,
             accessToken,
@@ -79,6 +80,7 @@ class GoogleCalendarService {
                     start: event.start,
                     end: event.end,
                     attendees: event.attendees || [],
+                    ...(recurrence.length ? {recurrence} : {}),
                 }),
             }
         );
@@ -153,6 +155,12 @@ class GoogleCalendarService {
         return await response.json() as T;
     }
 
+    private normalizeRecurrence(recurrence?: string[]): string[] {
+        return (recurrence || [])
+            .map(item => typeof item === "string" ? item.trim() : "")
+            .filter(Boolean);
+    }
+
     private mapCalendar(calendar: any): GoogleCalendarItem {
         return {
             id: calendar.id,
@@ -179,6 +187,7 @@ class GoogleCalendarService {
             start: event.start || {},
             end: event.end || {},
             attendees: event.attendees || [],
+            recurrence: event.recurrence,
             creator: event.creator,
             organizer: event.organizer,
         };

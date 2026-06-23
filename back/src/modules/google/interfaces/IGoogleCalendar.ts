@@ -34,6 +34,7 @@ type GoogleCalendarEvent = {
     start: GoogleCalendarDateTime;
     end: GoogleCalendarDateTime;
     attendees: GoogleCalendarAttendee[];
+    recurrence?: string[];
     creator?: {
         email?: string;
         displayName?: string;
@@ -69,6 +70,7 @@ type GoogleCalendarCreateEventInput = {
     start: GoogleCalendarDateTime;
     end: GoogleCalendarDateTime;
     attendees?: GoogleCalendarAttendee[];
+    recurrence?: string[];
 }
 
 type GoogleCalendarCreateEventOptions = {

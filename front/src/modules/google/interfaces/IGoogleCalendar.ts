@@ -34,6 +34,7 @@ interface IGoogleCalendarEvent {
   start: IGoogleCalendarDateTime
   end: IGoogleCalendarDateTime
   attendees: IGoogleCalendarAttendee[]
+  recurrence?: string[]
   creator?: {
     email?: string
     displayName?: string
@@ -68,6 +69,7 @@ interface IGoogleCalendarCreateEventInput {
   start: IGoogleCalendarDateTime
   end: IGoogleCalendarDateTime
   attendees?: IGoogleCalendarAttendee[]
+  recurrence?: string[]
 }
 
 interface IGoogleCalendarEventsListResult {

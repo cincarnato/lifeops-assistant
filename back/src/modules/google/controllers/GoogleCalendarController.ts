@@ -94,6 +94,7 @@ class GoogleCalendarController {
                     start: body.start,
                     end: body.end,
                     attendees: body.attendees,
+                    recurrence: body.recurrence,
                 },
             });
         } catch (e) {

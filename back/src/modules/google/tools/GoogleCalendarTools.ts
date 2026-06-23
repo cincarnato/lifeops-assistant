@@ -45,6 +45,17 @@ class GoogleCalendarTools {
         };
     }
 
+    private static recurrenceArraySchema() {
+        return {
+            type: "array",
+            description: "Reglas de recurrencia compatibles con Google Calendar en formato RFC5545. Usar RRULE, EXRULE, RDATE o EXDATE. No incluir DTSTART ni DTEND; esas fechas van en start/end. Ejemplo semanal martes: RRULE:FREQ=WEEKLY;BYDAY=TU.",
+            items: {
+                type: "string",
+                description: "Linea de recurrencia, por ejemplo RRULE:FREQ=WEEKLY;BYDAY=TU o RRULE:FREQ=WEEKLY;BYDAY=TU;UNTIL=20261231T235959Z.",
+            },
+        };
+    }
+
     private static buildTemporalDebugContext() {
         const now = new Date();
         const today = this.formatLocalDate(now);
@@ -207,6 +218,7 @@ class GoogleCalendarTools {
                     start: this.dateTimeSchema("Inicio del evento. Usar date para eventos de dia completo o dateTime para eventos con hora."),
                     end: this.dateTimeSchema("Fin del evento. Usar date para eventos de dia completo o dateTime para eventos con hora."),
                     attendees: this.attendeeArraySchema(),
+                    recurrence: this.recurrenceArraySchema(),
                 },
                 required: ["calendarId", "summary", "start", "end"],
                 additionalProperties: false,
@@ -224,6 +236,7 @@ class GoogleCalendarTools {
                         start: args.start,
                         end: args.end,
                         attendees: args.attendees,
+                        recurrence: args.recurrence,
                     },
                 };
 
@@ -231,6 +244,7 @@ class GoogleCalendarTools {
                     temporalDebugContext,
                     requestedStart: args.start,
                     requestedEnd: args.end,
+                    requestedRecurrence: args.recurrence,
                     expectedTomorrowDate: temporalDebugContext.tomorrow,
                     startMatchesTomorrowDate: args.start?.date === temporalDebugContext.tomorrow
                         || typeof args.start?.dateTime === "string" && args.start.dateTime.startsWith(`${temporalDebugContext.tomorrow}T`),
