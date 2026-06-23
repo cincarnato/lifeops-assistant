@@ -9,7 +9,7 @@ import {useRouter} from "vue-router";
 import { useDarkMode } from '../composables/useDarkMode.js'
 import NotificationButton from "../modules/base/components/NotificationButton.vue"
 import { DraxAgentButton} from "@drax/ai-vue";
-import logoLifeops from '@/assets/logo-lifeops.png'
+import logoJarvops from '@/assets/jarvops_120.png'
 
 const {loadDarkMode} = useDarkMode()
 
@@ -39,8 +39,8 @@ const appName = computed(() => {
     <v-app-bar v-if="isAuthenticated()" >
       <v-app-bar-nav-icon v-model="menu" @click="drawer=!drawer"/>
       <slot name="toolbar-left">
-        <v-btn icon @click="push({name:'Root'})">
-          <v-img :src="logoLifeops" width="28" height="28" alt="LifeOps" />
+        <v-btn icon @click="push({name:'HomePage'})">
+          <v-img :src="logoJarvops" width="28" height="28" alt="LifeOps" />
         </v-btn>
        <v-app-bar-title> {{appName}}</v-app-bar-title>
       </slot>

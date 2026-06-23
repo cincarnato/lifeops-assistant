@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import DarkMode from "../components/DarkMode/index.vue";
-import logoLifeops from '@/assets/logo-lifeops.png'
 
 
 </script>
