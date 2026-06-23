@@ -15,6 +15,7 @@ import CompanyTypeCrudRoute from "./CompanyTypeCrudRoute"
 import ClientTypeCrudRoute from "./ClientTypeCrudRoute"
 import AgentJobCrudRoute from "./AgentJobCrudRoute"
 import AgentRoute from "./AgentRoute"
+import CustomRoute from "./CustomRoute"
 import AgentJobExecutionCrudRoute from "./AgentJobExecutionCrudRoute"
 import MemoryCrudRoute from "./MemoryCrudRoute"
 import MemoryTypeCrudRoute from "./MemoryTypeCrudRoute"
@@ -47,7 +48,8 @@ export const routes = [
   ...HabitCrudRoute,
   ...HabitLogCrudRoute,
   ...ChatbotTaskRoute,
-  ...KanbanTaskRoute
+  ...KanbanTaskRoute,
+  ...CustomRoute
 ]
 
 export default routes

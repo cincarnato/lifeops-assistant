@@ -121,7 +121,7 @@ interface IDashboardCard {
   }
   groupBy?: {
     fields: Array<string>
-    dateFormat?: "year" | "month" | "day" | "hour" | "minute" | "second"
+    dateFormat?: "year" | "month" | "week" | "day" | "hour" | "minute" | "second"
     render?: string
   }
   paginate?: {
@@ -167,6 +167,17 @@ typescript
 - `gallery`
 - `pie`
 - `bars`
+
+### `dateFormat` disponibles
+Para campos fecha, `groupBy.dateFormat` puede ser:
+
+- `year`
+- `month`
+- `week`
+- `day`
+- `hour`
+- `minute`
+- `second`
 
 ### Cuándo usarlo
 - métricas resumidas
@@ -516,4 +527,3 @@ Si el usuario no especifica detalles suficientes, proponer una primera versión 
 - 1 card `groupBy`
 - 1 card `paginate`
 - filtro por `createdAt` si la entidad lo soporta
-

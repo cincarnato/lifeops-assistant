@@ -14,7 +14,7 @@ Objetivo principal: **reutilizar `GET /group-by` y `provider.groupBy()` antes de
 `groupBy` sirve para:
 
 - contar registros por categoría
-- agrupar por fechas con granularidad (`year`, `month`, `day`, etc.)
+- agrupar por fechas con granularidad (`year`, `month`, `week`, `day`, etc.)
 - sumar campos numéricos dentro de cada grupo
 - agrupar por referencias Mongo y recibir el objeto poblado
 
@@ -42,7 +42,7 @@ No sirve bien para:
 - `filters: IDraxFieldFilter[]`
   - Opcional.
   - En HTTP viaja serializado como `field;operator;value|field2;operator;value2`.
-- `dateFormat: 'year' | 'month' | 'day' | 'hour' | 'minute' | 'second'`
+- `dateFormat: 'year' | 'month' | 'week' | 'day' | 'hour' | 'minute' | 'second'`
   - Opcional.
   - Default real: `day`.
   - Solo afecta a los campos fecha.
@@ -160,6 +160,7 @@ Buckets:
 
 - `year`: primer día del año
 - `month`: primer día del mes
+- `week`: inicio de la semana
 - `day`: fecha truncada al día
 - `hour`: truncada a la hora
 - `minute`: truncada al minuto
@@ -192,6 +193,7 @@ El valor devuelto en SQLite no es `Date`, sino string formateado por `strftime`:
 
 - `year` -> `YYYY`
 - `month` -> `YYYY-MM`
+- `week` -> semana del año
 - `day` -> `YYYY-MM-DD`
 - `hour` -> `YYYY-MM-DD HH:00:00`
 - `minute` -> `YYYY-MM-DD HH:MM:00`
@@ -362,7 +364,21 @@ Lectura:
 - cada fila representa un estado
 - `count` es la cantidad de pedidos
 
-### 3. Facturación por vendedor
+### 3. Actividad por semana
+
+```ts
+await TaskProvider.instance.groupBy({
+  fields: ["createdAt"],
+  dateFormat: "week"
+})
+```
+
+Lectura:
+
+- cada fila representa una semana
+- `count` es la cantidad de registros creados en esa semana
+
+### 4. Facturación por vendedor
 
 ```ts
 await OrderProvider.instance.groupBy({
@@ -379,7 +395,7 @@ Lectura:
 - `total`: monto vendido
 - `count`: cantidad de operaciones
 
-### 4. Evolución diaria de tickets abiertos
+### 5. Evolución diaria de tickets abiertos
 
 ```ts
 await TicketProvider.instance.groupBy({
