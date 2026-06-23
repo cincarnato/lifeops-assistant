@@ -2,12 +2,17 @@
 import {computed, onBeforeMount, onBeforeUnmount, ref} from "vue";
 import {useCrud, CrudDialog, CrudFilters, CrudFiltersAction} from "@drax/crud-vue";
 import {formatDate} from "@drax/common-front";
+import {useI18n} from "vue-i18n";
 import TaskCrud from "../cruds/TaskCrud";
 import TaskProvider from "../providers/TaskProvider";
 import TaskStatusProvider from "../providers/TaskStatusProvider";
 import type {ITask} from "../interfaces/ITask";
 import type {ITaskStatus} from "../interfaces/ITaskStatus";
 import TaskForm from "./TaskForm.vue";
+import ProjectCombobox from "../comboboxes/ProjectCombobox.vue";
+import GoalCombobox from "../comboboxes/GoalCombobox.vue";
+import TaskTypeCombobox from "../comboboxes/TaskTypeCombobox.vue";
+import LifeAreaCombobox from "../comboboxes/LifeAreaCombobox.vue";
 
 type KanbanColumn = {
   key: string
@@ -46,6 +51,11 @@ type ScoreTaskCardPropertyKey = Extract<
     "valueScore" | "motivationScore" | "effortScore" | "urgencyScore"
 >;
 
+type EditableTaskCardPropertyKey = Extract<
+    TaskCardPropertyKey,
+    "project" | "goals" | "type" | "lifeArea"
+>;
+
 type TaskCardProperty = {
   key: TaskCardPropertyKey
   label: string
@@ -61,6 +71,7 @@ type RenderedTaskCardProperty = TaskCardProperty & {
 const taskCrud = TaskCrud.instance;
 const taskProvider = TaskProvider.instance;
 const taskStatusProvider = TaskStatusProvider.instance;
+const {t, te} = useI18n();
 
 const {
   dialog,
@@ -111,6 +122,7 @@ const DEFAULT_TASK_STATUS_COLOR = "#64748b";
 
 const defaultVisibleCardPropertyKeys: TaskCardPropertyKey[] = ["priority"];
 const scorePropertyKeys: ScoreTaskCardPropertyKey[] = ["valueScore", "motivationScore", "effortScore", "urgencyScore"];
+const editablePropertyKeys: EditableTaskCardPropertyKey[] = ["project", "goals", "type", "lifeArea"];
 const scorePropertyColors: Record<ScoreTaskCardPropertyKey, string> = {
   valueScore: "primary",
   motivationScore: "success",
@@ -246,6 +258,23 @@ function showSnackbar(message: string, color: "success" | "error") {
   snackbar.value = true;
 }
 
+function taskFieldLabel(label?: string) {
+  if (!label) {
+    return "";
+  }
+
+  if (te(label)) {
+    return t(label);
+  }
+
+  const taskFieldKey = `task.field.${label}`;
+  return te(taskFieldKey) ? t(taskFieldKey) : label;
+}
+
+function cardPropertyLabel(property: TaskCardProperty) {
+  return taskFieldLabel(property.key) || property.label;
+}
+
 function setCreating(status: string, value: boolean) {
   const next = new Set(creatingStatuses.value);
   if (value) {
@@ -319,6 +348,59 @@ function isScoreProperty(key: TaskCardPropertyKey): key is ScoreTaskCardProperty
   return scorePropertyKeys.includes(key as ScoreTaskCardPropertyKey);
 }
 
+function isEditableProperty(key: TaskCardPropertyKey): key is EditableTaskCardPropertyKey {
+  return editablePropertyKeys.includes(key as EditableTaskCardPropertyKey);
+}
+
+function entityId(value: any) {
+  if (!value) {
+    return null;
+  }
+
+  return typeof value === "string" ? value : value._id || value.id || null;
+}
+
+function editablePropertyModelValue(task: ITask, key: TaskCardPropertyKey) {
+  switch (key) {
+    case "project":
+      return entityId(task.project);
+    case "goals":
+      return (task.goals || []).map(goal => entityId(goal)).filter(Boolean);
+    case "type":
+      return task.type || null;
+    case "lifeArea":
+      return task.lifeArea || null;
+    default:
+      return null;
+  }
+}
+
+function editablePropertyPayloadValue(key: EditableTaskCardPropertyKey, value: any) {
+  if (key === "goals") {
+    return Array.isArray(value)
+        ? value.map(item => entityId(item) || item).filter(Boolean)
+        : [];
+  }
+
+  if (key === "project") {
+    return entityId(value) || value || null;
+  }
+
+  if (!value) {
+    return null;
+  }
+
+  return typeof value === "string" ? value : value.name || value._id || null;
+}
+
+function normalizedValue(value: any) {
+  if (Array.isArray(value)) {
+    return value.map(item => String(item)).sort().join("|");
+  }
+
+  return value == null ? "" : String(value);
+}
+
 function notesCount(notes?: ITask["notes"]) {
   if (!notes) {
     return 0;
@@ -384,6 +466,7 @@ function renderedCardProperties(task: ITask) {
 
         return {
           ...property,
+          label: cardPropertyLabel(property),
           value,
           color: property.key === "status"
               ? taskStatusColor(task.status)
@@ -693,6 +776,37 @@ async function updateTaskScore(task: ITask, key: TaskCardPropertyKey, value: num
   }
 }
 
+async function updateEditableTaskProperty(task: ITask, key: TaskCardPropertyKey, value: any) {
+  if (!isEditableProperty(key)) {
+    return;
+  }
+
+  const id = taskId(task);
+  if (!id || savingIds.value.has(id)) {
+    return;
+  }
+
+  const payloadValue = editablePropertyPayloadValue(key, value);
+  const previousValue = editablePropertyPayloadValue(key, editablePropertyModelValue(task, key));
+
+  if (normalizedValue(previousValue) === normalizedValue(payloadValue)) {
+    return;
+  }
+
+  setSaving(id, true);
+  error.value = "";
+  try {
+    const updatedTask = await taskProvider.updatePartial(id, {[key]: payloadValue} as Partial<ITask>);
+    replaceTask(updatedTask);
+    showSnackbar("Tarea actualizada", "success");
+  } catch (e: any) {
+    console.error("Error updating task property:", e);
+    showSnackbar(e?.message || "No se pudo actualizar la tarea", "error");
+  } finally {
+    setSaving(id, false);
+  }
+}
+
 function replaceTask(updatedTask: ITask) {
   const index = tasks.value.findIndex(task => taskId(task) === taskId(updatedTask));
   if (index >= 0) {
@@ -749,7 +863,7 @@ function onTaskPointerDown(task: ITask, event: PointerEvent) {
   }
 
   const target = event.target as HTMLElement;
-  if (target.closest(".kanban-card__action, .kanban-score-chip, .kanban-score-menu")) {
+  if (target.closest(".kanban-card__action, .kanban-score-chip, .kanban-score-menu, .kanban-editable-chip, .kanban-editable-menu")) {
     return;
   }
 
@@ -924,7 +1038,7 @@ onBeforeUnmount(() => {
                           @update:model-value="setCardPropertyVisible(property.key, Boolean($event))"
                       />
                       <v-icon :icon="property.icon" size="18" class="text-medium-emphasis"/>
-                      <span>{{ property.label }}</span>
+                      <span>{{ cardPropertyLabel(property) }}</span>
                     </label>
                   </div>
                 </section>
@@ -1235,6 +1349,83 @@ onBeforeUnmount(() => {
                           </div>
                         </v-card>
                       </v-menu>
+                      <v-menu
+                          v-else-if="isEditableProperty(property.key)"
+                          location="bottom"
+                          :close-on-content-click="false"
+                      >
+                        <template #activator="{ props: menuProps }">
+                          <v-tooltip
+                              :text="property.label"
+                              location="top"
+                          >
+                            <template #activator="{ props: tooltipProps }">
+                              <v-chip
+                                  v-bind="{...tooltipProps, ...menuProps}"
+                                  :color="property.color"
+                                  :disabled="savingIds.has(task._id)"
+                                  size="x-small"
+                                  variant="tonal"
+                                  class="kanban-property-chip kanban-editable-chip"
+                                  @click.stop
+                              >
+                                <v-icon :icon="property.icon" size="14" start/>
+                                <span class="kanban-property-chip__value">{{ property.value }}</span>
+                              </v-chip>
+                            </template>
+                          </v-tooltip>
+                        </template>
+
+                        <v-card class="kanban-editable-menu" @click.stop>
+                          <v-card-subtitle class="kanban-score-menu__title">
+                            {{ property.label }}
+                          </v-card-subtitle>
+                          <project-combobox
+                              v-if="property.key === 'project'"
+                              :model-value="editablePropertyModelValue(task, property.key)"
+                              :label="taskFieldLabel('project')"
+                              density="compact"
+                              variant="outlined"
+                              hide-details
+                              :clearable="false"
+                              @update:model-value="updateEditableTaskProperty(task, property.key, $event)"
+                          />
+                          <goal-combobox
+                              v-else-if="property.key === 'goals'"
+                              :model-value="editablePropertyModelValue(task, property.key)"
+                              :label="taskFieldLabel('goals')"
+                              density="compact"
+                              variant="outlined"
+                              multiple
+                              chips
+                              hide-details
+                              :clearable="false"
+                              @update:model-value="updateEditableTaskProperty(task, property.key, $event)"
+                          />
+                          <task-type-combobox
+                              v-else-if="property.key === 'type'"
+                              :model-value="editablePropertyModelValue(task, property.key)"
+                              :label="taskFieldLabel('type')"
+                              item-value="name"
+                              density="compact"
+                              variant="outlined"
+                              hide-details
+                              :clearable="false"
+                              @update:model-value="updateEditableTaskProperty(task, property.key, $event)"
+                          />
+                          <life-area-combobox
+                              v-else-if="property.key === 'lifeArea'"
+                              :model-value="editablePropertyModelValue(task, property.key)"
+                              :label="taskFieldLabel('lifeArea')"
+                              item-value="name"
+                              density="compact"
+                              variant="outlined"
+                              hide-details
+                              :clearable="false"
+                              @update:model-value="updateEditableTaskProperty(task, property.key, $event)"
+                          />
+                        </v-card>
+                      </v-menu>
                       <v-chip
                           v-else
                           :color="property.color"
@@ -1250,7 +1441,7 @@ onBeforeUnmount(() => {
                   </div>
 
                   <div
-                      v-if="isCardPropertyVisible('dueDate') || savingIds.has(task._id)"
+                      v-if="(isCardPropertyVisible('dueDate') && task.dueDate) || savingIds.has(task._id)"
                       class="kanban-card__meta"
                   >
                     <v-chip
@@ -1262,10 +1453,6 @@ onBeforeUnmount(() => {
                       <v-icon icon="mdi-calendar" size="14" start/>
                       {{ formatDate(String(task.dueDate)) }}
                     </v-chip>
-                    <span v-else-if="isCardPropertyVisible('dueDate')" class="kanban-date-placeholder">
-                      <v-icon icon="mdi-calendar-blank-outline" size="14"/>
-                      Sin fecha
-                    </span>
                     <span v-else/>
                     <v-progress-circular
                         v-if="savingIds.has(task._id)"
@@ -1717,7 +1904,16 @@ onBeforeUnmount(() => {
   cursor: pointer;
 }
 
+.kanban-editable-chip {
+  cursor: pointer;
+}
+
 .kanban-score-menu {
+  padding: 6px;
+}
+
+.kanban-editable-menu {
+  min-width: 280px;
   padding: 6px;
 }
 

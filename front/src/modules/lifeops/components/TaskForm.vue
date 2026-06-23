@@ -1,11 +1,29 @@
 <script setup lang="ts">
 import CrudForm from "@drax/crud-vue/src/components/CrudForm.vue";
+import {useI18n} from "vue-i18n";
 import TaskCrud from "../cruds/TaskCrud";
 import SourceCombobox from "../comboboxes/SourceCombobox.vue";
 import TaskTypeCombobox from "../comboboxes/TaskTypeCombobox.vue";
 import TaskStatusCombobox from "../comboboxes/TaskStatusCombobox.vue";
 import PriorityCombobox from "../comboboxes/PriorityCombobox.vue";
 import LifeAreaCombobox from "@/modules/lifeops/comboboxes/LifeAreaCombobox.vue";
+import ProjectCombobox from "@/modules/lifeops/comboboxes/ProjectCombobox.vue";
+import GoalCombobox from "@/modules/lifeops/comboboxes/GoalCombobox.vue";
+
+const {t, te} = useI18n();
+
+function taskFieldLabel(label?: string) {
+  if (!label) {
+    return "";
+  }
+
+  if (te(label)) {
+    return t(label);
+  }
+
+  const taskFieldKey = `task.field.${label}`;
+  return te(taskFieldKey) ? t(taskFieldKey) : label;
+}
 </script>
 
 <template>
@@ -21,7 +39,7 @@ import LifeAreaCombobox from "@/modules/lifeops/comboboxes/LifeAreaCombobox.vue"
       <source-combobox
           v-model="form.source"
           :name="field.name"
-          :label="field.label"
+          :label="taskFieldLabel(field.label)"
           item-title="name"
           item-value="name"
       />
@@ -30,7 +48,7 @@ import LifeAreaCombobox from "@/modules/lifeops/comboboxes/LifeAreaCombobox.vue"
       <task-type-combobox
           v-model="form.type"
           :name="field.name"
-          :label="field.label"
+          :label="taskFieldLabel(field.label)"
           item-title="name"
           item-value="name"
       />
@@ -39,7 +57,7 @@ import LifeAreaCombobox from "@/modules/lifeops/comboboxes/LifeAreaCombobox.vue"
       <task-status-combobox
           v-model="form.status"
           :name="field.name"
-          :label="field.label"
+          :label="taskFieldLabel(field.label)"
           item-title="name"
           item-value="name"
       />
@@ -48,7 +66,7 @@ import LifeAreaCombobox from "@/modules/lifeops/comboboxes/LifeAreaCombobox.vue"
       <priority-combobox
           v-model="form.priority"
           :name="field.name"
-          :label="field.label"
+          :label="taskFieldLabel(field.label)"
           item-title="name"
           item-value="name"
       />
@@ -58,9 +76,29 @@ import LifeAreaCombobox from "@/modules/lifeops/comboboxes/LifeAreaCombobox.vue"
       <life-area-combobox
         v-model="form.lifeArea"
         :name="field.name"
-        :label="field.label"
+        :label="taskFieldLabel(field.label)"
         item-title="name"
         item-value="name"
+      />
+    </template>
+
+    <template v-slot:field.project="{field, form}">
+      <project-combobox
+        v-model="form.project"
+        :name="field.name"
+        :label="taskFieldLabel(field.label)"
+        :add-on-the-fly="field.addOnTheFly"
+      />
+    </template>
+
+    <template v-slot:field.goals="{field, form}">
+      <goal-combobox
+        v-model="form.goals"
+        :name="field.name"
+        :label="taskFieldLabel(field.label)"
+        :add-on-the-fly="field.addOnTheFly"
+        multiple
+        chips
       />
     </template>
 
