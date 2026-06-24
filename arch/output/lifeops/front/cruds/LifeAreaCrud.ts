@@ -6,7 +6,6 @@ import type{
   IEntityCrudField,
   IEntityCrudFilter,
   IEntityCrudHeader, 
-  IEntityCrudOperation,
   IEntityCrudPermissions,
   IEntityCrudRefs,
   IEntityCrudRules
@@ -172,7 +171,7 @@ class LifeAreaCrud extends EntityCrud implements IEntityCrud {
     return false
   }
 
-  get navigationOperations(): IEntityCrudOperation[] {
+  get navigationOperations(){
     return ['view'] // edit, delete
   }
   
@@ -183,3 +182,4 @@ class LifeAreaCrud extends EntityCrud implements IEntityCrud {
 }
 
 export default LifeAreaCrud
+

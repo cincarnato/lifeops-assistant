@@ -3,6 +3,7 @@ import {computed, onBeforeMount, onBeforeUnmount, ref} from "vue";
 import {useCrud, CrudDialog, CrudFilters, CrudFiltersAction} from "@drax/crud-vue";
 import {formatDate} from "@drax/common-front";
 import {useI18n} from "vue-i18n";
+import {useDisplay} from "vuetify";
 import TaskCrud from "../cruds/TaskCrud";
 import TaskProvider from "../providers/TaskProvider";
 import TaskStatusProvider from "../providers/TaskStatusProvider";
@@ -72,6 +73,7 @@ const taskCrud = TaskCrud.instance;
 const taskProvider = TaskProvider.instance;
 const taskStatusProvider = TaskStatusProvider.instance;
 const {t, te} = useI18n();
+const {xs} = useDisplay();
 
 const {
   dialog,
@@ -989,21 +991,39 @@ onBeforeUnmount(() => {
       <div class="kanban-actions">
         <v-btn
             v-if="taskCrud.filtersEnable"
-            :prepend-icon="filtersVisible ? 'mdi-filter-off-outline' : 'mdi-filter-outline'"
+            :icon="xs ? (filtersVisible ? 'mdi-filter-off-outline' : 'mdi-filter-outline') : undefined"
+            :prepend-icon="xs ? undefined : (filtersVisible ? 'mdi-filter-off-outline' : 'mdi-filter-outline')"
             variant="tonal"
             density="compact"
+            :title="filtersVisible ? 'Ocultar filtros' : 'Mostrar filtros'"
+            :aria-label="filtersVisible ? 'Ocultar filtros' : 'Mostrar filtros'"
             @click="filtersVisible = !filtersVisible"
         >
-          {{ filtersVisible ? "Ocultar filtros" : "Mostrar filtros" }}
+          <span v-if="!xs">{{ filtersVisible ? "Ocultar filtros" : "Mostrar filtros" }}</span>
         </v-btn>
         <v-menu :close-on-content-click="false" location="bottom end">
           <template #activator="{props}">
+            <v-badge
+                v-if="xs"
+                :content="visibleCardPropertiesCount"
+                color="primary"
+                location="top end"
+            >
+              <v-btn
+                  v-bind="props"
+                  icon="mdi-card-text-outline"
+                  variant="tonal"
+                  title="Propiedades"
+                  aria-label="Propiedades"
+              />
+            </v-badge>
             <v-btn
+                v-else
                 v-bind="props"
                 prepend-icon="mdi-card-text-outline"
                 variant="tonal"
             >
-              Propiedades
+              <span>Propiedades</span>
               <v-chip
                   class="ml-2"
                   size="x-small"
@@ -1014,7 +1034,11 @@ onBeforeUnmount(() => {
             </v-btn>
           </template>
 
-          <v-card class="kanban-property-selector" min-width="380">
+          <v-card
+              class="kanban-property-selector"
+              :min-width="xs ? undefined : 380"
+              :width="xs ? 'calc(100vw - 32px)' : undefined"
+          >
             <v-card-title class="text-subtitle-1">Propiedades de tarjeta</v-card-title>
             <v-card-text>
               <div class="kanban-property-groups">
@@ -1059,14 +1083,21 @@ onBeforeUnmount(() => {
           <template #activator="{props}">
             <v-btn
                 v-bind="props"
-                prepend-icon="mdi-view-column-outline"
+                :icon="xs ? 'mdi-view-column-outline' : undefined"
+                :prepend-icon="xs ? undefined : 'mdi-view-column-outline'"
                 variant="tonal"
+                title="Estados"
+                aria-label="Estados"
             >
-              Estados
+              <span v-if="!xs">Estados</span>
             </v-btn>
           </template>
 
-          <v-card class="kanban-status-selector" min-width="360">
+          <v-card
+              class="kanban-status-selector"
+              :min-width="xs ? undefined : 360"
+              :width="xs ? 'calc(100vw - 32px)' : undefined"
+          >
             <v-card-title class="text-subtitle-1">Estados y orden</v-card-title>
             <v-card-text>
               <div class="kanban-status-list">
@@ -1124,20 +1155,26 @@ onBeforeUnmount(() => {
           </v-card>
         </v-menu>
         <v-btn
-            prepend-icon="mdi-refresh"
+            :icon="xs ? 'mdi-refresh' : undefined"
+            :prepend-icon="xs ? undefined : 'mdi-refresh'"
             variant="text"
             :loading="loading"
+            title="Actualizar"
+            aria-label="Actualizar"
             @click="loadBoard"
         >
-          Actualizar
+          <span v-if="!xs">Actualizar</span>
         </v-btn>
         <v-btn
-            prepend-icon="mdi-plus"
+            :icon="xs ? 'mdi-plus' : undefined"
+            :prepend-icon="xs ? undefined : 'mdi-plus'"
             color="primary"
             variant="flat"
+            title="Nueva tarea"
+            aria-label="Nueva tarea"
             @click="openCreate()"
         >
-          Nueva tarea
+          <span v-if="!xs">Nueva tarea</span>
         </v-btn>
       </div>
     </div>
@@ -2011,6 +2048,28 @@ onBeforeUnmount(() => {
 
   .kanban-property-list {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 599px) {
+  .kanban-actions {
+    justify-content: flex-start;
+  }
+
+  .kanban-actions :deep(.v-btn),
+  .kanban-actions :deep(.v-badge) {
+    flex: 0 0 auto;
+  }
+
+  .kanban-status-selector :deep(.v-card-actions),
+  .kanban-property-selector :deep(.v-card-actions) {
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+
+  .kanban-status-selector :deep(.v-card-actions .v-btn),
+  .kanban-property-selector :deep(.v-card-actions .v-btn) {
+    flex: 1 1 auto;
   }
 }
 </style>

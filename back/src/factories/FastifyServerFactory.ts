@@ -46,6 +46,7 @@ import {PurposeFastifyRoutes} from "../modules/lifeops/routes/PurposeRoutes.js"
 import {LifeAreaFastifyRoutes} from "../modules/lifeops/routes/LifeAreaRoutes.js"
 import {HabitFastifyRoutes} from "../modules/lifeops/routes/HabitRoutes.js"
 import {HabitLogFastifyRoutes} from "../modules/lifeops/routes/HabitLogRoutes.js"
+import {DayPlanFastifyRoutes} from "../modules/lifeops/routes/DayPlanRoutes.js"
 import {PushDeviceFastifyRoutes} from "../modules/push/routes/PushDeviceRoutes.js"
 import {PushMessageFastifyRoutes} from "../modules/push/routes/PushMessageRoutes.js"
 
@@ -112,6 +113,7 @@ function FastifyServerFactory(rootDir:string) {
     server.fastifyRegister(LifeAreaFastifyRoutes)
     server.fastifyRegister(HabitFastifyRoutes)
     server.fastifyRegister(HabitLogFastifyRoutes)
+    server.fastifyRegister(DayPlanFastifyRoutes)
     server.fastifyRegister(PushDeviceFastifyRoutes)
     server.fastifyRegister(PushMessageFastifyRoutes)
 

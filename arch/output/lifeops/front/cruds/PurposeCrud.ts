@@ -6,7 +6,6 @@ import type{
   IEntityCrudField,
   IEntityCrudFilter,
   IEntityCrudHeader, 
-  IEntityCrudOperation,
   IEntityCrudPermissions,
   IEntityCrudRefs,
   IEntityCrudRules
@@ -177,7 +176,7 @@ statement: [(v: any) => !!v || 'validation.required']
     return false
   }
 
-  get navigationOperations(): IEntityCrudOperation[] {
+  get navigationOperations(){
     return ['view'] // edit, delete
   }
   
@@ -188,3 +187,4 @@ statement: [(v: any) => !!v || 'validation.required']
 }
 
 export default PurposeCrud
+

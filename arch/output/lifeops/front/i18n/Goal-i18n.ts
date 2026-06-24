@@ -14,15 +14,12 @@ const messages = {
            valueScore:'valueScore',
            motivationScore:'motivationScore',
            effortScore:'effortScore',
+           lifeArea:'lifeArea',
            timeHorizon:'timeHorizon',
            targetDate:'targetDate',
            completedAt:'completedAt',
            archivedAt:'archivedAt',
            progressPercent:'progressPercent',
-           successCriteria:'successCriteria',
-           purpose:'purpose',
-           constraints:'constraints',
-           tags:'tags',
            user:'user'
           }
       },
@@ -47,15 +44,12 @@ const messages = {
            valueScore:'valueScore',
            motivationScore:'motivationScore',
            effortScore:'effortScore',
+           lifeArea:'lifeArea',
            timeHorizon:'timeHorizon',
            targetDate:'targetDate',
            completedAt:'completedAt',
            archivedAt:'archivedAt',
            progressPercent:'progressPercent',
-           successCriteria:'successCriteria',
-           purpose:'purpose',
-           constraints:'constraints',
-           tags:'tags',
            user:'user'
           }
       },

@@ -6,7 +6,6 @@ import type{
   IEntityCrudField,
   IEntityCrudFilter,
   IEntityCrudHeader, 
-  IEntityCrudOperation,
   IEntityCrudPermissions,
   IEntityCrudRefs,
   IEntityCrudRules
@@ -184,7 +183,7 @@ enabled: [(v: any) => !!v || 'validation.required']
     return false
   }
 
-  get navigationOperations(): IEntityCrudOperation[]{
+  get navigationOperations(){
     return ['view'] // edit, delete
   }
   
@@ -195,3 +194,4 @@ enabled: [(v: any) => !!v || 'validation.required']
 }
 
 export default PushDeviceCrud
+

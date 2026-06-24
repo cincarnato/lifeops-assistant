@@ -20,6 +20,7 @@ import PurposeCrudRoute from "./PurposeCrudRoute"
 import LifeAreaCrudRoute from "./LifeAreaCrudRoute"
 import HabitCrudRoute from "./HabitCrudRoute"
 import HabitLogCrudRoute from "./HabitLogCrudRoute"
+import DayPlanCrudRoute from "./DayPlanCrudRoute"
 
 export const routes = [
     ...GoalCrudRoute,
@@ -42,7 +43,8 @@ export const routes = [
 ...PurposeCrudRoute,
 ...LifeAreaCrudRoute,
 ...HabitCrudRoute,
-...HabitLogCrudRoute
+...HabitLogCrudRoute,
+...DayPlanCrudRoute
 ]
 
 export default routes

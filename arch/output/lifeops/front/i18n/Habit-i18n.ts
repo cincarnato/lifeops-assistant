@@ -16,6 +16,7 @@ const messages = {
            generateTask:'generateTask',
            taskTemplate:'taskTemplate',
            title: 'title',
+           description: 'description',
            estimatedMinutes: 'estimatedMinutes',
            priority: 'priority'
           }
@@ -43,6 +44,7 @@ const messages = {
            generateTask:'generateTask',
            taskTemplate:'taskTemplate',
            title: 'title',
+           description: 'description',
            estimatedMinutes: 'estimatedMinutes',
            priority: 'priority'
           }

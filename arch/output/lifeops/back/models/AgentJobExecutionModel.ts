@@ -8,15 +8,15 @@ import type {IAgentJobExecution} from '../interfaces/IAgentJobExecution'
 const AgentJobExecutionSchema = new mongoose.Schema<IAgentJobExecution>({
             jobId: {type: mongoose.Schema.Types.ObjectId, ref: 'AgentJob',  required: true, index: true, unique: false },
             status: {type: String,  enum: ['pending', 'running', 'success', 'failed', 'timeout'], required: true, index: true, unique: false },
-            trigger: {type: String,  enum: ['scheduled', 'manual', 'retry'], default: 'scheduled', required: true, index: false, unique: false },
+            trigger: {type: String,  enum: ['scheduled', 'manual', 'retry'], required: true, index: false, unique: false },
             scheduledFor: {type: Date,   required: false, index: true, unique: false },
             startedAt: {type: Date,   required: false, index: false, unique: false },
             finishedAt: {type: Date,   required: false, index: false, unique: false },
             durationMs: {type: Number,   required: false, index: false, unique: false },
-            attempt: {type: Number, default: 1,  required: false, index: false, unique: false },
+            attempt: {type: Number,   required: false, index: false, unique: false },
             promptSnapshot: {
             systemPrompt: {type: String,   required: false, index: false, unique: false },
-            allowedTools: {type: [{type: String,   required: false, index: false, unique: false }], default: []} 
+            allowedTools: [{type: String,   required: false, index: false, unique: false }] 
             },
             result: {
             summary: {type: String,   required: false, index: false, unique: false },
@@ -25,7 +25,7 @@ const AgentJobExecutionSchema = new mongoose.Schema<IAgentJobExecution>({
             description: {type: String,   required: false, index: false, unique: false },
             entityType: {type: String,   required: false, index: false, unique: false },
             entityId: {type: String,   required: false, index: false, unique: false },
-            status: {type: String,  enum: ['success', 'failed'], default: 'success', required: false, index: false, unique: false } 
+            status: {type: String,  enum: ['success', 'failed'], required: false, index: false, unique: false } 
             }],
             data: {type: mongoose.Schema.Types.Mixed,   required: false, index: false, unique: false },
             outcome: {type: String,   required: false, index: false, unique: false } 

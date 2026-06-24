@@ -37,6 +37,7 @@ import {PurposePermissions} from "../modules/lifeops/permissions/PurposePermissi
 import {LifeAreaPermissions} from "../modules/lifeops/permissions/LifeAreaPermissions.js";
 import {HabitPermissions} from "../modules/lifeops/permissions/HabitPermissions.js";
 import {HabitLogPermissions} from "../modules/lifeops/permissions/HabitLogPermissions.js";
+import {DayPlanPermissions} from "../modules/lifeops/permissions/DayPlanPermissions.js";
 import {GoogleConnectionPermissions} from "../modules/google/permissions/GoogleConnectionPermissions.js";
 import {PushDevicePermissions} from "../modules/push/permissions/PushDevicePermissions.js";
 import {PushMessagePermissions} from "../modules/push/permissions/PushMessagePermissions.js";
@@ -90,6 +91,7 @@ function InitializePermissions() {
         ...Object.values(LifeAreaPermissions),
         ...Object.values(HabitPermissions),
         ...Object.values(HabitLogPermissions),
+        ...Object.values(DayPlanPermissions),
         ...Object.values(GoogleConnectionPermissions),
         ...Object.values(PushDevicePermissions),
         ...Object.values(PushMessagePermissions),

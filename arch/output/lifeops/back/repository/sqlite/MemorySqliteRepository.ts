@@ -30,3 +30,4 @@ class MemorySqliteRepository extends AbstractSqliteRepository<IMemory, IMemoryBa
 
 export default MemorySqliteRepository
 export {MemorySqliteRepository}
+

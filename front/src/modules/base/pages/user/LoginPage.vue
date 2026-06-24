@@ -12,7 +12,7 @@ const router = useRouter()
 
 
 function onLoginSuccess(){
-  router.push('/')
+  router.push('/home')
 }
 
 const {mobile} = useDisplay()

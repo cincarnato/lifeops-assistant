@@ -10,15 +10,12 @@ const GoalBaseSchema = z.object({
     valueScore: z.number().nullable().optional().default(5),
     motivationScore: z.number().nullable().optional().default(5),
     effortScore: z.number().nullable().optional().default(5),
+    lifeArea: z.string().optional(),
     timeHorizon: z.enum(['short_term', 'medium_term', 'long_term']).optional().default('medium_term'),
     targetDate: z.coerce.date().nullable().optional(),
     completedAt: z.coerce.date().nullable().optional(),
     archivedAt: z.coerce.date().nullable().optional(),
     progressPercent: z.number().nullable().optional(),
-    successCriteria: z.string().optional(),
-    purpose: z.string().optional(),
-    constraints: z.array(z.string()).optional().default([]),
-    tags: z.array(z.string()).optional().default([]),
     user: z.coerce.string().min(1,'validation.required')
 });
 

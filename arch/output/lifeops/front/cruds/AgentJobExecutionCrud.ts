@@ -1,12 +1,11 @@
 
-import {EntityCrud} from "@drax/crud-vue";
+import {EntityCrud, useCrudStore} from "@drax/crud-vue";
 import type{
   IDraxCrudProvider,
   IEntityCrud,
   IEntityCrudField,
   IEntityCrudFilter,
   IEntityCrudHeader, 
-  IEntityCrudOperation,
   IEntityCrudPermissions,
   IEntityCrudRefs,
   IEntityCrudRules
@@ -19,10 +18,12 @@ import AgentJobCrud from "./AgentJobCrud";
 class AgentJobExecutionCrud extends EntityCrud implements IEntityCrud {
 
   static singleton: AgentJobExecutionCrud
+  private store
 
   constructor() {
     super();
     this.name = 'AgentJobExecution'
+    this.store = useCrudStore(this.name)
   }
   
   static get instance(): AgentJobExecutionCrud {
@@ -103,9 +104,9 @@ usage: []
 {name:'finishedAt',type:'date',label:'finishedAt',default:null,groupTab: 'TIMING'},
 {name:'durationMs',type:'number',label:'durationMs',default:null,groupTab: 'TIMING'},
 {name:'attempt',type:'number',label:'attempt',default:1,groupTab: 'GENERAL'},
-{name:'promptSnapshot',type:'object',label:'promptSnapshot',default:{"systemPrompt":"","allowedTools":[]},groupTab: 'PROMPT',objectFields: [{name:'systemPrompt',type:'longString',label:'systemPrompt',default:''},
+{name:'promptSnapshot',type:'object',label:'promptSnapshot',default:{"systemPrompt":"''","allowedTools":"[]"},groupTab: 'PROMPT',objectFields: [{name:'systemPrompt',type:'longString',label:'systemPrompt',default:''},
 {name:'allowedTools',type:'array.string',label:'allowedTools',default:[]}]},
-{name:'result',type:'object',label:'result',default:{"summary":"","actions":[],"data":null,"outcome":""},groupTab: 'RESULT',objectFields: [{name:'summary',type:'longString',label:'summary',default:''},
+{name:'result',type:'object',label:'result',default:{"summary":"''","actions":"[]","data":null,"outcome":"''"},groupTab: 'RESULT',objectFields: [{name:'summary',type:'longString',label:'summary',default:''},
 {name:'actions',type:'array.object',label:'actions',default:[],objectFields: [{name:'type',type:'string',label:'type',default:''},
 {name:'description',type:'longString',label:'description',default:''},
 {name:'entityType',type:'string',label:'entityType',default:''},
@@ -119,9 +120,9 @@ usage: []
 {name:'output',type:'record',label:'output',default:null},
 {name:'errorMessage',type:'longString',label:'errorMessage',default:''},
 {name:'durationMs',type:'number',label:'durationMs',default:null}]},
-{name:'error',type:'object',label:'error',default:{"code":"","message":""},groupTab: 'ERROR',objectFields: [{name:'code',type:'string',label:'code',default:''},
+{name:'error',type:'object',label:'error',default:{"code":"''","message":"''"},groupTab: 'ERROR',objectFields: [{name:'code',type:'string',label:'code',default:''},
 {name:'message',type:'longString',label:'message',default:''}]},
-{name:'usage',type:'object',label:'usage',default:{"model":"","inputTokens":null,"outputTokens":null,"totalTokens":null},groupTab: 'USAGE',objectFields: [{name:'model',type:'string',label:'model',default:''},
+{name:'usage',type:'object',label:'usage',default:{"model":"''","inputTokens":null,"outputTokens":null,"totalTokens":null},groupTab: 'USAGE',objectFields: [{name:'model',type:'string',label:'model',default:''},
 {name:'inputTokens',type:'number',label:'inputTokens',default:null},
 {name:'outputTokens',type:'number',label:'outputTokens',default:null},
 {name:'totalTokens',type:'number',label:'totalTokens',default:null}]}
@@ -210,7 +211,7 @@ usage: []
     return false
   }
 
-  get navigationOperations(): IEntityCrudOperation[] {
+  get navigationOperations(){
     return ['view'] // edit, delete
   }
   
@@ -221,3 +222,4 @@ usage: []
 }
 
 export default AgentJobExecutionCrud
+

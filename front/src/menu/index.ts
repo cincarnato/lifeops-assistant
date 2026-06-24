@@ -66,6 +66,13 @@ const menu: MenuItem[] = [
         gallery: true,
         permission: 'habitlog:manage'
       },
+      {
+        icon: 'mdi-calendar-today-outline',
+        text: 'dayplan.menu',
+        link: {name: "DayPlanCrudPage"},
+        gallery: true,
+        permission: 'dayplan:manage'
+      },
 
 
     ]

@@ -21,6 +21,7 @@ import PurposeMessages from "./Purpose-i18n"
 import LifeAreaMessages from "./LifeArea-i18n"
 import HabitMessages from "./Habit-i18n"
 import HabitLogMessages from "./HabitLog-i18n"
+import DayPlanMessages from "./DayPlan-i18n"
 
 const messages = merge.all([
     GoalMessages,
@@ -43,7 +44,8 @@ const messages = merge.all([
     PurposeMessages,
     LifeAreaMessages,
     HabitMessages,
-    HabitLogMessages
+    HabitLogMessages,
+    DayPlanMessages
 ])
 
 export default messages

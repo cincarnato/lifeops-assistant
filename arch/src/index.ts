@@ -20,6 +20,7 @@ import PurposeSchema from './schemas/lifeops/PurposeSchema.js';
 import LifeAreaSchema from './schemas/lifeops/LifeAreaSchema.js';
 import HabitSchema from './schemas/lifeops/HabitSchema.js';
 import HabitLogSchema from './schemas/lifeops/HabitLogSchema.js';
+import DayPlanSchema from './schemas/lifeops/DayPlanSchema.js';
 import GoogleConnectionSchema from './schemas/google/GoogleConnectionSchema.js';
 import PushDeviceSchema from './schemas/push/PushDeviceSchema.js';
 import PushMessageSchema from './schemas/push/PushMessageSchema.js';
@@ -49,6 +50,7 @@ const schemas = [
     LifeAreaSchema,
     HabitSchema,
     HabitLogSchema,
+    DayPlanSchema,
     PushDeviceSchema,
     PushMessageSchema,
     //add schemas

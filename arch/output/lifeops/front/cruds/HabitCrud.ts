@@ -6,7 +6,6 @@ import type{
   IEntityCrudField,
   IEntityCrudFilter,
   IEntityCrudHeader, 
-  IEntityCrudOperation,
   IEntityCrudPermissions,
   IEntityCrudRefs,
   IEntityCrudRules
@@ -185,7 +184,7 @@ taskTemplate: []
     return false
   }
 
-  get navigationOperations(): IEntityCrudOperation[] {
+  get navigationOperations(){
     return ['view'] // edit, delete
   }
   
@@ -196,3 +195,4 @@ taskTemplate: []
 }
 
 export default HabitCrud
+

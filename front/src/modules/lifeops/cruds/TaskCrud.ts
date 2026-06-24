@@ -172,17 +172,19 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
       {name: 'redmineIssueId', type: 'string', label: 'redmineIssueId', default: '', groupTab: 'INTEGRATIONS'},
       {name: 'emailMessageId', type: 'string', label: 'emailMessageId', default: '', groupTab: 'INTEGRATIONS'},
       {name: 'calendarEventId', type: 'string', label: 'calendarEventId', default: '', groupTab: 'INTEGRATIONS'},
+      {name: 'createdAt', type: 'date', label: 'createdAt', default: null, readonly: true},
+      {name: 'updatedAt', type: 'date', label: 'updatedAt', default: null, readonly: true},
       // {name: 'user', type: 'ref', label: 'user', default: null, ref: 'User', refDisplay: 'username'},
 
     ]
   }
 
   get createFields(): IEntityCrudField[] {
-    return this.fields.filter(field => field.name !== 'statusHistory')
+    return this.fields.filter(field => !['statusHistory', 'createdAt', 'updatedAt'].includes(field.name))
   }
 
   get updateFields(): IEntityCrudField[] {
-    return this.fields.filter(field => field.name !== 'statusHistory')
+    return this.fields.filter(field => !['statusHistory', 'createdAt', 'updatedAt'].includes(field.name))
   }
 
   get viewFields(): IEntityCrudField[] {

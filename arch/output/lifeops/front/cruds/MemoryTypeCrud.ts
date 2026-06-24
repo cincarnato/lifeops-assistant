@@ -1,12 +1,11 @@
 
-import {EntityCrud} from "@drax/crud-vue";
+import {EntityCrud, useCrudStore} from "@drax/crud-vue";
 import type{
   IDraxCrudProvider,
   IEntityCrud,
   IEntityCrudField,
   IEntityCrudFilter,
   IEntityCrudHeader, 
-  IEntityCrudOperation,
   IEntityCrudPermissions,
   IEntityCrudRefs,
   IEntityCrudRules
@@ -19,10 +18,12 @@ import MemoryTypeProvider from "../providers/MemoryTypeProvider";
 class MemoryTypeCrud extends EntityCrud implements IEntityCrud {
 
   static singleton: MemoryTypeCrud
+  private store
 
   constructor() {
     super();
     this.name = 'MemoryType'
+    this.store = useCrudStore(this.name)
   }
   
   static get instance(): MemoryTypeCrud {
@@ -171,7 +172,7 @@ description: [(v: any) => !!v || 'validation.required']
     return false
   }
 
-  get navigationOperations(): IEntityCrudOperation[] {
+  get navigationOperations(){
     return ['view'] // edit, delete
   }
   
@@ -182,3 +183,4 @@ description: [(v: any) => !!v || 'validation.required']
 }
 
 export default MemoryTypeCrud
+
