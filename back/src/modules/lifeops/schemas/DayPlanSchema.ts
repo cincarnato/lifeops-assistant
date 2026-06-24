@@ -1,9 +1,9 @@
 
 import { z } from 'zod';
 
-
 const DayPlanBaseSchema = z.object({
-      date: z.coerce.date({error: "validation.date"}),
+    date: z.coerce.date({error: "validation.date"}),
+    user: z.coerce.string().min(1, 'validation.required'),
     status: z.enum(['BORRADOR', 'VISTO', 'CONFIRMADO', 'CERRADO']).default('BORRADOR'),
     events: z.array(
 z.object({    googleEventId: z.string().min(1,'validation.required'),
@@ -32,7 +32,43 @@ z.object({    title: z.string().min(1,'validation.required'),
 const DayPlanSchema = DayPlanBaseSchema
     .extend({
       _id: z.coerce.string(),
-       
+      user: z.object({
+          _id: z.coerce.string(),
+          username: z.string()
+      }),
+      tasks: z.array(
+          z.object({
+              task: z.object({
+                  _id: z.coerce.string(),
+                  title: z.string().nullish(),
+                  description: z.string().nullish()
+              }),
+              decision: z.enum(['PENDIENTE', 'COMPROMETIDO', 'DESEABLE', 'DESCARTADO']).optional().default('PENDIENTE')
+          })
+      ).optional(),
+      habits: z.array(
+          z.object({
+              habit: z.object({
+                  _id: z.coerce.string(),
+                  name: z.string().nullish()
+              }),
+              decision: z.enum(['PENDIENTE', 'COMPROMETIDO', 'DESEABLE', 'DESCARTADO']).optional().default('PENDIENTE')
+          })
+      ).optional(),
+      suggestions: z.array(
+          z.object({
+              title: z.string().min(1,'validation.required'),
+              decision: z.enum(['PENDIENTE', 'COMPROMETIDO', 'DESEABLE', 'DESCARTADO']).optional().default('PENDIENTE'),
+              goal: z.object({
+                  _id: z.coerce.string(),
+                  name: z.string().nullish()
+              }).optional().nullable(),
+              project: z.object({
+                  _id: z.coerce.string(),
+                  name: z.string().nullish()
+              }).optional().nullable()
+          })
+      ).optional(),
     })
 
 export default DayPlanSchema;

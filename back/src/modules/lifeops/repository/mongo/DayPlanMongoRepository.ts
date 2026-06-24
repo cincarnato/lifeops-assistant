@@ -11,7 +11,7 @@ class DayPlanMongoRepository extends AbstractMongoRepository<IDayPlan, IDayPlanB
         super();
         this._model = DayPlanModel;
         this._searchFields = [];
-        this._populateFields = [];
+        this._populateFields = ['user', 'tasks.task', 'habits.habit', 'suggestions.goal', 'suggestions.project'];
         this._lean = true
     }
 
@@ -19,4 +19,3 @@ class DayPlanMongoRepository extends AbstractMongoRepository<IDayPlan, IDayPlanB
 
 export default DayPlanMongoRepository
 export {DayPlanMongoRepository}
-

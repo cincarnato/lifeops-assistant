@@ -1,64 +1,65 @@
-
 interface IDayPlanBase {
-    date: Date
-    status: string
-    events?: Array<{
+  date: Date
+  user: any
+  status: string
+  events?: Array<{
     googleEventId: string
     title: string
     description?: string
     startAt: Date
     endAt?: Date
     decision?: string
-    }>
-    tasks?: Array<{
+  }>
+  tasks?: Array<{
     task: any
     decision?: string
-    }>
-    habits?: Array<{
+  }>
+  habits?: Array<{
     habit: any
     decision?: string
-    }>
-    suggestions?: Array<{
+  }>
+  suggestions?: Array<{
     title: string
     decision?: string
     goal?: any
     project?: any
-    }>
-    createdAt?: Date
-    updatedAt?: Date
+  }>
+  createdAt?: Date
+  updatedAt?: Date
 }
 
 interface IDayPlan {
-    _id: string
-    date: Date
-    status: string
-    events?: Array<{
+  _id: string
+  date: Date
+  user: any
+  status: string
+  events?: Array<{
     googleEventId: string
     title: string
     description?: string
     startAt: Date
     endAt?: Date
     decision?: string
-    }>
-    tasks?: Array<{
+  }>
+  tasks?: Array<{
     task: any
     decision?: string
-    }>
-    habits?: Array<{
+  }>
+  habits?: Array<{
     habit: any
     decision?: string
-    }>
-    suggestions?: Array<{
+  }>
+  suggestions?: Array<{
     title: string
     decision?: string
     goal?: any
     project?: any
-    }>
-    createdAt?: Date
-    updatedAt?: Date
+  }>
+  createdAt?: Date
+  updatedAt?: Date
 }
 
 export type {
-IDayPlanBase, 
-IDayPlan
+  IDayPlanBase,
+  IDayPlan
 }

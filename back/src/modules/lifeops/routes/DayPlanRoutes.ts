@@ -13,6 +13,12 @@ async function DayPlanFastifyRoutes(fastify, options) {
     fastify.get('/api/day-plans/find', {schema: schemas.findSchema}, (req,rep) => controller.find(req,rep))
     
     fastify.get('/api/day-plans/search', {schema: schemas.searchSchema}, (req,rep) => controller.search(req,rep))
+
+    fastify.post('/api/day-plans/generate/today', {
+        schema: {
+            tags: ['DayPlan'],
+        }
+    }, (req, rep) => controller.generateToday(req as any, rep))
     
     fastify.get('/api/day-plans/:id', {schema: schemas.findByIdSchema}, (req,rep) => controller.findById(req,rep))
     

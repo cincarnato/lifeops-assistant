@@ -1,4 +1,4 @@
-import AgentJobRunnerServiceFactory from "../modules/lifeops/factory/services/AgentJobRunnerServiceFactory.js";
+import AgentJobFactory from "../modules/lifeops/factory/services/AgentJobFactory.js";
 
 interface RunAgentJobOptions {
     intervalMs?: number;
@@ -39,7 +39,7 @@ function RunAgentJob(options: RunAgentJobOptions = {}): AgentJobScheduler {
         });
 
         try {
-            const results = await AgentJobRunnerServiceFactory.instance.runDueJobs({
+            const results = await AgentJobFactory.instance.runDueJobs({
                 limit: resolvedOptions.limit
             });
 

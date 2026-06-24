@@ -8,6 +8,7 @@ const messages = {
           crud: 'Manage DayPlan',
           field:{
            date:'date',
+           user:'user',
            status:'status',
            events:'events',
            googleEventId: 'googleEventId',
@@ -23,6 +24,15 @@ const messages = {
            suggestions:'suggestions',
            goal: 'goal',
            project: 'project'
+          },
+          ui: {
+           totalItems: 'Items',
+           committedItems: 'Committed',
+           empty: 'There are no planned items for this day.',
+           noEvents: 'No events.',
+           noTasks: 'No tasks.',
+           noHabits: 'No habits.',
+           noSuggestions: 'No suggestions.'
           }
       },
       permission: {
@@ -40,6 +50,7 @@ const messages = {
           crud: 'Gestionar plan diario',
           field:{
            date:'fecha',
+           user:'usuario',
            status:'estado',
            events:'eventos',
            googleEventId: 'evento de Google',
@@ -55,6 +66,15 @@ const messages = {
            suggestions:'sugerencias',
            goal: 'objetivo',
            project: 'proyecto'
+          },
+          ui: {
+           totalItems: 'Items',
+           committedItems: 'Comprometidos',
+           empty: 'No hay items planificados para este dia.',
+           noEvents: 'Sin eventos.',
+           noTasks: 'Sin tareas.',
+           noHabits: 'Sin habitos.',
+           noSuggestions: 'Sin sugerencias.'
           }
       },
      permission: {

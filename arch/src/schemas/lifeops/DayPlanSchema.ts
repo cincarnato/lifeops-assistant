@@ -17,7 +17,14 @@ const entitySchema: IEntitySchema = {
         date: {
             type: "date",
             required: true,
-            unique: true,
+            index: true,
+            header: true,
+        },
+        user: {
+            type: "ref",
+            ref: "User",
+            refDisplay: "username",
+            required: true,
             index: true,
             header: true,
         },

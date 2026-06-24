@@ -2,9 +2,9 @@ import {DraxAgent} from "@drax/ai-back";
 import type {DraxAgentMessageOutput} from "@drax/ai-back";
 import type {IAgentJob} from "../interfaces/IAgentJob.js";
 import type {IAgentJobExecution, IAgentJobExecutionBase} from "../interfaces/IAgentJobExecution.js";
-import AgentConfigService from "./AgentConfigService.js";
-import type {AgentJobService} from "./AgentJobService.js";
-import type {AgentJobExecutionService} from "./AgentJobExecutionService.js";
+import AgentConfigService from "../services/AgentConfigService.js";
+import type {AgentJobService} from "../services/AgentJobService.js";
+import type {AgentJobExecutionService} from "../services/AgentJobExecutionService.js";
 
 type AgentJobExecutionTrigger = "scheduled" | "manual" | "retry";
 type AgentJobExecutionStatus = "success" | "failed" | "timeout";
@@ -39,7 +39,7 @@ class AgentJobTimeoutError extends Error {
     }
 }
 
-class AgentJobRunnerService {
+class AgentJob {
     constructor(
         private readonly jobService: AgentJobService,
         private readonly executionService: AgentJobExecutionService,
@@ -489,5 +489,5 @@ class AgentJobRunnerService {
 }
 
 export type {AgentJobRunOptions, AgentJobRunDueOptions, AgentJobRunDueResult};
-export default AgentJobRunnerService;
-export {AgentJobRunnerService, AgentJobTimeoutError};
+export default AgentJob;
+export {AgentJob, AgentJobTimeoutError};

@@ -18,6 +18,7 @@ import TaskCrud from "./TaskCrud";
 import HabitCrud from "./HabitCrud";
 import GoalCrud from "./GoalCrud";
 import ProjectCrud from "./ProjectCrud";
+import {UserCrud} from "@drax/identity-vue";
 
 
 class DayPlanCrud extends EntityCrud implements IEntityCrud {
@@ -51,6 +52,7 @@ class DayPlanCrud extends EntityCrud implements IEntityCrud {
   get headers(): IEntityCrudHeader[] {
     return [
         {title: 'date',key:'date', align: 'start'},
+{title: 'user',key:'user', align: 'start'},
 {title: 'status',key:'status', align: 'start'}
     ]
   }
@@ -81,7 +83,8 @@ class DayPlanCrud extends EntityCrud implements IEntityCrud {
       Task: TaskCrud.instance,
       Habit: HabitCrud.instance,
       Goal: GoalCrud.instance,
-      Project: ProjectCrud.instance
+      Project: ProjectCrud.instance,
+      User: UserCrud.instance
     }
   }
 
@@ -99,6 +102,7 @@ suggestions: []
   get fields(): IEntityCrudField[]{
     return [
         {name:'date',type:'date',label:'date',default:null},
+{name:'user',type:'ref',label:'user',default:null,ref: 'User',refDisplay: 'username', readonly: true},
 {name:'status',type:'enum',label:'status',default:'BORRADOR',enum: ['BORRADOR', 'VISTO', 'CONFIRMADO', 'CERRADO']},
 {name:'events',type:'array.object',label:'events',default:[],objectFields: [{name:'googleEventId',type:'string',label:'googleEventId',default:''},
 {name:'title',type:'string',label:'title',default:''},
@@ -121,6 +125,18 @@ suggestions: []
     return [
       //{name: '_id', type: 'string', label: 'ID', default: '', operator: 'eq' },
     ]
+  }
+
+  get createFields(): IEntityCrudField[] {
+    return this.fields.filter(field => field.name !== 'user')
+  }
+
+  get updateFields(): IEntityCrudField[] {
+    return this.fields.filter(field => field.name !== 'user')
+  }
+
+  get viewFields(): IEntityCrudField[] {
+    return this.fields
   }
   
   get isViewable(){
