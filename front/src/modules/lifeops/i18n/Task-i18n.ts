@@ -5,6 +5,27 @@ const messages = {
       entity: 'Task',
       menu: 'Tasks',
       crud: 'Manage Task',
+      dashboard: {
+        title: 'Task Dashboard',
+        filters: {
+          dateFrom: 'Date from',
+          dateTo: 'Date to',
+        },
+        actions: {
+          refresh: 'Refresh',
+        },
+        cards: {
+          completedWeekly: 'Tasks completed weekly',
+          completedWeeklyValueScore: 'Tasks completed weekly by value score',
+          completedWeeklyMotivationScore: 'Tasks completed weekly by motivation score',
+          completedWeeklyEffortScore: 'Tasks completed weekly by effort score',
+          completedWeeklyLifeArea: 'Tasks completed weekly by life area',
+          completedWeeklyType: 'Tasks completed weekly by type',
+          createdWeeklySource: 'Tasks created weekly by source',
+          createdWeeklyProject: 'Tasks created weekly by project',
+          createdWeeklyStatus: 'Tasks created weekly by status',
+        },
+      },
       field: {
         title: 'Title',
         description: 'Description',
@@ -49,6 +70,27 @@ const messages = {
       entity: 'Tarea',
       menu: 'Tareas',
       crud: 'Gestionar tarea',
+      dashboard: {
+        title: 'Dashboard de tareas',
+        filters: {
+          dateFrom: 'Fecha desde',
+          dateTo: 'Fecha hasta',
+        },
+        actions: {
+          refresh: 'Actualizar',
+        },
+        cards: {
+          completedWeekly: 'Completadas semanalmente',
+          completedWeeklyValueScore: 'Completadas  por Valor',
+          completedWeeklyMotivationScore: 'Completadas  por Motivación',
+          completedWeeklyEffortScore: 'Completadas  por Esfuerzo',
+          completedWeeklyLifeArea: 'Completadas  por Área',
+          completedWeeklyType: 'Completadas  por Tipo',
+          createdWeeklySource: 'Creadas  por Origen',
+          createdWeeklyProject: 'Creadas  por Proyecto',
+          createdWeeklyStatus: 'Creadas  por Estado',
+        },
+      },
       field: {
         title: 'Título',
         description: 'Descripción',

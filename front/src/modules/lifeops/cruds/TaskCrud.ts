@@ -59,7 +59,9 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
       {title: 'scheduledDate', key: 'scheduledDate', align: 'start'},
       {title: 'completedAt', key: 'completedAt', align: 'start'},
       {title: 'archivedAt', key: 'archivedAt', align: 'start'},
-      {title: 'user', key: 'user', align: 'start'}
+      {title: 'user', key: 'user', align: 'start'},
+      {title: 'createdAt', key: 'createdAt', align: 'start'},
+      {title: 'updatedAt', key: 'updatedAt', align: 'start'},
     ]
   }
 

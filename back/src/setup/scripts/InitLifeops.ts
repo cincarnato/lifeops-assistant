@@ -97,11 +97,12 @@ async function InitLifeops() {
     ]);
 
     await seedIfEmpty(TaskTypeServiceFactory.instance, [
-        {name: "Llamada", description: "Comunicacion telefonica o por voz."},
-        {name: "Email", description: "Envio o respuesta de correo."},
-        {name: "Reunion", description: "Encuentro presencial o virtual."},
-        {name: "Seguimiento", description: "Revision o control de un tema pendiente."},
-        {name: "Administrativa", description: "Gestion operativa o documental."}
+        {name: "Desarrollo", description: "Tareas orientadas a crear, modificar o mejorar productos, sistemas, funcionalidades, automatizaciones o soluciones técnicas."},
+        {name: "Operativa", description: "Tareas necesarias para ejecutar, supervisar o sostener el funcionamiento cotidiano de un servicio, proceso o proyecto. Incluye controles, seguimiento, soporte, resolución de incidentes y acciones recurrentes."},
+        {name: "Comercial", description: "Tareas relacionadas con la generación, desarrollo y seguimiento de oportunidades de negocio. Incluye contacto con clientes, propuestas, cotizaciones, presentaciones, negociaciones y seguimiento de ventas."},
+        {name: "Gestión", description: "Tareas orientadas a coordinar personas, proyectos, prioridades o recursos. Incluye planificación, delegación, seguimiento, reuniones y toma de decisiones."},
+        {name: "Administrativa", description: "Tareas vinculadas con la gestión interna, documental, financiera o regulatoria. Incluye pagos, facturación, contratos, registros, compras, trámites, rendiciones y organización de información."},
+        {name: "Personal", description: "Tareas relacionadas con la vida personal, familiar, salud, hogar, trámites particulares o actividades recreativas."}
     ]);
 }
 

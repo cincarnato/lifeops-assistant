@@ -36,7 +36,14 @@ const menu: MenuItem[] = [
         text: 'Kanban Tareas',
         link: {name: "KanbanTaskPage"},
         gallery: true,
-        permission: 'task:view'
+        permission: 'task:manage'
+      },
+      {
+        icon: 'mdi-view-dashboard',
+        text: 'Dashboard Tareas',
+        link: {name: "TaskDashboardPage"},
+        gallery: true,
+        permission: 'task:manage'
       },
       {
         icon: 'mdi-briefcase-outline',
