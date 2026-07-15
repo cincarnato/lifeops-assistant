@@ -132,15 +132,28 @@ const features = [
 
       <v-row class="pb-10" justify="center">
         <v-col cols="12" md="10">
-          <div class="d-flex flex-wrap align-center justify-center ga-4 text-body-2 text-medium-emphasis">
-            <span>{{ t('landing.legal.label') }}</span>
-            <router-link :to="{name: 'CondicionesServicio'}" class="landing-page__link">
-              {{ t('landing.actions.terms') }}
-            </router-link>
-            <router-link :to="{name: 'PoliticaPrivacidad'}" class="landing-page__link">
-              {{ t('landing.actions.privacy') }}
-            </router-link>
-          </div>
+          <footer class="d-flex flex-column align-center ga-4 text-body-2 text-medium-emphasis text-center">
+            <div class="d-flex flex-wrap align-center justify-center ga-4">
+              <span>{{ t('landing.legal.label') }}</span>
+              <router-link :to="{name: 'CondicionesServicio'}" class="landing-page__link">
+                {{ t('landing.actions.terms') }}
+              </router-link>
+              <router-link :to="{name: 'PoliticaPrivacidad'}" class="landing-page__link">
+                {{ t('landing.actions.privacy') }}
+              </router-link>
+            </div>
+
+            <div class="d-flex flex-wrap align-center justify-center ga-4">
+              <a class="landing-page__contact" href="tel:+541178937739">
+                <v-icon icon="mdi-phone-outline" size="18" />
+                <span>{{ t('landing.contact.phone') }}</span>
+              </a>
+              <span class="landing-page__contact">
+                <v-icon icon="mdi-map-marker-outline" size="18" />
+                <span>{{ t('landing.contact.address') }}</span>
+              </span>
+            </div>
+          </footer>
         </v-col>
       </v-row>
     </v-container>
@@ -212,6 +225,19 @@ const features = [
 }
 
 .landing-page__link:hover {
+  text-decoration: underline;
+}
+
+.landing-page__contact {
+  align-items: center;
+  color: inherit;
+  display: inline-flex;
+  gap: 6px;
+  text-decoration: none;
+}
+
+a.landing-page__contact:hover {
+  color: rgb(var(--v-theme-primary));
   text-decoration: underline;
 }
 

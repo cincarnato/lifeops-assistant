@@ -41,6 +41,10 @@ const landingI18n = {
       legal: {
         label: 'Review the public legal documents:',
       },
+      contact: {
+        phone: '+54 11 7893-7739',
+        address: 'Av Directorio 3935, Ciudad Autonoma de Buenos Aires, Argentina',
+      },
     },
   },
   es: {
@@ -84,6 +88,10 @@ const landingI18n = {
       },
       legal: {
         label: 'Consultá los documentos legales públicos:',
+      },
+      contact: {
+        phone: '+54 11 7893-7739',
+        address: 'Av Directorio 3935, Ciudad Autónoma de Buenos Aires, Argentina',
       },
     },
   },
