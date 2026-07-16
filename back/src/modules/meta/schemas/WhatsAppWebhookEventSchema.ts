@@ -1,6 +1,5 @@
 import {z} from 'zod';
 
-const WhatsAppWebhookPayloadSchema = z.object({}).catchall(z.unknown());
 
 const WhatsAppWebhookEventBaseSchema = z.object({
     tenantId: z.coerce.string().optional().nullable(),
@@ -20,7 +19,7 @@ const WhatsAppWebhookEventBaseSchema = z.object({
         stack: z.string().optional(),
         code: z.string().optional()
     }).optional(),
-    payload: WhatsAppWebhookPayloadSchema,
+    payload: z.object({}),
     deduplicationKey: z.string().optional()
 });
 
@@ -32,4 +31,4 @@ const WhatsAppWebhookEventSchema = WhatsAppWebhookEventBaseSchema
     })
 
 export default WhatsAppWebhookEventSchema;
-export {WhatsAppWebhookEventSchema, WhatsAppWebhookEventBaseSchema, WhatsAppWebhookPayloadSchema}
+export {WhatsAppWebhookEventSchema, WhatsAppWebhookEventBaseSchema}
