@@ -24,7 +24,7 @@ const WhatsAppWebhookEventSchema = new mongoose.Schema<IWhatsAppWebhookEvent>({
             code: {type: String,   required: false, index: false, unique: false } 
             },
             payload: {type: mongoose.Schema.Types.Mixed, required: true },
-            deduplicationKey: {type: String,   required: false, index: true, unique: false, trim: true, sparse: true }
+            deduplicationKey: {type: String,   required: false, unique: false, trim: true }
 }, {timestamps: true, minimize: false});
 
 WhatsAppWebhookEventSchema.index(

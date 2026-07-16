@@ -50,7 +50,7 @@ const appName = computed(() => {
       <drax-agent-button></drax-agent-button>
 
 
-      <notification-button class="mr-2"></notification-button>
+      <notification-button v-if="false" class="mr-2"></notification-button>
       <identity-profile-avatar class="cursor-pointer" @click="profileDrawer = !profileDrawer"></identity-profile-avatar>
     </v-app-bar>
 
