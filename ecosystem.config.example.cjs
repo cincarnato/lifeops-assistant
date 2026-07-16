@@ -64,6 +64,10 @@ const commonEnv = {
 	ELEVENLABS_MODEL: 'eleven_multilingual_v2',
 	ELEVENLABS_VOICE_ID: 'f6QiCN38OikU9jJdqQ7Z',
 	ELEVENLABS_OUTPUT_FORMAT: 'mp3_44100_128',
+
+	//META
+	META_WHATSAPP_WEBHOOK_VERIFY_TOKEN:'NDoASWA18dgxeFW24HJ7NmoV'
+
 };
 
 module.exports = {
