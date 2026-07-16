@@ -24,6 +24,8 @@ import DayPlanSchema from './schemas/lifeops/DayPlanSchema.js';
 import GoogleConnectionSchema from './schemas/google/GoogleConnectionSchema.js';
 import PushDeviceSchema from './schemas/push/PushDeviceSchema.js';
 import PushMessageSchema from './schemas/push/PushMessageSchema.js';
+import WhatsAppPhoneNumberSchema from './schemas/meta/WhatsAppPhoneNumberSchema.js';
+import WhatsAppWebhookEventSchema from './schemas/meta/WhatsAppWebhookEventSchema.js';
 
 //Import schemas
 
@@ -53,6 +55,8 @@ const schemas = [
     DayPlanSchema,
     PushDeviceSchema,
     PushMessageSchema,
+    WhatsAppPhoneNumberSchema,
+    WhatsAppWebhookEventSchema,
     //add schemas
 ];
 

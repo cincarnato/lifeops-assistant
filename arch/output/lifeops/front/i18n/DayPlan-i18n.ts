@@ -8,6 +8,7 @@ const messages = {
           crud: 'Manage DayPlan',
           field:{
                        date:'date',
+           user:'user',
            status:'status',
            events:'events',
            googleEventId: 'googleEventId',
@@ -44,6 +45,7 @@ const messages = {
           crud: 'Gestionar DayPlan',
           field:{
                        date:'date',
+           user:'user',
            status:'status',
            events:'events',
            googleEventId: 'googleEventId',

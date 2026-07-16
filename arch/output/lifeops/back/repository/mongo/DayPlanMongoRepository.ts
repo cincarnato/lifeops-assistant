@@ -11,7 +11,7 @@ class DayPlanMongoRepository extends AbstractMongoRepository<IDayPlan, IDayPlanB
         super();
         this._model = DayPlanModel;
         this._searchFields = [];
-        this._populateFields = [];
+        this._populateFields = ['user'];
         this._lean = true
     }
 

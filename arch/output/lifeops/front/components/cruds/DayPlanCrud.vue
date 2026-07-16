@@ -9,6 +9,7 @@ import {formatDate} from "@drax/common-front"
 <template>
   <crud :entity="DayPlanCrud.instance">
     <template v-slot:item.date="{value}">{{formatDate(value)}}</template>
+    <template v-slot:item.user="{value}">{{value?.username}}</template>
   </crud>
 </template>
 

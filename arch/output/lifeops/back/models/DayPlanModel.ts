@@ -6,7 +6,8 @@ import mongoosePaginate from 'mongoose-paginate-v2'
 import type {IDayPlan} from '../interfaces/IDayPlan'
 
 const DayPlanSchema = new mongoose.Schema<IDayPlan>({
-            date: {type: Date,   required: true, index: true, unique: true },
+            date: {type: Date,   required: true, index: true, unique: false },
+            user: {type: mongoose.Schema.Types.ObjectId, ref: 'User',  required: true, index: true, unique: false },
             status: {type: String,  enum: ['BORRADOR', 'VISTO', 'CONFIRMADO', 'CERRADO'], required: true, index: true, unique: false },
             events: [{ 
                         googleEventId: {type: String,   required: true, index: true, unique: false },

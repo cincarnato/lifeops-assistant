@@ -49,6 +49,9 @@ import {HabitLogFastifyRoutes} from "../modules/lifeops/routes/HabitLogRoutes.js
 import {DayPlanFastifyRoutes} from "../modules/lifeops/routes/DayPlanRoutes.js"
 import {PushDeviceFastifyRoutes} from "../modules/push/routes/PushDeviceRoutes.js"
 import {PushMessageFastifyRoutes} from "../modules/push/routes/PushMessageRoutes.js"
+import {WhatsAppPhoneNumberFastifyRoutes} from "../modules/meta/routes/WhatsAppPhoneNumberRoutes.js"
+import {WhatsAppWebhookEventFastifyRoutes} from "../modules/meta/routes/WhatsAppWebhookEventRoutes.js"
+import {WhatsAppWebhookFastifyRoutes} from "../modules/meta/routes/WhatsAppWebhookRoutes.js"
 
 function FastifyServerFactory(rootDir:string) {
     const server = new FastifyServer(rootDir);
@@ -116,6 +119,9 @@ function FastifyServerFactory(rootDir:string) {
     server.fastifyRegister(DayPlanFastifyRoutes)
     server.fastifyRegister(PushDeviceFastifyRoutes)
     server.fastifyRegister(PushMessageFastifyRoutes)
+    server.fastifyRegister(WhatsAppPhoneNumberFastifyRoutes)
+    server.fastifyRegister(WhatsAppWebhookEventFastifyRoutes)
+    server.fastifyRegister(WhatsAppWebhookFastifyRoutes)
 
 
 

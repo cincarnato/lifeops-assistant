@@ -327,6 +327,30 @@ const menu: MenuItem[] = [
     ]
   },
   {
+    icon: 'mdi-whatsapp',
+    text: 'Meta',
+    gallery: true,
+    cols: 12,
+    md:6,
+    lg:4,
+    children: [
+      {
+        icon: 'mdi-phone-message-outline',
+        text: 'whatsappphonenumber.menu',
+        link: {name: "WhatsAppPhoneNumberCrudPage"},
+        gallery: true,
+        permission: 'whatsappphonenumber:manage'
+      },
+      {
+        icon: 'mdi-webhook',
+        text: 'whatsappwebhookevent.menu',
+        link: {name: "WhatsAppWebhookEventCrudPage"},
+        gallery: true,
+        permission: 'whatsappwebhookevent:manage'
+      },
+    ]
+  },
+  {
     icon: 'mdi-account-circle',
     text: 'admin',
     gallery: true,

@@ -13,7 +13,7 @@ import type{
 import DayPlanProvider from "../providers/DayPlanProvider";
 
 //Import EntityCrud Refs
-
+import {UserCrud} from "@drax/identity-vue"
 
 class DayPlanCrud extends EntityCrud implements IEntityCrud {
 
@@ -46,6 +46,7 @@ class DayPlanCrud extends EntityCrud implements IEntityCrud {
   get headers(): IEntityCrudHeader[] {
     return [
         {title: 'date',key:'date', align: 'start'},
+{title: 'user',key:'user', align: 'start'},
 {title: 'status',key:'status', align: 'start'}
     ]
   }
@@ -73,13 +74,14 @@ class DayPlanCrud extends EntityCrud implements IEntityCrud {
   
   get refs(): IEntityCrudRefs{
     return {
-      
+      User: UserCrud.instance
     }
   }
 
   get rules():IEntityCrudRules{
     return {
       date: [(v: any) => !!v || 'validation.required'],
+user: [(v: any) => !!v || 'validation.required'],
 status: [(v: any) => !!v || 'validation.required'],
 events: [],
 tasks: [],
@@ -91,6 +93,7 @@ suggestions: []
   get fields(): IEntityCrudField[]{
     return [
         {name:'date',type:'date',label:'date',default:null},
+{name:'user',type:'ref',label:'user',default:null,ref: 'User',refDisplay: 'username'},
 {name:'status',type:'enum',label:'status',default:'BORRADOR',enum: ['BORRADOR', 'VISTO', 'CONFIRMADO', 'CERRADO']},
 {name:'events',type:'array.object',label:'events',default:[],objectFields: [{name:'googleEventId',type:'string',label:'googleEventId',default:''},
 {name:'title',type:'string',label:'title',default:''},
@@ -202,4 +205,3 @@ suggestions: []
 }
 
 export default DayPlanCrud
-

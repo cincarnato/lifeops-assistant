@@ -41,6 +41,8 @@ import {DayPlanPermissions} from "../modules/lifeops/permissions/DayPlanPermissi
 import {GoogleConnectionPermissions} from "../modules/google/permissions/GoogleConnectionPermissions.js";
 import {PushDevicePermissions} from "../modules/push/permissions/PushDevicePermissions.js";
 import {PushMessagePermissions} from "../modules/push/permissions/PushMessagePermissions.js";
+import {WhatsAppPhoneNumberPermissions} from "../modules/meta/permissions/WhatsAppPhoneNumberPermissions.js";
+import {WhatsAppWebhookEventPermissions} from "../modules/meta/permissions/WhatsAppWebhookEventPermissions.js";
 
 
 function InitializePermissions() {
@@ -95,6 +97,8 @@ function InitializePermissions() {
         ...Object.values(GoogleConnectionPermissions),
         ...Object.values(PushDevicePermissions),
         ...Object.values(PushMessagePermissions),
+        ...Object.values(WhatsAppPhoneNumberPermissions),
+        ...Object.values(WhatsAppWebhookEventPermissions),
 
     ]
 

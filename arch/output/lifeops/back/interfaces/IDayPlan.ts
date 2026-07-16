@@ -1,6 +1,7 @@
 
 interface IDayPlanBase {
     date: Date
+    user: any
     status: string
     events?: Array<{
     googleEventId: string
@@ -31,6 +32,7 @@ interface IDayPlanBase {
 interface IDayPlan {
     _id: string
     date: Date
+    user: any
     status: string
     events?: Array<{
     googleEventId: string

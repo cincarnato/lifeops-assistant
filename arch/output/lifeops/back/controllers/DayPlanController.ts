@@ -15,9 +15,9 @@ class DayPlanController extends AbstractFastifyController<IDayPlan, IDayPlanBase
         this.tenantSetter = false;
         this.tenantAssert = false;
         
-        this.userFilter = false;
-        this.userSetter = false;
-        this.userAssert = false;
+        this.userFilter = true;
+        this.userSetter = true;
+        this.userAssert = true;
     }
 
 }

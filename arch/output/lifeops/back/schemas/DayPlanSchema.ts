@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 const DayPlanBaseSchema = z.object({
       date: z.coerce.date({error: "validation.date"}),
+    user: z.coerce.string().min(1,'validation.required'),
     status: z.enum(['BORRADOR', 'VISTO', 'CONFIRMADO', 'CERRADO']).default('BORRADOR'),
     events: z.array(
 z.object({    googleEventId: z.string().min(1,'validation.required'),
@@ -32,7 +33,7 @@ z.object({    title: z.string().min(1,'validation.required'),
 const DayPlanSchema = DayPlanBaseSchema
     .extend({
       _id: z.coerce.string(),
-       
+       user: z.object({_id: z.coerce.string(), username: z.string()})
     })
 
 export default DayPlanSchema;
