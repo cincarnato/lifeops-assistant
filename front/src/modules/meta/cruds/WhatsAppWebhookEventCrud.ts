@@ -5,7 +5,7 @@ import type{
   IEntityCrud,
   IEntityCrudField,
   IEntityCrudFilter,
-  IEntityCrudHeader, 
+  IEntityCrudHeader,
   IEntityCrudOperation,
   IEntityCrudPermissions,
   IEntityCrudRefs,
@@ -27,7 +27,7 @@ class WhatsAppWebhookEventCrud extends EntityCrud implements IEntityCrud {
     this.name = 'WhatsAppWebhookEvent'
     this.store = useCrudStore(this.name)
   }
-  
+
   static get instance(): WhatsAppWebhookEventCrud {
     if(!WhatsAppWebhookEventCrud.singleton){
       WhatsAppWebhookEventCrud.singleton = new WhatsAppWebhookEventCrud()
@@ -37,10 +37,10 @@ class WhatsAppWebhookEventCrud extends EntityCrud implements IEntityCrud {
 
   get permissions(): IEntityCrudPermissions{
     return {
-      manage: 'whatsappwebhookevent:manage', 
-      view: 'whatsappwebhookevent:view', 
-      create: 'whatsappwebhookevent:create', 
-      update: 'whatsappwebhookevent:update', 
+      manage: 'whatsappwebhookevent:manage',
+      view: 'whatsappwebhookevent:view',
+      create: 'whatsappwebhookevent:create',
+      update: 'whatsappwebhookevent:update',
       delete: 'whatsappwebhookevent:delete'
     }
   }
@@ -60,11 +60,11 @@ class WhatsAppWebhookEventCrud extends EntityCrud implements IEntityCrud {
 {title: 'deduplicationKey',key:'deduplicationKey', align: 'start'}
     ]
   }
-  
+
   get selectedHeaders(): string[] {
     return this.headers.map(header => header.key)
   }
-  
+
   get actionHeaders():IEntityCrudHeader[]{
     return [
       {
@@ -81,7 +81,7 @@ class WhatsAppWebhookEventCrud extends EntityCrud implements IEntityCrud {
   get provider(): IDraxCrudProvider<any, any, any>{
     return WhatsAppWebhookEventProvider.instance
   }
-  
+
   get refs(): IEntityCrudRefs{
     return {
       Tenant: TenantCrud.instance ,
@@ -103,32 +103,32 @@ payload: [(v: any) => !!v || 'validation.required']
 
   get fields(): IEntityCrudField[]{
     return [
-        {name:'tenantId',type:'ref',label:'tenantId',default:null,ref: 'Tenant',refDisplay: 'name'},
-{name:'phoneNumberRef',type:'ref',label:'phoneNumberRef',default:null,ref: 'WhatsAppPhoneNumber',refDisplay: 'displayPhoneNumber'},
-{name:'object',type:'string',label:'object',default:''},
-{name:'field',type:'string',label:'field',default:''},
-{name:'wabaId',type:'string',label:'wabaId',default:''},
-{name:'phoneNumberId',type:'string',label:'phoneNumberId',default:''},
-{name:'receivedAt',type:'date',label:'receivedAt',default:null},
-{name:'eventAt',type:'date',label:'eventAt',default:null},
-{name:'processingStatus',type:'enum',label:'processingStatus',default:'PENDING',enum: ['PENDING', 'PROCESSING', 'PROCESSED', 'IGNORED', 'ERROR']},
-{name:'processingAttempts',type:'number',label:'processingAttempts',default:0},
-{name:'processedAt',type:'date',label:'processedAt',default:null},
-{name:'lastProcessingAttemptAt',type:'date',label:'lastProcessingAttemptAt',default:null},
-{name:'lastError',type:'object',label:'lastError',default:{"message":"''","stack":"''","code":"''"},objectFields: [{name:'message',type:'string',label:'message',default:''},
+        {name:'tenantId',type:'ref',label:'tenantId',default:null,ref: 'Tenant',refDisplay: 'name',md:6},
+{name:'phoneNumberRef',type:'ref',label:'phoneNumberRef',default:null,ref: 'WhatsAppPhoneNumber',refDisplay: 'displayPhoneNumber',md:6},
+{name:'object',type:'string',label:'object',default:'',md:4},
+{name:'field',type:'string',label:'field',default:'',md:4},
+{name:'wabaId',type:'string',label:'wabaId',default:'',md:4},
+{name:'phoneNumberId',type:'string',label:'phoneNumberId',default:'',md:4},
+{name:'receivedAt',type:'date',label:'receivedAt',default:null,md:4},
+{name:'eventAt',type:'date',label:'eventAt',default:null,md:4},
+{name:'processingStatus',type:'enum',label:'processingStatus',default:'PENDING',enum: ['PENDING', 'PROCESSING', 'PROCESSED', 'IGNORED', 'ERROR'],md:4},
+{name:'processingAttempts',type:'number',label:'processingAttempts',default:0,md:4},
+{name:'processedAt',type:'date',label:'processedAt',default:null,md:4},
+{name:'lastProcessingAttemptAt',type:'date',label:'lastProcessingAttemptAt',default:null,md:4},
+{name:'lastError',type:'object',label:'lastError',default:{"message":"''","stack":"''","code":"''"},md:12,objectFields: [{name:'message',type:'string',label:'message',default:''},
 {name:'stack',type:'longString',label:'stack',default:''},
 {name:'code',type:'string',label:'code',default:''}]},
-{name:'payload',type:'object',label:'payload',default:{},objectFields: []},
-{name:'deduplicationKey',type:'string',label:'deduplicationKey',default:''}
+{name:'payload',type:'object',label:'payload',default:{},objectFields: [],md:12},
+{name:'deduplicationKey',type:'string',label:'deduplicationKey',default:'',md:12}
     ]
   }
-  
+
   get filters():IEntityCrudFilter[]{
     return [
       //{name: '_id', type: 'string', label: 'ID', default: '', operator: 'eq' },
     ]
   }
-  
+
   get isViewable(){
     return true
   }
@@ -138,7 +138,7 @@ payload: [(v: any) => !!v || 'validation.required']
   }
 
   get isCreatable(){
-    return true
+    return false
   }
 
   get isDeletable(){
@@ -160,7 +160,7 @@ payload: [(v: any) => !!v || 'validation.required']
   get isImportable(){
     return false
   }
-  
+
   get isColumnSelectable() {
     return true
   }
@@ -174,21 +174,21 @@ payload: [(v: any) => !!v || 'validation.required']
   }
 
   get dialogFullscreen(){
-    return false
+    return true
   }
-  
+
   get tabs() {
     return [
-     
+
     ]
   }
-  
+
   get menus() {
     return [
-     
+
     ]
   }
-  
+
   get searchEnable() {
     return true
   }
@@ -208,8 +208,12 @@ payload: [(v: any) => !!v || 'validation.required']
   get navigationOperations(): IEntityCrudOperation[]{
     return ['view'] // edit, delete
   }
-  
+
   get isSavedQueriesEnabled(){
+    return true
+  }
+
+  get containerFluid(){
     return true
   }
 

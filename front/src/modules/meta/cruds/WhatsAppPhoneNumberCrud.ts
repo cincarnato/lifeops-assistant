@@ -5,7 +5,7 @@ import type{
   IEntityCrud,
   IEntityCrudField,
   IEntityCrudFilter,
-  IEntityCrudHeader, 
+  IEntityCrudHeader,
   IEntityCrudOperation,
   IEntityCrudPermissions,
   IEntityCrudRefs,
@@ -26,7 +26,7 @@ class WhatsAppPhoneNumberCrud extends EntityCrud implements IEntityCrud {
     this.name = 'WhatsAppPhoneNumber'
     this.store = useCrudStore(this.name)
   }
-  
+
   static get instance(): WhatsAppPhoneNumberCrud {
     if(!WhatsAppPhoneNumberCrud.singleton){
       WhatsAppPhoneNumberCrud.singleton = new WhatsAppPhoneNumberCrud()
@@ -36,10 +36,10 @@ class WhatsAppPhoneNumberCrud extends EntityCrud implements IEntityCrud {
 
   get permissions(): IEntityCrudPermissions{
     return {
-      manage: 'whatsappphonenumber:manage', 
-      view: 'whatsappphonenumber:view', 
-      create: 'whatsappphonenumber:create', 
-      update: 'whatsappphonenumber:update', 
+      manage: 'whatsappphonenumber:manage',
+      view: 'whatsappphonenumber:view',
+      create: 'whatsappphonenumber:create',
+      update: 'whatsappphonenumber:update',
       delete: 'whatsappphonenumber:delete'
     }
   }
@@ -53,11 +53,11 @@ class WhatsAppPhoneNumberCrud extends EntityCrud implements IEntityCrud {
 {title: 'enabled',key:'enabled', align: 'start'}
     ]
   }
-  
+
   get selectedHeaders(): string[] {
     return this.headers.map(header => header.key)
   }
-  
+
   get actionHeaders():IEntityCrudHeader[]{
     return [
       {
@@ -74,10 +74,10 @@ class WhatsAppPhoneNumberCrud extends EntityCrud implements IEntityCrud {
   get provider(): IDraxCrudProvider<any, any, any>{
     return WhatsAppPhoneNumberProvider.instance
   }
-  
+
   get refs(): IEntityCrudRefs{
     return {
-      Tenant: TenantCrud.instance 
+      Tenant: TenantCrud.instance
     }
   }
 
@@ -100,13 +100,13 @@ enabled: [(v: any) => !!v || 'validation.required']
 {name:'enabled',type:'boolean',label:'enabled',default:true}
     ]
   }
-  
+
   get filters():IEntityCrudFilter[]{
     return [
       //{name: '_id', type: 'string', label: 'ID', default: '', operator: 'eq' },
     ]
   }
-  
+
   get isViewable(){
     return true
   }
@@ -138,7 +138,7 @@ enabled: [(v: any) => !!v || 'validation.required']
   get isImportable(){
     return false
   }
-  
+
   get isColumnSelectable() {
     return true
   }
@@ -154,19 +154,19 @@ enabled: [(v: any) => !!v || 'validation.required']
   get dialogFullscreen(){
     return false
   }
-  
+
   get tabs() {
     return [
-     
+
     ]
   }
-  
+
   get menus() {
     return [
-     
+
     ]
   }
-  
+
   get searchEnable() {
     return true
   }
@@ -186,8 +186,12 @@ enabled: [(v: any) => !!v || 'validation.required']
   get navigationOperations(): IEntityCrudOperation[]{
     return ['view'] // edit, delete
   }
-  
+
   get isSavedQueriesEnabled(){
+    return true
+  }
+
+  get containerFluid(){
     return true
   }
 

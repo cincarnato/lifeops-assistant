@@ -6,6 +6,8 @@ type WhatsAppWebhookProcessingStatus =
     | 'IGNORED'
     | 'ERROR';
 
+type WhatsAppWebhookPayload = Record<string, unknown>
+
 interface IWhatsAppWebhookEventLastError {
     message?: string
     stack?: string
@@ -26,7 +28,7 @@ interface IWhatsAppWebhookEventBase {
     processedAt?: Date
     lastProcessingAttemptAt?: Date
     lastError?: IWhatsAppWebhookEventLastError
-    payload: Record<string, unknown>
+    payload: WhatsAppWebhookPayload
     deduplicationKey?: string
     createdAt?: Date
     updatedAt?: Date
@@ -47,7 +49,7 @@ interface IWhatsAppWebhookEvent {
     processedAt?: Date
     lastProcessingAttemptAt?: Date
     lastError?: IWhatsAppWebhookEventLastError
-    payload: Record<string, unknown>
+    payload: WhatsAppWebhookPayload
     deduplicationKey?: string
     createdAt?: Date
     updatedAt?: Date
@@ -57,5 +59,6 @@ export type {
 IWhatsAppWebhookEventBase, 
 IWhatsAppWebhookEvent,
 IWhatsAppWebhookEventLastError,
+WhatsAppWebhookPayload,
 WhatsAppWebhookProcessingStatus
 }

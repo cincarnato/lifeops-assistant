@@ -25,6 +25,11 @@ const messages = {
            code: 'code',
            payload:'payload',
            deduplicationKey:'deduplicationKey'
+          },
+          ui: {
+            copyJson: 'Copy JSON',
+            invalidJson: 'Invalid JSON',
+            payloadObjectRequired: 'The JSON root must be an object'
           }
       },
       permission: {
@@ -59,6 +64,11 @@ const messages = {
            code: 'code',
            payload:'payload',
            deduplicationKey:'deduplicationKey'
+          },
+          ui: {
+            copyJson: 'Copiar JSON',
+            invalidJson: 'JSON inválido',
+            payloadObjectRequired: 'La raíz del JSON debe ser un objeto'
           }
       },
      permission: {

@@ -1,4 +1,6 @@
 
+type WhatsAppWebhookPayload = Record<string, unknown>
+
 interface IWhatsAppWebhookEventBase {
     tenantId?: any
     phoneNumberRef?: any
@@ -15,7 +17,7 @@ interface IWhatsAppWebhookEventBase {
     lastError?: {    message?: string
     stack?: string
     code?: string}
-    payload: {}
+    payload: WhatsAppWebhookPayload
     deduplicationKey?: string
     createdAt?: Date
     updatedAt?: Date
@@ -38,7 +40,7 @@ interface IWhatsAppWebhookEvent {
     lastError?: {    message?: string
     stack?: string
     code?: string}
-    payload: {}
+    payload: WhatsAppWebhookPayload
     deduplicationKey?: string
     createdAt?: Date
     updatedAt?: Date
@@ -46,5 +48,6 @@ interface IWhatsAppWebhookEvent {
 
 export type {
 IWhatsAppWebhookEventBase, 
-IWhatsAppWebhookEvent
+IWhatsAppWebhookEvent,
+WhatsAppWebhookPayload
 }

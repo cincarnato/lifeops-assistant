@@ -6,6 +6,7 @@ import type {ZodObject, ZodRawShape} from "zod";
 import {z} from "zod";
 import {createHash} from "node:crypto";
 import WhatsAppPhoneNumberServiceFactory from "../factory/services/WhatsAppPhoneNumberServiceFactory.js";
+import {WhatsAppWebhookPayloadSchema} from "../schemas/WhatsAppWebhookEventSchema.js";
 
 const MetaWebhookBodySchema = z.object({
     object: z.string().min(1, "validation.required"),
@@ -15,7 +16,7 @@ const MetaWebhookBodySchema = z.object({
             changes: z.array(
                 z.object({
                     field: z.string().min(1, "validation.required"),
-                    value: z.record(z.string(), z.unknown()),
+                    value: WhatsAppWebhookPayloadSchema,
                 }).passthrough()
             ).optional(),
         }).passthrough()
