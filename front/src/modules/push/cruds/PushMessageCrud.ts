@@ -46,13 +46,14 @@ class PushMessageCrud extends EntityCrud implements IEntityCrud {
 
   get headers(): IEntityCrudHeader[] {
     return [
-        {title: 'user',key:'user', align: 'start'},
-{title: 'title',key:'title', align: 'start'},
-{title: 'body',key:'body', align: 'start'},
-{title: 'status',key:'status', align: 'start'},
-{title: 'providerMessageId',key:'providerMessageId', align: 'start'},
-{title: 'type',key:'type', align: 'start'},
-{title: 'sentAt',key:'sentAt', align: 'start'}
+      {title: 'user', key: 'user', align: 'start'},
+      {title: 'title', key: 'title', align: 'start'},
+      {title: 'body', key: 'body', align: 'start'},
+      {title: 'status', key: 'status', align: 'start'},
+      {title: 'providerMessageId', key: 'providerMessageId', align: 'start'},
+      {title: 'type', key: 'type', align: 'start'},
+      {title: 'link', key: 'link', align: 'start'},
+      {title: 'sentAt', key: 'sentAt', align: 'start'}
     ]
   }
   
@@ -85,23 +86,24 @@ class PushMessageCrud extends EntityCrud implements IEntityCrud {
 
   get rules():IEntityCrudRules{
     return {
-      user: [(v: any) => !!v || 'validation.required'],
-title: [(v: any) => !!v || 'validation.required'],
-body: [(v: any) => !!v || 'validation.required'],
-status: [(v: any) => !!v || 'validation.required']
+      user: [],
+      title: [(v: any) => !!v || 'validation.required'],
+      body: [(v: any) => !!v || 'validation.required'],
+      status: [(v: any) => !!v || 'validation.required']
     }
   }
 
   get fields(): IEntityCrudField[]{
     return [
-        {name:'user',type:'ref',label:'user',default:null,ref: 'User',refDisplay: 'username'},
-{name:'title',type:'string',label:'title',default:''},
-{name:'body',type:'longString',label:'body',default:''},
-{name:'status',type:'enum',label:'status',default:'pending',enum: ['pending', 'sent', 'failed', 'read']},
-{name:'providerMessageId',type:'string',label:'providerMessageId',default:''},
-{name:'type',type:'string',label:'type',default:''},
-{name:'errorMessage',type:'longString',label:'errorMessage',default:''},
-{name:'sentAt',type:'date',label:'sentAt',default:null}
+      {name: 'user', type: 'ref', label: 'user', default: null, ref: 'User', refDisplay: 'username'},
+      {name: 'title', type: 'string', label: 'title', default: ''},
+      {name: 'body', type: 'longString', label: 'body', default: ''},
+      {name: 'status', type: 'enum', label: 'status', default: 'pending', enum: ['pending', 'sent', 'failed', 'read']},
+      {name: 'providerMessageId', type: 'string', label: 'providerMessageId', default: ''},
+      {name: 'type', type: 'string', label: 'type', default: ''},
+      {name: 'link', type: 'string', label: 'link', default: ''},
+      {name: 'errorMessage', type: 'longString', label: 'errorMessage', default: ''},
+      {name: 'sentAt', type: 'date', label: 'sentAt', default: null}
     ]
   }
   

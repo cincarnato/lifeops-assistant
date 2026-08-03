@@ -1,6 +1,7 @@
 
 <script setup lang="ts">
 import {computed, ref} from 'vue'
+import {useI18n} from 'vue-i18n'
 import PushDeviceCrud from '../../cruds/PushDeviceCrud'
 import {Crud} from "@drax/crud-vue";
 import {formatDate} from "@drax/common-front"
@@ -8,6 +9,7 @@ import PushMessageProvider from '../../providers/PushMessageProvider'
 import type {IPushDevice} from '../../interfaces/IPushDevice'
 import type {IPushMessage} from '../../interfaces/IPushMessage'
 
+const {t} = useI18n()
 const selectedDevice = ref<IPushDevice | null>(null)
 const dialog = ref(false)
 const loading = ref(false)
@@ -16,6 +18,7 @@ const createdMessage = ref<IPushMessage | null>(null)
 const form = ref({
   title: 'Notificación de prueba',
   body: 'Este es un mensaje push de prueba.',
+  link: '',
 })
 
 const canSend = computed(() => !!selectedDevice.value && !!form.value.title && !!form.value.body && !loading.value)
@@ -38,6 +41,7 @@ function openTestDialog(item: any) {
   form.value = {
     title: 'Notificación de prueba',
     body: `Mensaje de prueba para ${getDeviceLabel(device)}`,
+    link: `${window.location.origin}/push/{idpush}`,
   }
   dialog.value = true
 }
@@ -55,6 +59,7 @@ async function sendTest() {
       title: form.value.title,
       body: form.value.body,
       type: 'test',
+      link: form.value.link,
     })
   } catch (e: any) {
     console.error('Error sending test push message:', e)
@@ -100,6 +105,9 @@ async function sendTest() {
           class="mb-4"
         >
           Mensaje registrado con estado {{ createdMessage.status }}
+          <div v-if="createdMessage.link" class="text-caption mt-1">
+            {{ createdMessage.link }}
+          </div>
         </v-alert>
         <v-alert
           v-if="errorMessage"
@@ -121,6 +129,14 @@ async function sendTest() {
           label="Mensaje"
           variant="filled"
           rows="3"
+          :disabled="loading"
+        />
+        <v-text-field
+          v-model="form.link"
+          :label="t('pushmessage.field.link')"
+          :hint="t('pushmessage.hint.link')"
+          persistent-hint
+          variant="filled"
           :disabled="loading"
         />
       </v-card-text>

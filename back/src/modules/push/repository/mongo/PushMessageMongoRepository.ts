@@ -10,7 +10,7 @@ class PushMessageMongoRepository extends AbstractMongoRepository<IPushMessage, I
     constructor() {
         super();
         this._model = PushMessageModel;
-        this._searchFields = ['title', 'body', 'providerMessageId', 'type', 'errorMessage'];
+        this._searchFields = ['title', 'body', 'providerMessageId', 'type', 'link', 'errorMessage'];
         this._populateFields = ['user'];
         this._lean = true
     }
@@ -19,4 +19,3 @@ class PushMessageMongoRepository extends AbstractMongoRepository<IPushMessage, I
 
 export default PushMessageMongoRepository
 export {PushMessageMongoRepository}
-

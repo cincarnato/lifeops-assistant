@@ -25,6 +25,7 @@ async function PushMessageFastifyRoutes(fastify, options) {
                     title: {type: 'string'},
                     body: {type: 'string'},
                     type: {type: 'string', default: 'test'},
+                    link: {type: 'string'},
                 },
             },
         },
@@ -41,10 +42,24 @@ async function PushMessageFastifyRoutes(fastify, options) {
                     title: {type: 'string'},
                     body: {type: 'string'},
                     type: {type: 'string', default: 'web'},
+                    link: {type: 'string'},
                 },
             },
         },
     }, (req, rep) => controller.sendBrowser(req as any, rep))
+
+    fastify.get('/api/push-messages/public/:id', {
+        schema: {
+            tags: ['PushMessage'],
+            params: {
+                type: 'object',
+                required: ['id'],
+                properties: {
+                    id: {type: 'string'},
+                },
+            },
+        },
+    }, (req, rep) => controller.publicFindById(req as any, rep))
     
     fastify.get('/api/push-messages/:id', {schema: schemas.findByIdSchema}, (req,rep) => controller.findById(req,rep))
     

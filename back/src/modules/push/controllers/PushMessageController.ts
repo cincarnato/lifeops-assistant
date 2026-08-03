@@ -15,6 +15,7 @@ const PushMessageTestSchema = z.object({
     title: z.string().min(1, "validation.required"),
     body: z.string().min(1, "validation.required"),
     type: z.string().optional().default("test"),
+    link: z.string().optional(),
 });
 
 const PushMessageBrowserSchema = z.object({
@@ -22,6 +23,7 @@ const PushMessageBrowserSchema = z.object({
     title: z.string().optional(),
     body: z.string().min(1, "validation.required"),
     type: z.string().optional().default("web"),
+    link: z.string().optional(),
 });
 
 class PushMessageController extends AbstractFastifyController<IPushMessage, IPushMessageBase, IPushMessageBase>   {
@@ -50,16 +52,20 @@ class PushMessageController extends AbstractFastifyController<IPushMessage, IPus
                 throw new NotFoundError();
             }
 
-            const user = this.getId(device.user);
-            const sentAt = new Date();
-            const payload = {
+            const user = this.getOptionalId(device.user);
+            let message = await this.service.create({
                 user,
                 title: input.title,
                 body: input.body,
                 status: "failed",
                 type: input.type,
+                link: input.link,
                 errorMessage: "Push device is disabled",
-            } as IPushMessageBase;
+            } as IPushMessageBase);
+
+            const messageId = this.getId(message);
+            const link = this.resolvePushLink(input.link, messageId, request);
+            message = await this.service.updatePartial(messageId, {link} as IPushMessageBase);
 
             if (device.enabled) {
                 try {
@@ -68,18 +74,24 @@ class PushMessageController extends AbstractFastifyController<IPushMessage, IPus
                         title: input.title,
                         body: input.body,
                         type: input.type,
+                        link,
                     });
 
-                    payload.status = "sent";
-                    payload.providerMessageId = firebaseResult.providerMessageId;
-                    payload.errorMessage = undefined;
-                    payload.sentAt = sentAt;
+                    message = await this.service.updatePartial(messageId, {
+                        status: "sent",
+                        providerMessageId: firebaseResult.providerMessageId,
+                        errorMessage: undefined,
+                        sentAt: new Date(),
+                    } as IPushMessageBase);
                 } catch (e: any) {
-                    payload.errorMessage = e?.message ?? "Firebase push send failed";
+                    message = await this.service.updatePartial(messageId, {
+                        status: "failed",
+                        errorMessage: e?.message ?? "Firebase push send failed",
+                    } as IPushMessageBase);
                 }
             }
 
-            return reply.send(await this.service.create(payload));
+            return reply.send(message);
         } catch (e: any) {
             if (e?.name === "ZodError") {
                 return reply.status(400).send({
@@ -108,8 +120,52 @@ class PushMessageController extends AbstractFastifyController<IPushMessage, IPus
         }
     }
 
+    async publicFindById(request: CustomRequest, reply: FastifyReply) {
+        try {
+            const params = z.object({
+                id: z.string().min(1, "validation.required"),
+            }).parse(request.params ?? {});
+            const message = await this.service.findById(params.id);
+            if (!message) {
+                throw new NotFoundError();
+            }
+
+            return reply.send({
+                _id: this.getId(message),
+                title: message.title,
+                body: message.body,
+                status: message.status,
+                link: message.link,
+            });
+        } catch (e: any) {
+            if (e?.name === "ZodError") {
+                return reply.status(400).send({
+                    message: e?.message || "Push message validation error",
+                });
+            }
+
+            this.handleError(e, reply);
+        }
+    }
+
     private getId(value: any): string {
         return String(value?._id ?? value?.id ?? value);
+    }
+
+    private getOptionalId(value: any): string | null {
+        const id = value?._id ?? value?.id ?? value;
+        return id ? String(id) : null;
+    }
+
+    private resolvePushLink(link: string | undefined, messageId: string, request: CustomRequest): string {
+        const fallback = `${this.getRequestOrigin(request)}/push/{idpush}`;
+        return (link?.trim() || fallback).split("{idpush}").join(messageId);
+    }
+
+    private getRequestOrigin(request: CustomRequest): string {
+        const protocol = (request.headers["x-forwarded-proto"] as string | undefined)?.split(",")[0] || request.protocol || "http";
+        const host = request.headers["x-forwarded-host"] || request.headers.host;
+        return `${protocol}://${host}`;
     }
 
 }

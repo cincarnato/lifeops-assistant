@@ -13,8 +13,12 @@ const messages = {
            status:'status',
            providerMessageId:'providerMessageId',
            type:'type',
+           link:'link',
            errorMessage:'errorMessage',
            sentAt:'sentAt'
+          },
+          hint:{
+              link:'Use {idpush} to insert the real PushMessage ID.'
           }
       },
       permission: {
@@ -37,8 +41,12 @@ const messages = {
            status:'status',
            providerMessageId:'providerMessageId',
            type:'type',
+           link:'link',
            errorMessage:'errorMessage',
            sentAt:'sentAt'
+          },
+          hint:{
+              link:'Usa {idpush} para insertar el ID real del PushMessage.'
           }
       },
      permission: {

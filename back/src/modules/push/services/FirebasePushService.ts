@@ -5,6 +5,7 @@ interface IFirebasePushInput {
     title: string;
     body: string;
     type?: string;
+    link?: string;
 }
 
 interface IFirebasePushResult {
@@ -17,6 +18,10 @@ class FirebasePushService {
     async send(input: IFirebasePushInput): Promise<IFirebasePushResult> {
         const projectId = this.getProjectId();
         const accessToken = await this.getAccessToken();
+        const data = {
+            type: input.type ?? "test",
+            ...(input.link ? {link: input.link} : {}),
+        };
         const response = await fetch(`https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`, {
             method: "POST",
             headers: {
@@ -30,9 +35,12 @@ class FirebasePushService {
                         title: input.title,
                         body: input.body,
                     },
-                    data: {
-                        type: input.type ?? "test",
-                    },
+                    data,
+                    webpush: this.isAbsoluteWebLink(input.link) ? {
+                        fcm_options: {
+                            link: input.link,
+                        },
+                    } : undefined,
                 },
             }),
         });
@@ -90,6 +98,10 @@ class FirebasePushService {
         }
 
         return projectId;
+    }
+
+    private isAbsoluteWebLink(link?: string): boolean {
+        return !!link && /^https?:\/\//i.test(link);
     }
 }
 

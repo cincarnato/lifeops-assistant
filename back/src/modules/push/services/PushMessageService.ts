@@ -12,6 +12,7 @@ interface ISendBrowserNotificationInput {
     title?: string;
     body: string;
     type?: string;
+    link?: string;
 }
 
 interface ISendBrowserNotificationTargetResult {
@@ -71,31 +72,44 @@ class PushMessageService extends AbstractService<IPushMessage, IPushMessageBase,
                 body,
                 status: "failed",
                 type,
+                errorMessage: "Push device is disabled",
             } as IPushMessageBase;
 
-            try {
-                const firebaseResult = await FirebasePushServiceFactory.instance.send({
-                    token: device.token,
-                    title,
-                    body,
-                    type,
-                });
+            let message = await this.create(payload);
+            const pushMessageId = this.getId(message);
+            const link = this.resolvePushLink(input.link, pushMessageId);
+            message = await this.updatePartial(pushMessageId, {link} as IPushMessageBase);
 
-                payload.status = "sent";
-                payload.providerMessageId = firebaseResult.providerMessageId;
-                payload.sentAt = new Date();
-            } catch (e: any) {
-                payload.errorMessage = e?.message ?? "Firebase browser push send failed";
+            if (device.enabled) {
+                try {
+                    const firebaseResult = await FirebasePushServiceFactory.instance.send({
+                        token: device.token,
+                        title,
+                        body,
+                        type,
+                        link,
+                    });
+
+                    message = await this.updatePartial(pushMessageId, {
+                        status: "sent",
+                        providerMessageId: firebaseResult.providerMessageId,
+                        errorMessage: undefined,
+                        sentAt: new Date(),
+                    } as IPushMessageBase);
+                } catch (e: any) {
+                    message = await this.updatePartial(pushMessageId, {
+                        status: "failed",
+                        errorMessage: e?.message ?? "Firebase browser push send failed",
+                    } as IPushMessageBase);
+                }
             }
-
-            const message = await this.create(payload);
 
             return {
                 pushDeviceId: this.getId(device),
-                status: payload.status === "sent" ? "sent" : "failed",
+                status: message.status === "sent" ? "sent" : "failed",
                 pushMessageId: this.getId(message),
-                providerMessageId: payload.providerMessageId,
-                errorMessage: payload.errorMessage,
+                providerMessageId: message.providerMessageId,
+                errorMessage: message.errorMessage,
             } as ISendBrowserNotificationTargetResult;
         }));
 
@@ -112,6 +126,10 @@ class PushMessageService extends AbstractService<IPushMessage, IPushMessageBase,
 
     private getId(value: any): string {
         return String(value?._id ?? value?.id ?? value);
+    }
+
+    private resolvePushLink(link: string | undefined, pushMessageId: string): string {
+        return (link?.trim() || "/push/{idpush}").split("{idpush}").join(pushMessageId);
     }
 
 }

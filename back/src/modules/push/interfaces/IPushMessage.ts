@@ -1,11 +1,12 @@
 
 interface IPushMessageBase {
-    user: any
+    user?: any
     title: string
     body: string
     status: string
     providerMessageId?: string
     type?: string
+    link?: string
     errorMessage?: string
     sentAt?: Date
     createdAt?: Date
@@ -14,12 +15,13 @@ interface IPushMessageBase {
 
 interface IPushMessage {
     _id: string
-    user: any
+    user?: any
     title: string
     body: string
     status: string
     providerMessageId?: string
     type?: string
+    link?: string
     errorMessage?: string
     sentAt?: Date
     createdAt?: Date

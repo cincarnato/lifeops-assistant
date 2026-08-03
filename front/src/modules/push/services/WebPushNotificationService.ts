@@ -111,15 +111,22 @@ class WebPushNotificationService {
     onMessage(messaging, payload => {
       const title = payload.notification?.title || payload.data?.title
       const body = payload.notification?.body || payload.data?.body
+      const link = payload.data?.link
 
       if (!title || Notification.permission !== 'granted') {
         return
       }
 
-      new Notification(title, {
+      const notification = new Notification(title, {
         body,
         data: payload.data,
       })
+
+      notification.onclick = () => {
+        if (link) {
+          window.open(link, '_blank')
+        }
+      }
     })
   }
 

@@ -6,12 +6,13 @@ import mongoosePaginate from 'mongoose-paginate-v2'
 import type {IPushMessage} from '../interfaces/IPushMessage'
 
 const PushMessageSchema = new mongoose.Schema<IPushMessage>({
-            user: {type: mongoose.Schema.Types.ObjectId, ref: 'User',  required: true, index: true, unique: false },
+            user: {type: mongoose.Schema.Types.ObjectId, ref: 'User',  required: false, index: true, unique: false },
             title: {type: String,   required: true, index: false, unique: false },
             body: {type: String,   required: true, index: false, unique: false },
             status: {type: String,  enum: ['pending', 'sent', 'failed', 'read'], required: true, index: true, unique: false },
             providerMessageId: {type: String,   required: false, index: true, unique: false },
             type: {type: String,   required: false, index: true, unique: false },
+            link: {type: String,   required: false, index: false, unique: false },
             errorMessage: {type: String,   required: false, index: false, unique: false },
             sentAt: {type: Date,   required: false, index: true, unique: false }
 }, {timestamps: true});

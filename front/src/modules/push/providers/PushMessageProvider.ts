@@ -8,6 +8,7 @@ interface IPushMessageTestInput {
   title: string
   body: string
   type?: string
+  link?: string
 }
 
 interface IPushBrowserMessageInput {
@@ -15,6 +16,7 @@ interface IPushBrowserMessageInput {
   title?: string
   body: string
   type?: string
+  link?: string
 }
 
 interface IPushBrowserMessageResult {
@@ -53,6 +55,10 @@ class PushMessageProvider extends AbstractCrudRestProvider<IPushMessage, IPushMe
 
   async sendBrowser(input: IPushBrowserMessageInput): Promise<IPushBrowserMessageResult> {
     return await this.httpClient.post('/api/push-messages/browser', input) as IPushBrowserMessageResult
+  }
+
+  async publicFindById(id: string): Promise<IPushMessage> {
+    return await this.httpClient.get(`/api/push-messages/public/${id}`) as IPushMessage
   }
 
 }

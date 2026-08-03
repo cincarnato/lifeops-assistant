@@ -9,7 +9,7 @@ class PushMessageSqliteRepository extends AbstractSqliteRepository<IPushMessage,
     protected db: any;
     protected tableName: string = 'PushMessage';
     protected dataBaseFile: string;
-    protected searchFields: string[] = ['title', 'body', 'providerMessageId', 'type', 'errorMessage'];
+    protected searchFields: string[] = ['title', 'body', 'providerMessageId', 'type', 'link', 'errorMessage'];
     protected booleanFields: string[] = [];
     protected jsonFields: string[] = [];
     protected identifier: string = '_id';
@@ -19,17 +19,17 @@ class PushMessageSqliteRepository extends AbstractSqliteRepository<IPushMessage,
     protected verbose: boolean = false;
     protected tableFields: SqliteTableField[] = [
         {name: "user", type: "TEXT", unique: undefined, primary: false},
-{name: "title", type: "TEXT", unique: undefined, primary: false},
-{name: "body", type: "TEXT", unique: undefined, primary: false},
-{name: "status", type: "TEXT", unique: undefined, primary: false},
-{name: "providerMessageId", type: "TEXT", unique: undefined, primary: false},
-{name: "type", type: "TEXT", unique: undefined, primary: false},
-{name: "errorMessage", type: "TEXT", unique: undefined, primary: false},
-{name: "sentAt", type: "TEXT", unique: undefined, primary: false}
+        {name: "title", type: "TEXT", unique: undefined, primary: false},
+        {name: "body", type: "TEXT", unique: undefined, primary: false},
+        {name: "status", type: "TEXT", unique: undefined, primary: false},
+        {name: "providerMessageId", type: "TEXT", unique: undefined, primary: false},
+        {name: "type", type: "TEXT", unique: undefined, primary: false},
+        {name: "link", type: "TEXT", unique: undefined, primary: false},
+        {name: "errorMessage", type: "TEXT", unique: undefined, primary: false},
+        {name: "sentAt", type: "TEXT", unique: undefined, primary: false}
     ]
   
 }
 
 export default PushMessageSqliteRepository
 export {PushMessageSqliteRepository}
-
