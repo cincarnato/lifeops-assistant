@@ -11,6 +11,10 @@ Monorepo with three main packages:
 
 Project-specific Codex skills are available in `.agent/skills`. When a task matches one of those skills, inspect the corresponding `SKILL.md` before implementing changes.
 
+## Local Workflows
+
+Project-specific workflows are available in `.agent/workflows`. When a task matches one of those workflows, inspect the corresponding `workflow-name.md` before implementing changes.
+
 ### Entity Architecture Rules
 
 - Every entity must include Model, Schema, Interface, Service, Repository, and ServiceFactory.

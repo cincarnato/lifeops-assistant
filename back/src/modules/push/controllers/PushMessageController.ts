@@ -17,6 +17,13 @@ const PushMessageTestSchema = z.object({
     type: z.string().optional().default("test"),
 });
 
+const PushMessageBrowserSchema = z.object({
+    targetUserId: z.string().min(1, "validation.required"),
+    title: z.string().optional(),
+    body: z.string().min(1, "validation.required"),
+    type: z.string().optional().default("web"),
+});
+
 class PushMessageController extends AbstractFastifyController<IPushMessage, IPushMessageBase, IPushMessageBase>   {
 
     constructor() {
@@ -77,6 +84,23 @@ class PushMessageController extends AbstractFastifyController<IPushMessage, IPus
             if (e?.name === "ZodError") {
                 return reply.status(400).send({
                     message: e?.message || "Push message validation error",
+                });
+            }
+
+            this.handleError(e, reply);
+        }
+    }
+
+    async sendBrowser(request: CustomRequest, reply: FastifyReply) {
+        try {
+            request.rbac.assertPermission(PushMessagePermissions.Create);
+
+            const input = PushMessageBrowserSchema.parse(request.body ?? {});
+            return reply.send(await PushMessageServiceFactory.instance.sendBrowserNotification(input));
+        } catch (e: any) {
+            if (e?.name === "ZodError") {
+                return reply.status(400).send({
+                    message: e?.message || "Browser push message validation error",
                 });
             }
 

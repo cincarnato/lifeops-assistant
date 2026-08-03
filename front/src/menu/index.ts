@@ -311,6 +311,12 @@ const menu: MenuItem[] = [
     lg:4,
     children: [
       {
+        icon: 'mdi-bell-check-outline',
+        text: 'push.web.title',
+        link: {name: "WebPushNotificationPage"},
+        gallery: true,
+      },
+      {
         icon: 'mdi-cellphone-link',
         text: 'pushdevice.menu',
         link: {name: "PushDeviceCrudPage"},

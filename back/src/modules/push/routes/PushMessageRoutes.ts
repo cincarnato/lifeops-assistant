@@ -29,6 +29,22 @@ async function PushMessageFastifyRoutes(fastify, options) {
             },
         },
     }, (req, rep) => controller.sendTest(req as any, rep))
+
+    fastify.post('/api/push-messages/browser', {
+        schema: {
+            tags: ['PushMessage'],
+            body: {
+                type: 'object',
+                required: ['targetUserId', 'body'],
+                properties: {
+                    targetUserId: {type: 'string'},
+                    title: {type: 'string'},
+                    body: {type: 'string'},
+                    type: {type: 'string', default: 'web'},
+                },
+            },
+        },
+    }, (req, rep) => controller.sendBrowser(req as any, rep))
     
     fastify.get('/api/push-messages/:id', {schema: schemas.findByIdSchema}, (req,rep) => controller.findById(req,rep))
     
