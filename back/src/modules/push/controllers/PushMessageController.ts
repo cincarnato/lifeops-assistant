@@ -32,14 +32,14 @@ class PushMessageController extends AbstractFastifyController<IPushMessage, IPus
         super(PushMessageServiceFactory.instance, PushMessagePermissions)
         this.tenantField = "tenant";
         this.userField = "user";
-        
+
         this.tenantFilter = false;
         this.tenantSetter = false;
         this.tenantAssert = false;
-        
-        this.userFilter = true;
+
+        this.userFilter = false;
         this.userSetter = true;
-        this.userAssert = true;
+        this.userAssert = false;
     }
 
     async sendTest(request: CustomRequest, reply: FastifyReply) {

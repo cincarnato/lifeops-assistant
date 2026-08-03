@@ -21,14 +21,14 @@ class PushDeviceController extends AbstractFastifyController<IPushDevice, IPushD
         super(PushDeviceServiceFactory.instance, PushDevicePermissions)
         this.tenantField = "tenant";
         this.userField = "user";
-        
+
         this.tenantFilter = false;
         this.tenantSetter = false;
         this.tenantAssert = false;
-        
-        this.userFilter = true;
+
+        this.userFilter = false;
         this.userSetter = true;
-        this.userAssert = true;
+        this.userAssert = false;
     }
 
     async register(request: CustomRequest, reply: FastifyReply) {
