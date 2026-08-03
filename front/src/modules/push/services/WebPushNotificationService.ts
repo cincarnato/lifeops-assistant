@@ -28,7 +28,7 @@ class WebPushNotificationService {
     return WebPushNotificationService.singleton
   }
 
-  async registerBrowser(): Promise<WebPushRegisterResult> {
+  async registerBrowser(guestLabel?: string): Promise<WebPushRegisterResult> {
     this.assertBrowserSupport()
 
     const permission = await Notification.requestPermission()
@@ -51,6 +51,7 @@ class WebPushNotificationService {
       platform: 'web',
       token,
       deviceName: this.getDeviceName(),
+      guestLabel: guestLabel?.trim() || undefined,
       enabled: true,
     })
 

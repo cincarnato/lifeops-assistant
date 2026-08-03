@@ -6,7 +6,7 @@ const WebPushNotificationRoute = [
     path: '/push/web',
     component: WebPushNotificationPage,
     meta: {
-      auth: true,
+      auth: false,
     }
   },
 ]

@@ -1,6 +1,8 @@
 
 interface IPushDeviceBase {
-    user: any
+    user?: any
+    isGuest?: boolean
+    guestLabel?: string
     platform: string
     token: string
     deviceName?: string
@@ -12,7 +14,9 @@ interface IPushDeviceBase {
 
 interface IPushDevice {
     _id: string
-    user: any
+    user?: any
+    isGuest?: boolean
+    guestLabel?: string
     platform: string
     token: string
     deviceName?: string

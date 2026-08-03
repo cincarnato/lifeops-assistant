@@ -46,12 +46,14 @@ class PushDeviceCrud extends EntityCrud implements IEntityCrud {
 
   get headers(): IEntityCrudHeader[] {
     return [
-        {title: 'user',key:'user', align: 'start'},
-{title: 'platform',key:'platform', align: 'start'},
-{title: 'token',key:'token', align: 'start'},
-{title: 'deviceName',key:'deviceName', align: 'start'},
-{title: 'enabled',key:'enabled', align: 'start'},
-{title: 'lastSeenAt',key:'lastSeenAt', align: 'start'}
+      {title: 'user', key: 'user', align: 'start'},
+      {title: 'isGuest', key: 'isGuest', align: 'start'},
+      {title: 'guestLabel', key: 'guestLabel', align: 'start'},
+      {title: 'platform', key: 'platform', align: 'start'},
+      {title: 'token', key: 'token', align: 'start'},
+      {title: 'deviceName', key: 'deviceName', align: 'start'},
+      {title: 'enabled', key: 'enabled', align: 'start'},
+      {title: 'lastSeenAt', key: 'lastSeenAt', align: 'start'}
     ]
   }
   
@@ -84,21 +86,25 @@ class PushDeviceCrud extends EntityCrud implements IEntityCrud {
 
   get rules():IEntityCrudRules{
     return {
-      user: [(v: any) => !!v || 'validation.required'],
-platform: [(v: any) => !!v || 'validation.required'],
-token: [(v: any) => !!v || 'validation.required'],
-enabled: [(v: any) => !!v || 'validation.required']
+      user: [],
+      isGuest: [],
+      guestLabel: [],
+      platform: [(v: any) => !!v || 'validation.required'],
+      token: [(v: any) => !!v || 'validation.required'],
+      enabled: [(v: any) => !!v || 'validation.required']
     }
   }
 
   get fields(): IEntityCrudField[]{
     return [
-        {name:'user',type:'ref',label:'user',default:null,ref: 'User',refDisplay: 'username'},
-{name:'platform',type:'enum',label:'platform',default:null,enum: ['android', 'ios', 'web']},
-{name:'token',type:'string',label:'token',default:''},
-{name:'deviceName',type:'string',label:'deviceName',default:''},
-{name:'enabled',type:'boolean',label:'enabled',default:true},
-{name:'lastSeenAt',type:'date',label:'lastSeenAt',default:null}
+      {name: 'user', type: 'ref', label: 'user', default: null, ref: 'User', refDisplay: 'username'},
+      {name: 'isGuest', type: 'boolean', label: 'isGuest', default: false},
+      {name: 'guestLabel', type: 'string', label: 'guestLabel', default: ''},
+      {name: 'platform', type: 'enum', label: 'platform', default: null, enum: ['android', 'ios', 'web']},
+      {name: 'token', type: 'string', label: 'token', default: ''},
+      {name: 'deviceName', type: 'string', label: 'deviceName', default: ''},
+      {name: 'enabled', type: 'boolean', label: 'enabled', default: true},
+      {name: 'lastSeenAt', type: 'date', label: 'lastSeenAt', default: null}
     ]
   }
   

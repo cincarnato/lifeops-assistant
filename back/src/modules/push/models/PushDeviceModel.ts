@@ -6,7 +6,9 @@ import mongoosePaginate from 'mongoose-paginate-v2'
 import type {IPushDevice} from '../interfaces/IPushDevice'
 
 const PushDeviceSchema = new mongoose.Schema<IPushDevice>({
-            user: {type: mongoose.Schema.Types.ObjectId, ref: 'User',  required: true, index: true, unique: false },
+            user: {type: mongoose.Schema.Types.ObjectId, ref: 'User',  required: false, index: true, unique: false },
+            isGuest: {type: Boolean, required: true, default: false, index: true, unique: false },
+            guestLabel: {type: String, required: false, maxlength: 120, index: true, unique: false },
             platform: {type: String,  enum: ['android', 'ios', 'web'], required: true, index: true, unique: false },
             token: {type: String,   required: true, index: true, unique: true },
             deviceName: {type: String,   required: false, index: false, unique: false },

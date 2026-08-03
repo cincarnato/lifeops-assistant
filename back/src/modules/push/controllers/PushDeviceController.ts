@@ -11,6 +11,7 @@ const PushDeviceRegisterSchema = z.object({
     platform: z.enum(["android", "ios", "web"]),
     token: z.string().min(1, "validation.required"),
     deviceName: z.string().optional(),
+    guestLabel: z.string().trim().max(120).optional(),
     enabled: z.boolean().optional().default(true),
 });
 
@@ -32,12 +33,13 @@ class PushDeviceController extends AbstractFastifyController<IPushDevice, IPushD
 
     async register(request: CustomRequest, reply: FastifyReply) {
         try {
-            request?.rbac.assertAuthenticated()
-
             const input = PushDeviceRegisterSchema.parse(request.body ?? {});
-            const userId = request.rbac.userId;
+            const userId = request.rbac?.userId ?? request.authUser?.id ?? null;
+            const isGuest = !userId;
             const payload = {
-                user: userId,
+                user: userId ?? null,
+                isGuest,
+                guestLabel: isGuest ? input.guestLabel : undefined,
                 platform: input.platform,
                 token: input.token,
                 deviceName: input.deviceName,
@@ -47,7 +49,10 @@ class PushDeviceController extends AbstractFastifyController<IPushDevice, IPushD
 
             const existing = await this.service.findOneBy("token", input.token);
             if (existing?._id) {
-                return reply.send(await this.service.updatePartial(existing._id, payload));
+                return reply.send(await this.service.updatePartial(existing._id, {
+                    ...payload,
+                    guestLabel: isGuest ? input.guestLabel : existing.guestLabel,
+                }));
             }
 
             return reply.send(await this.service.create(payload));

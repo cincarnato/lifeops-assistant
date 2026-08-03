@@ -8,6 +8,8 @@ const messages = {
           crud: 'Manage PushDevice',
           field:{
                        user:'user',
+           isGuest:'isGuest',
+           guestLabel:'guestLabel',
            platform:'platform',
            token:'token',
            deviceName:'deviceName',
@@ -30,6 +32,8 @@ const messages = {
           crud: 'Gestionar PushDevice',
           field:{
                        user:'user',
+           isGuest:'invitado',
+           guestLabel:'label invitado',
            platform:'platform',
            token:'token',
            deviceName:'deviceName',

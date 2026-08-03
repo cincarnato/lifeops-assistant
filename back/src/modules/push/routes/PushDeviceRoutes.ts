@@ -24,6 +24,7 @@ async function PushDeviceFastifyRoutes(fastify, options) {
                     platform: {type: 'string', enum: ['android', 'ios', 'web']},
                     token: {type: 'string'},
                     deviceName: {type: 'string'},
+                    guestLabel: {type: 'string', maxLength: 120},
                     enabled: {type: 'boolean', default: true},
                 },
             },

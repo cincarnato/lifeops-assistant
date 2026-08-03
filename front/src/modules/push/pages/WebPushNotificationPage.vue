@@ -10,6 +10,7 @@ const loading = ref(false)
 const permission = ref(service.getPermissionStatus())
 const pushDeviceId = ref<string | null>(null)
 const errorKey = ref<string | null>(null)
+const guestLabel = ref('')
 
 const permissionLabel = computed(() => {
   if (permission.value === 'unsupported') {
@@ -27,7 +28,7 @@ async function registerWebPush() {
   pushDeviceId.value = null
 
   try {
-    const result = await service.registerBrowser()
+    const result = await service.registerBrowser(guestLabel.value)
     permission.value = result.permission
     pushDeviceId.value = result.pushDeviceId ?? null
   } catch (e: any) {
@@ -51,6 +52,17 @@ async function registerWebPush() {
           <div class="text-body-2 text-medium-emphasis mb-6">
             {{ t('push.web.status.current', {status: permissionLabel}) }}
           </div>
+
+          <v-text-field
+            v-model="guestLabel"
+            class="mb-4"
+            :label="t('push.web.fields.guestLabel')"
+            :hint="t('push.web.hints.guestLabel')"
+            maxlength="120"
+            counter
+            persistent-hint
+            clearable
+          />
 
           <v-btn
             color="primary"

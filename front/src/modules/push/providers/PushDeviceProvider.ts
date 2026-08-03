@@ -7,6 +7,7 @@ interface IPushDeviceRegisterInput {
   platform: 'android' | 'ios' | 'web'
   token: string
   deviceName?: string
+  guestLabel?: string
   enabled?: boolean
 }
 

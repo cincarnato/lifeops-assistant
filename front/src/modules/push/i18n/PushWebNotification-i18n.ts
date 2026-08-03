@@ -3,6 +3,12 @@ const messages = {
     push: {
       web: {
         title: 'Web Notifications',
+        fields: {
+          guestLabel: 'Guest label',
+        },
+        hints: {
+          guestLabel: 'Optional identifier for guest subscriptions.',
+        },
         actions: {
           enable: 'Quiero Recibir Notificaciones Web',
         },
@@ -31,6 +37,12 @@ const messages = {
     push: {
       web: {
         title: 'Notificaciones Web',
+        fields: {
+          guestLabel: 'Label invitado',
+        },
+        hints: {
+          guestLabel: 'Identificador opcional para suscripciones invitadas.',
+        },
         actions: {
           enable: 'Quiero Recibir Notificaciones Web',
         },

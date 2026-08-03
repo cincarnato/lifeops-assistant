@@ -10,7 +10,7 @@ class PushDeviceMongoRepository extends AbstractMongoRepository<IPushDevice, IPu
     constructor() {
         super();
         this._model = PushDeviceModel;
-        this._searchFields = ['token', 'deviceName'];
+        this._searchFields = ['token', 'deviceName', 'guestLabel'];
         this._populateFields = ['user'];
         this._lean = true
     }
@@ -19,4 +19,3 @@ class PushDeviceMongoRepository extends AbstractMongoRepository<IPushDevice, IPu
 
 export default PushDeviceMongoRepository
 export {PushDeviceMongoRepository}
-

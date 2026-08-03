@@ -9,8 +9,8 @@ class PushDeviceSqliteRepository extends AbstractSqliteRepository<IPushDevice, I
     protected db: any;
     protected tableName: string = 'PushDevice';
     protected dataBaseFile: string;
-    protected searchFields: string[] = ['token', 'deviceName'];
-    protected booleanFields: string[] = ['enabled'];
+    protected searchFields: string[] = ['token', 'deviceName', 'guestLabel'];
+    protected booleanFields: string[] = ['isGuest', 'enabled'];
     protected jsonFields: string[] = [];
     protected identifier: string = '_id';
     protected populateFields = [
@@ -19,15 +19,16 @@ class PushDeviceSqliteRepository extends AbstractSqliteRepository<IPushDevice, I
     protected verbose: boolean = false;
     protected tableFields: SqliteTableField[] = [
         {name: "user", type: "TEXT", unique: undefined, primary: false},
-{name: "platform", type: "TEXT", unique: undefined, primary: false},
-{name: "token", type: "TEXT", unique: true, primary: false},
-{name: "deviceName", type: "TEXT", unique: undefined, primary: false},
-{name: "enabled", type: "TEXT", unique: undefined, primary: false},
-{name: "lastSeenAt", type: "TEXT", unique: undefined, primary: false}
+        {name: "isGuest", type: "TEXT", unique: undefined, primary: false},
+        {name: "guestLabel", type: "TEXT", unique: undefined, primary: false},
+        {name: "platform", type: "TEXT", unique: undefined, primary: false},
+        {name: "token", type: "TEXT", unique: true, primary: false},
+        {name: "deviceName", type: "TEXT", unique: undefined, primary: false},
+        {name: "enabled", type: "TEXT", unique: undefined, primary: false},
+        {name: "lastSeenAt", type: "TEXT", unique: undefined, primary: false}
     ]
   
 }
 
 export default PushDeviceSqliteRepository
 export {PushDeviceSqliteRepository}
-
