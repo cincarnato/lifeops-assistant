@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import {computed, ref} from 'vue'
 import {useI18n} from 'vue-i18n'
+import {useAuth} from '@drax/identity-vue'
 import WebPushNotificationService from '../services/WebPushNotificationService'
 
 const {t} = useI18n()
+const {isAuthenticated} = useAuth()
 
 const service = WebPushNotificationService.instance
 const loading = ref(false)
@@ -20,6 +22,8 @@ const permissionLabel = computed(() => {
   return t(`push.web.permission.${permission.value}`)
 })
 
+const showGuestLabel = computed(() => !isAuthenticated())
+
 async function registerWebPush() {
   if (loading.value) return
 
@@ -28,7 +32,7 @@ async function registerWebPush() {
   pushDeviceId.value = null
 
   try {
-    const result = await service.registerBrowser(guestLabel.value)
+    const result = await service.registerBrowser(showGuestLabel.value ? guestLabel.value : undefined)
     permission.value = result.permission
     pushDeviceId.value = result.pushDeviceId ?? null
   } catch (e: any) {
@@ -54,6 +58,7 @@ async function registerWebPush() {
           </div>
 
           <v-text-field
+            v-if="showGuestLabel"
             v-model="guestLabel"
             class="mb-4"
             :label="t('push.web.fields.guestLabel')"
