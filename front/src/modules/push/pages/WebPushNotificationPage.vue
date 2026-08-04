@@ -13,6 +13,7 @@ const permission = ref(service.getPermissionStatus())
 const pushDeviceId = ref<string | null>(null)
 const errorKey = ref<string | null>(null)
 const guestLabel = ref('')
+const supportStatus = computed(() => service.getSupportStatus())
 
 const permissionLabel = computed(() => {
   if (permission.value === 'unsupported') {
@@ -23,6 +24,7 @@ const permissionLabel = computed(() => {
 })
 
 const showGuestLabel = computed(() => !isAuthenticated())
+const canRegister = computed(() => supportStatus.value.supported && !loading.value && permission.value !== 'unsupported')
 
 async function registerWebPush() {
   if (loading.value) return
@@ -57,6 +59,15 @@ async function registerWebPush() {
             {{ t('push.web.status.current', {status: permissionLabel}) }}
           </div>
 
+          <v-alert
+            v-if="!supportStatus.supported"
+            type="warning"
+            variant="tonal"
+            class="mb-5"
+          >
+            {{ t(supportStatus.reason || 'push.web.unsupported') }}
+          </v-alert>
+
           <v-text-field
             v-if="showGuestLabel"
             v-model="guestLabel"
@@ -73,12 +84,17 @@ async function registerWebPush() {
             color="primary"
             size="large"
             prepend-icon="mdi-bell-ring"
+            class="w-100 w-sm-auto"
             :loading="loading"
-            :disabled="loading || permission === 'unsupported'"
+            :disabled="!canRegister"
             @click="registerWebPush"
           >
             {{ t('push.web.actions.enable') }}
           </v-btn>
+
+          <div class="text-body-2 text-medium-emphasis mt-3">
+            {{ t('push.web.enableDescription') }}
+          </div>
 
           <v-alert
             v-if="pushDeviceId"

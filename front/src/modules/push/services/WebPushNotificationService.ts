@@ -15,6 +15,12 @@ interface WebPushRegisterResult {
   pushDeviceId?: string
 }
 
+interface WebPushSupportStatus {
+  supported: boolean
+  reason?: string
+  iosHomeScreenRequired?: boolean
+}
+
 class WebPushNotificationService {
   static singleton: WebPushNotificationService
   private app: FirebaseApp | null = null
@@ -70,6 +76,53 @@ class WebPushNotificationService {
     }
 
     return Notification.permission
+  }
+
+  getSupportStatus(): WebPushSupportStatus {
+    if (this.isIOS() && !this.isStandaloneWebApp()) {
+      return {
+        supported: false,
+        reason: 'push.web.ios.homeScreenRequired',
+        iosHomeScreenRequired: true,
+      }
+    }
+
+    if (!this.isSupportedIOSVersion()) {
+      return {
+        supported: false,
+        reason: 'push.web.ios.versionUnsupported',
+      }
+    }
+
+    if (!this.hasNotificationApi()) {
+      return {
+        supported: false,
+        reason: 'push.web.unsupported',
+      }
+    }
+
+    if (!('serviceWorker' in navigator)) {
+      return {
+        supported: false,
+        reason: 'push.web.serviceWorkerUnsupported',
+      }
+    }
+
+    if (!('PushManager' in window)) {
+      return {
+        supported: false,
+        reason: 'push.web.unsupported',
+      }
+    }
+
+    if (!window.isSecureContext) {
+      return {
+        supported: false,
+        reason: 'push.web.secureContextRequired',
+      }
+    }
+
+    return {supported: true}
   }
 
   private async getMessagingInstance(): Promise<Messaging> {
@@ -131,17 +184,39 @@ class WebPushNotificationService {
   }
 
   private assertBrowserSupport() {
-    if (!this.hasNotificationApi()) {
-      throw new Error('push.web.unsupported')
-    }
-
-    if (!window.isSecureContext) {
-      throw new Error('push.web.secureContextRequired')
+    const support = this.getSupportStatus()
+    if (!support.supported) {
+      throw new Error(support.reason || 'push.web.unsupported')
     }
   }
 
   private hasNotificationApi(): boolean {
     return typeof window !== 'undefined' && 'Notification' in window
+  }
+
+  private isIOS(): boolean {
+    const platform = navigator.platform || ''
+    const userAgent = navigator.userAgent || ''
+    return /iPad|iPhone|iPod/.test(userAgent) || (platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  }
+
+  private isStandaloneWebApp(): boolean {
+    return window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone === true
+  }
+
+  private isSupportedIOSVersion(): boolean {
+    if (!this.isIOS()) {
+      return true
+    }
+
+    const match = navigator.userAgent.match(/OS (\d+)_(\d+)/)
+    if (!match) {
+      return true
+    }
+
+    const major = Number(match[1])
+    const minor = Number(match[2])
+    return major > 16 || (major === 16 && minor >= 4)
   }
 
   private getFirebaseConfig(): WebPushFirebaseConfig {
@@ -176,4 +251,4 @@ class WebPushNotificationService {
 
 export default WebPushNotificationService
 export {WebPushNotificationService}
-export type {WebPushRegisterResult}
+export type {WebPushRegisterResult, WebPushSupportStatus}

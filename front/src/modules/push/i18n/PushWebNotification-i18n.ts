@@ -10,8 +10,9 @@ const messages = {
           guestLabel: 'Optional identifier for guest subscriptions.',
         },
         actions: {
-          enable: 'Quiero Recibir Notificaciones Web',
+          enable: 'Enable',
         },
+        enableDescription: 'Enable web notifications in this browser to receive push messages from LifeOps.',
         permission: {
           default: 'Pending',
           granted: 'Allowed',
@@ -23,6 +24,10 @@ const messages = {
           unsupported: 'Not supported',
         },
         unsupported: 'This browser does not support web notifications.',
+        ios: {
+          homeScreenRequired: 'On iPhone, web push only works from the installed Home Screen web app. Open this page in Safari, tap Share, choose Add to Home Screen, then open LifeOps from the Home Screen and enable notifications there.',
+          versionUnsupported: 'On iPhone, web push requires iOS 16.4 or later.',
+        },
         serviceWorkerUnsupported: 'This browser does not support service workers.',
         secureContextRequired: 'Web notifications require HTTPS or localhost.',
         firebaseConfigMissing: 'Firebase web configuration is missing.',
@@ -54,8 +59,9 @@ const messages = {
           guestLabel: 'Identificador opcional para suscripciones invitadas.',
         },
         actions: {
-          enable: 'Quiero Recibir Notificaciones Web',
+          enable: 'Activar',
         },
+        enableDescription: 'Habilita las notificaciones web en este navegador para recibir mensajes push de LifeOps.',
         permission: {
           default: 'Pendiente',
           granted: 'Permitido',
@@ -67,6 +73,10 @@ const messages = {
           unsupported: 'No soportado',
         },
         unsupported: 'Este navegador no soporta notificaciones web.',
+        ios: {
+          homeScreenRequired: 'En iPhone, las notificaciones web push solo funcionan desde la web app instalada en la pantalla de inicio. Abri esta pagina en Safari, toca Compartir, elegi Agregar a pantalla de inicio, despues abri LifeOps desde la pantalla de inicio y habilita las notificaciones ahi.',
+          versionUnsupported: 'En iPhone, las notificaciones web push requieren iOS 16.4 o superior.',
+        },
         serviceWorkerUnsupported: 'Este navegador no soporta service workers.',
         secureContextRequired: 'Las notificaciones web requieren HTTPS o localhost.',
         firebaseConfigMissing: 'Falta la configuracion web de Firebase.',
