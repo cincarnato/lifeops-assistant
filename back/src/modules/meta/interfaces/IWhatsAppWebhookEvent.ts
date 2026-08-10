@@ -27,7 +27,7 @@ interface IWhatsAppWebhookEventBase {
     processedAt?: Date
     lastProcessingAttemptAt?: Date
     lastError?: IWhatsAppWebhookEventLastError
-    payload: object
+    payload: Record<string, unknown>
     deduplicationKey?: string
     createdAt?: Date
     updatedAt?: Date
@@ -48,7 +48,7 @@ interface IWhatsAppWebhookEvent {
     processedAt?: Date
     lastProcessingAttemptAt?: Date
     lastError?: IWhatsAppWebhookEventLastError
-    payload: object
+    payload: Record<string, unknown>
     deduplicationKey?: string
     createdAt?: Date
     updatedAt?: Date

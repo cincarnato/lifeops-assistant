@@ -15,7 +15,7 @@ const MetaWebhookBodySchema = z.object({
             changes: z.array(
                 z.object({
                     field: z.string().min(1, "validation.required"),
-                    value: z.object(),
+                    value: z.record(z.string(), z.unknown()),
                 }).passthrough()
             ).optional(),
         }).passthrough()

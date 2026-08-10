@@ -19,7 +19,7 @@ const WhatsAppWebhookEventBaseSchema = z.object({
         stack: z.string().optional(),
         code: z.string().optional()
     }).optional(),
-    payload: z.object({}),
+    payload: z.record(z.string(), z.unknown()),
     deduplicationKey: z.string().optional()
 });
 
