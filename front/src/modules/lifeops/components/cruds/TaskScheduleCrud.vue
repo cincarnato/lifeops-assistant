@@ -5,6 +5,7 @@ import {Crud, CrudFormField, useCrudStore} from "@drax/crud-vue";
 import {formatDate} from "@drax/common-front"
 import type {IEntityCrudField} from "@drax/crud-share";
 import {computed} from "vue";
+import TaskTypeCombobox from "@/modules/lifeops/comboboxes/TaskTypeCombobox.vue";
 
 type ScheduleType = 'once' | 'interval' | 'daily' | 'weekly' | 'monthly' | 'yearly'
 
@@ -102,6 +103,19 @@ function updateScheduleType(schedule: any, type: ScheduleType | null, setValue: 
         </v-card-text>
       </v-card>
     </template>
+
+    <template v-slot:field.task.type="{field, modelValue, setValue}">
+      <task-type-combobox
+        :model-value="modelValue"
+        @update:modelValue="setValue"
+        :name="field.name"
+        :label="field.label"
+        item-title="name"
+        item-value="name"
+        variant="outlined"
+      />
+    </template>
+
     <template v-slot:item.startAt="{value}">{{formatDate(value)}}</template>
     <template v-slot:item.endAt="{value}">{{formatDate(value)}}</template>
     <template v-slot:item.user="{value}">{{value?.username}}</template>

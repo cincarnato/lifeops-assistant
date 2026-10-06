@@ -9,6 +9,8 @@ import type {
 } from "@drax/ai-back"
 import {TaskServiceFactory} from "../factory/services/TaskServiceFactory.js"
 import {TaskBaseSchema} from "../schemas/TaskSchema.js"
+import {TaskScheduleServiceFactory} from "../factory/services/TaskScheduleServiceFactory.js"
+import {TaskScheduleBaseSchema} from "../schemas/TaskScheduleSchema.js"
 import {MemoryServiceFactory} from "../factory/services/MemoryServiceFactory.js"
 import {MemoryBaseSchema} from "../schemas/MemorySchema.js"
 import PurposeServiceFactory from "../factory/services/PurposeServiceFactory.js";
@@ -36,6 +38,7 @@ import GoogleContactsTools from "../../google/tools/GoogleContactsTools.js";
 import GoogleGmailTools from "../../google/tools/GoogleGmailTools.js";
 import PushNotificationTools from "../../push/tools/PushNotificationTools.js";
 import TaskPermissions from "../permissions/TaskPermissions.js";
+import TaskSchedulePermissions from "../permissions/TaskSchedulePermissions.js";
 import MemoryPermissions from "../permissions/MemoryPermissions.js";
 import PurposePermissions from "../permissions/PurposePermissions.js";
 import HabitPermissions from "../permissions/HabitPermissions.js";
@@ -137,6 +140,20 @@ abstract class BaseAgent {
             schema: TaskBaseSchema.omit({user: true}),
             service: TaskServiceFactory.instance,
             permission: TaskPermissions,
+            userFilter: true,
+            userSetter: true,
+            userAssert: true
+        }, context);
+    }
+
+    protected buildTaskScheduleTool(context: DraxAgentPromptContext): DraxAgentToolBuilder {
+        return this.buildContextTool({
+            entityDescription: "Tareas programadas",
+            entityName: "TaskSchedule",
+            methods: ["search", "create"],
+            schema: TaskScheduleBaseSchema.omit({user: true}),
+            service: TaskScheduleServiceFactory.instance,
+            permission: TaskSchedulePermissions,
             userFilter: true,
             userSetter: true,
             userAssert: true
