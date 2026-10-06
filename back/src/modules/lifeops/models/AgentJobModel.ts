@@ -57,6 +57,8 @@ const AgentJobSchema = new mongoose.Schema<IAgentJob>({
     createdBy: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false, index: true, unique: false}
 }, {timestamps: true});
 
+AgentJobSchema.index({active: 1, "runtime.nextRunAt": 1});
+
 AgentJobSchema.plugin(uniqueValidator, {message: 'validation.unique'});
 AgentJobSchema.plugin(mongoosePaginate);
 

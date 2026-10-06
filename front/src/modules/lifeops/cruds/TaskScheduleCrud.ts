@@ -233,6 +233,18 @@ class TaskScheduleCrud extends EntityCrud implements IEntityCrud {
     ]
   }
 
+  get createFields(){
+    return this.fields
+  }
+
+  get updateFields(){
+    return this.fields
+  }
+
+  get viewFields(){
+    return this.fields
+  }
+
   get filters(): IEntityCrudFilter[] {
     return [
       //{name: '_id', type: 'string', label: 'ID', default: '', operator: 'eq' },

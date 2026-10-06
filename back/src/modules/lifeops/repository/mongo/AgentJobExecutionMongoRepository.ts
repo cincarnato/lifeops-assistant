@@ -15,8 +15,15 @@ class AgentJobExecutionMongoRepository extends AbstractMongoRepository<IAgentJob
         this._lean = true
     }
 
+    async findByScheduledOccurrence(jobId: string, scheduledFor: Date): Promise<IAgentJobExecution | null> {
+        return AgentJobExecutionModel
+            .findOne({jobId, trigger: "scheduled", scheduledFor})
+            .populate(this._populateFields)
+            .lean(this._lean)
+            .exec() as Promise<IAgentJobExecution | null>
+    }
+
 }
 
 export default AgentJobExecutionMongoRepository
 export {AgentJobExecutionMongoRepository}
-

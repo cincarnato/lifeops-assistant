@@ -14,6 +14,18 @@ class AgentJobExecutionService extends AbstractService<IAgentJobExecution, IAgen
         
     }
 
+    async findByScheduledOccurrence(jobId: string, scheduledFor: Date): Promise<IAgentJobExecution | null> {
+        if (!this.repository.findByScheduledOccurrence) {
+            throw new Error("agentJobExecution.scheduledOccurrence.repositoryUnsupported")
+        }
+
+        return this.repository.findByScheduledOccurrence(jobId, scheduledFor)
+    }
+
+    private get repository(): IAgentJobExecutionRepository {
+        return this._repository as IAgentJobExecutionRepository
+    }
+
 }
 
 export default AgentJobExecutionService

@@ -15,8 +15,20 @@ class AgentJobMongoRepository extends AbstractMongoRepository<IAgentJob, IAgentJ
         this._lean = true
     }
 
+    async findDue(now: Date, limit: number): Promise<IAgentJob[]> {
+        return AgentJobModel
+            .find({
+                active: true,
+                "runtime.nextRunAt": {$lte: now}
+            })
+            .sort({"runtime.nextRunAt": 1, _id: 1})
+            .limit(limit)
+            .populate(this._populateFields)
+            .lean(this._lean)
+            .exec() as Promise<IAgentJob[]>
+    }
+
 }
 
 export default AgentJobMongoRepository
 export {AgentJobMongoRepository}
-

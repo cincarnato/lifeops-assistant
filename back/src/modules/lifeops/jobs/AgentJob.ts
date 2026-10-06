@@ -5,6 +5,7 @@ import type {IAgentJobExecution, IAgentJobExecutionBase} from "../interfaces/IAg
 import AgentConfigService from "../services/AgentConfigService.js";
 import type {AgentJobService} from "../services/AgentJobService.js";
 import type {AgentJobExecutionService} from "../services/AgentJobExecutionService.js";
+import {AgentJobScheduleCalculator} from "../services/AgentJobScheduleCalculator.js";
 
 type AgentJobExecutionTrigger = "scheduled" | "manual" | "retry";
 type AgentJobExecutionStatus = "success" | "failed" | "timeout";
@@ -31,6 +32,12 @@ interface AgentJobRunDueResult {
 
 type DraxAgentConstructor = new () => DraxAgent;
 type AgentJobToolCall = NonNullable<IAgentJobExecutionBase["toolCalls"]>[number];
+type AgentJobRunner = (
+    job: IAgentJob,
+    execution: IAgentJobExecution,
+    options: AgentJobRunOptions,
+    toolCalls: AgentJobToolCall[],
+) => Promise<DraxAgentMessageOutput>;
 
 class AgentJobTimeoutError extends Error {
     constructor(timeoutSeconds: number) {
@@ -43,21 +50,19 @@ class AgentJob {
     constructor(
         private readonly jobService: AgentJobService,
         private readonly executionService: AgentJobExecutionService,
+        private readonly agentRunner?: AgentJobRunner,
     ) {
     }
+
+    private readonly scheduleCalculator = new AgentJobScheduleCalculator();
 
     public async runDueJobs(options: AgentJobRunDueOptions = {}): Promise<AgentJobRunDueResult[]> {
         const now = options.now ?? new Date();
         const limit = options.limit ?? 25;
-        const allJobs = await this.jobService.fetchAll();
-        const jobs = allJobs
-            .filter(job => this.isDue(job, now))
-            .sort((a, b) => this.resolveDueDate(a, now).getTime() - this.resolveDueDate(b, now).getTime())
-            .slice(0, limit);
+        const jobs = await this.jobService.findDue(now, limit);
 
         console.log("[agent-job] runner scan", {
             now: now.toISOString(),
-            totalJobs: allJobs.length,
             dueJobs: jobs.length,
             limit
         });
@@ -73,11 +78,12 @@ class AgentJob {
         const results: AgentJobRunDueResult[] = [];
 
         for (const job of jobs) {
+            const scheduledFor = this.resolveDate(job.runtime?.nextRunAt) ?? now;
             results.push({
                 job,
                 execution: await this.executeJob(job, {
                     trigger: "scheduled",
-                    scheduledFor: this.resolveDate(job.runtime?.nextRunAt) ?? now
+                    scheduledFor
                 })
             });
         }
@@ -94,6 +100,20 @@ class AgentJob {
 
         if (job.active === false) {
             throw new Error("agent.job.inactive");
+        }
+
+        if ((options.trigger ?? "manual") === "scheduled" && options.scheduledFor) {
+            const existingExecution = await this.executionService.findByScheduledOccurrence(this.stringifyId(job), options.scheduledFor);
+            if (existingExecution) {
+                await this.repairRuntimeFromExistingExecution(job, existingExecution, options.scheduledFor);
+                console.log("[agent-job] scheduled occurrence already exists", {
+                    jobId: this.stringifyId(job),
+                    executionId: this.stringifyId(existingExecution),
+                    scheduledFor: options.scheduledFor.toISOString(),
+                    status: existingExecution.status
+                });
+                return existingExecution;
+            }
         }
 
         const maxRetries = Math.max(0, job.execution?.maxRetries ?? 0);
@@ -120,19 +140,16 @@ class AgentJob {
     private async executeAttempt(job: IAgentJob, options: AgentJobRunOptions): Promise<IAgentJobExecution> {
         const startedAt = new Date();
         const toolCalls: AgentJobToolCall[] = [];
-        const execution = await this.executionService.create({
-            jobId: this.stringifyId(job),
-            status: "running",
-            trigger: options.trigger ?? "manual",
-            scheduledFor: options.scheduledFor,
-            startedAt,
-            attempt: options.attempt ?? 1,
-            promptSnapshot: {
-                systemPrompt: job.agent.systemPrompt,
-                allowedTools: job.agent.allowedTools ?? []
-            },
-            toolCalls: []
-        });
+        const {execution, created} = await this.createExecution(job, options, startedAt);
+
+        if (!created || execution.status !== "running") {
+            await this.repairRuntimeFromExistingExecution(job, execution, options.scheduledFor);
+            return execution;
+        }
+
+        if (options.trigger === "scheduled" && options.scheduledFor) {
+            await this.advanceRuntimeForScheduledStart(job, options.scheduledFor);
+        }
 
         console.log("[agent-job] execution started", {
             jobId: this.stringifyId(job),
@@ -159,7 +176,7 @@ class AgentJob {
                 }
             });
 
-            await this.updateJobRuntime(job, "success", startedAt);
+            await this.updateJobRuntime(job, "success", startedAt, options.scheduledFor);
             console.log("[agent-job] execution finished", {
                 jobId: this.stringifyId(job),
                 jobName: job.name,
@@ -178,7 +195,7 @@ class AgentJob {
                 }
             });
 
-            await this.updateJobRuntime(job, status, startedAt);
+            await this.updateJobRuntime(job, status, startedAt, options.scheduledFor);
             console.log("[agent-job] execution finished", {
                 jobId: this.stringifyId(job),
                 jobName: job.name,
@@ -191,12 +208,50 @@ class AgentJob {
         }
     }
 
+    private async createExecution(
+        job: IAgentJob,
+        options: AgentJobRunOptions,
+        startedAt: Date,
+    ): Promise<{execution: IAgentJobExecution; created: boolean}> {
+        try {
+            const execution = await this.executionService.create({
+                jobId: this.stringifyId(job),
+                status: "running",
+                trigger: options.trigger ?? "manual",
+                scheduledFor: options.scheduledFor,
+                startedAt,
+                attempt: options.attempt ?? 1,
+                promptSnapshot: {
+                    systemPrompt: job.agent.systemPrompt,
+                    allowedTools: job.agent.allowedTools ?? []
+                },
+                toolCalls: []
+            });
+            return {execution, created: true};
+        } catch (error) {
+            if ((options.trigger ?? "manual") !== "scheduled" || !options.scheduledFor) {
+                throw error;
+            }
+
+            const existingExecution = await this.executionService.findByScheduledOccurrence(this.stringifyId(job), options.scheduledFor);
+            if (!existingExecution) {
+                throw error;
+            }
+
+            return {execution: existingExecution, created: false};
+        }
+    }
+
     private async runAgent(
         job: IAgentJob,
         execution: IAgentJobExecution,
         options: AgentJobRunOptions,
         toolCalls: AgentJobToolCall[],
     ): Promise<DraxAgentMessageOutput> {
+        if (this.agentRunner) {
+            return this.agentRunner(job, execution, options, toolCalls);
+        }
+
         await AgentConfigService.instance.prepare();
 
         const agent = new (DraxAgent as unknown as DraxAgentConstructor)();
@@ -244,13 +299,41 @@ class AgentJob {
         });
     }
 
-    private async updateJobRuntime(job: IAgentJob, status: AgentJobExecutionStatus, lastRunAt: Date): Promise<void> {
+    private async updateJobRuntime(job: IAgentJob, status: AgentJobExecutionStatus, lastRunAt: Date, nextFrom: Date = lastRunAt): Promise<void> {
         await this.jobService.updatePartial(this.stringifyId(job), {
             runtime: {
                 ...(job.runtime ?? {}),
                 lastRunAt,
                 lastStatus: status,
-                nextRunAt: this.calculateNextRunAt(job, lastRunAt)
+                nextRunAt: this.scheduleCalculator.calculateNextRunAt(job, nextFrom)
+            }
+        });
+    }
+
+    private async advanceRuntimeForScheduledStart(job: IAgentJob, scheduledFor: Date): Promise<void> {
+        await this.jobService.updatePartial(this.stringifyId(job), {
+            runtime: {
+                ...(job.runtime ?? {}),
+                nextRunAt: this.scheduleCalculator.calculateNextRunAt(job, scheduledFor)
+            }
+        });
+    }
+
+    private async repairRuntimeFromExistingExecution(
+        job: IAgentJob,
+        execution: IAgentJobExecution,
+        scheduledFor?: Date,
+    ): Promise<void> {
+        if (!scheduledFor || !["success", "failed", "timeout"].includes(execution.status)) {
+            return;
+        }
+
+        await this.jobService.updatePartial(this.stringifyId(job), {
+            runtime: {
+                ...(job.runtime ?? {}),
+                lastRunAt: execution.startedAt ?? scheduledFor,
+                lastStatus: execution.status,
+                nextRunAt: this.scheduleCalculator.calculateNextRunAt(job, scheduledFor)
             }
         });
     }
@@ -443,6 +526,14 @@ class AgentJob {
         }
 
         if (typeof value === "object") {
+            if (typeof value.toHexString === "function") {
+                return value.toHexString();
+            }
+
+            if (value._id === value || value.id === value) {
+                return value.toString();
+            }
+
             return this.stringifyRelationId(value._id ?? value.id);
         }
 
@@ -485,6 +576,20 @@ class AgentJob {
 
     private resolveErrorMessage(error: any): string {
         return error?.message ?? String(error);
+    }
+
+    private isDuplicateKeyError(error: any): boolean {
+        if (error?.code === 11000 || error?.name === "MongoServerError" && error?.message?.includes("E11000")) {
+            return true;
+        }
+
+        if (error?.name === "ValidationError") {
+            return Object.values(error.errors ?? {}).some((entry: any) =>
+                entry?.kind === "unique" || entry?.message === "validation.unique" || entry?.message?.includes("validation.unique")
+            );
+        }
+
+        return false;
     }
 }
 
