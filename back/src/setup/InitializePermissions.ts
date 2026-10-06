@@ -13,6 +13,7 @@ import {DashboardPermissions} from "@drax/dashboard-back";
 import {AuditPermissions} from "@drax/audit-back";
 import {AILogPermissions, AIPermissions, AgentSessionPermissions, AgentPermissions, TTSPermissions, TTSVoicePermissions} from "@drax/ai-back";
 import {CrudSavedQueryPermissions} from "@drax/crud-back";
+import {RecoveryPermissions} from "@drax/recovery-back";
 
 import {BasePermissions} from "../modules/base/permissions/BasePermissions.js";
 import {NotificationPermissions} from "../modules/base/permissions/NotificationPermissions.js";
@@ -68,6 +69,7 @@ function InitializePermissions() {
         ...Object.values(AgentPermissions),
 
         ...Object.values(CrudSavedQueryPermissions),
+        ...Object.values(RecoveryPermissions),
 
         //Local modules permissions
         ...Object.values(BasePermissions),
