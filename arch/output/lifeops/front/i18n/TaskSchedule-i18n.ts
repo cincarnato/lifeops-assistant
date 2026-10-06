@@ -1,0 +1,112 @@
+
+const messages = {
+  en: {
+  
+    taskschedule: {
+          entity: 'TaskSchedule',
+          menu: 'TaskSchedule',
+          crud: 'Manage TaskSchedule',
+          field:{
+                       name:'name',
+           active:'active',
+           task:'task',
+           title: 'title',
+           description: 'description',
+           source: 'source',
+           type: 'type',
+           lifeArea: 'lifeArea',
+           status: 'status',
+           priority: 'priority',
+           goals: 'goals',
+           project: 'project',
+           valueScore: 'valueScore',
+           motivationScore: 'motivationScore',
+           effortScore: 'effortScore',
+           urgencyScore: 'urgencyScore',
+           tags: 'tags',
+           schedule:'schedule',
+           time: 'time',
+           timezone: 'timezone',
+           interval: 'interval',
+           daysOfWeek: 'daysOfWeek',
+           daysOfMonth: 'daysOfMonth',
+           monthsOfYear: 'monthsOfYear',
+           runAt: 'runAt',
+           monthlyMode: 'monthlyMode',
+           dueDateRule:'dueDateRule',
+           daysAfter: 'daysAfter',
+           runtime:'runtime',
+           lastRunAt: 'lastRunAt',
+           nextRunAt: 'nextRunAt',
+           lastTaskId: 'lastTaskId',
+           lastStatus: 'lastStatus',
+           lastError: 'lastError',
+           startAt:'startAt',
+           endAt:'endAt',
+           user:'user'
+          }
+      },
+      permission: {
+              'taskschedule:view': 'View TaskSchedule',
+              'taskschedule:create': 'Create TaskSchedule',
+              'taskschedule:update': 'Edit TaskSchedule',
+              'taskschedule:delete': 'Delete TaskSchedule',
+              'taskschedule:manage': 'Manage TaskSchedule',
+      }
+  },
+  es: {
+     taskschedule: {
+          entity: 'TaskSchedule',
+          menu: 'TaskSchedule',
+          crud: 'Gestionar TaskSchedule',
+          field:{
+                       name:'name',
+           active:'active',
+           task:'task',
+           title: 'title',
+           description: 'description',
+           source: 'source',
+           type: 'type',
+           lifeArea: 'lifeArea',
+           status: 'status',
+           priority: 'priority',
+           goals: 'goals',
+           project: 'project',
+           valueScore: 'valueScore',
+           motivationScore: 'motivationScore',
+           effortScore: 'effortScore',
+           urgencyScore: 'urgencyScore',
+           tags: 'tags',
+           schedule:'schedule',
+           time: 'time',
+           timezone: 'timezone',
+           interval: 'interval',
+           daysOfWeek: 'daysOfWeek',
+           daysOfMonth: 'daysOfMonth',
+           monthsOfYear: 'monthsOfYear',
+           runAt: 'runAt',
+           monthlyMode: 'monthlyMode',
+           dueDateRule:'dueDateRule',
+           daysAfter: 'daysAfter',
+           runtime:'runtime',
+           lastRunAt: 'lastRunAt',
+           nextRunAt: 'nextRunAt',
+           lastTaskId: 'lastTaskId',
+           lastStatus: 'lastStatus',
+           lastError: 'lastError',
+           startAt:'startAt',
+           endAt:'endAt',
+           user:'user'
+          }
+      },
+     permission: {
+              'taskschedule:view': 'Ver TaskSchedule',
+              'taskschedule:create': 'Crear TaskSchedule',
+              'taskschedule:update': 'Editar TaskSchedule',
+              'taskschedule:delete': 'Eliminar TaskSchedule',
+              'taskschedule:manage': 'Gestionar TaskSchedule',
+     }
+  }
+}
+
+export default messages;  

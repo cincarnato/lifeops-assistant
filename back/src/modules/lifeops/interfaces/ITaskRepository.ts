@@ -7,7 +7,7 @@ interface ITaskRepository extends IDraxCrudRepository<ITask, ITaskBase, ITaskBas
     findArchivedById?(id: string): Promise<ITask | null>
     findPendingArchiveBatch?(cutoff: Date, limit: number): Promise<ITask[]>
     archiveTask?(task: ITask, migratedAt?: Date): Promise<void>
+    findByScheduleOccurrence?(taskScheduleId: string, scheduledFor: Date): Promise<ITask | null>
 }
 
 export {ITaskRepository}
-

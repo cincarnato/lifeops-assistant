@@ -60,6 +60,15 @@ class TaskService extends AbstractService<ITask, ITaskBase, ITaskBase> {
         await this.repository.archiveTask(task, migratedAt)
     }
 
+    async findByScheduleOccurrence(taskScheduleId: string, scheduledFor: Date): Promise<ITask | null> {
+        if (!this.repository.findByScheduleOccurrence) {
+            throw new Error("task.scheduleOccurrence.repositoryUnsupported")
+        }
+
+        const task = await this.repository.findByScheduleOccurrence(taskScheduleId, scheduledFor)
+        return task && this.transformRead ? this.transformRead(task) : task
+    }
+
     private get repository(): ITaskRepository {
         return this._repository as ITaskRepository
     }

@@ -32,6 +32,13 @@ const menu: MenuItem[] = [
         permission: 'task:manage'
       },
       {
+        icon: 'mdi-calendar-sync-outline',
+        text: 'taskschedule.menu',
+        link: {name: "TaskScheduleCrudPage"},
+        gallery: true,
+        permission: 'taskschedule:manage'
+      },
+      {
         icon: 'mdi-view-dashboard-outline',
         text: 'Kanban Tareas',
         link: {name: "KanbanTaskPage"},

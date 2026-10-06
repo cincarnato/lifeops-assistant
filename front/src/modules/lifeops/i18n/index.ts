@@ -9,6 +9,7 @@ import TaskTypeMessages from "./TaskType-i18n"
 import TaskStatusMessages from "./TaskStatus-i18n"
 import SourceMessages from "./Source-i18n"
 import TaskMessages from "./Task-i18n"
+import TaskScheduleMessages from "./TaskSchedule-i18n"
 import PriorityMessages from "./Priority-i18n"
 import ContactTypeMessages from "./ContactType-i18n"
 import CompanyTypeMessages from "./CompanyType-i18n"
@@ -33,6 +34,7 @@ const messages = merge.all([
     TaskStatusMessages,
     SourceMessages,
     TaskMessages,
+    TaskScheduleMessages,
     PriorityMessages,
     ContactTypeMessages,
     CompanyTypeMessages,

@@ -8,6 +8,7 @@ import TaskTypeCrudRoute from "./TaskTypeCrudRoute"
 import TaskStatusCrudRoute from "./TaskStatusCrudRoute"
 import SourceCrudRoute from "./SourceCrudRoute"
 import TaskCrudRoute from "./TaskCrudRoute"
+import TaskScheduleCrudRoute from "./TaskScheduleCrudRoute"
 import PriorityCrudRoute from "./PriorityCrudRoute"
 import ContactTypeCrudRoute from "./ContactTypeCrudRoute"
 import CompanyTypeCrudRoute from "./CompanyTypeCrudRoute"
@@ -32,6 +33,7 @@ export const routes = [
 ...TaskStatusCrudRoute,
 ...SourceCrudRoute,
 ...TaskCrudRoute,
+...TaskScheduleCrudRoute,
 ...PriorityCrudRoute,
 ...ContactTypeCrudRoute,
 ...CompanyTypeCrudRoute,

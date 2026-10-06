@@ -26,6 +26,8 @@ interface ITaskBase {
     urgencyScore?: number
     dueDate?: Date
     scheduledDate?: Date
+    taskSchedule?: any
+    scheduledFor?: Date
     completedAt?: Date
     redmineIssueId?: string
     emailMessageId?: string
@@ -56,6 +58,8 @@ interface ITask {
     urgencyScore?: number
     dueDate?: Date
     scheduledDate?: Date
+    taskSchedule?: any
+    scheduledFor?: Date
     completedAt?: Date
     redmineIssueId?: string
     emailMessageId?: string

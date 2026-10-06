@@ -8,6 +8,7 @@ import TaskTypeSchema from './schemas/lifeops/TaskTypeSchema.js';
 import TaskStatusSchema from './schemas/lifeops/TaskStatusSchema.js';
 import SourceSchema from './schemas/lifeops/SourceSchema.js';
 import TaskSchema from './schemas/lifeops/TaskSchema.js';
+import TaskScheduleSchema from './schemas/lifeops/TaskScheduleSchema.js';
 import PrioritySchema from './schemas/lifeops/PrioritySchema.js';
 import ContactTypeSchema from './schemas/lifeops/ContactTypeSchema.js';
 import CompanyTypeSchema from './schemas/lifeops/CompanyTypeSchema.js';
@@ -40,6 +41,7 @@ const schemas = [
     TaskStatusSchema,
     SourceSchema,
     TaskSchema,
+    TaskScheduleSchema,
     PrioritySchema,
     ContactTypeSchema,
     CompanyTypeSchema,

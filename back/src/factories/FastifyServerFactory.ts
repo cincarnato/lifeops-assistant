@@ -35,6 +35,7 @@ import {TaskTypeFastifyRoutes} from "../modules/lifeops/routes/TaskTypeRoutes.js
 import {TaskStatusFastifyRoutes} from "../modules/lifeops/routes/TaskStatusRoutes.js"
 import {SourceFastifyRoutes} from "../modules/lifeops/routes/SourceRoutes.js"
 import {TaskFastifyRoutes} from "../modules/lifeops/routes/TaskRoutes.js"
+import {TaskScheduleFastifyRoutes} from "../modules/lifeops/routes/TaskScheduleRoutes.js"
 import {PriorityFastifyRoutes} from "../modules/lifeops/routes/PriorityRoutes.js"
 import {ContactTypeFastifyRoutes} from "../modules/lifeops/routes/ContactTypeRoutes.js"
 import {CompanyTypeFastifyRoutes} from "../modules/lifeops/routes/CompanyTypeRoutes.js"
@@ -107,6 +108,7 @@ function FastifyServerFactory(rootDir:string) {
     server.fastifyRegister(TaskStatusFastifyRoutes)
     server.fastifyRegister(SourceFastifyRoutes)
     server.fastifyRegister(TaskFastifyRoutes)
+    server.fastifyRegister(TaskScheduleFastifyRoutes)
     server.fastifyRegister(PriorityFastifyRoutes)
     server.fastifyRegister(ContactTypeFastifyRoutes)
     server.fastifyRegister(CompanyTypeFastifyRoutes)

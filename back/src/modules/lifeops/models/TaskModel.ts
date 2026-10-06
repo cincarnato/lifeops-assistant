@@ -20,6 +20,8 @@ const TaskSchemaDefinition = {
     urgencyScore: {type: Number, required: false, index: false, unique: false},
     dueDate: {type: Date, required: false, index: true, unique: false},
     scheduledDate: {type: Date, required: false, index: true, unique: false},
+    taskSchedule: {type: mongoose.Schema.Types.ObjectId, ref: 'TaskSchedule', required: false, index: true, unique: false},
+    scheduledFor: {type: Date, required: false, index: true, unique: false},
     redmineIssueId: {type: String, required: false, index: true, unique: false},
     emailMessageId: {type: String, required: false, index: true, unique: false},
     calendarEventId: {type: String, required: false, index: true, unique: false},
@@ -56,6 +58,16 @@ function buildTaskSchema<T = ITask>(
     if (options.archiveLookupIndex !== false) {
         schema.index({archivedAt: 1});
     }
+    schema.index(
+        {taskSchedule: 1, scheduledFor: 1},
+        {
+            unique: true,
+            partialFilterExpression: {
+                taskSchedule: {$exists: true},
+                scheduledFor: {$exists: true}
+            }
+        }
+    );
     schema.plugin(uniqueValidator, {message: 'validation.unique'});
     schema.plugin(mongoosePaginate);
 

@@ -15,7 +15,7 @@ class TaskMongoRepository extends AbstractMongoRepository<ITask, ITaskBase, ITas
         super();
         this._model = TaskModel;
         this._searchFields = ['title', 'description', 'redmineIssueId', 'emailMessageId', 'calendarEventId'];
-        this._populateFields = ['goals', 'project', 'user'];
+        this._populateFields = ['goals', 'project', 'taskSchedule', 'user'];
         this._lean = true
     }
 
@@ -73,6 +73,14 @@ class TaskMongoRepository extends AbstractMongoRepository<ITask, ITaskBase, ITas
             _id: taskData._id,
             archivedAt: taskData.archivedAt
         }).exec()
+    }
+
+    async findByScheduleOccurrence(taskScheduleId: string, scheduledFor: Date): Promise<ITask | null> {
+        return TaskModel
+            .findOne({taskSchedule: taskScheduleId, scheduledFor})
+            .populate(this._populateFields)
+            .lean(this._lean)
+            .exec() as Promise<ITask | null>
     }
 
     private async paginateModel(model: any, {

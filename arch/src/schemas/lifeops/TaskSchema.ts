@@ -99,6 +99,16 @@ const entitySchema: IEntitySchema = {
             index: true,
             header: true,
         },
+        taskSchedule: {
+            type: "ref",
+            ref: "TaskSchedule",
+            refDisplay: "name",
+            index: true,
+        },
+        scheduledFor: {
+            type: "date",
+            index: true,
+        },
         completedAt: {
             type: "date",
         },
