@@ -21,6 +21,7 @@ import TaskCrud from "@/modules/lifeops/cruds/TaskCrud.js";
 class TaskScheduleCrud extends EntityCrud implements IEntityCrud {
 
   static singleton: TaskScheduleCrud
+  private readonly formInternalFields = ['runtime', 'user']
   private store
 
   constructor() {
@@ -90,8 +91,7 @@ class TaskScheduleCrud extends EntityCrud implements IEntityCrud {
       task: [(v: any) => !!v || 'validation.required'],
       schedule: [(v: any) => !!v || 'validation.required'],
       dueDateRule: [],
-      runtime: [],
-      user: [(v: any) => !!v || 'validation.required']
+      runtime: []
     }
   }
 
@@ -141,8 +141,8 @@ class TaskScheduleCrud extends EntityCrud implements IEntityCrud {
         label: 'schedule',
         default: {
           "type": null,
-          "time": "''",
-          "timezone": "'America/Argentina/Buenos_Aires'",
+          "time": "",
+          "timezone": "America/Argentina/Buenos_Aires",
           "interval": "{\"every\":null,\"unit\":null}",
           "daysOfWeek": [],
           "daysOfMonth": [],
@@ -233,15 +233,15 @@ class TaskScheduleCrud extends EntityCrud implements IEntityCrud {
     ]
   }
 
-  get createFields(){
-    return this.fields
+  get createFields(): IEntityCrudField[] {
+    return this.fields.filter(field => !this.formInternalFields.includes(field.name))
   }
 
-  get updateFields(){
-    return this.fields
+  get updateFields(): IEntityCrudField[] {
+    return this.fields.filter(field => !this.formInternalFields.includes(field.name))
   }
 
-  get viewFields(){
+  get viewFields(): IEntityCrudField[] {
     return this.fields
   }
 

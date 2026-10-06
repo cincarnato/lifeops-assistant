@@ -4,6 +4,12 @@ const messages = {
       entity: 'Contact',
       menu: 'Contacts',
       crud: 'Manage Contact',
+      tabs: {
+        BASIC: 'Basic',
+        CONTACT: 'Contact',
+        ORGANIZATION: 'Organization',
+        SYNC: 'Sync',
+      },
       field: {
         source: 'Source',
         externalProvider: 'External Provider',
@@ -40,6 +46,12 @@ const messages = {
       entity: 'Contacto',
       menu: 'Contactos',
       crud: 'Gestionar contacto',
+      tabs: {
+        BASIC: 'Básico',
+        CONTACT: 'Contacto',
+        ORGANIZATION: 'Organización',
+        SYNC: 'Sincronización',
+      },
       field: {
         source: 'Origen',
         externalProvider: 'Proveedor externo',

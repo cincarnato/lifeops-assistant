@@ -6,6 +6,15 @@ const messages = {
           entity: 'Agent Job Execution',
           menu: 'Agent Job Executions',
           crud: 'Manage Agent Job Execution',
+          tabs: {
+           GENERAL: 'General',
+           TIMING: 'Timing',
+           PROMPT: 'Prompt',
+           RESULT: 'Result',
+           TOOLS: 'Tools',
+           ERROR: 'Error',
+           USAGE: 'Usage'
+          },
           field:{
                        jobId:'Job',
            status:'Status',
@@ -51,6 +60,15 @@ const messages = {
           entity: 'Ejecución de trabajo de agente',
           menu: 'Ejecuciones de trabajos de agente',
           crud: 'Gestionar ejecución de trabajo de agente',
+          tabs: {
+           GENERAL: 'General',
+           TIMING: 'Tiempos',
+           PROMPT: 'Prompt',
+           RESULT: 'Resultado',
+           TOOLS: 'Herramientas',
+           ERROR: 'Error',
+           USAGE: 'Uso'
+          },
           field:{
                        jobId:'Trabajo',
            status:'Estado',

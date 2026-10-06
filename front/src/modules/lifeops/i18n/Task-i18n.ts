@@ -5,6 +5,13 @@ const messages = {
       entity: 'Task',
       menu: 'Tasks',
       crud: 'Manage Task',
+      tabs: {
+        CLASSIFICATION: 'Classification',
+        NOTES: 'Notes',
+        SCHEDULE: 'Schedule',
+        HISTORY: 'History',
+        INTEGRATIONS: 'Integrations',
+      },
       dashboard: {
         title: 'Task Dashboard',
         filters: {
@@ -70,6 +77,13 @@ const messages = {
       entity: 'Tarea',
       menu: 'Tareas',
       crud: 'Gestionar tarea',
+      tabs: {
+        CLASSIFICATION: 'Clasificación',
+        NOTES: 'Notas',
+        SCHEDULE: 'Programación',
+        HISTORY: 'Historial',
+        INTEGRATIONS: 'Integraciones',
+      },
       dashboard: {
         title: 'Dashboard de tareas',
         filters: {

@@ -5,6 +5,10 @@ const messages = {
       entity: 'Client',
       menu: 'Clients',
       crud: 'Manage Client',
+      tabs: {
+        BASIC: 'Basic',
+        FACTURACION: 'Billing',
+      },
       field: {
         name: 'Name',
         legalName: 'Legal Name',
@@ -44,6 +48,10 @@ const messages = {
       entity: 'Cliente',
       menu: 'Clientes',
       crud: 'Gestionar cliente',
+      tabs: {
+        BASIC: 'Básico',
+        FACTURACION: 'Facturación',
+      },
       field: {
         name: 'Nombre',
         legalName: 'Razón social',

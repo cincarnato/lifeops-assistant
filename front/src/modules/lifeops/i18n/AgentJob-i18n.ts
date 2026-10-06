@@ -6,6 +6,13 @@ const messages = {
           entity: 'Agent Job',
           menu: 'Agent Jobs',
           crud: 'Manage Agent Job',
+          tabs: {
+           GENERAL: 'General',
+           AGENT: 'Agent',
+           SCHEDULE: 'Schedule',
+           EXECUTION: 'Execution',
+           RUNTIME: 'Runtime'
+          },
           field:{
                        name:'Name',
            description:'Description',
@@ -45,6 +52,13 @@ const messages = {
           entity: 'Trabajo de agente',
           menu: 'Trabajos de agente',
           crud: 'Gestionar trabajo de agente',
+          tabs: {
+           GENERAL: 'General',
+           AGENT: 'Agente',
+           SCHEDULE: 'Programación',
+           EXECUTION: 'Ejecución',
+           RUNTIME: 'Entorno de ejecución'
+          },
           field:{
                        name:'Nombre',
            description:'Descripción',
