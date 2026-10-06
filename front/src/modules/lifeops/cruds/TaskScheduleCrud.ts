@@ -143,7 +143,7 @@ class TaskScheduleCrud extends EntityCrud implements IEntityCrud {
           "type": null,
           "time": "",
           "timezone": "America/Argentina/Buenos_Aires",
-          "interval": "{\"every\":null,\"unit\":null}",
+          "interval": {"every": null, "unit": null},
           "daysOfWeek": [],
           "daysOfMonth": [],
           "monthsOfYear": [],
