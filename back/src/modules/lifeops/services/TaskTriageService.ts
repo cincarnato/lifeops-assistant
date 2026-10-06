@@ -132,7 +132,7 @@ class TaskTriageService {
 
     private buildSystemPrompt(options: TaskTriageOptions): string {
         return [
-            "Sos un clasificador de tareas de LifeOps.",
+            "Sos un clasificador de tareas.",
             "Analiza la tarea recibida y devuelve exclusivamente JSON que cumpla el schema.",
             "Usa los campos existentes de la tarea como evidencia. Si un valor ya existe y es razonable, preservalo.",
             "No inventes valores fuera de las opciones disponibles.",
