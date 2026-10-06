@@ -6,6 +6,24 @@ const timezoneSchema = z.string()
     .min(1, 'validation.required')
     .default('America/Argentina/Buenos_Aires')
     .refine(value => new TaskScheduleCalculator().isValidTimezone(value), "validation.timezone.invalid");
+const optionalNullableDateSchema = z.preprocess(value => {
+    if (value === "" || value === 0 || value === "0") {
+        return null;
+    }
+
+    if (value instanceof Date && value.getTime() === 0) {
+        return null;
+    }
+
+    if (typeof value === "string") {
+        const date = new Date(value);
+        if (!Number.isNaN(date.getTime()) && date.getTime() === 0) {
+            return null;
+        }
+    }
+
+    return value;
+}, z.coerce.date().nullable().optional());
 
 const TaskScheduleRawSchema = z.object({
     name: z.string().trim().min(1, 'validation.required'),
@@ -20,10 +38,10 @@ const TaskScheduleRawSchema = z.object({
         priority: z.string().optional(),
         goals: z.array(z.coerce.string()).optional().default([]),
         project: z.coerce.string().optional().nullable(),
-        valueScore: z.number().nullable().optional(),
-        motivationScore: z.number().nullable().optional(),
-        effortScore: z.number().nullable().optional(),
-        urgencyScore: z.number().nullable().optional(),
+        valueScore: z.coerce.number().nullable().optional(),
+        motivationScore: z.coerce.number().nullable().optional(),
+        effortScore: z.coerce.number().nullable().optional(),
+        urgencyScore: z.coerce.number().nullable().optional(),
         tags: z.array(z.string()).optional().default([])
     }),
     schedule: z.object({
@@ -35,9 +53,9 @@ const TaskScheduleRawSchema = z.object({
             unit: z.enum(['minutes', 'hours', 'days', 'weeks', 'months']).optional()
         }).optional(),
         daysOfWeek: z.array(z.enum(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])).optional(),
-        daysOfMonth: z.array(z.number().int().min(1).max(31)).optional(),
-        monthsOfYear: z.array(z.number().int().min(1).max(12)).optional(),
-        runAt: z.coerce.date().nullable().optional(),
+        daysOfMonth: z.array(z.coerce.number().int().min(1).max(31)).optional(),
+        monthsOfYear: z.array(z.coerce.number().int().min(1).max(12)).optional(),
+        runAt: optionalNullableDateSchema,
         monthlyMode: z.enum(['dayOfMonth', 'lastDayOfMonth']).optional()
     }),
     dueDateRule: z.object({
@@ -45,14 +63,14 @@ const TaskScheduleRawSchema = z.object({
         daysAfter: z.number().int().min(0).nullable().optional()
     }).optional().default({type: "none"}),
     runtime: z.object({
-        lastRunAt: z.coerce.date().nullable().optional(),
-        nextRunAt: z.coerce.date().nullable().optional(),
+        lastRunAt: optionalNullableDateSchema,
+        nextRunAt: optionalNullableDateSchema,
         lastTaskId: z.coerce.string().optional().nullable(),
         lastStatus: z.enum(['success', 'failed']).optional(),
         lastError: z.string().optional()
     }).optional(),
-    startAt: z.coerce.date().nullable().optional(),
-    endAt: z.coerce.date().nullable().optional(),
+    startAt: optionalNullableDateSchema,
+    endAt: optionalNullableDateSchema,
     user: z.coerce.string().min(1, 'validation.required')
 });
 
@@ -98,10 +116,23 @@ const TaskScheduleBaseSchema = TaskScheduleRawSchema;
 const TaskScheduleSchema = TaskScheduleRawSchema
     .extend({
         _id: z.coerce.string(),
-        user: z.union([
-            z.object({_id: z.coerce.string(), username: z.string().optional()}),
-            z.coerce.string()
-        ]),
+        user: z.object({_id: z.coerce.string(), username: z.string()}),
+        task: z.object({
+            title: z.string().trim().min(1, 'validation.required'),
+            description: z.string().optional(),
+            source: z.coerce.string().optional().nullable(),
+            type: z.coerce.string().optional().nullable(),
+            lifeArea: z.coerce.string().optional().nullable(),
+            status: z.coerce.string().optional().nullable(),
+            priority: z.string().optional(),
+            valueScore: z.number().nullable().optional(),
+            motivationScore: z.number().nullable().optional(),
+            effortScore: z.number().nullable().optional(),
+            urgencyScore: z.number().nullable().optional(),
+            tags: z.array(z.string()).optional().default([]),
+            goals: z.array(z.object({_id: z.coerce.string(), name: z.string()})).optional(),
+            project: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
+        }),
         createdAt: z.coerce.date().nullable().optional(),
         updatedAt: z.coerce.date().nullable().optional(),
     })

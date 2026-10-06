@@ -127,7 +127,7 @@ class TaskScheduleCrud extends EntityCrud implements IEntityCrud {
           {name: 'lifeArea', type: 'string', label: 'lifeArea', default: ''},
           {name: 'status', type: 'string', label: 'status', default: ''},
           {name: 'priority', type: 'string', label: 'priority', default: ''},
-          {name: 'goals', type: 'array.ref', label: 'goals', default: [], ref: 'Goal', refDisplay: 'name'},
+          {name: 'goals', type: 'array.ref', label: 'goals', default: [], ref: 'Goal', refDisplay: 'name' },
           {name: 'project', type: 'ref', label: 'project', default: null, ref: 'Project', refDisplay: 'name'},
           {name: 'valueScore', type: 'number', label: 'valueScore', default: null},
           {name: 'motivationScore', type: 'number', label: 'motivationScore', default: null},
@@ -195,7 +195,7 @@ class TaskScheduleCrud extends EntityCrud implements IEntityCrud {
       {
         name: 'dueDateRule',
         type: 'object',
-        label: 'dueDateRule',
+        label: 'Vencimiento Tarea Generada',
         default: {"type": "none", "daysAfter": null},
         groupTab: 'DUE_DATE',
         objectFields: [{

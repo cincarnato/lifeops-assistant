@@ -23,7 +23,6 @@ class TaskScheduleService extends AbstractService<ITaskSchedule, ITaskScheduleBa
 
         this._validateOutput = true
         this.transformCreate = this.prepareCreate.bind(this)
-        this.transformUpdate = this.prepareWrite.bind(this)
     }
 
     async findDue(now: Date, limit: number): Promise<ITaskSchedule[]> {
@@ -34,23 +33,48 @@ class TaskScheduleService extends AbstractService<ITaskSchedule, ITaskScheduleBa
         return this.repository.findDue(now, limit)
     }
 
-    async updatePartial(id: string, data: any): Promise<ITaskSchedule> {
-        const previous = await this.findById(id)
-        if (!previous) {
-            throw new Error("taskSchedule.notFound")
+    async initializeMissingNextRunAt(now: Date, limit: number): Promise<number> {
+        if (!this.repository.findActiveWithoutNextRunAt) {
+            return 0
         }
 
-        if (this.shouldRecalculateNextRunAt(data)) {
-            const merged = this.mergeSchedule(previous, data)
-            this.assertValidSchedule(merged)
-            data.runtime = {
-                ...(previous.runtime ?? {}),
-                ...(data.runtime ?? {}),
-                nextRunAt: merged.active === false ? previous.runtime?.nextRunAt : this.calculateBoundedNextRunAt(merged, new Date())
+        const schedules = await this.repository.findActiveWithoutNextRunAt(now, limit)
+        let initialized = 0
+
+        for (const schedule of schedules) {
+            const normalizedSchedule = this.normalizeLegacyEpochDates(schedule)
+            const nextRunAt = this.calculateBoundedNextRunAt(normalizedSchedule, now)
+            if (!nextRunAt) {
+                continue
             }
+
+            await super.updatePartial(this.stringifyId(schedule), {
+                schedule: {
+                    ...normalizedSchedule.schedule,
+                    runAt: normalizedSchedule.schedule.runAt ?? null
+                },
+                runtime: {
+                    ...(normalizedSchedule.runtime ?? {}),
+                    lastRunAt: normalizedSchedule.runtime?.lastRunAt ?? null,
+                    nextRunAt
+                },
+                startAt: normalizedSchedule.startAt ?? null,
+                endAt: normalizedSchedule.endAt ?? null
+            })
+            initialized += 1
         }
 
-        return super.updatePartial(id, data)
+        return initialized
+    }
+
+    async update(id: string, data: ITaskScheduleBase): Promise<ITaskSchedule> {
+        const prepared = await this.prepareUpdate(id, data)
+        return super.update(id, prepared)
+    }
+
+    async updatePartial(id: string, data: any): Promise<ITaskSchedule> {
+        const prepared = await this.prepareUpdate(id, data)
+        return super.updatePartial(id, prepared)
     }
 
     async activate(id: string): Promise<ITaskSchedule> {
@@ -221,30 +245,48 @@ class TaskScheduleService extends AbstractService<ITaskSchedule, ITaskScheduleBa
     }
 
     private async prepareCreate(data: ITaskScheduleBase): Promise<ITaskScheduleBase> {
-        return this.prepareWrite(data)
-    }
-
-    private async prepareWrite(data: ITaskScheduleBase): Promise<ITaskScheduleBase> {
-        if (!data.schedule) {
-            return data
-        }
-
         const active = data.active !== false
         const from = this.resolveDate(data.startAt) ?? new Date()
-        const nextRunAt = active ? this.calculateBoundedNextRunAt(data, from) : data.runtime?.nextRunAt
-
-        const prepared = {
+        const prepared: ITaskScheduleBase = {
             ...data,
             active,
             dueDateRule: data.dueDateRule ?? {type: "none"},
             runtime: {
                 ...(data.runtime ?? {}),
-                nextRunAt
+                nextRunAt: active ? this.calculateBoundedNextRunAt(data, from) : data.runtime?.nextRunAt
             }
         }
 
         this.assertValidSchedule(prepared)
         return prepared
+    }
+
+    private async prepareUpdate(id: string, data: Partial<ITaskScheduleBase>): Promise<ITaskScheduleBase> {
+        const previous = await this.findById(id)
+        if (!previous) {
+            throw new Error("taskSchedule.notFound")
+        }
+
+        const merged = this.normalizeLegacyEpochDates(this.mergeSchedule(previous, data))
+        const shouldRecalculate = this.shouldRecalculateNextRunAt(data) || !this.resolveDate(merged.runtime?.nextRunAt)
+        this.assertValidSchedule(merged)
+
+        if (!this.resolveDate(merged.startAt)) {
+            data.startAt = null as any
+        }
+        if (!this.resolveDate(merged.endAt)) {
+            data.endAt = null as any
+        }
+
+        if (merged.active !== false && shouldRecalculate) {
+            data.runtime = {
+                ...(previous.runtime ?? {}),
+                ...(data.runtime ?? {}),
+                nextRunAt: this.calculateBoundedNextRunAt(merged, new Date())
+            }
+        }
+
+        return data as ITaskScheduleBase
     }
 
     private shouldRecalculateNextRunAt(data: any): boolean {
@@ -381,13 +423,30 @@ class TaskScheduleService extends AbstractService<ITaskSchedule, ITaskScheduleBa
         return String(record)
     }
 
+    private normalizeLegacyEpochDates<T extends Pick<ITaskScheduleBase, "schedule" | "runtime" | "startAt" | "endAt">>(schedule: T): T {
+        return {
+            ...schedule,
+            schedule: {
+                ...schedule.schedule,
+                runAt: this.resolveDate(schedule.schedule.runAt)
+            },
+            runtime: schedule.runtime ? {
+                ...schedule.runtime,
+                lastRunAt: this.resolveDate(schedule.runtime.lastRunAt),
+                nextRunAt: this.resolveDate(schedule.runtime.nextRunAt)
+            } : undefined,
+            startAt: this.resolveDate(schedule.startAt),
+            endAt: this.resolveDate(schedule.endAt)
+        }
+    }
+
     private resolveDate(value: any): Date | undefined {
         if (!value) {
             return undefined
         }
 
         const date = value instanceof Date ? value : new Date(value)
-        return Number.isNaN(date.getTime()) ? undefined : date
+        return Number.isNaN(date.getTime()) || date.getTime() === 0 ? undefined : date
     }
 
     private isDuplicateKeyError(error: any): boolean {

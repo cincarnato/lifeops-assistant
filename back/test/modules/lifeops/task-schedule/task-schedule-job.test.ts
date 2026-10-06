@@ -61,6 +61,45 @@ describe("TaskScheduleJob", () => {
         expect(await TaskModel.countDocuments()).toBe(0)
     })
 
+    it("recalculates nextRunAt when a monthly execution day is edited", async () => {
+        const schedule = await createSchedule({
+            startAt: new Date("2099-01-01T00:00:00.000Z")
+        })
+
+        const updated = await TaskScheduleServiceFactory.instance.updatePartial(schedule._id.toString(), {
+            schedule: {
+                ...schedule.schedule,
+                daysOfMonth: [12]
+            }
+        })
+
+        expect(updated.runtime?.nextRunAt?.toISOString()).toBe("2099-01-12T12:00:00.000Z")
+    })
+
+    it("initializes an active schedule whose nextRunAt is missing and cleans legacy epoch dates", async () => {
+        const schedule = await createSchedule()
+        await TaskScheduleModel.updateOne({_id: schedule._id}, {
+            $set: {
+                "schedule.runAt": new Date(0),
+                "runtime.lastRunAt": new Date(0),
+                startAt: new Date(0),
+                endAt: new Date(0)
+            },
+            $unset: {"runtime.nextRunAt": 1}
+        }).exec()
+
+        const result = await runJob()
+        const updatedSchedule = await TaskScheduleModel.findById(schedule._id).lean().exec()
+
+        expect(result.initialized).toBe(1)
+        expect(result.processed).toBe(0)
+        expect(updatedSchedule?.runtime?.nextRunAt?.toISOString()).toBe("2026-12-05T12:00:00.000Z")
+        expect(updatedSchedule?.schedule.runAt).toBeNull()
+        expect(updatedSchedule?.runtime?.lastRunAt).toBeNull()
+        expect(updatedSchedule?.startAt).toBeNull()
+        expect(updatedSchedule?.endAt).toBeNull()
+    })
+
     it("does not duplicate a task when run twice for the same occurrence", async () => {
         const schedule = await createSchedule({runtime: {nextRunAt: now}})
 

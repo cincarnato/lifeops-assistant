@@ -41,6 +41,7 @@ function RunTaskScheduleJob(options: RunTaskScheduleJobOptions = {}): TaskSchedu
             });
 
             console.log("[task-schedule] scheduler tick finished", {
+                initialized: result.initialized,
                 found: result.found,
                 processed: result.processed,
                 succeeded: result.succeeded,

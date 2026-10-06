@@ -7,6 +7,7 @@ interface TaskScheduleJobOptions {
 }
 
 interface TaskScheduleJobResult {
+    initialized: number
     found: number
     processed: number
     succeeded: number
@@ -26,10 +27,12 @@ class TaskScheduleJob {
     public async run(options: TaskScheduleJobOptions = {}): Promise<TaskScheduleJobResult> {
         const now = options.now ?? new Date()
         const limit = options.limit ?? DEFAULT_TASK_SCHEDULE_JOB_OPTIONS.limit
+        const initialized = await this.taskScheduleService.initializeMissingNextRunAt(now, limit)
         const schedules = await this.taskScheduleService.findDue(now, limit)
 
         console.log("[task-schedule] runner scan", {
             now: now.toISOString(),
+            initializedSchedules: initialized,
             dueSchedules: schedules.length,
             limit
         })
@@ -43,6 +46,7 @@ class TaskScheduleJob {
         }
 
         const result: TaskScheduleJobResult = {
+            initialized,
             found: schedules.length,
             processed: 0,
             succeeded: 0,

@@ -6,6 +6,10 @@ import {formatDate} from "@drax/common-front"
 import type {IEntityCrudField} from "@drax/crud-share";
 import {computed} from "vue";
 import TaskTypeCombobox from "@/modules/lifeops/comboboxes/TaskTypeCombobox.vue";
+import SourceCombobox from "@/modules/lifeops/comboboxes/SourceCombobox.vue";
+import TaskStatusCombobox from "@/modules/lifeops/comboboxes/TaskStatusCombobox.vue";
+import PriorityCombobox from "@/modules/lifeops/comboboxes/PriorityCombobox.vue";
+import LifeAreaCombobox from "@/modules/lifeops/comboboxes/LifeAreaCombobox.vue";
 
 type ScheduleType = 'once' | 'interval' | 'daily' | 'weekly' | 'monthly' | 'yearly'
 
@@ -104,8 +108,56 @@ function updateScheduleType(schedule: any, type: ScheduleType | null, setValue: 
       </v-card>
     </template>
 
+    <template v-slot:field.task.source="{field, modelValue, setValue}">
+      <source-combobox
+        :model-value="modelValue"
+        @update:modelValue="setValue"
+        :name="field.name"
+        :label="field.label"
+        item-title="name"
+        item-value="name"
+        variant="outlined"
+      />
+    </template>
+
     <template v-slot:field.task.type="{field, modelValue, setValue}">
       <task-type-combobox
+        :model-value="modelValue"
+        @update:modelValue="setValue"
+        :name="field.name"
+        :label="field.label"
+        item-title="name"
+        item-value="name"
+        variant="outlined"
+      />
+    </template>
+
+    <template v-slot:field.task.status="{field, modelValue, setValue}">
+      <task-status-combobox
+        :model-value="modelValue"
+        @update:modelValue="setValue"
+        :name="field.name"
+        :label="field.label"
+        item-title="name"
+        item-value="name"
+        variant="outlined"
+      />
+    </template>
+
+    <template v-slot:field.task.lifeArea="{field, modelValue, setValue}">
+      <life-area-combobox
+        :model-value="modelValue"
+        @update:modelValue="setValue"
+        :name="field.name"
+        :label="field.label"
+        item-title="name"
+        item-value="name"
+        variant="outlined"
+      />
+    </template>
+
+    <template v-slot:field.task.priority="{field, modelValue, setValue}">
+      <priority-combobox
         :model-value="modelValue"
         @update:modelValue="setValue"
         :name="field.name"
