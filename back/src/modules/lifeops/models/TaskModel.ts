@@ -4,7 +4,7 @@ import uniqueValidator from 'mongoose-unique-validator';
 import mongoosePaginate from 'mongoose-paginate-v2'
 import type {ITask} from '../interfaces/ITask'
 
-const TaskSchema = new mongoose.Schema<ITask>({
+const TaskSchemaDefinition = {
     title: {type: String, required: true, index: true, unique: false},
     description: {type: String, required: false, index: false, unique: false},
     source: {type: String, required: false, index: true, unique: false},
@@ -36,25 +36,49 @@ const TaskSchema = new mongoose.Schema<ITask>({
     user: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true, unique: false},
     completedAt: {type: Date, required: false, index: false, unique: false},
     archivedAt: {type: Date, required: false, index: false, unique: false}
-}, {timestamps: true});
+};
 
-TaskSchema.plugin(uniqueValidator, {message: 'validation.unique'});
-TaskSchema.plugin(mongoosePaginate);
+const TaskSchemaOptions = {timestamps: true};
 
-TaskSchema.virtual("id").get(function () {
-    return this._id.toString();
-});
+interface BuildTaskSchemaOptions {
+    archiveLookupIndex?: boolean
+}
 
+function buildTaskSchema<T = ITask>(
+    extraDefinition: Record<string, any> = {},
+    options: BuildTaskSchemaOptions = {}
+) {
+    const schema = new mongoose.Schema<T>({
+        ...TaskSchemaDefinition,
+        ...extraDefinition
+    }, TaskSchemaOptions);
 
-TaskSchema.set('toJSON', {getters: true, virtuals: true});
+    if (options.archiveLookupIndex !== false) {
+        schema.index({archivedAt: 1});
+    }
+    schema.plugin(uniqueValidator, {message: 'validation.unique'});
+    schema.plugin(mongoosePaginate);
 
-TaskSchema.set('toObject', {getters: true, virtuals: true});
+    schema.virtual("id").get(function () {
+        return this._id.toString();
+    });
+
+    schema.set('toJSON', {getters: true, virtuals: true});
+    schema.set('toObject', {getters: true, virtuals: true});
+
+    return schema;
+}
+
+const TaskSchema = buildTaskSchema<ITask>();
 
 const MODEL_NAME = 'Task';
 const COLLECTION_NAME = 'Task';
 const TaskModel = mongoose.model<ITask, PaginateModel<ITask>>(MODEL_NAME, TaskSchema, COLLECTION_NAME);
 
 export {
+    TaskSchemaDefinition,
+    TaskSchemaOptions,
+    buildTaskSchema,
     TaskSchema,
     TaskModel
 }

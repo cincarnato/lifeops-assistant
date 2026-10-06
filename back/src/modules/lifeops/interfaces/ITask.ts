@@ -69,9 +69,15 @@ interface ITask {
     updatedAt?: Date
 }
 
+interface ITaskArchived extends ITask {
+    migratedAt: Date
+    schemaVersion: number
+}
+
 export type {
 ITaskBase,
 ITask,
+ITaskArchived,
 ITaskNote,
 ITaskStatusHistory
 }

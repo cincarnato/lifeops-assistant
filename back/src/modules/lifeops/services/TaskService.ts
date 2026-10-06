@@ -2,6 +2,7 @@
 import type{ITaskRepository} from "../interfaces/ITaskRepository";
 import type {ITaskBase, ITask, ITaskNote} from "../interfaces/ITask";
 import {AbstractService} from "@drax/crud-back";
+import type {IDraxPaginateOptions, IDraxPaginateResult} from "@drax/crud-share";
 import type {ZodObject, ZodRawShape} from "zod";
 import TaskStatusServiceFactory from "../factory/services/TaskStatusServiceFactory.js";
 
@@ -27,6 +28,40 @@ class TaskService extends AbstractService<ITask, ITaskBase, ITaskBase> {
     async updatePartial(id: string, data: any): Promise<ITask> {
         data = await this.prepareUpdateData(id, data)
         return super.updatePartial(id, data)
+    }
+
+    async paginateArchived(options: IDraxPaginateOptions): Promise<IDraxPaginateResult<ITask>> {
+        if (!this.repository.paginateArchived) {
+            throw new Error("task.archive.repositoryUnsupported")
+        }
+
+        const pagination = await this.repository.paginateArchived(options)
+
+        if (this.transformRead) {
+            pagination.items = await Promise.all(pagination.items.map(item => this.transformRead(item)))
+        }
+
+        return pagination
+    }
+
+    async findPendingArchiveBatch(cutoff: Date, limit: number): Promise<ITask[]> {
+        if (!this.repository.findPendingArchiveBatch) {
+            throw new Error("task.archive.repositoryUnsupported")
+        }
+
+        return this.repository.findPendingArchiveBatch(cutoff, limit)
+    }
+
+    async archiveTask(task: ITask, migratedAt?: Date): Promise<void> {
+        if (!this.repository.archiveTask) {
+            throw new Error("task.archive.repositoryUnsupported")
+        }
+
+        await this.repository.archiveTask(task, migratedAt)
+    }
+
+    private get repository(): ITaskRepository {
+        return this._repository as ITaskRepository
     }
 
     private async applyStatusAutomations(data: ITaskBase): Promise<ITaskBase> {
