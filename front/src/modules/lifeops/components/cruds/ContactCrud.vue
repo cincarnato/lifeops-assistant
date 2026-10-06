@@ -6,6 +6,7 @@ import {Crud} from "@drax/crud-vue";
 import {formatDate} from "@drax/common-front"
 import ContactProvider from '../../providers/ContactProvider'
 import type {IContact} from '../../interfaces/IContact'
+import ContactForm from '../ContactForm.vue'
 
 const syncingIds = ref<Set<string>>(new Set())
 const snackbar = ref(false)
@@ -56,6 +57,10 @@ async function syncGoogle(item: any) {
 
 <template>
   <crud :entity="ContactCrud.instance">
+    <template #form="{ operation, form }">
+      <contact-form :item="form" :operation="operation" />
+    </template>
+
     <template v-slot:item.source="{value}">
       <v-chip size="x-small" variant="tonal">{{value}}</v-chip>
     </template>

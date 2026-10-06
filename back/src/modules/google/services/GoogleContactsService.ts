@@ -12,6 +12,7 @@ import type {
     GoogleContact,
     GoogleContactAddress,
     GoogleContactField,
+    GoogleContactMetadata,
     GoogleContactsCreateOptions,
     GoogleContactsListOptions,
     GoogleContactsListResult,
@@ -19,6 +20,7 @@ import type {
     GoogleContactsSyncOptions,
     GoogleContactsSyncResult,
     GoogleContactsUpdateOptions,
+    GoogleContactsUpdatePhotoOptions,
 } from "../interfaces/IGoogleContacts";
 
 const CONTACTS_READONLY_SCOPE = "https://www.googleapis.com/auth/contacts.readonly";
@@ -71,7 +73,7 @@ class GoogleContactsService {
         console.info("google.contacts.create_requested", {
             userId: options.userId,
             connectionId: options.connectionId,
-            hasDisplayName: Boolean(options.contact.displayName),
+            hasName: Boolean(options.contact.givenName || options.contact.familyName),
             emailCount: options.contact.emailAddresses?.length || 0,
             phoneCount: options.contact.phoneNumbers?.length || 0,
         });
@@ -128,10 +130,12 @@ class GoogleContactsService {
             hasExternalId: Boolean(contact.externalId),
         });
 
-        return this.createContact({
+        const googleContact = await this.createContact({
             userId,
             contact: this.mapLifeOpsContactToGoogleCreateInput(contact),
         });
+
+        return this.syncContactPhotoIfNeeded(contact, googleContact);
     }
 
     async updateContact(options: GoogleContactsUpdateOptions): Promise<GoogleContact> {
@@ -139,7 +143,7 @@ class GoogleContactsService {
             userId: options.userId,
             connectionId: options.connectionId,
             resourceName: options.resourceName,
-            hasDisplayName: Boolean(options.contact.displayName),
+            hasName: Boolean(options.contact.givenName || options.contact.familyName),
             emailCount: options.contact.emailAddresses?.length || 0,
             phoneCount: options.contact.phoneNumbers?.length || 0,
         });
@@ -180,6 +184,28 @@ class GoogleContactsService {
         return googleContact;
     }
 
+    async updateContactPhoto(options: GoogleContactsUpdatePhotoOptions): Promise<GoogleContact> {
+        const connection = await this.resolveConnection(options.userId, options.connectionId, true);
+        const accessToken = await this.getAccessToken(connection);
+        const response = await this.peopleFetch<{person?: any}>(
+            `https://people.googleapis.com/v1/${encodeURI(options.resourceName)}:updateContactPhoto`,
+            accessToken,
+            {
+                method: "PATCH",
+                body: JSON.stringify({
+                    photoBytes: options.photoBytes,
+                    personFields: this.resolvePersonFields(),
+                }),
+            }
+        );
+
+        if (!response.person) {
+            throw new Error("google.contacts.photo.response_missing");
+        }
+
+        return this.mapContact(response.person);
+    }
+
     async updateContactFromLifeOps(contact: IContact): Promise<GoogleContact> {
         if (!contact.externalId) {
             throw new Error("google.contacts.external_id.required");
@@ -194,12 +220,15 @@ class GoogleContactsService {
             hasExternalEtag: Boolean(contact.externalEtag),
         });
 
-        return this.updateContact({
+        const googleContact = await this.updateContact({
             userId,
             resourceName: contact.externalId,
             etag: contact.externalEtag,
+            metadata: this.getStoredGoogleMetadata(contact),
             contact: this.mapLifeOpsContactToGoogleCreateInput(contact),
         });
+
+        return this.syncContactPhotoIfNeeded(contact, googleContact);
     }
 
     async syncContacts(options: GoogleContactsSyncOptions): Promise<GoogleContactsSyncResult> {
@@ -395,8 +424,8 @@ class GoogleContactsService {
     }
 
     private mapGoogleContactToLifeOpsContact(contact: GoogleContact, userId: string): IContactBase | null {
-        const primaryName = contact.names?.[0] || {};
-        const organization = contact.organizations?.[0] || {};
+        const primaryName = contact.names?.find(name => name.primary) || contact.names?.[0] || {};
+        const organization = contact.organizations?.find(item => item.current) || contact.organizations?.[0] || {};
         const emails = this.mapContactEmails(contact.emailAddresses);
         const phones = this.mapContactPhones(contact.phoneNumbers);
         const displayName = this.resolveDisplayName(contact, emails.map(email => email.value), phones.map(phone => phone.value));
@@ -421,7 +450,7 @@ class GoogleContactsService {
                 name: organization.name || "",
                 title: organization.title || "",
                 department: organization.department || "",
-                domain: "",
+                domain: organization.domain || "",
             },
             addresses: this.mapContactAddresses(contact.addresses),
             photoUrl: contact.photos?.[0]?.value || "",
@@ -441,10 +470,10 @@ class GoogleContactsService {
             externalId: incoming.externalId,
             externalEtag: incoming.externalEtag,
             externalRaw: incoming.externalRaw,
-            displayName: existing.displayName || incoming.displayName,
-            givenName: existing.givenName || incoming.givenName || "",
-            familyName: existing.familyName || incoming.familyName || "",
-            nickname: existing.nickname || incoming.nickname || "",
+            displayName: incoming.displayName || existing.displayName,
+            givenName: incoming.givenName || "",
+            familyName: incoming.familyName || "",
+            nickname: incoming.nickname || "",
             emails: this.mergeContactEmails(existing.emails || [], incoming.emails || []),
             phones: this.mergeContactPhones(existing.phones || [], incoming.phones || []),
             organization: incoming.organization || existing.organization || {},
@@ -471,7 +500,7 @@ class GoogleContactsService {
     }
 
     private resolveDisplayName(contact: GoogleContact, emails: string[], phones: string[]): string {
-        const name = contact.names?.[0];
+        const name = contact.names?.find(item => item.primary) || contact.names?.[0];
         return name?.displayName || [name?.givenName, name?.familyName].filter(Boolean).join(" ") || emails[0] || phones[0] || "";
     }
 
@@ -518,7 +547,7 @@ class GoogleContactsService {
                 value: field.value,
                 type: field.type || "other",
                 primary: Boolean(field.primary),
-                displayName: field.formattedType || "",
+                displayName: field.displayName || "",
             }));
     }
 
@@ -527,7 +556,7 @@ class GoogleContactsService {
             .filter(field => field.value)
             .map(field => ({
                 value: field.value,
-                normalizedValue: this.normalizePhone(field.value),
+                normalizedValue: field.canonicalForm || this.normalizePhone(field.value),
                 type: field.type || "other",
                 primary: Boolean(field.primary),
             }));
@@ -557,17 +586,48 @@ class GoogleContactsService {
         return user?._id?.toString?.() || user?.id?.toString?.() || "";
     }
 
+    private getStoredGoogleMetadata(contact: IContact): GoogleContactMetadata | undefined {
+        const raw = contact.externalRaw;
+        if (!raw || typeof raw !== "object" || !("metadata" in raw)) {
+            return undefined;
+        }
+
+        return (raw as {metadata?: GoogleContactMetadata}).metadata;
+    }
+
+    private async syncContactPhotoIfNeeded(contact: IContact, googleContact: GoogleContact): Promise<GoogleContact> {
+        const photoBytes = this.extractPhotoBytes(contact.photoUrl);
+        if (!photoBytes) {
+            return googleContact;
+        }
+
+        return this.updateContactPhoto({
+            userId: this.getContactUserId(contact),
+            resourceName: googleContact.resourceName,
+            photoBytes,
+        });
+    }
+
+    private extractPhotoBytes(photoUrl?: string): string | undefined {
+        if (!photoUrl) {
+            return undefined;
+        }
+
+        const match = photoUrl.match(/^data:image\/(?:jpeg|jpg|png|webp);base64,([A-Za-z0-9+/=\s]+)$/i);
+        return match?.[1]?.replace(/\s/g, "");
+    }
+
     private mapLifeOpsContactToGoogleCreateInput(contact: IContact): GoogleContactsCreateOptions["contact"] {
         return {
-            displayName: contact.displayName,
             givenName: contact.givenName,
             familyName: contact.familyName,
             nickname: contact.nickname,
-            emailAddresses: contact.emails?.map(email => ({
+            emailAddresses: this.primaryFirst(contact.emails).map(email => ({
                 value: email.value,
                 type: email.type,
+                displayName: email.displayName,
             })),
-            phoneNumbers: contact.phones?.map(phone => ({
+            phoneNumbers: this.primaryFirst(contact.phones).map(phone => ({
                 value: phone.value,
                 type: phone.type,
             })),
@@ -575,8 +635,11 @@ class GoogleContactsService {
                 name: contact.organization.name,
                 title: contact.organization.title,
                 department: contact.organization.department,
+                domain: contact.organization.domain,
+                type: "work",
+                current: true,
             }] : undefined,
-            addresses: contact.addresses?.map(address => ({
+            addresses: this.primaryFirst(contact.addresses).map(address => ({
                 formattedValue: address.formattedValue,
                 streetAddress: address.streetAddress,
                 city: address.city,
@@ -589,6 +652,10 @@ class GoogleContactsService {
             birthday: contact.birthday,
             biography: contact.notes,
         };
+    }
+
+    private primaryFirst<T extends {primary?: boolean}>(items: T[] | undefined): T[] {
+        return [...(items || [])].sort((left, right) => Number(Boolean(right.primary)) - Number(Boolean(left.primary)));
     }
 
     private mergeContactEmails(existing: IContactEmail[], incoming: IContactEmail[]): IContactEmail[] {
@@ -645,7 +712,7 @@ class GoogleContactsService {
     }
 
     private buildCreateContactBody(contact: GoogleContactsCreateOptions["contact"]): any {
-        const hasName = contact.displayName || contact.givenName || contact.familyName || contact.middleName;
+        const hasName = contact.givenName || contact.familyName;
         const hasEmail = Boolean(contact.emailAddresses?.some(item => item.value));
         const hasPhone = Boolean(contact.phoneNumbers?.some(item => item.value));
 
@@ -655,10 +722,8 @@ class GoogleContactsService {
 
         return {
             names: hasName ? [{
-                displayName: contact.displayName,
                 givenName: contact.givenName,
                 familyName: contact.familyName,
-                middleName: contact.middleName,
             }] : undefined,
             emailAddresses: this.mapValueFields(contact.emailAddresses),
             phoneNumbers: this.mapValueFields(contact.phoneNumbers),
@@ -688,15 +753,17 @@ class GoogleContactsService {
             ...body,
             resourceName: options.resourceName,
             etag: options.etag,
+            metadata: options.metadata,
         };
     }
 
-    private mapValueFields(fields?: Array<{value?: string; type?: string}>): Array<{value?: string; type?: string}> | undefined {
+    private mapValueFields(fields?: Array<{value?: string; type?: string; displayName?: string}>): Array<{value?: string; type?: string; displayName?: string}> | undefined {
         const mapped = fields
             ?.filter(field => field.value)
             .map(field => ({
                 value: field.value,
                 type: field.type,
+                displayName: field.displayName,
             }));
 
         return mapped?.length ? mapped : undefined;
@@ -706,28 +773,40 @@ class GoogleContactsService {
         return {
             resourceName: contact.resourceName,
             etag: contact.etag,
+            metadata: contact.metadata ? {
+                sources: (contact.metadata.sources || []).map((source: any) => ({
+                    type: source.type,
+                    id: source.id,
+                    etag: source.etag,
+                })),
+            } : undefined,
             names: (contact.names || []).map((name: any) => ({
                 displayName: name.displayName,
                 givenName: name.givenName,
                 familyName: name.familyName,
-                middleName: name.middleName,
+                primary: Boolean(name.metadata?.primary),
             })),
             emailAddresses: (contact.emailAddresses || []).map((email: any) => ({
                 value: email.value,
                 type: email.type,
                 formattedType: email.formattedType,
+                displayName: email.displayName,
                 primary: Boolean(email.metadata?.primary),
             })),
             phoneNumbers: (contact.phoneNumbers || []).map((phone: any) => ({
                 value: phone.value,
                 type: phone.type,
                 formattedType: phone.formattedType,
+                canonicalForm: phone.canonicalForm,
                 primary: Boolean(phone.metadata?.primary),
             })),
             organizations: (contact.organizations || []).map((organization: any) => ({
                 name: organization.name,
                 title: organization.title,
                 department: organization.department,
+                domain: organization.domain,
+                type: organization.type,
+                current: organization.current,
             })),
             addresses: (contact.addresses || []).map((address: any) => ({
                 formattedValue: address.formattedValue,

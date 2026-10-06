@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {useMenu} from '../../composables/useMenu'
-import {PropType, ref, onMounted, watch} from "vue";
+import {nextTick, onBeforeUnmount, onMounted, onUpdated, PropType, ref, watch} from "vue";
 import type {IMenuItem} from "@drax/common-share";
 
 type MenuColValue = number | string
@@ -15,7 +15,7 @@ interface IMenuItemCompact extends IMenuItem{
   children?: IMenuItemCompact[]
 }
 
-const {isActive, isGranted, childrenGranted, hasChildrenGranted, itemText} = useMenu()
+const {isGranted, childrenGranted, hasChildrenGranted, itemText} = useMenu()
 
 const props = defineProps({
   menu: {
@@ -27,32 +27,51 @@ const props = defineProps({
 const storageKey = 'drax-gallery-menu-compact-state'
 const expandedItems = ref<Record<string, boolean>>({});
 
-const defaultSectionCols = {
-  cols: 12
+const masonryGrid = ref<HTMLElement | null>(null)
+const observedCards = new Set<HTMLElement>()
+const masonryGap = 8
+let resizeObserver: ResizeObserver | undefined
+
+const updateMasonryItem = (card: HTMLElement) => {
+  const item = card.parentElement
+  if (!item?.classList.contains('gallery-compact-layout__item')) return
+
+  item.style.gridRowEnd = `span ${Math.max(1, Math.ceil(card.getBoundingClientRect().height + masonryGap))}`
 }
 
-const defaultCardCols = {
-  cols: 6,
-  sm: 4,
-  md: 3,
-  lg: 2,
-  xl: 1
-}
+const syncMasonryItems = () => {
+  if (!masonryGrid.value || !resizeObserver) return
 
-const buildColProps = (item: IMenuItemCompact, defaults: Record<string, MenuColValue>) => ({
-  cols: item.cols ?? defaults.cols,
-  sm: item.sm ?? defaults.sm,
-  md: item.md ?? defaults.md,
-  lg: item.lg ?? defaults.lg,
-  xl: item.xl ?? defaults.xl
-})
+  const currentCards = new Set(
+    Array.from(masonryGrid.value.querySelectorAll<HTMLElement>(':scope > .gallery-compact-layout__item > .v-card'))
+  )
+
+  observedCards.forEach(card => {
+    if (!currentCards.has(card)) {
+      resizeObserver?.unobserve(card)
+      observedCards.delete(card)
+    }
+  })
+
+  currentCards.forEach(card => {
+    updateMasonryItem(card)
+    if (!observedCards.has(card)) {
+      resizeObserver?.observe(card)
+      observedCards.add(card)
+    }
+  })
+}
 
 onMounted(() => {
+  resizeObserver = new ResizeObserver(entries => {
+    entries.forEach(entry => updateMasonryItem(entry.target as HTMLElement))
+  })
+
   const savedState = localStorage.getItem(storageKey);
   if (savedState) {
     try {
       expandedItems.value = JSON.parse(savedState);
-    } catch(e) {
+    } catch {
       // do nothing
     }
   }
@@ -63,7 +82,18 @@ onMounted(() => {
       expandedItems.value[item.text] = true;
     }
   });
+
+  nextTick(syncMasonryItems)
 });
+
+onUpdated(() => {
+  nextTick(syncMasonryItems)
+})
+
+onBeforeUnmount(() => {
+  resizeObserver?.disconnect()
+  observedCards.clear()
+})
 
 watch(expandedItems, (newVal) => {
   localStorage.setItem(storageKey, JSON.stringify(newVal));
@@ -75,15 +105,14 @@ const toggleItem = (text: string) => {
 </script>
 
 <template>
-  <v-container fluid class="pa-3 pa-sm-4">
-    <v-row dense>
+  <v-container fluid class="pa-2 pa-sm-3">
+    <div ref="masonryGrid" class="gallery-compact-layout">
       <template v-for="(item) in menu" :key="item.text">
 
-        <v-col
+        <div
           v-if="item.gallery && isGranted(item) && item.children && hasChildrenGranted(item.children)"
           :key="item.text"
-          v-bind="buildColProps(item, defaultSectionCols)"
-          :value="isActive(item)"
+          class="gallery-compact-layout__item"
         >
           <v-card class="gallery-compact-section elevation-1 bg-surface">
             <v-card-item class="pa-3 cursor-pointer" @click="toggleItem(item.text)" style="cursor: pointer;">
@@ -131,12 +160,12 @@ const toggleItem = (text: string) => {
               </div>
             </v-expand-transition>
           </v-card>
-        </v-col>
+        </div>
 
-        <v-col
+        <div
           v-else-if="isGranted(item) && item.gallery && !item.children"
           :key="'e'+item.text"
-          v-bind="buildColProps(item, defaultCardCols)"
+          class="gallery-compact-layout__item"
         >
           <v-card :to="item.link" class="gallery-compact-card" variant="tonal">
             <div class="d-flex align-center pa-2">
@@ -148,15 +177,32 @@ const toggleItem = (text: string) => {
               </div>
             </div>
           </v-card>
-        </v-col>
+        </div>
 
       </template>
-    </v-row>
+    </div>
   </v-container>
 </template>
 
 
 <style scoped>
+.gallery-compact-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-auto-flow: dense;
+  grid-auto-rows: 1px;
+  column-gap: 8px;
+}
+
+.gallery-compact-layout__item {
+  min-width: 0;
+  padding-bottom: 8px;
+}
+
+.gallery-compact-layout__item > .v-card {
+  width: 100%;
+}
+
 .gallery-compact-section {
   border-radius: 8px;
 }
@@ -180,6 +226,24 @@ const toggleItem = (text: string) => {
 
 .gallery-compact-card :deep(.v-card__overlay) {
   border-radius: inherit;
+}
+
+@media (min-width: 600px) {
+  .gallery-compact-layout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 960px) {
+  .gallery-compact-layout {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1904px) {
+  .gallery-compact-layout {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 599px) {

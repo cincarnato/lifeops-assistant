@@ -45,7 +45,7 @@ const ContactBaseSchema = z.object({
     externalId: z.string().optional().default(""),
     externalEtag: z.string().optional().default(""),
     externalRaw: z.unknown().optional(),
-    displayName: z.string().min(1, 'validation.required'),
+    displayName: z.string().optional().default(""),
     givenName: z.string().optional().default(""),
     familyName: z.string().optional().default(""),
     nickname: z.string().optional().default(""),
@@ -65,6 +65,7 @@ const ContactBaseSchema = z.object({
 const ContactSchema = ContactBaseSchema
     .extend({
         _id: z.coerce.string(),
+        displayName: z.string().min(1, 'validation.required'),
         user: z.object({_id: z.coerce.string(), username: z.string()}),
         createdAt: z.coerce.date().nullable().optional(),
         updatedAt: z.coerce.date().nullable().optional(),

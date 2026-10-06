@@ -2,6 +2,8 @@ type GoogleContactField = {
     value?: string;
     type?: string;
     formattedType?: string;
+    displayName?: string;
+    canonicalForm?: string;
     primary?: boolean;
 }
 
@@ -9,13 +11,16 @@ type GoogleContactName = {
     displayName?: string;
     givenName?: string;
     familyName?: string;
-    middleName?: string;
+    primary?: boolean;
 }
 
 type GoogleContactOrganization = {
     name?: string;
     title?: string;
     department?: string;
+    domain?: string;
+    type?: string;
+    current?: boolean;
 }
 
 type GoogleContactAddress = {
@@ -36,9 +41,18 @@ type GoogleContactBirthday = {
     day?: number;
 }
 
+type GoogleContactMetadata = {
+    sources?: Array<{
+        type?: string;
+        id?: string;
+        etag?: string;
+    }>;
+}
+
 type GoogleContact = {
     resourceName: string;
     etag?: string;
+    metadata?: GoogleContactMetadata;
     names: GoogleContactName[];
     emailAddresses: GoogleContactField[];
     phoneNumbers: GoogleContactField[];
@@ -68,10 +82,8 @@ type GoogleContactsListResult = {
 }
 
 type GoogleContactsCreateInput = {
-    displayName?: string;
     givenName?: string;
     familyName?: string;
-    middleName?: string;
     nickname?: string;
     emailAddresses?: GoogleContactField[];
     phoneNumbers?: GoogleContactField[];
@@ -93,7 +105,15 @@ type GoogleContactsUpdateOptions = {
     connectionId?: string;
     resourceName: string;
     etag?: string;
+    metadata?: GoogleContactMetadata;
     contact: GoogleContactsCreateInput;
+}
+
+type GoogleContactsUpdatePhotoOptions = {
+    userId: string;
+    connectionId?: string;
+    resourceName: string;
+    photoBytes: string;
 }
 
 type GoogleContactsSyncOptions = {
@@ -127,10 +147,12 @@ export type {
     GoogleContactBirthday,
     GoogleContactField,
     GoogleContactName,
+    GoogleContactMetadata,
     GoogleContactOrganization,
     GoogleContactsCreateInput,
     GoogleContactsCreateOptions,
     GoogleContactsUpdateOptions,
+    GoogleContactsUpdatePhotoOptions,
     GoogleContactsListOptions,
     GoogleContactsListResult,
     GoogleContactsSyncItem,

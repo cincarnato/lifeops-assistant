@@ -57,15 +57,15 @@ class GoogleContactsController {
                 userId: request.authUser.id,
                 connectionId: body.connectionId,
                 contact: {
-                    displayName: body.displayName,
                     givenName: body.givenName,
                     familyName: body.familyName,
-                    middleName: body.middleName,
+                    nickname: body.nickname,
                     emailAddresses: body.emailAddresses,
                     phoneNumbers: body.phoneNumbers,
                     organizations: body.organizations,
                     addresses: body.addresses,
                     urls: body.urls,
+                    birthday: body.birthday,
                     biography: body.biography,
                 },
             });

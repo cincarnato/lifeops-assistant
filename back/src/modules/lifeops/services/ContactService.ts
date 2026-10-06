@@ -21,23 +21,43 @@ class ContactService extends AbstractService<IContact, IContactBase, IContactBas
     }
 
     private async normalizeCreateData(data: IContactBase): Promise<IContactBase> {
-        return {
+        const normalized = {
             ...data,
             source: data.source || 'manual',
             status: data.status || 'active',
             givenName: this.capitalizeFirstLetter(data.givenName),
             familyName: this.capitalizeFirstLetter(data.familyName),
-            displayName: this.capitalizeFirstLetter(data.displayName)
+        }
+
+        return {
+            ...normalized,
+            displayName: this.resolveDisplayName(normalized),
         }
     }
 
     private async normalizePartialData(data: Partial<IContactBase>): Promise<Partial<IContactBase>> {
-        return {
-            ...data,
-            givenName: this.capitalizeFirstLetter(data.givenName),
-            familyName: this.capitalizeFirstLetter(data.familyName),
-            displayName: this.capitalizeFirstLetter(data.displayName)
-        }
+        const normalized: Partial<IContactBase> = {...data}
+
+        if (data.givenName !== undefined) normalized.givenName = this.capitalizeFirstLetter(data.givenName)
+        if (data.familyName !== undefined) normalized.familyName = this.capitalizeFirstLetter(data.familyName)
+
+        return normalized
+    }
+
+    private resolveDisplayName(data: Partial<IContactBase>): string {
+        const structuredName = [data.givenName, data.familyName]
+            .map(value => value?.trim())
+            .filter(Boolean)
+            .join(' ')
+
+        return structuredName
+            || data.displayName?.trim()
+            || data.nickname?.trim()
+            || data.emails?.find(email => email.primary)?.value
+            || data.emails?.[0]?.value
+            || data.phones?.find(phone => phone.primary)?.value
+            || data.phones?.[0]?.value
+            || 'Contacto'
     }
 
     private capitalizeFirstLetter(value?: string): string | undefined {
@@ -133,11 +153,20 @@ class ContactService extends AbstractService<IContact, IContactBase, IContactBas
     }
 
     private async saveGoogleSyncMetadata(contact: IContact, googleContact: any): Promise<IContact> {
+        const primaryName = googleContact.names?.[0] || {}
+        const primaryPhoto = googleContact.photos?.find((photo: any) => photo.primary)
+            || googleContact.photos?.find((photo: any) => photo.type !== 'default')
+            || googleContact.photos?.[0]
+
         return await this.updatePartial(contact._id, {
             externalProvider: 'google',
             externalId: googleContact.resourceName,
             externalEtag: googleContact.etag || '',
             externalRaw: googleContact.raw,
+            displayName: primaryName.displayName || contact.displayName,
+            givenName: primaryName.givenName || '',
+            familyName: primaryName.familyName || '',
+            photoUrl: primaryPhoto?.value || (contact.photoUrl?.startsWith('data:') ? '' : contact.photoUrl) || '',
             lastSyncedAt: new Date(),
             tags: Array.from(new Set([...(contact.tags || []), 'google'])),
         } as any)

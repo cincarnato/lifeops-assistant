@@ -80,9 +80,7 @@ class ContactCrud extends EntityCrud implements IEntityCrud {
   }
 
   get rules(): IEntityCrudRules {
-    return {
-      displayName: [(v: any) => !!v || 'validation.required'],
-    }
+    return {}
   }
 
   get fields(): IEntityCrudField[] {
@@ -96,7 +94,7 @@ class ContactCrud extends EntityCrud implements IEntityCrud {
         enum: ['active', 'archived', 'deleted'],
         groupTab: 'BASIC'
       },
-      {name: 'displayName', type: 'string', label: 'displayName', default: '', groupTab: 'BASIC'},
+      {name: 'displayName', type: 'string', label: 'displayName', default: '', readonly: true, groupTab: 'BASIC'},
       {name: 'givenName', type: 'string', label: 'givenName', default: '', groupTab: 'BASIC'},
       {name: 'familyName', type: 'string', label: 'familyName', default: '', groupTab: 'BASIC'},
       {name: 'nickname', type: 'string', label: 'nickname', default: '', groupTab: 'BASIC'},
@@ -247,7 +245,11 @@ class ContactCrud extends EntityCrud implements IEntityCrud {
   }
 
   get dialogFullscreen() {
-    return false
+    return true
+  }
+
+  get dialogMaxWidth() {
+    return '1440px'
   }
 
   get tabs() {
@@ -281,6 +283,8 @@ class ContactCrud extends EntityCrud implements IEntityCrud {
   get isSavedQueriesEnabled() {
     return true
   }
+
+
 
 }
 
