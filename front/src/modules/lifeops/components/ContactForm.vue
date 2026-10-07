@@ -307,7 +307,7 @@ async function submit() {
               <v-card-text>
                 <v-row dense>
                   <v-col cols="12" md="6" lg="3">
-                    <label class="contact-form__label">{{ t('contact.form.company') }}</label>
+                    <label class="contact-form__label">{{ t('contact.form.organizationName') }}</label>
                     <v-text-field v-model="form.organization.name" :readonly="readOnlyMode" prepend-inner-icon="mdi-office-building-outline" variant="solo-filled" flat hide-details />
                   </v-col>
                   <v-col cols="12" md="6" lg="3">

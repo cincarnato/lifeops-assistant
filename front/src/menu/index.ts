@@ -145,14 +145,6 @@ const menu: MenuItem[] = [
         gallery: true,
         permission: 'contact:manage'
       },
-      {
-        icon: 'mdi-office-building-outline',
-        text: 'company.menu',
-        link: {name: "CompanyCrudPage"},
-        gallery: true,
-        permission: 'company:manage'
-      },
-
 
     ]
   },
@@ -241,20 +233,7 @@ const menu: MenuItem[] = [
         gallery: true,
         permission: 'contacttype:manage'
       },
-      {
-        icon: 'mdi-office-building-cog-outline',
-        text: 'companytype.menu',
-        link: {name: "CompanyTypeCrudPage"},
-        gallery: true,
-        permission: 'companytype:manage'
-      },
-      {
-        icon: 'mdi-domain-plus',
-        text: 'clienttype.menu',
-        link: {name: "ClientTypeCrudPage"},
-        gallery: true,
-        permission: 'clienttype:manage'
-      },
+
       {
         icon: 'mdi-brain',
         text: 'memorytype.menu',

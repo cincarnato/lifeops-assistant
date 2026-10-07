@@ -14,19 +14,39 @@ const entitySchema: IEntitySchema = {
             header: true,
             index: true,
         },
+        legalName: {
+            type: "string",
+            search: true,
+        },
+        taxCondition: {
+            type: "string",
+            search: true,
+        },
+        taxIdType: {
+            type: "string",
+            search: true,
+        },
+        taxIdNumber: {
+            type: "string",
+            search: true,
+        },
+        taxAddress: {
+            type: "longString",
+            search: true,
+        },
+        taxEmail: {
+            type: "string",
+            search: true,
+        },
         description: {
             type: "longString",
             search: true,
         },
-        type: {
-            type: "string",
-            index: true,
-            header: true,
-        },
-        status: {
-            type: "enum",
-            enum: ["active", "inactive", "prospect", "paused", "archived"],
-            default: "active",
+        roles: {
+            type: "array.enum",
+            enum: ["client", "provider", "prospect", "none"],
+            default: ["none"],
+            required: true,
             index: true,
             header: true,
         },
@@ -35,34 +55,15 @@ const entitySchema: IEntitySchema = {
             index: true,
             header: true,
         },
-        valueScore: {
-            type: "number",
-            default: 5,
-        },
-        relationshipScore: {
-            type: "number",
-        },
-        priorityScore: {
-            type: "number",
-            index: true,
-            header: true,
-        },
         website: {
             type: "string",
             search: true,
         },
-        emailDomains: {
+        aliases: {
             type: "array.string",
             default: [],
             index: true,
-        },
-        company: {
-            type: "ref",
-            ref: "Company",
-            refDisplay: "name",
-            required: true,
-            index: true,
-            header: true,
+            search: true,
         },
         mainContact: {
             type: "ref",

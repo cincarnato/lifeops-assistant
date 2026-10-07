@@ -11,7 +11,7 @@ class ContactMongoRepository extends AbstractMongoRepository<IContact, IContactB
         super();
         this._model = ContactModel;
         this._searchFields = ['firstName', 'lastName', 'displayName', 'jobTitle', 'department'];
-        this._populateFields = ['client', 'company', 'user'];
+        this._populateFields = ['client', 'user'];
         this._lean = true
     }
 

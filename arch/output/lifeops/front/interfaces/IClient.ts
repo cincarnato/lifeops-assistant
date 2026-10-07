@@ -1,16 +1,17 @@
 
 interface IClientBase {
     name: string
+    legalName?: string
+    taxCondition?: string
+    taxIdType?: string
+    taxIdNumber?: string
+    taxAddress?: string
+    taxEmail?: string
     description?: string
-    type?: string
-    status?: string
+    roles: Array<string>
     priority?: string
-    valueScore?: number
-    relationshipScore?: number
-    priorityScore?: number
     website?: string
-    emailDomains?: Array<string>
-    company: any
+    aliases?: Array<string>
     mainContact?: any
     redmineProjectIds?: Array<string>
     tags?: Array<string>
@@ -24,16 +25,17 @@ interface IClientBase {
 interface IClient {
     _id: string
     name: string
+    legalName?: string
+    taxCondition?: string
+    taxIdType?: string
+    taxIdNumber?: string
+    taxAddress?: string
+    taxEmail?: string
     description?: string
-    type?: string
-    status?: string
+    roles: Array<string>
     priority?: string
-    valueScore?: number
-    relationshipScore?: number
-    priorityScore?: number
     website?: string
-    emailDomains?: Array<string>
-    company: any
+    aliases?: Array<string>
     mainContact?: any
     redmineProjectIds?: Array<string>
     tags?: Array<string>

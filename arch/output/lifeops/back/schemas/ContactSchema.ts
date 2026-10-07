@@ -10,7 +10,6 @@ const ContactBaseSchema = z.object({
     status: z.enum(['active', 'inactive', 'archived']).optional().default('active'),
     priority: z.string().optional(),
     client: z.coerce.string().optional().nullable(),
-    company: z.coerce.string().min(1,'validation.required'),
     jobTitle: z.string().optional(),
     department: z.string().optional(),
     emails: z.array(z.string()).optional().default([]),
@@ -27,7 +26,6 @@ const ContactSchema = ContactBaseSchema
     .extend({
       _id: z.coerce.string(),
        client: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
-company: z.object({_id: z.coerce.string(), name: z.string()}),
 user: z.object({_id: z.coerce.string(), username: z.string()})
     })
 

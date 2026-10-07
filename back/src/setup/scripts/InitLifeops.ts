@@ -1,5 +1,4 @@
-import ClientTypeServiceFactory from "../../modules/lifeops/factory/services/ClientTypeServiceFactory.js";
-import CompanyTypeServiceFactory from "../../modules/lifeops/factory/services/CompanyTypeServiceFactory.js";
+
 import ContactTypeServiceFactory from "../../modules/lifeops/factory/services/ContactTypeServiceFactory.js";
 import LifeAreaServiceFactory from "../../modules/lifeops/factory/services/LifeAreaServiceFactory.js";
 import MemoryTypeServiceFactory from "../../modules/lifeops/factory/services/MemoryTypeServiceFactory.js";
@@ -31,19 +30,6 @@ async function seedIfEmpty<T extends SeedItem>(service: SeedService<T>, items: T
 }
 
 async function InitLifeops() {
-    await seedIfEmpty(ClientTypeServiceFactory.instance, [
-        {name: "Empresa", description: "Cliente empresa."},
-        {name: "Persona", description: "Cliente Persona."},
-    ]);
-
-    await seedIfEmpty(CompanyTypeServiceFactory.instance, [
-        {name: "Empresa", description: "Empresa."},
-        {name: "Gobierno", description: "Entidad del Gobierno."},
-        {name: "Proveedor", description: "Empresa que brinda productos o servicios."},
-        {name: "Cliente", description: "Empresa que contrata o compra servicios."},
-        {name: "Partner", description: "Empresa aliada para proyectos o acuerdos."},
-        {name: "Competidor", description: "Empresa del mismo mercado o rubro."}
-    ]);
 
     await seedIfEmpty(ContactTypeServiceFactory.instance, [
         {name: "Personal", description: "Contacto de uso personal."},

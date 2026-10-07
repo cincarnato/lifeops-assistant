@@ -30,7 +30,7 @@ import {GoalFastifyRoutes} from "../modules/lifeops/routes/GoalRoutes.js"
 import {ProjectFastifyRoutes} from "../modules/lifeops/routes/ProjectRoutes.js"
 import {ClientFastifyRoutes} from "../modules/lifeops/routes/ClientRoutes.js"
 import {ContactFastifyRoutes} from "../modules/lifeops/routes/ContactRoutes.js"
-import {CompanyFastifyRoutes} from "../modules/lifeops/routes/CompanyRoutes.js"
+
 import {TaskTypeFastifyRoutes} from "../modules/lifeops/routes/TaskTypeRoutes.js"
 import {TaskStatusFastifyRoutes} from "../modules/lifeops/routes/TaskStatusRoutes.js"
 import {SourceFastifyRoutes} from "../modules/lifeops/routes/SourceRoutes.js"
@@ -38,8 +38,7 @@ import {TaskFastifyRoutes} from "../modules/lifeops/routes/TaskRoutes.js"
 import {TaskScheduleFastifyRoutes} from "../modules/lifeops/routes/TaskScheduleRoutes.js"
 import {PriorityFastifyRoutes} from "../modules/lifeops/routes/PriorityRoutes.js"
 import {ContactTypeFastifyRoutes} from "../modules/lifeops/routes/ContactTypeRoutes.js"
-import {CompanyTypeFastifyRoutes} from "../modules/lifeops/routes/CompanyTypeRoutes.js"
-import {ClientTypeFastifyRoutes} from "../modules/lifeops/routes/ClientTypeRoutes.js"
+
 import {AgentJobFastifyRoutes} from "../modules/lifeops/routes/AgentJobRoutes.js"
 import {AgentJobExecutionFastifyRoutes} from "../modules/lifeops/routes/AgentJobExecutionRoutes.js"
 import {MemoryFastifyRoutes} from "../modules/lifeops/routes/MemoryRoutes.js"
@@ -103,7 +102,6 @@ function FastifyServerFactory(rootDir:string) {
     server.fastifyRegister(ProjectFastifyRoutes)
     server.fastifyRegister(ClientFastifyRoutes)
     server.fastifyRegister(ContactFastifyRoutes)
-    server.fastifyRegister(CompanyFastifyRoutes)
     server.fastifyRegister(TaskTypeFastifyRoutes)
     server.fastifyRegister(TaskStatusFastifyRoutes)
     server.fastifyRegister(SourceFastifyRoutes)
@@ -111,8 +109,6 @@ function FastifyServerFactory(rootDir:string) {
     server.fastifyRegister(TaskScheduleFastifyRoutes)
     server.fastifyRegister(PriorityFastifyRoutes)
     server.fastifyRegister(ContactTypeFastifyRoutes)
-    server.fastifyRegister(CompanyTypeFastifyRoutes)
-    server.fastifyRegister(ClientTypeFastifyRoutes)
     server.fastifyRegister(AgentJobFastifyRoutes)
     server.fastifyRegister(AgentJobExecutionFastifyRoutes)
     server.fastifyRegister(MemoryFastifyRoutes)

@@ -76,6 +76,27 @@ describe("TaskScheduleJob", () => {
         expect(updated.runtime?.nextRunAt?.toISOString()).toBe("2099-01-12T12:00:00.000Z")
     })
 
+    it("preserves a populated lastTaskId when editing without runtime", async () => {
+        const task = await TaskModel.create({
+            title: "Tarea generada previamente",
+            user: testSetup.rootUser._id
+        })
+        const schedule = await createSchedule({
+            startAt: new Date("2099-01-01T00:00:00.000Z"),
+            runtime: {lastTaskId: task._id}
+        })
+
+        await TaskScheduleServiceFactory.instance.updatePartial(schedule._id.toString(), {
+            schedule: {
+                ...schedule.schedule,
+                daysOfMonth: [12]
+            }
+        })
+
+        const persisted = await TaskScheduleModel.findById(schedule._id).lean().exec()
+        expect(persisted?.runtime?.lastTaskId?.toString()).toBe(task._id.toString())
+    })
+
     it("initializes an active schedule whose nextRunAt is missing and cleans legacy epoch dates", async () => {
         const schedule = await createSchedule()
         await TaskScheduleModel.updateOne({_id: schedule._id}, {

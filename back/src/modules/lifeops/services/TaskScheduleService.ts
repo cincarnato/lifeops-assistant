@@ -262,7 +262,11 @@ class TaskScheduleService extends AbstractService<ITaskSchedule, ITaskScheduleBa
     }
 
     private async prepareUpdate(id: string, data: Partial<ITaskScheduleBase>): Promise<ITaskScheduleBase> {
-        const previous = await this.findById(id)
+        if (data.runtime) {
+            data.runtime = this.normalizeRuntime(data.runtime)
+        }
+
+        const previous = await this.repository.findById(id)
         if (!previous) {
             throw new Error("taskSchedule.notFound")
         }
@@ -279,11 +283,11 @@ class TaskScheduleService extends AbstractService<ITaskSchedule, ITaskScheduleBa
         }
 
         if (merged.active !== false && shouldRecalculate) {
-            data.runtime = {
+            data.runtime = this.normalizeRuntime({
                 ...(previous.runtime ?? {}),
                 ...(data.runtime ?? {}),
                 nextRunAt: this.calculateBoundedNextRunAt(merged, new Date())
-            }
+            })
         }
 
         return data as ITaskScheduleBase
@@ -421,6 +425,13 @@ class TaskScheduleService extends AbstractService<ITaskSchedule, ITaskScheduleBa
         }
 
         return String(record)
+    }
+
+    private normalizeRuntime(runtime: NonNullable<ITaskScheduleBase["runtime"]>): NonNullable<ITaskScheduleBase["runtime"]> {
+        return {
+            ...runtime,
+            lastTaskId: runtime.lastTaskId === null ? null : this.stringifyOptionalId(runtime.lastTaskId)
+        }
     }
 
     private normalizeLegacyEpochDates<T extends Pick<ITaskScheduleBase, "schedule" | "runtime" | "startAt" | "endAt">>(schedule: T): T {

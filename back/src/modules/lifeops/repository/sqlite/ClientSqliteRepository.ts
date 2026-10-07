@@ -11,10 +11,9 @@ class ClientSqliteRepository extends AbstractSqliteRepository<IClient, IClientBa
     protected dataBaseFile: string;
     protected searchFields: string[] = ['name', 'aliases', 'legalName', 'taxCondition', 'taxIdType', 'taxIdNumber', 'taxAddress', 'taxEmail', 'description', 'website'];
     protected booleanFields: string[] = [];
-    protected jsonFields: string[] = ['aliases', 'emailDomains', 'redmineProjectIds', 'tags'];
+    protected jsonFields: string[] = ['roles', 'aliases', 'redmineProjectIds', 'tags'];
     protected identifier: string = '_id';
     protected populateFields = [
-        { field: 'company', table: 'company', identifier: '_id' },
         { field: 'mainContact', table: 'mainContact', identifier: '_id' },
 { field: 'user', table: 'user', identifier: '_id' }
     ]
@@ -28,19 +27,10 @@ class ClientSqliteRepository extends AbstractSqliteRepository<IClient, IClientBa
 {name: "taxAddress", type: "TEXT", unique: undefined, primary: false},
 {name: "taxEmail", type: "TEXT", unique: undefined, primary: false},
 {name: "description", type: "TEXT", unique: undefined, primary: false},
-{name: "type", type: "TEXT", unique: undefined, primary: false},
-{name: "status", type: "TEXT", unique: undefined, primary: false},
+{name: "roles", type: "TEXT", unique: undefined, primary: false},
 {name: "priority", type: "TEXT", unique: undefined, primary: false},
-{name: "valueScore", type: "REAL", unique: undefined, primary: false},
-{name: "valueScore", type: "TEXT", unique: undefined, primary: false},
-{name: "relationshipScore", type: "REAL", unique: undefined, primary: false},
-{name: "relationshipScore", type: "TEXT", unique: undefined, primary: false},
-{name: "priorityScore", type: "REAL", unique: undefined, primary: false},
-{name: "priorityScore", type: "TEXT", unique: undefined, primary: false},
 {name: "website", type: "TEXT", unique: undefined, primary: false},
 {name: "aliases", type: "TEXT", unique: undefined, primary: false},
-{name: "emailDomains", type: "TEXT", unique: undefined, primary: false},
-{name: "company", type: "TEXT", unique: undefined, primary: false},
 {name: "mainContact", type: "TEXT", unique: undefined, primary: false},
 {name: "redmineProjectIds", type: "TEXT", unique: undefined, primary: false},
 {name: "tags", type: "TEXT", unique: undefined, primary: false},

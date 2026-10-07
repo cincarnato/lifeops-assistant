@@ -14,7 +14,6 @@ import ContactProvider from "../providers/ContactProvider";
 
 //Import EntityCrud Refs
 import ClientCrud from "./ClientCrud";
-import CompanyCrud from "./CompanyCrud";
 import {UserCrud} from "@drax/identity-vue"
 
 class ContactCrud extends EntityCrud implements IEntityCrud {
@@ -54,7 +53,6 @@ class ContactCrud extends EntityCrud implements IEntityCrud {
 {title: 'status',key:'status', align: 'start'},
 {title: 'priority',key:'priority', align: 'start'},
 {title: 'client',key:'client', align: 'start'},
-{title: 'company',key:'company', align: 'start'},
 {title: 'user',key:'user', align: 'start'}
     ]
   }
@@ -83,7 +81,6 @@ class ContactCrud extends EntityCrud implements IEntityCrud {
   get refs(): IEntityCrudRefs{
     return {
       Client: ClientCrud.instance ,
-Company: CompanyCrud.instance ,
 User: UserCrud.instance 
     }
   }
@@ -92,7 +89,6 @@ User: UserCrud.instance
     return {
       firstName: [(v: any) => !!v || 'validation.required'],
 displayName: [(v: any) => !!v || 'validation.required'],
-company: [(v: any) => !!v || 'validation.required'],
 user: [(v: any) => !!v || 'validation.required']
     }
   }
@@ -106,7 +102,6 @@ user: [(v: any) => !!v || 'validation.required']
 {name:'status',type:'enum',label:'status',default:'active',enum: ['active', 'inactive', 'archived']},
 {name:'priority',type:'string',label:'priority',default:''},
 {name:'client',type:'ref',label:'client',default:null,ref: 'Client',refDisplay: 'name'},
-{name:'company',type:'ref',label:'company',default:null,ref: 'Company',refDisplay: 'name'},
 {name:'jobTitle',type:'string',label:'jobTitle',default:''},
 {name:'department',type:'string',label:'department',default:''},
 {name:'emails',type:'array.string',label:'emails',default:[]},

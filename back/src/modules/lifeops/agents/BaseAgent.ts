@@ -21,8 +21,7 @@ import GoalServiceFactory from "../factory/services/GoalServiceFactory.js";
 import {GoalBaseSchema} from "../schemas/GoalSchema.js";
 import ClientServiceFactory from "../factory/services/ClientServiceFactory.js";
 import {ClientBaseSchema} from "../schemas/ClientSchema.js";
-import CompanyServiceFactory from "../factory/services/CompanyServiceFactory.js";
-import {CompanyBaseSchema} from "../schemas/CompanySchema.js";
+
 import ContactServiceFactory from "../factory/services/ContactServiceFactory.js";
 import {ContactBaseSchema} from "../schemas/ContactSchema.js";
 import ProjectServiceFactory from "../factory/services/ProjectServiceFactory.js";
@@ -44,7 +43,7 @@ import PurposePermissions from "../permissions/PurposePermissions.js";
 import HabitPermissions from "../permissions/HabitPermissions.js";
 import GoalPermissions from "../permissions/GoalPermissions.js";
 import ClientPermissions from "../permissions/ClientPermissions.js";
-import CompanyPermissions from "../permissions/CompanyPermissions.js";
+
 import ContactPermissions from "../permissions/ContactPermissions.js";
 import ProjectPermissions from "../permissions/ProjectPermissions.js";
 
@@ -218,7 +217,7 @@ abstract class BaseAgent {
 
     protected buildClientTool(context: DraxAgentPromptContext): DraxAgentToolBuilder {
         return this.buildContextTool({
-            entityDescription: "Clientes",
+            entityDescription: "Partes u organizaciones",
             entityName: "Client",
             methods: ["search", "create", "updatePartial"],
             schema: ClientBaseSchema.omit({user: true}),
@@ -230,19 +229,6 @@ abstract class BaseAgent {
         }, context);
     }
 
-    protected buildCompanyTool(context: DraxAgentPromptContext): DraxAgentToolBuilder {
-        return this.buildContextTool({
-            entityDescription: "Empresas",
-            entityName: "Company",
-            methods: ["search", "create", "updatePartial"],
-            schema: CompanyBaseSchema.omit({user: true}),
-            service: CompanyServiceFactory.instance,
-            permission: CompanyPermissions,
-            userFilter: true,
-            userSetter: true,
-            userAssert: true
-        }, context);
-    }
 
     protected buildContactTool(context: DraxAgentPromptContext): DraxAgentToolBuilder {
         return this.buildContextTool({

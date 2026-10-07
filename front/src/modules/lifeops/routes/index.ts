@@ -2,7 +2,7 @@ import GoalCrudRoute from "./GoalCrudRoute"
 import ProjectCrudRoute from "./ProjectCrudRoute"
 import ClientCrudRoute from "./ClientCrudRoute"
 import ContactCrudRoute from "./ContactCrudRoute"
-import CompanyCrudRoute from "./CompanyCrudRoute"
+
 import TaskTypeCrudRoute from "./TaskTypeCrudRoute"
 import TaskStatusCrudRoute from "./TaskStatusCrudRoute"
 import SourceCrudRoute from "./SourceCrudRoute"
@@ -12,8 +12,7 @@ import PriorityCrudRoute from "./PriorityCrudRoute"
 import ChatbotTaskRoute from "./ChatbotTaskRoute"
 import KanbanTaskRoute from "./KanbanTaskRoute"
 import ContactTypeCrudRoute from "./ContactTypeCrudRoute"
-import CompanyTypeCrudRoute from "./CompanyTypeCrudRoute"
-import ClientTypeCrudRoute from "./ClientTypeCrudRoute"
+
 import AgentJobCrudRoute from "./AgentJobCrudRoute"
 import AgentRoute from "./AgentRoute"
 import CustomRoute from "./CustomRoute"
@@ -31,7 +30,6 @@ export const routes = [
   ...ProjectCrudRoute,
   ...ClientCrudRoute,
   ...ContactCrudRoute,
-  ...CompanyCrudRoute,
   ...TaskTypeCrudRoute,
   ...TaskStatusCrudRoute,
   ...SourceCrudRoute,
@@ -39,8 +37,6 @@ export const routes = [
   ...TaskScheduleCrudRoute,
   ...PriorityCrudRoute,
   ...ContactTypeCrudRoute,
-  ...CompanyTypeCrudRoute,
-  ...ClientTypeCrudRoute,
   ...AgentRoute,
   ...AgentJobCrudRoute,
   ...AgentJobExecutionCrudRoute,

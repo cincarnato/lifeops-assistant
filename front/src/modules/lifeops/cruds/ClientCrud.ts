@@ -14,7 +14,6 @@ import ClientProvider from "../providers/ClientProvider";
 
 //Import EntityCrud Refs
 import ContactCrud from "./ContactCrud";
-import CompanyCrud from "./CompanyCrud";
 import {UserCrud} from "@drax/identity-vue"
 
 class ClientCrud extends EntityCrud implements IEntityCrud {
@@ -46,11 +45,8 @@ class ClientCrud extends EntityCrud implements IEntityCrud {
   get headers(): IEntityCrudHeader[] {
     return [
       {title: 'name', key: 'name', align: 'start'},
-      {title: 'type', key: 'type', align: 'start'},
-      {title: 'status', key: 'status', align: 'start'},
+      {title: 'roles', key: 'roles', align: 'start'},
       {title: 'priority', key: 'priority', align: 'start'},
-      {title: 'priorityScore', key: 'priorityScore', align: 'start'},
-      {title: 'company', key: 'company', align: 'start'},
       {title: 'mainContact', key: 'mainContact', align: 'start'},
 // {title: 'user',key:'user', align: 'start'}
     ]
@@ -80,7 +76,6 @@ class ClientCrud extends EntityCrud implements IEntityCrud {
   get refs(): IEntityCrudRefs {
     return {
       Contact: ContactCrud.instance,
-      Company: CompanyCrud.instance,
       User: UserCrud.instance
     }
   }
@@ -96,13 +91,12 @@ class ClientCrud extends EntityCrud implements IEntityCrud {
       {name: 'name', type: 'string', label: 'name', default: '', groupTab: 'BASIC'},
       {name: 'description', type: 'longString', label: 'description', default: '', groupTab: 'BASIC'},
       {name: 'aliases', type: 'array.string', label: 'aliases', default: [], groupTab: 'BASIC'},
-      {name: 'type', type: 'string', label: 'type', default: '', groupTab: 'BASIC'},
       {
-        name: 'status',
-        type: 'enum',
-        label: 'status',
-        default: 'active',
-        enum: ['active', 'inactive', 'prospect', 'paused', 'archived'],
+        name: 'roles',
+        type: 'array.enum',
+        label: 'roles',
+        default: ['none'],
+        enum: ['client', 'provider', 'prospect', 'none'],
         groupTab: 'BASIC'
       },
       {
@@ -112,18 +106,14 @@ class ClientCrud extends EntityCrud implements IEntityCrud {
         default: '',
         groupTab: 'BASIC'
       },
-      {name: 'valueScore', type: 'number', label: 'valueScore', default: 5, groupTab: 'BASIC'},
-      {name: 'relationshipScore', type: 'number', label: 'relationshipScore', default: null, groupTab: 'BASIC'},
-      {name: 'priorityScore', type: 'number', label: 'priorityScore', default: null, groupTab: 'BASIC'},
       {name: 'website', type: 'string', label: 'website', default: '', groupTab: 'BASIC'},
-      {name: 'emailDomains', type: 'array.string', label: 'emailDomains', default: [], groupTab: 'BASIC'},
       {name: 'legalName', type: 'string', label: 'legalName', default: '', groupTab: 'FACTURACION'},
       {name: 'taxCondition', type: 'string', label: 'taxCondition', default: '', groupTab: 'FACTURACION'},
       {name: 'taxIdType', type: 'string', label: 'taxIdType', default: '', groupTab: 'FACTURACION'},
       {name: 'taxIdNumber', type: 'string', label: 'taxIdNumber', default: '', groupTab: 'FACTURACION'},
       {name: 'taxAddress', type: 'longString', label: 'taxAddress', default: '', groupTab: 'FACTURACION'},
       {name: 'taxEmail', type: 'string', label: 'taxEmail', default: '', groupTab: 'FACTURACION'},
-      {name: 'company', type: 'ref', label: 'company', default: null, ref: 'Company', refDisplay: 'name', addOnTheFly: true, groupTab: 'BASIC'},
+
       {
         name: 'mainContact',
         type: 'ref',

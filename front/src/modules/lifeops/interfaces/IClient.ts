@@ -8,16 +8,10 @@ interface IClientBase {
     taxAddress?: string
     taxEmail?: string
     description?: string
-    type?: string
-    status?: string
+    roles: Array<'client' | 'provider' | 'prospect' | 'none'>
     priority?: string
-    valueScore?: number
-    relationshipScore?: number
-    priorityScore?: number
     website?: string
     aliases?: Array<string>
-    emailDomains?: Array<string>
-    company: any
     mainContact?: any
     redmineProjectIds?: Array<string>
     tags?: Array<string>
@@ -38,16 +32,10 @@ interface IClient {
     taxAddress?: string
     taxEmail?: string
     description?: string
-    type?: string
-    status?: string
+    roles: Array<'client' | 'provider' | 'prospect' | 'none'>
     priority?: string
-    valueScore?: number
-    relationshipScore?: number
-    priorityScore?: number
     website?: string
     aliases?: Array<string>
-    emailDomains?: Array<string>
-    company: any
     mainContact?: any
     redmineProjectIds?: Array<string>
     tags?: Array<string>

@@ -13,7 +13,6 @@ const ContactSchema = new mongoose.Schema<IContact>({
             status: {type: String,  enum: ['active', 'inactive', 'archived'], required: false, index: true, unique: false },
             priority: {type: String,   required: false, index: true, unique: false },
             client: {type: mongoose.Schema.Types.ObjectId, ref: 'Client',  required: false, index: true, unique: false },
-            company: {type: mongoose.Schema.Types.ObjectId, ref: 'Company',  required: true, index: true, unique: false },
             jobTitle: {type: String,   required: false, index: false, unique: false },
             department: {type: String,   required: false, index: false, unique: false },
             emails: [{type: String,   required: false, index: true, unique: false }],

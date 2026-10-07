@@ -4,16 +4,17 @@ import { z } from 'zod';
 
 const ClientBaseSchema = z.object({
       name: z.string().min(1,'validation.required'),
+    legalName: z.string().optional(),
+    taxCondition: z.string().optional(),
+    taxIdType: z.string().optional(),
+    taxIdNumber: z.string().optional(),
+    taxAddress: z.string().optional(),
+    taxEmail: z.string().optional(),
     description: z.string().optional(),
-    type: z.string().optional(),
-    status: z.enum(['active', 'inactive', 'prospect', 'paused', 'archived']).optional().default('active'),
+    roles: z.array(z.enum(['client', 'provider', 'prospect', 'none'])).default(["none"]),
     priority: z.string().optional(),
-    valueScore: z.number().nullable().optional().default(5),
-    relationshipScore: z.number().nullable().optional(),
-    priorityScore: z.number().nullable().optional(),
     website: z.string().optional(),
-    emailDomains: z.array(z.string()).optional().default([]),
-    company: z.coerce.string().min(1,'validation.required'),
+    aliases: z.array(z.string()).optional().default([]),
     mainContact: z.coerce.string().optional().nullable(),
     redmineProjectIds: z.array(z.string()).optional().default([]),
     tags: z.array(z.string()).optional().default([]),
@@ -25,8 +26,7 @@ const ClientBaseSchema = z.object({
 const ClientSchema = ClientBaseSchema
     .extend({
       _id: z.coerce.string(),
-       company: z.object({_id: z.coerce.string(), name: z.string()}),
-mainContact: z.object({_id: z.coerce.string(), displayName: z.string()}).nullable().optional(),
+       mainContact: z.object({_id: z.coerce.string(), displayName: z.string()}).nullable().optional(),
 user: z.object({_id: z.coerce.string(), username: z.string()})
     })
 

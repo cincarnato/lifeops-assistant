@@ -3,9 +3,7 @@ import "../modules/google/models/GoogleConnectionModel.js";
 import "../modules/lifeops/models/AgentJobExecutionModel.js";
 import "../modules/lifeops/models/AgentJobModel.js";
 import "../modules/lifeops/models/ClientModel.js";
-import "../modules/lifeops/models/ClientTypeModel.js";
-import "../modules/lifeops/models/CompanyModel.js";
-import "../modules/lifeops/models/CompanyTypeModel.js";
+
 import "../modules/lifeops/models/ContactModel.js";
 import "../modules/lifeops/models/ContactTypeModel.js";
 import "../modules/lifeops/models/GoalModel.js";

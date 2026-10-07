@@ -23,6 +23,18 @@ class TaskScheduleController extends AbstractFastifyController<ITaskSchedule, IT
         this.userAssert = true;
     }
 
+    async preCreate(request: CustomRequest, payload: ITaskScheduleBase): Promise<ITaskScheduleBase> {
+        return this.removeRuntime(payload)
+    }
+
+    async preUpdate(request: CustomRequest, payload: ITaskScheduleBase): Promise<ITaskScheduleBase> {
+        return this.removeRuntime(payload)
+    }
+
+    async preUpdatePartial(request: CustomRequest, payload: ITaskScheduleBase): Promise<ITaskScheduleBase> {
+        return this.removeRuntime(payload)
+    }
+
     async activate(request: CustomRequest, reply: FastifyReply) {
         try {
             this.assertUpdatePermission(request)
@@ -41,6 +53,11 @@ class TaskScheduleController extends AbstractFastifyController<ITaskSchedule, IT
         } catch (e) {
             this.handleError(e, reply)
         }
+    }
+
+    private removeRuntime(payload: ITaskScheduleBase): ITaskScheduleBase {
+        delete payload.runtime
+        return payload
     }
 
     private async resolveOwnedSchedule(request: CustomRequest): Promise<ITaskSchedule> {

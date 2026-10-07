@@ -49,14 +49,7 @@ const entitySchema: IEntitySchema = {
             index: true,
             header: true,
         },
-        company: {
-            type: "ref",
-            ref: "Company",
-            refDisplay: "name",
-            required: true,
-            index: true,
-            header: true,
-        },
+
         jobTitle: {
             type: "string",
             search: true,

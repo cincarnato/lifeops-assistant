@@ -15,7 +15,6 @@ class ContactSqliteRepository extends AbstractSqliteRepository<IContact, IContac
     protected identifier: string = '_id';
     protected populateFields = [
         { field: 'client', table: 'client', identifier: '_id' },
-{ field: 'company', table: 'company', identifier: '_id' },
 { field: 'user', table: 'user', identifier: '_id' }
     ]
     protected verbose: boolean = false;
@@ -27,7 +26,6 @@ class ContactSqliteRepository extends AbstractSqliteRepository<IContact, IContac
 {name: "status", type: "TEXT", unique: undefined, primary: false},
 {name: "priority", type: "TEXT", unique: undefined, primary: false},
 {name: "client", type: "TEXT", unique: undefined, primary: false},
-{name: "company", type: "TEXT", unique: undefined, primary: false},
 {name: "jobTitle", type: "TEXT", unique: undefined, primary: false},
 {name: "department", type: "TEXT", unique: undefined, primary: false},
 {name: "emails", type: "TEXT", unique: undefined, primary: false},

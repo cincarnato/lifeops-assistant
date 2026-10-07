@@ -11,7 +11,7 @@ class ClientMongoRepository extends AbstractMongoRepository<IClient, IClientBase
         super();
         this._model = ClientModel;
         this._searchFields = ['name', 'aliases', 'legalName', 'taxCondition', 'taxIdType', 'taxIdNumber', 'taxAddress', 'taxEmail', 'description', 'website'];
-        this._populateFields = ['company', 'mainContact', 'user'];
+        this._populateFields = ['mainContact', 'user'];
         this._lean = true
     }
 

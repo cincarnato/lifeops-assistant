@@ -21,7 +21,7 @@ import {GoalPermissions} from "../modules/lifeops/permissions/GoalPermissions.js
 import {ProjectPermissions} from "../modules/lifeops/permissions/ProjectPermissions.js";
 import {ClientPermissions} from "../modules/lifeops/permissions/ClientPermissions.js";
 import {ContactPermissions} from "../modules/lifeops/permissions/ContactPermissions.js";
-import {CompanyPermissions} from "../modules/lifeops/permissions/CompanyPermissions.js";
+
 import {TaskTypePermissions} from "../modules/lifeops/permissions/TaskTypePermissions.js";
 import {TaskStatusPermissions} from "../modules/lifeops/permissions/TaskStatusPermissions.js";
 import {SourcePermissions} from "../modules/lifeops/permissions/SourcePermissions.js";
@@ -29,8 +29,7 @@ import {TaskPermissions} from "../modules/lifeops/permissions/TaskPermissions.js
 import {TaskSchedulePermissions} from "../modules/lifeops/permissions/TaskSchedulePermissions.js";
 import {PriorityPermissions} from "../modules/lifeops/permissions/PriorityPermissions.js";
 import {ContactTypePermissions} from "../modules/lifeops/permissions/ContactTypePermissions.js";
-import {CompanyTypePermissions} from "../modules/lifeops/permissions/CompanyTypePermissions.js";
-import {ClientTypePermissions} from "../modules/lifeops/permissions/ClientTypePermissions.js";
+
 import {AgentJobPermissions} from "../modules/lifeops/permissions/AgentJobPermissions.js";
 import {AgentJobExecutionPermissions} from "../modules/lifeops/permissions/AgentJobExecutionPermissions.js";
 import {MemoryPermissions} from "../modules/lifeops/permissions/MemoryPermissions.js";
@@ -79,7 +78,6 @@ function InitializePermissions() {
         ...Object.values(ProjectPermissions),
         ...Object.values(ClientPermissions),
         ...Object.values(ContactPermissions),
-        ...Object.values(CompanyPermissions),
         ...Object.values(TaskTypePermissions),
         ...Object.values(TaskStatusPermissions),
         ...Object.values(SourcePermissions),
@@ -87,8 +85,6 @@ function InitializePermissions() {
         ...Object.values(TaskSchedulePermissions),
         ...Object.values(PriorityPermissions),
         ...Object.values(ContactTypePermissions),
-        ...Object.values(CompanyTypePermissions),
-        ...Object.values(ClientTypePermissions),
         ...Object.values(AgentJobPermissions),
         ...Object.values(AgentJobExecutionPermissions),
         ...Object.values(MemoryPermissions),
