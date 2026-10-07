@@ -1,6 +1,7 @@
 import {afterAll, beforeAll, beforeEach, describe, expect, it} from "vitest"
 import TestSetup from "../../../setup/TestSetup"
 import TaskScheduleServiceFactory from "../../../../src/modules/lifeops/factory/services/TaskScheduleServiceFactory"
+import TaskServiceFactory from "../../../../src/modules/lifeops/factory/services/TaskServiceFactory"
 import {TaskScheduleJob} from "../../../../src/modules/lifeops/jobs/TaskScheduleJob"
 import {TaskModel} from "../../../../src/modules/lifeops/models/TaskModel"
 import {TaskScheduleModel} from "../../../../src/modules/lifeops/models/TaskScheduleModel"
@@ -23,6 +24,25 @@ describe("TaskScheduleJob", () => {
 
     afterAll(async () => {
         await testSetup.dropAndClose()
+    })
+
+    it("creates multiple regular tasks without schedule metadata", async () => {
+        await TaskServiceFactory.instance.create({
+            title: "Primera tarea normal",
+            user: testSetup.rootUser._id,
+            taskSchedule: null,
+            scheduledFor: null
+        } as any)
+        await TaskServiceFactory.instance.create({
+            title: "Segunda tarea normal",
+            user: testSetup.rootUser._id
+        })
+
+        const tasks = await TaskModel.find({}).lean().exec()
+
+        expect(tasks).toHaveLength(2)
+        expect(tasks.every(task => task.taskSchedule === undefined)).toBe(true)
+        expect(tasks.every(task => task.scheduledFor === undefined)).toBe(true)
     })
 
     it("creates a task for an active due schedule and updates runtime", async () => {

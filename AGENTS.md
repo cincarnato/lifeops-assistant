@@ -6,10 +6,23 @@ Monorepo with three main packages:
 - **back/** - Fastify (Node.js) backend API with MongoDB
 - **arch/** - Architecture package using @drax/arch
 
+## Keep It Simple
+Avoid overengineering: add only the fields and logic strictly necessary for the current requirement, unless explicitly requested otherwise
+
+## GIT COMMIT
+At the end of a task generate a git commit with the changes. Dont push the changes to the remote repository.
 
 ## Local Skills
 
 Project-specific Codex skills are available in `.agent/skills`. When a task matches one of those skills, inspect the corresponding `SKILL.md` before implementing changes.
+
+### Highlighted Skills
+Use `.agent/skills/drax-arch-generator` when need to generate a new entity model crud.
+Use `.agent/skills/drax-crud-backend` for backend CRUD operations.
+Use `.agent/skills/drax-crud-frontend` for frontend CRUD operations and customize crud forms.
+Use `.agent/skills/drax-test-endpoints` for testing backend endpoints (CRUD operations).
+Use `.agent/skills/drax-identity-vue` for frontend identity, authentication, and authorization management.
+
 
 ## Local Workflows
 
@@ -68,5 +81,5 @@ Project-specific workflows are available in `.agent/workflows`. When a task matc
 │   │   ├── setup/     # Test utilities (TestSetup, MongoInMemory)
 │   │   └── modules/   # Tests mirroring src structure
 │   └── tsconfig.json
-└── arch/              # Architecture package
+└── arch/              # Architecture generator package
 ```

@@ -136,7 +136,7 @@ abstract class BaseAgent {
             entityDescription: "Tareas",
             entityName: "Task",
             methods: ["search", "findFirst", "findLast", "create", "updatePartial", "groupBy"],
-            schema: TaskBaseSchema.omit({user: true}),
+            schema: TaskBaseSchema.omit({user: true, taskSchedule: true, scheduledFor: true}),
             service: TaskServiceFactory.instance,
             permission: TaskPermissions,
             userFilter: true,

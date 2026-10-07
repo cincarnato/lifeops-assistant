@@ -75,6 +75,7 @@ class TaskService extends AbstractService<ITask, ITaskBase, ITaskBase> {
 
     private async applyStatusAutomations(data: ITaskBase): Promise<ITaskBase> {
         data.notes = this.normalizeNotes(data.notes)
+        this.removeEmptyScheduleMetadata(data)
 
         if (!data.status) {
             return data
@@ -91,6 +92,15 @@ class TaskService extends AbstractService<ITask, ITaskBase, ITaskBase> {
         }
 
         return data
+    }
+
+    private removeEmptyScheduleMetadata(data: ITaskBase): void {
+        if (data.taskSchedule == null) {
+            delete data.taskSchedule
+        }
+        if (data.scheduledFor == null) {
+            delete data.scheduledFor
+        }
     }
 
     private async prepareUpdateData(id: string, data: ITaskBase): Promise<ITaskBase> {
