@@ -117,11 +117,18 @@ const snackbar = ref(false);
 const snackbarMessage = ref("");
 const snackbarColor = ref<"success" | "error">("success");
 const activeMobileStatus = ref<string | null>(null);
+const settingsDialog = ref(false);
+const settingsSection = ref<"statuses" | "properties" | "layout">("statuses");
+const columnWidth = ref(320);
 
 const STATUS_VISIBILITY_STORAGE_KEY = "lifeops.kanbanTask.hiddenStatuses";
 const STATUS_ORDER_STORAGE_KEY = "lifeops.kanbanTask.statusOrder";
 const CARD_PROPERTY_STORAGE_KEY = "lifeops.kanbanTask.visibleCardProperties";
+const COLUMN_WIDTH_STORAGE_KEY = "lifeops.kanbanTask.columnWidth";
 const DEFAULT_TASK_STATUS_COLOR = "#64748b";
+const DEFAULT_COLUMN_WIDTH = 320;
+const MIN_COLUMN_WIDTH = 260;
+const MAX_COLUMN_WIDTH = 460;
 
 const defaultVisibleCardPropertyKeys: TaskCardPropertyKey[] = ["priority"];
 const scorePropertyKeys: ScoreTaskCardPropertyKey[] = ["valueScore", "motivationScore", "effortScore", "urgencyScore"];
@@ -230,6 +237,9 @@ const totalTasks = computed(() => tasks.value.length);
 const visibleTasks = computed(() => visibleColumns.value.reduce((total, column) => total + tasksByStatus.value(column.key).length, 0));
 const draggedTask = computed(() => tasks.value.find(task => taskId(task) === draggedTaskId.value) || null);
 const visibleCardPropertiesCount = computed(() => visibleCardPropertyKeys.value.size);
+const kanbanBoardStyle = computed(() => ({
+  "--kanban-column-width": `${columnWidth.value}px`
+}));
 const cardPropertyGroups = computed(() => {
   const groups: Array<{name: string; properties: TaskCardProperty[]}> = [];
 
@@ -550,6 +560,13 @@ function loadVisibleCardProperties() {
   }
 }
 
+function loadColumnWidth() {
+  const storedValue = Number(localStorage.getItem(COLUMN_WIDTH_STORAGE_KEY));
+  columnWidth.value = Number.isFinite(storedValue) && storedValue >= MIN_COLUMN_WIDTH && storedValue <= MAX_COLUMN_WIDTH
+      ? storedValue
+      : DEFAULT_COLUMN_WIDTH;
+}
+
 function saveHiddenStatuses() {
   localStorage.setItem(
       STATUS_VISIBILITY_STORAGE_KEY,
@@ -569,6 +586,10 @@ function saveVisibleCardProperties() {
       CARD_PROPERTY_STORAGE_KEY,
       JSON.stringify([...visibleCardPropertyKeys.value])
   );
+}
+
+function saveColumnWidth() {
+  localStorage.setItem(COLUMN_WIDTH_STORAGE_KEY, String(columnWidth.value));
 }
 
 function isStatusVisible(key: string) {
@@ -614,6 +635,11 @@ function showDefaultCardProperties() {
 function showAllCardProperties() {
   visibleCardPropertyKeys.value = new Set(cardProperties.map(property => property.key));
   saveVisibleCardProperties();
+}
+
+function resetColumnWidth() {
+  columnWidth.value = DEFAULT_COLUMN_WIDTH;
+  saveColumnWidth();
 }
 
 function resetStatusOrder() {
@@ -1009,10 +1035,13 @@ watch(visibleColumns, columns => {
   }
 }, {immediate: true});
 
+watch(columnWidth, saveColumnWidth);
+
 onBeforeMount(async () => {
   loadHiddenStatuses();
   loadStatusOrder();
   loadVisibleCardProperties();
+  loadColumnWidth();
   resetCrudStore();
   prepareFilters();
   prepareSort();
@@ -1057,167 +1086,37 @@ onBeforeUnmount(() => {
         >
           {{ filtersVisible ? "Ocultar filtros" : "Mostrar filtros" }}
         </v-btn>
-        <v-menu :close-on-content-click="false" location="bottom end">
-          <template #activator="{props}">
-            <v-badge
-                v-if="xs"
-                :content="visibleCardPropertiesCount"
-                color="primary"
-                location="top end"
-            >
-              <v-btn
-                  v-bind="props"
-                  icon="mdi-card-text-outline"
-                  variant="tonal"
-                  title="Propiedades"
-                  aria-label="Propiedades"
-              />
-            </v-badge>
-            <v-btn
-                v-else
-                v-bind="props"
-                prepend-icon="mdi-card-text-outline"
-                variant="tonal"
-            >
-              <span>Propiedades</span>
-              <v-chip
-                  class="ml-2"
-                  size="x-small"
-                  variant="flat"
-              >
-                {{ visibleCardPropertiesCount }}
-              </v-chip>
-            </v-btn>
-          </template>
-
-          <v-card
-              class="kanban-property-selector"
-              :min-width="xs ? undefined : 380"
-              :width="xs ? 'calc(100vw - 32px)' : undefined"
+        <v-badge
+            v-if="xs"
+            :content="visibleCardPropertiesCount"
+            color="primary"
+            location="top end"
+        >
+          <v-btn
+              icon="mdi-cog-outline"
+              variant="tonal"
+              title="Configuracion"
+              aria-label="Configuracion"
+              @click="settingsDialog = true"
+          />
+        </v-badge>
+        <v-btn
+            v-else
+            prepend-icon="mdi-cog-outline"
+            variant="tonal"
+            title="Configuracion"
+            aria-label="Configuracion"
+            @click="settingsDialog = true"
+        >
+          Configuracion
+          <v-chip
+              class="ml-2"
+              size="x-small"
+              variant="flat"
           >
-            <v-card-title class="text-subtitle-1">Propiedades de tarjeta</v-card-title>
-            <v-card-text>
-              <div class="kanban-property-groups">
-                <section
-                    v-for="group in cardPropertyGroups"
-                    :key="group.name"
-                    class="kanban-property-group"
-                >
-                  <div class="kanban-property-group__title">{{ group.name }}</div>
-                  <div class="kanban-property-list">
-                    <label
-                        v-for="property in group.properties"
-                        :key="property.key"
-                        class="kanban-property-row"
-                    >
-                      <v-checkbox
-                          :model-value="isCardPropertyVisible(property.key)"
-                          density="compact"
-                          hide-details
-                          color="primary"
-                          @update:model-value="setCardPropertyVisible(property.key, Boolean($event))"
-                      />
-                      <v-icon :icon="property.icon" size="18" class="text-medium-emphasis"/>
-                      <span>{{ cardPropertyLabel(property) }}</span>
-                    </label>
-                  </div>
-                </section>
-              </div>
-            </v-card-text>
-            <v-card-actions>
-              <v-btn variant="text" @click="showDefaultCardProperties">
-                Predeterminado
-              </v-btn>
-              <v-spacer/>
-              <v-btn variant="text" @click="showAllCardProperties">
-                Mostrar todas
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-menu>
-        <v-menu :close-on-content-click="false" location="bottom end">
-          <template #activator="{props}">
-            <v-btn
-                v-if="xs"
-                v-bind="props"
-                icon="mdi-view-column-outline"
-                variant="tonal"
-                title="Estados"
-                aria-label="Estados"
-            />
-            <v-btn
-                v-else
-                v-bind="props"
-                prepend-icon="mdi-view-column-outline"
-                variant="tonal"
-                title="Estados"
-                aria-label="Estados"
-            >
-              Estados
-            </v-btn>
-          </template>
-
-          <v-card
-              class="kanban-status-selector"
-              :min-width="xs ? undefined : 360"
-              :width="xs ? 'calc(100vw - 32px)' : undefined"
-          >
-            <v-card-title class="text-subtitle-1">Estados y orden</v-card-title>
-            <v-card-text>
-              <div class="kanban-status-list">
-                <div
-                    v-for="(column, index) in allColumns"
-                    :key="column.key"
-                    class="kanban-status-row"
-                    :class="{'kanban-status-row--over': dragOverColumnKey === column.key}"
-                    draggable="true"
-                    @dragstart="onColumnOrderDragStart(column.key)"
-                    @dragend="onColumnOrderDragEnd"
-                    @dragover.prevent="dragOverColumnKey = column.key"
-                    @dragleave="dragOverColumnKey = null"
-                    @drop.prevent="onColumnOrderDrop(column.key)"
-                >
-                  <v-icon icon="mdi-drag" size="18" class="text-medium-emphasis kanban-status-row__drag"/>
-                  <v-checkbox
-                      :model-value="isStatusVisible(column.key)"
-                      density="compact"
-                      hide-details
-                      color="primary"
-                      @update:model-value="setStatusVisible(column.key, Boolean($event))"
-                  />
-                  <span class="kanban-status-row__title">{{ column.title }}</span>
-                  <v-btn
-                      icon="mdi-arrow-up"
-                      variant="text"
-                      density="comfortable"
-                      size="small"
-                      title="Subir"
-                      :disabled="index === 0"
-                      @click.stop="moveColumn(column.key, -1)"
-                  />
-                  <v-btn
-                      icon="mdi-arrow-down"
-                      variant="text"
-                      density="comfortable"
-                      size="small"
-                      title="Bajar"
-                      :disabled="index === allColumns.length - 1"
-                      @click.stop="moveColumn(column.key, 1)"
-                  />
-                </div>
-              </div>
-            </v-card-text>
-            <v-card-actions>
-              <v-btn variant="text" @click="resetStatusOrder">
-                Orden predeterminado
-              </v-btn>
-              <v-spacer/>
-              <v-btn variant="text" @click="showAllStatuses">
-                Mostrar todos
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-menu>
+            {{ visibleCardPropertiesCount }}
+          </v-chip>
+        </v-btn>
         <v-btn
             v-if="xs"
             icon="mdi-refresh"
@@ -1524,7 +1423,7 @@ onBeforeUnmount(() => {
 
     <div v-else ref="boardScrollEl" class="kanban-board-scroll">
       <template v-if="visibleColumns.length > 0">
-        <div class="kanban-board">
+        <div class="kanban-board" :style="kanbanBoardStyle">
           <section
               v-for="column in visibleColumns"
               :key="column.key"
@@ -1836,6 +1735,226 @@ onBeforeUnmount(() => {
       </v-alert>
     </div>
 
+    <v-dialog
+        v-model="settingsDialog"
+        :fullscreen="xs"
+        max-width="980"
+        scrollable
+    >
+      <v-card class="kanban-settings-dialog">
+        <v-card-title class="kanban-settings-dialog__title">
+          <div>
+            <div class="text-h6">Configuracion del tablero</div>
+            <div class="text-caption text-medium-emphasis">Estados, propiedades y layout</div>
+          </div>
+          <v-btn
+              icon="mdi-close"
+              variant="text"
+              title="Cerrar"
+              aria-label="Cerrar"
+              @click="settingsDialog = false"
+          />
+        </v-card-title>
+
+        <v-divider/>
+
+        <v-tabs
+            v-if="xs"
+            v-model="settingsSection"
+            class="kanban-settings-tabs"
+            density="comfortable"
+            grow
+        >
+          <v-tab value="statuses">Estados</v-tab>
+          <v-tab value="properties">Propiedades</v-tab>
+          <v-tab value="layout">Diseno</v-tab>
+        </v-tabs>
+
+        <div class="kanban-settings-dialog__content">
+          <aside v-if="!xs" class="kanban-settings-nav">
+            <v-list nav density="compact">
+              <v-list-item
+                  value="statuses"
+                  :active="settingsSection === 'statuses'"
+                  prepend-icon="mdi-view-column-outline"
+                  title="Estados"
+                  subtitle="Visibilidad y orden"
+                  @click="settingsSection = 'statuses'"
+              />
+              <v-list-item
+                  value="properties"
+                  :active="settingsSection === 'properties'"
+                  prepend-icon="mdi-card-text-outline"
+                  title="Propiedades"
+                  :subtitle="`${visibleCardPropertiesCount} visibles`"
+                  @click="settingsSection = 'properties'"
+              />
+              <v-list-item
+                  value="layout"
+                  :active="settingsSection === 'layout'"
+                  prepend-icon="mdi-resize"
+                  title="Diseno"
+                  :subtitle="`${columnWidth}px por columna`"
+                  @click="settingsSection = 'layout'"
+              />
+            </v-list>
+          </aside>
+
+          <v-window v-model="settingsSection" class="kanban-settings-window">
+            <v-window-item value="statuses">
+              <section class="kanban-settings-section">
+                <div class="kanban-settings-section__header">
+                  <div>
+                    <h2 class="text-subtitle-1 font-weight-medium">Estados y orden</h2>
+                    <p class="text-body-2 text-medium-emphasis mb-0">Mostra, oculta y reordena columnas del tablero.</p>
+                  </div>
+                </div>
+
+                <div class="kanban-status-list">
+                  <div
+                      v-for="(column, index) in allColumns"
+                      :key="column.key"
+                      class="kanban-status-row"
+                      :class="{'kanban-status-row--over': dragOverColumnKey === column.key}"
+                      draggable="true"
+                      @dragstart="onColumnOrderDragStart(column.key)"
+                      @dragend="onColumnOrderDragEnd"
+                      @dragover.prevent="dragOverColumnKey = column.key"
+                      @dragleave="dragOverColumnKey = null"
+                      @drop.prevent="onColumnOrderDrop(column.key)"
+                  >
+                    <v-icon icon="mdi-drag" size="18" class="text-medium-emphasis kanban-status-row__drag"/>
+                    <v-checkbox
+                        :model-value="isStatusVisible(column.key)"
+                        density="compact"
+                        hide-details
+                        color="primary"
+                        @update:model-value="setStatusVisible(column.key, Boolean($event))"
+                    />
+                    <span class="kanban-status-row__title">{{ column.title }}</span>
+                    <v-btn
+                        icon="mdi-arrow-up"
+                        variant="text"
+                        density="comfortable"
+                        size="small"
+                        title="Subir"
+                        :disabled="index === 0"
+                        @click.stop="moveColumn(column.key, -1)"
+                    />
+                    <v-btn
+                        icon="mdi-arrow-down"
+                        variant="text"
+                        density="comfortable"
+                        size="small"
+                        title="Bajar"
+                        :disabled="index === allColumns.length - 1"
+                        @click.stop="moveColumn(column.key, 1)"
+                    />
+                  </div>
+                </div>
+
+                <div class="kanban-settings-actions">
+                  <v-btn variant="text" @click="resetStatusOrder">
+                    Orden predeterminado
+                  </v-btn>
+                  <v-spacer/>
+                  <v-btn variant="text" @click="showAllStatuses">
+                    Mostrar todos
+                  </v-btn>
+                </div>
+              </section>
+            </v-window-item>
+
+            <v-window-item value="properties">
+              <section class="kanban-settings-section">
+                <div class="kanban-settings-section__header">
+                  <div>
+                    <h2 class="text-subtitle-1 font-weight-medium">Propiedades de tarjeta</h2>
+                    <p class="text-body-2 text-medium-emphasis mb-0">Elegi que datos se muestran dentro de cada tarjeta.</p>
+                  </div>
+                </div>
+
+                <div class="kanban-property-groups">
+                  <section
+                      v-for="group in cardPropertyGroups"
+                      :key="group.name"
+                      class="kanban-property-group"
+                  >
+                    <div class="kanban-property-group__title">{{ group.name }}</div>
+                    <div class="kanban-property-list">
+                      <label
+                          v-for="property in group.properties"
+                          :key="property.key"
+                          class="kanban-property-row"
+                      >
+                        <v-checkbox
+                            :model-value="isCardPropertyVisible(property.key)"
+                            density="compact"
+                            hide-details
+                            color="primary"
+                            @update:model-value="setCardPropertyVisible(property.key, Boolean($event))"
+                        />
+                        <v-icon :icon="property.icon" size="18" class="text-medium-emphasis"/>
+                        <span>{{ cardPropertyLabel(property) }}</span>
+                      </label>
+                    </div>
+                  </section>
+                </div>
+
+                <div class="kanban-settings-actions">
+                  <v-btn variant="text" @click="showDefaultCardProperties">
+                    Predeterminado
+                  </v-btn>
+                  <v-spacer/>
+                  <v-btn variant="text" @click="showAllCardProperties">
+                    Mostrar todas
+                  </v-btn>
+                </div>
+              </section>
+            </v-window-item>
+
+            <v-window-item value="layout">
+              <section class="kanban-settings-section">
+                <div class="kanban-settings-section__header">
+                  <div>
+                    <h2 class="text-subtitle-1 font-weight-medium">Diseno del tablero</h2>
+                    <p class="text-body-2 text-medium-emphasis mb-0">Ajusta el ancho de columnas para ver mas tarjetas o dar mas aire.</p>
+                  </div>
+                </div>
+
+                <div class="kanban-layout-setting">
+                  <div class="kanban-layout-setting__value">
+                    <span>Ancho de columna</span>
+                    <strong>{{ columnWidth }}px</strong>
+                  </div>
+                  <v-slider
+                      v-model="columnWidth"
+                      :min="MIN_COLUMN_WIDTH"
+                      :max="MAX_COLUMN_WIDTH"
+                      :step="20"
+                      color="primary"
+                      thumb-label
+                      hide-details
+                      @end="saveColumnWidth"
+                  />
+                  <div class="kanban-layout-setting__marks text-caption text-medium-emphasis">
+                    <span>Mas compacto</span>
+                    <span>Mas amplio</span>
+                  </div>
+                </div>
+
+                <div class="kanban-settings-actions">
+                  <v-btn variant="text" @click="resetColumnWidth">
+                    Ancho predeterminado
+                  </v-btn>
+                </div>
+              </section>
+            </v-window-item>
+          </v-window>
+        </div>
+      </v-card>
+    </v-dialog>
+
     <crud-dialog
         v-model="dialog"
         :entity="taskCrud"
@@ -1942,6 +2061,76 @@ onBeforeUnmount(() => {
   border-radius: 8px;
 }
 
+.kanban-settings-dialog {
+  border-radius: 10px;
+}
+
+.kanban-settings-dialog__title {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.kanban-settings-dialog__content {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  min-height: 560px;
+}
+
+.kanban-settings-nav {
+  border-right: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  padding: 10px;
+}
+
+.kanban-settings-window {
+  min-width: 0;
+}
+
+.kanban-settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 20px;
+}
+
+.kanban-settings-section__header {
+  align-items: flex-start;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.kanban-settings-actions {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+.kanban-layout-setting {
+  background: rgba(var(--v-theme-surface), 0.68);
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+}
+
+.kanban-layout-setting__value,
+.kanban-layout-setting__marks {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.kanban-layout-setting__value strong {
+  color: rgb(var(--v-theme-primary));
+  font-size: 1.1rem;
+}
+
 .kanban-property-groups {
   display: flex;
   flex-direction: column;
@@ -2024,6 +2213,7 @@ onBeforeUnmount(() => {
 }
 
 .kanban-board-scroll {
+  display: flex;
   max-width: 100%;
   min-width: 0;
   overflow-x: auto;
@@ -2033,9 +2223,12 @@ onBeforeUnmount(() => {
 }
 
 .kanban-board {
+  --kanban-column-width: 320px;
   display: flex;
   gap: 14px;
+  margin-inline: auto;
   min-width: max-content;
+  width: max-content;
 }
 
 .kanban-column {
@@ -2047,12 +2240,12 @@ onBeforeUnmount(() => {
   border-radius: 12px;
   box-shadow: 0 10px 28px color-mix(in srgb, var(--kanban-status-color) 18%, transparent);
   display: flex;
-  flex: 0 0 320px;
+  flex: 0 0 var(--kanban-column-width);
   flex-direction: column;
   max-height: calc(100vh - 190px);
   min-height: 420px;
   overflow: hidden;
-  width: 320px;
+  width: var(--kanban-column-width);
   transition: border-color 120ms ease, background-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
 }
 
@@ -2553,6 +2746,32 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 720px) {
+  .kanban-settings-dialog {
+    border-radius: 0;
+  }
+
+  .kanban-settings-dialog__content {
+    display: block;
+    min-height: 0;
+  }
+
+  .kanban-settings-tabs {
+    border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  }
+
+  .kanban-settings-section {
+    padding: 16px;
+  }
+
+  .kanban-settings-actions {
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+
+  .kanban-settings-actions :deep(.v-btn) {
+    flex: 1 1 auto;
+  }
+
   .kanban-toolbar {
     align-items: stretch;
     flex-direction: column;
