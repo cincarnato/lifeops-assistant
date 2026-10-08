@@ -1038,16 +1038,24 @@ onBeforeUnmount(() => {
       </div>
       <div class="kanban-actions">
         <v-btn
-            v-if="taskCrud.filtersEnable"
-            :icon="xs ? (filtersVisible ? 'mdi-filter-off-outline' : 'mdi-filter-outline') : undefined"
-            :prepend-icon="xs ? undefined : (filtersVisible ? 'mdi-filter-off-outline' : 'mdi-filter-outline')"
+            v-if="taskCrud.filtersEnable && xs"
+            :icon="filtersVisible ? 'mdi-filter-off-outline' : 'mdi-filter-outline'"
+            variant="tonal"
+            density="compact"
+            :title="filtersVisible ? 'Ocultar filtros' : 'Mostrar filtros'"
+            :aria-label="filtersVisible ? 'Ocultar filtros' : 'Mostrar filtros'"
+            @click="filtersVisible = !filtersVisible"
+        />
+        <v-btn
+            v-else-if="taskCrud.filtersEnable"
+            :prepend-icon="filtersVisible ? 'mdi-filter-off-outline' : 'mdi-filter-outline'"
             variant="tonal"
             density="compact"
             :title="filtersVisible ? 'Ocultar filtros' : 'Mostrar filtros'"
             :aria-label="filtersVisible ? 'Ocultar filtros' : 'Mostrar filtros'"
             @click="filtersVisible = !filtersVisible"
         >
-          <span v-if="!xs">{{ filtersVisible ? "Ocultar filtros" : "Mostrar filtros" }}</span>
+          {{ filtersVisible ? "Ocultar filtros" : "Mostrar filtros" }}
         </v-btn>
         <v-menu :close-on-content-click="false" location="bottom end">
           <template #activator="{props}">
@@ -1130,14 +1138,22 @@ onBeforeUnmount(() => {
         <v-menu :close-on-content-click="false" location="bottom end">
           <template #activator="{props}">
             <v-btn
+                v-if="xs"
                 v-bind="props"
-                :icon="xs ? 'mdi-view-column-outline' : undefined"
-                :prepend-icon="xs ? undefined : 'mdi-view-column-outline'"
+                icon="mdi-view-column-outline"
+                variant="tonal"
+                title="Estados"
+                aria-label="Estados"
+            />
+            <v-btn
+                v-else
+                v-bind="props"
+                prepend-icon="mdi-view-column-outline"
                 variant="tonal"
                 title="Estados"
                 aria-label="Estados"
             >
-              <span v-if="!xs">Estados</span>
+              Estados
             </v-btn>
           </template>
 
@@ -1203,26 +1219,44 @@ onBeforeUnmount(() => {
           </v-card>
         </v-menu>
         <v-btn
-            :icon="xs ? 'mdi-refresh' : undefined"
-            :prepend-icon="xs ? undefined : 'mdi-refresh'"
+            v-if="xs"
+            icon="mdi-refresh"
+            variant="text"
+            :loading="loading"
+            title="Actualizar"
+            aria-label="Actualizar"
+            @click="loadBoard"
+        />
+        <v-btn
+            v-else
+            prepend-icon="mdi-refresh"
             variant="text"
             :loading="loading"
             title="Actualizar"
             aria-label="Actualizar"
             @click="loadBoard"
         >
-          <span v-if="!xs">Actualizar</span>
+          Actualizar
         </v-btn>
         <v-btn
-            :icon="xs ? 'mdi-plus' : undefined"
-            :prepend-icon="xs ? undefined : 'mdi-plus'"
+            v-if="xs"
+            icon="mdi-plus"
+            color="primary"
+            variant="flat"
+            title="Nueva tarea"
+            aria-label="Nueva tarea"
+            @click="openCreate()"
+        />
+        <v-btn
+            v-else
+            prepend-icon="mdi-plus"
             color="primary"
             variant="flat"
             title="Nueva tarea"
             aria-label="Nueva tarea"
             @click="openCreate()"
         >
-          <span v-if="!xs">Nueva tarea</span>
+          Nueva tarea
         </v-btn>
       </div>
     </div>
