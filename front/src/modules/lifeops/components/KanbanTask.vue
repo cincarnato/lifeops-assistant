@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onBeforeMount, onBeforeUnmount, ref} from "vue";
+import {computed, onBeforeMount, onBeforeUnmount, ref, watch} from "vue";
 import {useCrud, CrudDialog, CrudFilters, CrudFiltersAction} from "@drax/crud-vue";
 import {formatDate} from "@drax/common-front";
 import {useI18n} from "vue-i18n";
@@ -116,6 +116,7 @@ const filtersVisible = ref(false);
 const snackbar = ref(false);
 const snackbarMessage = ref("");
 const snackbarColor = ref<"success" | "error">("success");
+const activeMobileStatus = ref<string | null>(null);
 
 const STATUS_VISIBILITY_STORAGE_KEY = "lifeops.kanbanTask.hiddenStatuses";
 const STATUS_ORDER_STORAGE_KEY = "lifeops.kanbanTask.statusOrder";
@@ -209,10 +210,20 @@ const visibleColumns = computed(() => {
   return allColumns.value.filter(column => !hiddenStatusKeys.value.has(column.key));
 });
 
+const activeMobileColumn = computed<KanbanColumn | null>(() => {
+  return visibleColumns.value.find(column => column.key === activeMobileStatus.value)
+      || visibleColumns.value[0]
+      || null;
+});
+
 const statusesByName = computed(() => new Map(statuses.value.map(status => [status.name || "", status])));
 
 const tasksByStatus = computed(() => {
   return (status: string) => tasks.value.filter(task => (task.status || "") === status);
+});
+
+const activeMobileTasks = computed(() => {
+  return activeMobileColumn.value ? tasksByStatus.value(activeMobileColumn.value.key) : [];
 });
 
 const totalTasks = computed(() => tasks.value.length);
@@ -421,6 +432,32 @@ function countLabel(count: number, singular: string, plural: string) {
   }
 
   return count === 1 ? `1 ${singular}` : `${count} ${plural}`;
+}
+
+function isDoneStatus(status: string) {
+  const value = status.toLowerCase();
+  return value.includes("done") || value.includes("complet") || value.includes("finaliz");
+}
+
+function isArchivedStatus(status: string) {
+  const value = status.toLowerCase();
+  return value.includes("archiv");
+}
+
+function mobileStatusActionLabel(task: ITask, status: string) {
+  if ((task.status || "") === status) {
+    return "Actual";
+  }
+
+  if (isDoneStatus(status)) {
+    return "Finalizar";
+  }
+
+  if (isArchivedStatus(status)) {
+    return "Archivar";
+  }
+
+  return "Mover aqui";
 }
 
 function taskCardPropertyValue(task: ITask, key: TaskCardPropertyKey) {
@@ -961,6 +998,17 @@ async function clearBoardFilters() {
   await loadBoard();
 }
 
+watch(visibleColumns, columns => {
+  if (!columns.length) {
+    activeMobileStatus.value = null;
+    return;
+  }
+
+  if (!columns.some(column => column.key === activeMobileStatus.value)) {
+    activeMobileStatus.value = columns[0].key;
+  }
+}, {immediate: true});
+
 onBeforeMount(async () => {
   loadHiddenStatuses();
   loadStatusOrder();
@@ -1210,7 +1258,237 @@ onBeforeUnmount(() => {
 
     <v-progress-linear v-if="loading" indeterminate color="primary" class="mb-3"/>
 
-    <div ref="boardScrollEl" class="kanban-board-scroll">
+    <section v-if="xs" class="kanban-mobile">
+      <template v-if="visibleColumns.length > 0 && activeMobileColumn">
+        <div class="kanban-mobile-tabs">
+          <button
+              v-for="column in visibleColumns"
+              :key="column.key"
+              class="kanban-mobile-tab"
+              :class="{'kanban-mobile-tab--active': activeMobileColumn.key === column.key}"
+              :style="kanbanColumnStyle(column.key)"
+              type="button"
+              @click="activeMobileStatus = column.key"
+          >
+            <span class="kanban-mobile-tab__dot"/>
+            <span class="kanban-mobile-tab__title">{{ column.title }}</span>
+            <span class="kanban-mobile-tab__count">{{ tasksByStatus(column.key).length }}</span>
+          </button>
+        </div>
+
+        <header class="kanban-mobile-column-header" :style="kanbanColumnStyle(activeMobileColumn.key)">
+          <div class="kanban-mobile-column-header__title">
+            <span class="kanban-column__color"/>
+            <span>{{ activeMobileColumn.title }}</span>
+            <span class="text-medium-emphasis">{{ activeMobileTasks.length }} tareas</span>
+          </div>
+          <v-btn
+              icon="mdi-plus"
+              variant="tonal"
+              size="small"
+              :title="`Crear en ${activeMobileColumn.title}`"
+              @click="openCreate(activeMobileColumn.key)"
+          />
+        </header>
+
+        <form
+            class="kanban-create kanban-mobile-create"
+            @submit.prevent="createInlineTask(activeMobileColumn.key)"
+        >
+          <v-text-field
+              v-model="newTaskTitles[activeMobileColumn.key]"
+              placeholder="Nueva tarea"
+              density="compact"
+              variant="outlined"
+              hide-details
+              :disabled="creatingStatuses.has(activeMobileColumn.key)"
+          />
+          <v-btn
+              icon="mdi-check"
+              size="small"
+              variant="text"
+              type="submit"
+              :loading="creatingStatuses.has(activeMobileColumn.key)"
+          />
+        </form>
+
+        <div class="kanban-mobile-list">
+          <article
+              v-for="task in activeMobileTasks"
+              :key="task._id"
+              class="kanban-card kanban-mobile-card"
+              :class="[
+                  `kanban-card--priority-${priorityColor(task.priority)}`,
+                  {'kanban-card--saving': savingIds.has(task._id)}
+              ]"
+          >
+            <div class="kanban-card__accent"/>
+
+            <div class="kanban-card__body">
+              <div class="kanban-card__top kanban-mobile-card__top">
+                <v-chip
+                    v-if="isCardPropertyVisible('priority') && task.priority"
+                    :color="priorityColor(task.priority)"
+                    size="x-small"
+                    variant="tonal"
+                    class="kanban-priority-chip"
+                >
+                  {{ task.priority }}
+                </v-chip>
+                <span v-else-if="isCardPropertyVisible('priority')" class="kanban-priority-placeholder">Sin prioridad</span>
+                <span v-else/>
+
+                <div class="kanban-card__tools kanban-mobile-card__tools">
+                  <v-menu location="bottom end" :close-on-content-click="true">
+                    <template #activator="{ props }">
+                      <v-btn
+                          v-bind="props"
+                          class="kanban-card__action kanban-mobile-move-btn"
+                          prepend-icon="mdi-view-dashboard-edit-outline"
+                          variant="tonal"
+                          density="comfortable"
+                          size="small"
+                          color="primary"
+                          :disabled="savingIds.has(task._id)"
+                          @click.stop
+                      >
+                        Mover
+                      </v-btn>
+                    </template>
+
+                    <v-card class="kanban-mobile-status-menu" @click.stop>
+                      <v-card-subtitle class="kanban-mobile-status-menu__title">
+                        Cambiar estado
+                      </v-card-subtitle>
+                      <div class="kanban-mobile-status-grid">
+                        <button
+                            v-for="column in visibleColumns"
+                            :key="column.key"
+                            class="kanban-mobile-status-option"
+                            :class="{'kanban-mobile-status-option--active': (task.status || '') === column.key}"
+                            :style="kanbanColumnStyle(column.key)"
+                            type="button"
+                            :disabled="savingIds.has(task._id) || (task.status || '') === column.key"
+                            @click="moveTask(task, column.key)"
+                        >
+                          <span class="kanban-mobile-status-option__dot"/>
+                          <span class="kanban-mobile-status-option__text">
+                            <strong>{{ column.title }}</strong>
+                            <small>{{ mobileStatusActionLabel(task, column.key) }}</small>
+                          </span>
+                        </button>
+                      </div>
+                    </v-card>
+                  </v-menu>
+                  <v-btn
+                      class="kanban-card__action"
+                      icon="mdi-auto-fix"
+                      variant="text"
+                      density="comfortable"
+                      size="small"
+                      color="primary"
+                      title="Analizar con IA"
+                      :loading="triagingIds.has(task._id)"
+                      :disabled="triagingIds.has(task._id)"
+                      @click.stop="triageTask(task)"
+                  />
+                  <v-btn
+                      class="kanban-card__action"
+                      icon="mdi-pencil-outline"
+                      variant="text"
+                      density="comfortable"
+                      size="small"
+                      title="Edicion detallada"
+                      @click.stop="openEdit(task)"
+                  />
+                  <v-btn
+                      class="kanban-card__action"
+                      icon="mdi-trash-can-outline"
+                      variant="text"
+                      density="comfortable"
+                      size="small"
+                      color="error"
+                      title="Eliminar tarea"
+                      @click.stop="openDelete(task)"
+                  />
+                </div>
+              </div>
+
+              <div class="kanban-title">
+                {{ task.title }}
+              </div>
+
+              <div v-if="renderedCardProperties(task).length" class="kanban-card__properties">
+                <v-chip
+                    v-for="property in renderedCardProperties(task)"
+                    :key="property.key"
+                    :color="property.color"
+                    size="x-small"
+                    variant="tonal"
+                    class="kanban-property-chip"
+                >
+                  <v-icon :icon="property.icon" size="14" start/>
+                  <span class="kanban-property-chip__label">{{ property.label }}</span>
+                  <span class="kanban-property-chip__value">{{ property.value }}</span>
+                </v-chip>
+              </div>
+
+              <div
+                  v-if="(isCardPropertyVisible('dueDate') && task.dueDate) || savingIds.has(task._id)"
+                  class="kanban-card__meta"
+              >
+                <v-chip
+                    v-if="isCardPropertyVisible('dueDate') && task.dueDate"
+                    size="x-small"
+                    variant="tonal"
+                    class="kanban-date-chip"
+                >
+                  <v-icon icon="mdi-calendar" size="14" start/>
+                  {{ formatDate(String(task.dueDate)) }}
+                </v-chip>
+                <span v-else/>
+                <v-progress-circular
+                    v-if="savingIds.has(task._id)"
+                    indeterminate
+                    size="16"
+                    width="2"
+                    color="primary"
+                />
+              </div>
+            </div>
+          </article>
+
+          <v-alert
+              v-if="activeMobileTasks.length === 0"
+              type="info"
+              variant="tonal"
+              class="kanban-empty"
+          >
+            No hay tareas en este estado.
+          </v-alert>
+        </div>
+
+        <v-btn
+            class="kanban-mobile-fab"
+            icon="mdi-plus"
+            color="primary"
+            size="large"
+            :title="`Crear en ${activeMobileColumn.title}`"
+            @click="openCreate(activeMobileColumn.key)"
+        />
+      </template>
+
+      <v-alert
+          v-else
+          type="info"
+          variant="tonal"
+          class="kanban-empty"
+      >
+        No hay estados visibles.
+      </v-alert>
+    </section>
+
+    <div v-else ref="boardScrollEl" class="kanban-board-scroll">
       <template v-if="visibleColumns.length > 0">
         <div class="kanban-board">
           <section
@@ -2012,6 +2290,232 @@ onBeforeUnmount(() => {
 
 .kanban-empty {
   min-width: 280px;
+}
+
+.kanban-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 76px;
+}
+
+.kanban-mobile-tabs {
+  background: rgba(var(--v-theme-surface), 0.72);
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border-radius: 12px;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 6px;
+  scrollbar-width: none;
+}
+
+.kanban-mobile-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.kanban-mobile-tab {
+  --kanban-status-color: #64748b;
+  align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: rgba(var(--v-theme-on-surface), 0.72);
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 7px;
+  min-height: 44px;
+  max-width: 190px;
+  padding: 0 10px;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.kanban-mobile-tab--active {
+  background: color-mix(in srgb, var(--kanban-status-color) 16%, rgb(var(--v-theme-surface)) 84%);
+  border-color: color-mix(in srgb, var(--kanban-status-color) 54%, transparent);
+  color: rgb(var(--v-theme-on-surface));
+}
+
+.kanban-mobile-tab__dot,
+.kanban-mobile-status-option__dot {
+  background: var(--kanban-status-color);
+  border-radius: 999px;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--kanban-status-color) 18%, transparent);
+  flex: 0 0 8px;
+  height: 8px;
+  width: 8px;
+}
+
+.kanban-mobile-tab__title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kanban-mobile-tab__count {
+  background: rgba(var(--v-theme-on-surface), 0.08);
+  border-radius: 999px;
+  flex: 0 0 auto;
+  font-family: monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1;
+  min-width: 22px;
+  padding: 4px 6px;
+  text-align: center;
+}
+
+.kanban-mobile-column-header {
+  --kanban-status-color: #64748b;
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  min-height: 44px;
+  padding: 0 2px 0 4px;
+}
+
+.kanban-mobile-column-header__title {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  min-width: 0;
+  text-transform: uppercase;
+}
+
+.kanban-mobile-create {
+  background: rgba(var(--v-theme-surface), 0.62);
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border-radius: 12px;
+  padding: 6px;
+}
+
+.kanban-mobile-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.kanban-mobile-card {
+  cursor: default;
+  touch-action: pan-y;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.kanban-mobile-card:hover {
+  transform: none;
+}
+
+.kanban-mobile-card__top {
+  align-items: flex-start;
+  border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  gap: 8px;
+  margin-bottom: 2px;
+  padding-bottom: 8px;
+}
+
+.kanban-mobile-card__tools {
+  flex: 0 0 auto;
+  gap: 1px;
+}
+
+.kanban-mobile-card__tools :deep(.v-btn) {
+  min-height: 40px;
+  min-width: 40px;
+}
+
+.kanban-mobile-move-btn {
+  min-width: 78px !important;
+}
+
+.kanban-mobile-status-menu {
+  border-radius: 10px;
+  max-width: calc(100vw - 32px);
+  padding: 8px;
+  width: 328px;
+}
+
+.kanban-mobile-status-menu__title {
+  color: rgba(var(--v-theme-on-surface), 0.7);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  min-height: 0;
+  padding: 0 2px 8px;
+  text-transform: uppercase;
+}
+
+.kanban-mobile-status-grid {
+  display: grid;
+  gap: 7px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.kanban-mobile-status-option {
+  --kanban-status-color: #64748b;
+  align-items: center;
+  background: rgba(var(--v-theme-surface), 0.76);
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border-radius: 8px;
+  color: rgb(var(--v-theme-on-surface));
+  display: flex;
+  gap: 9px;
+  min-height: 52px;
+  min-width: 0;
+  padding: 8px;
+  text-align: left;
+  transition: background-color 120ms ease, border-color 120ms ease, transform 120ms ease;
+}
+
+.kanban-mobile-status-option:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+.kanban-mobile-status-option--active {
+  background: color-mix(in srgb, var(--kanban-status-color) 18%, rgb(var(--v-theme-surface)) 82%);
+  border-color: color-mix(in srgb, var(--kanban-status-color) 62%, transparent);
+}
+
+.kanban-mobile-status-option:disabled {
+  cursor: default;
+  opacity: 0.78;
+}
+
+.kanban-mobile-status-option__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.kanban-mobile-status-option__text strong,
+.kanban-mobile-status-option__text small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kanban-mobile-status-option__text strong {
+  font-size: 0.76rem;
+  line-height: 1.2;
+}
+
+.kanban-mobile-status-option__text small {
+  color: rgba(var(--v-theme-on-surface), 0.62);
+  font-size: 0.66rem;
+  line-height: 1.25;
+}
+
+.kanban-mobile-fab {
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  position: fixed;
+  right: 16px;
+  z-index: 20;
 }
 
 @media (max-width: 720px) {
