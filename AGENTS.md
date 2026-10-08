@@ -35,6 +35,18 @@ Project-specific workflows are available in `.agent/workflows`. When a task matc
 - Communication between entities must go through their Services.
 - When an entity needs to access another entity, import that entity ServiceFactory to obtain its Service instance.
 
+### Entity backend Zod schemas
+
+- Single Source of Truth: Zod schemas define entity structures and runtime validation.
+- EntityBaseSchema: Used for create/update inputs, with relationships represented by IDs.
+- EntitySchema: Used for outputs, with relationships represented as populated objects.
+- CRUD Services: Use both schemas to validate inputs and outputs.
+- Fastify / Swagger / OpenAPI: CrudSchemaBuilder generates route schemas and API documentation from Zod.
+- AI Tools: BuilderTool generates AI tool definitions from the same schemas.
+- Schema First: Always update Zod schemas when modifying entities. Avoid duplicate definitions or manual JSON schemas.
+- Type Conversion: Builders automatically adapt dates and other types to JSON Schema.
+- Partial Updates (PATCH): Never inject default() values into fields that were not provided.
+
 ### Frontend Rules
 
 - Prioritize using Vuetify components for the UI
