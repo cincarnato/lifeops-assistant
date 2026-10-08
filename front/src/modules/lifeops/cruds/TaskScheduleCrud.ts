@@ -116,7 +116,7 @@ class TaskScheduleCrud extends EntityCrud implements IEntityCrud {
           "valueScore": null,
           "motivationScore": null,
           "effortScore": null,
-          "urgencyScore": null,
+          "urgent": false,
           "tags": []
         },
         groupTab: 'TASK',
@@ -132,7 +132,7 @@ class TaskScheduleCrud extends EntityCrud implements IEntityCrud {
           {name: 'valueScore', type: 'number', label: 'valueScore', default: null},
           {name: 'motivationScore', type: 'number', label: 'motivationScore', default: null},
           {name: 'effortScore', type: 'number', label: 'effortScore', default: null},
-          {name: 'urgencyScore', type: 'number', label: 'urgencyScore', default: null},
+          {name: 'urgent', type: 'boolean', label: 'urgent', default: false},
           {name: 'tags', type: 'array.string', label: 'tags', default: []}]
       },
       {

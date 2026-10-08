@@ -86,8 +86,9 @@ const entitySchema: IEntitySchema = {
             type: "number",
             default: 5,
         },
-        urgencyScore: {
-            type: "number",
+        urgent: {
+            type: "boolean",
+            default: false,
         },
         dueDate: {
             type: "date",

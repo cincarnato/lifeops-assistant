@@ -17,7 +17,7 @@ const TaskSchemaDefinition = {
     valueScore: {type: Number, required: false, index: true, unique: false},
     motivationScore: {type: Number, required: false, index: false, unique: false},
     effortScore: {type: Number, required: false, index: false, unique: false},
-    urgencyScore: {type: Number, required: false, index: false, unique: false},
+    urgent: {type: Boolean, required: false, default: false, index: false, unique: false},
     dueDate: {type: Date, required: false, index: true, unique: false},
     scheduledDate: {type: Date, required: false, index: true, unique: false},
     taskSchedule: {type: mongoose.Schema.Types.ObjectId, ref: 'TaskSchedule', required: false, index: true, unique: false},

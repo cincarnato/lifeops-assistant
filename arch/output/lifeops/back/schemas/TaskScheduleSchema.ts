@@ -17,7 +17,7 @@ const TaskScheduleBaseSchema = z.object({
     valueScore: z.number().nullable().optional(),
     motivationScore: z.number().nullable().optional(),
     effortScore: z.number().nullable().optional(),
-    urgencyScore: z.number().nullable().optional(),
+    urgent: z.boolean().optional().default(false),
     tags: z.array(z.string()).optional().default([])}),
     schedule: z.object({    type: z.enum(['once', 'interval', 'daily', 'weekly', 'monthly', 'yearly']),
     time: z.string().optional(),

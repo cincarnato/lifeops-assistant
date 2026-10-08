@@ -94,7 +94,7 @@ user: [(v: any) => !!v || 'validation.required']
     return [
         {name:'name',type:'string',label:'name',default:'',groupTab: 'GENERAL'},
 {name:'active',type:'boolean',label:'active',default:true,groupTab: 'GENERAL'},
-{name:'task',type:'object',label:'task',default:{"title":"''","description":"''","source":null,"type":null,"lifeArea":null,"status":null,"priority":"''","goals":"[]","project":null,"valueScore":null,"motivationScore":null,"effortScore":null,"urgencyScore":null,"tags":"[]"},groupTab: 'TASK',objectFields: [{name:'title',type:'string',label:'title',default:''},
+{name:'task',type:'object',label:'task',default:{"title":"''","description":"''","source":null,"type":null,"lifeArea":null,"status":null,"priority":"''","goals":"[]","project":null,"valueScore":null,"motivationScore":null,"effortScore":null,"urgent":false,"tags":"[]"},groupTab: 'TASK',objectFields: [{name:'title',type:'string',label:'title',default:''},
 {name:'description',type:'longString',label:'description',default:''},
 {name:'source',type:'string',label:'source',default:''},
 {name:'type',type:'string',label:'type',default:''},
@@ -106,7 +106,7 @@ user: [(v: any) => !!v || 'validation.required']
 {name:'valueScore',type:'number',label:'valueScore',default:null},
 {name:'motivationScore',type:'number',label:'motivationScore',default:null},
 {name:'effortScore',type:'number',label:'effortScore',default:null},
-{name:'urgencyScore',type:'number',label:'urgencyScore',default:null},
+{name:'urgent',type:'boolean',label:'urgent',default:false},
 {name:'tags',type:'array.string',label:'tags',default:[]}]},
 {name:'schedule',type:'object',label:'schedule',default:{"type":null,"time":"''","timezone":"'America/Argentina/Buenos_Aires'","interval":"{\"every\":null,\"unit\":null}","daysOfWeek":"[]","daysOfMonth":"[]","monthsOfYear":"[]","runAt":null,"monthlyMode":null},groupTab: 'SCHEDULE',objectFields: [{name:'type',type:'enum',label:'type',default:null,enum: ['once', 'interval', 'daily', 'weekly', 'monthly', 'yearly']},
 {name:'time',type:'string',label:'time',default:''},

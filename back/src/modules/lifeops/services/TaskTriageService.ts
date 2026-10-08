@@ -24,7 +24,7 @@ const TaskTriageSchema = z.object({
     valueScore: scoreSchema,
     motivationScore: scoreSchema,
     effortScore: scoreSchema,
-    urgencyScore: scoreSchema
+    urgent: z.boolean().nullable().optional()
 });
 
 type TaskTriageOutput = z.infer<typeof TaskTriageSchema>;
@@ -138,7 +138,8 @@ class TaskTriageService {
             "No inventes valores fuera de las opciones disponibles.",
             "Para source, type, lifeArea, status y priority devuelve el campo name exacto.",
             "Para goals devuelve un array de _id. Para project devuelve un _id.",
-            "Para scores usa enteros de 1 a 10: valueScore=impacto, motivationScore=ganas, effortScore=esfuerzo, urgencyScore=urgencia.",
+            "Para scores usa enteros de 1 a 10: valueScore=impacto, motivationScore=ganas, effortScore=esfuerzo.",
+            "Para urgent devuelve true solo si la tarea necesita atencion inmediata o tiene urgencia clara; si no, false.",
             "Si no hay evidencia suficiente para un campo, devuelve null o omitilo.",
             "",
             "[OPCIONES]",
@@ -167,7 +168,7 @@ class TaskTriageService {
             valueScore: task.valueScore,
             motivationScore: task.motivationScore,
             effortScore: task.effortScore,
-            urgencyScore: task.urgencyScore,
+            urgent: task.urgent,
             dueDate: task.dueDate,
             scheduledDate: task.scheduledDate,
             tags: task.tags,
@@ -191,7 +192,7 @@ class TaskTriageService {
         this.applyScorePatch(patch, task, suggestion, "valueScore");
         this.applyScorePatch(patch, task, suggestion, "motivationScore");
         this.applyScorePatch(patch, task, suggestion, "effortScore");
-        this.applyScorePatch(patch, task, suggestion, "urgencyScore");
+        this.applyBooleanPatch(patch, task, suggestion, "urgent");
 
         return patch;
     }
@@ -294,11 +295,26 @@ class TaskTriageService {
         patch: Partial<TaskTriageOutput>,
         task: ITask,
         suggestion: TaskTriageOutput,
-        field: "valueScore" | "motivationScore" | "effortScore" | "urgencyScore"
+        field: "valueScore" | "motivationScore" | "effortScore"
     ): void {
         const value = suggestion[field];
 
         if (typeof value !== "number" || task[field] === value) {
+            return;
+        }
+
+        patch[field] = value;
+    }
+
+    private applyBooleanPatch(
+        patch: Partial<TaskTriageOutput>,
+        task: ITask,
+        suggestion: TaskTriageOutput,
+        field: "urgent"
+    ): void {
+        const value = suggestion[field];
+
+        if (typeof value !== "boolean" || task[field] === value) {
             return;
         }
 

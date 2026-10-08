@@ -233,7 +233,7 @@ class TaskScheduleService extends AbstractService<ITaskSchedule, ITaskScheduleBa
             valueScore: task.valueScore,
             motivationScore: task.motivationScore,
             effortScore: task.effortScore,
-            urgencyScore: task.urgencyScore,
+            urgent: task.urgent,
             tags: [...(task.tags ?? [])],
             dueDate,
             user: this.stringifyId(schedule.user),

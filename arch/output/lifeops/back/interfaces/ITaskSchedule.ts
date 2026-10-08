@@ -14,7 +14,7 @@ interface ITaskScheduleBase {
     valueScore?: number
     motivationScore?: number
     effortScore?: number
-    urgencyScore?: number
+    urgent?: boolean
     tags?: Array<string>}
     schedule: {    type: string
     time?: string
@@ -56,7 +56,7 @@ interface ITaskSchedule {
     valueScore?: number
     motivationScore?: number
     effortScore?: number
-    urgencyScore?: number
+    urgent?: boolean
     tags?: Array<string>}
     schedule: {    type: string
     time?: string

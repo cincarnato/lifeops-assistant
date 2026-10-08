@@ -41,7 +41,7 @@ const TaskScheduleRawSchema = z.object({
         valueScore: z.coerce.number().nullable().optional(),
         motivationScore: z.coerce.number().nullable().optional(),
         effortScore: z.coerce.number().nullable().optional(),
-        urgencyScore: z.coerce.number().nullable().optional(),
+        urgent: z.boolean().optional().default(false),
         tags: z.array(z.string()).optional().default([])
     }),
     schedule: z.object({
@@ -128,7 +128,7 @@ const TaskScheduleSchema = TaskScheduleRawSchema
             valueScore: z.number().nullable().optional(),
             motivationScore: z.number().nullable().optional(),
             effortScore: z.number().nullable().optional(),
-            urgencyScore: z.number().nullable().optional(),
+            urgent: z.boolean().optional().default(false),
             tags: z.array(z.string()).optional().default([]),
             goals: z.array(z.object({_id: z.coerce.string(), name: z.string()})).optional(),
             project: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),

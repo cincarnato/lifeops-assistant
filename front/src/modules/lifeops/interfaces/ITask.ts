@@ -23,7 +23,7 @@ interface ITaskBase {
     valueScore?: number
     motivationScore?: number
     effortScore?: number
-    urgencyScore?: number
+    urgent?: boolean
     dueDate?: Date
     scheduledDate?: Date
     completedAt?: Date
@@ -53,7 +53,7 @@ interface ITask {
     valueScore?: number
     motivationScore?: number
     effortScore?: number
-    urgencyScore?: number
+    urgent?: boolean
     dueDate?: Date
     scheduledDate?: Date
     completedAt?: Date

@@ -342,10 +342,10 @@ class DayPlanJob {
     private scoreTask(task: ITask): number {
         const priorityScore = this.priorityScore(task.priority);
         const valueScore = Number(task.valueScore ?? 0);
-        const urgencyScore = Number(task.urgencyScore ?? 0);
+        const urgentScore = task.urgent ? 10 : 0;
         const dueDateScore = task.dueDate ? Math.max(0, 10 - Math.ceil((new Date(task.dueDate).getTime() - Date.now()) / 86_400_000)) : 0;
 
-        return priorityScore * 4 + valueScore * 3 + urgencyScore * 2 + dueDateScore;
+        return priorityScore * 4 + valueScore * 3 + urgentScore * 2 + dueDateScore;
     }
 
     private priorityScore(priority?: string): number {

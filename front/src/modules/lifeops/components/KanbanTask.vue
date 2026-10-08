@@ -37,7 +37,7 @@ type TaskCardPropertyKey =
     | "valueScore"
     | "motivationScore"
     | "effortScore"
-    | "urgencyScore"
+    | "urgent"
     | "redmineIssueId"
     | "emailMessageId"
     | "calendarEventId"
@@ -49,7 +49,7 @@ type TaskCardPropertyKey =
 
 type ScoreTaskCardPropertyKey = Extract<
     TaskCardPropertyKey,
-    "valueScore" | "motivationScore" | "effortScore" | "urgencyScore"
+    "valueScore" | "motivationScore" | "effortScore"
 >;
 
 type EditableTaskCardPropertyKey = Extract<
@@ -131,13 +131,12 @@ const MIN_COLUMN_WIDTH = 260;
 const MAX_COLUMN_WIDTH = 460;
 
 const defaultVisibleCardPropertyKeys: TaskCardPropertyKey[] = ["priority"];
-const scorePropertyKeys: ScoreTaskCardPropertyKey[] = ["valueScore", "motivationScore", "effortScore", "urgencyScore"];
+const scorePropertyKeys: ScoreTaskCardPropertyKey[] = ["valueScore", "motivationScore", "effortScore"];
 const editablePropertyKeys: EditableTaskCardPropertyKey[] = ["project", "goals", "type", "lifeArea"];
 const scorePropertyColors: Record<ScoreTaskCardPropertyKey, string> = {
   valueScore: "primary",
   motivationScore: "success",
-  effortScore: "error",
-  urgencyScore: "warning"
+  effortScore: "error"
 };
 const scoreValues = Array.from({length: 10}, (_, index) => index + 1);
 
@@ -161,7 +160,7 @@ const cardProperties: TaskCardProperty[] = [
   {key: "valueScore", label: "Valor", icon: "mdi-chart-line", group: "Scoring"},
   {key: "motivationScore", label: "Motivacion", icon: "mdi-lightning-bolt-outline", group: "Scoring"},
   {key: "effortScore", label: "Esfuerzo", icon: "mdi-weight-lifter", group: "Scoring"},
-  {key: "urgencyScore", label: "Urgencia", icon: "mdi-alarm", group: "Scoring"},
+  {key: "urgent", label: "Urgente", icon: "mdi-alarm", group: "Clasificacion"},
   {key: "redmineIssueId", label: "Redmine", icon: "mdi-ticket-outline", group: "Integraciones"},
   {key: "emailMessageId", label: "Email", icon: "mdi-email-outline", group: "Integraciones"},
   {key: "calendarEventId", label: "Calendario", icon: "mdi-calendar-link", group: "Integraciones"},
@@ -488,7 +487,7 @@ function taskCardPropertyValue(task: ITask, key: TaskCardPropertyKey) {
     valueScore: () => formatScore(task.valueScore),
     motivationScore: () => formatScore(task.motivationScore),
     effortScore: () => formatScore(task.effortScore),
-    urgencyScore: () => formatScore(task.urgencyScore),
+    urgent: () => task.urgent ? "Urgente" : "",
     redmineIssueId: () => task.redmineIssueId || "",
     emailMessageId: () => task.emailMessageId || "",
     calendarEventId: () => task.calendarEventId || "",

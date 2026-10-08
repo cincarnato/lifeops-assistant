@@ -38,14 +38,14 @@ const scoreItems = computed<ScoreItem[]>(() => [
     icon: "mdi-lightning-bolt-outline",
     color: "success"
   },
-  {key: "effort", label: "Esfuerzo", value: task.value?.effortScore, icon: "mdi-weight-lifter", color: "error"},
-  {key: "urgency", label: "Urgencia", value: task.value?.urgencyScore, icon: "mdi-alarm", color: "warning"}
+  {key: "effort", label: "Esfuerzo", value: task.value?.effortScore, icon: "mdi-weight-lifter", color: "error"}
 ]);
 
 const classificationItems = computed<DetailItem[]>(() => compactDetails([
   {key: "source", label: "Origen", value: task.value?.source, icon: "mdi-source-branch"},
   {key: "type", label: "Tipo", value: task.value?.type, icon: "mdi-shape-outline"},
   {key: "status", label: "Estado", value: task.value?.status, icon: "mdi-list-status"},
+  {key: "urgent", label: "Urgente", value: task.value?.urgent ? "Si" : "", icon: "mdi-alarm"},
   {key: "lifeArea", label: "Area", value: task.value?.lifeArea, icon: "mdi-image-area"},
   {key: "project", label: "Proyecto", value: task.value?.project, icon: "mdi-folder-open-outline"},
   {key: "goals", label: "Objetivos", value: task.value?.goals, icon: "mdi-folder-open-outline"},
@@ -185,6 +185,9 @@ function normalizeNotes(notes?: ITask["notes"]) {
           </v-chip>
           <v-chip v-if="task.type" color="info" variant="tonal" size="small">
             Tipo: {{ task.type }}
+          </v-chip>
+          <v-chip v-if="task.urgent" color="warning" variant="tonal" size="small">
+            Urgente
           </v-chip>
         </div>
       </section>

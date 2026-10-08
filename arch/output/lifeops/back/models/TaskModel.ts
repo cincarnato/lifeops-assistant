@@ -19,7 +19,7 @@ const TaskSchema = new mongoose.Schema<ITask>({
             valueScore: {type: Number,   required: false, index: true, unique: false },
             motivationScore: {type: Number,   required: false, index: false, unique: false },
             effortScore: {type: Number,   required: false, index: false, unique: false },
-            urgencyScore: {type: Number,   required: false, index: false, unique: false },
+            urgent: {type: Boolean, default: false,  required: false, index: false, unique: false },
             dueDate: {type: Date,   required: false, index: true, unique: false },
             scheduledDate: {type: Date,   required: false, index: true, unique: false },
             completedAt: {type: Date,   required: false, index: false, unique: false },

@@ -10,7 +10,7 @@ class TaskSqliteRepository extends AbstractSqliteRepository<ITask, ITaskBase, IT
     protected tableName: string = 'Task';
     protected dataBaseFile: string;
     protected searchFields: string[] = ['title', 'description', 'redmineIssueId', 'emailMessageId', 'calendarEventId'];
-    protected booleanFields: string[] = [];
+    protected booleanFields: string[] = ['urgent'];
     protected jsonFields: string[] = ['tags', 'notes', 'statusHistory'];
     protected identifier: string = '_id';
     protected populateFields = [
@@ -35,8 +35,7 @@ class TaskSqliteRepository extends AbstractSqliteRepository<ITask, ITaskBase, IT
 {name: "motivationScore", type: "TEXT", unique: undefined, primary: false},
 {name: "effortScore", type: "NUMERIC", unique: undefined, primary: false},
 {name: "effortScore", type: "TEXT", unique: undefined, primary: false},
-{name: "urgencyScore", type: "NUMERIC", unique: undefined, primary: false},
-{name: "urgencyScore", type: "TEXT", unique: undefined, primary: false},
+{name: "urgent", type: "INTEGER", unique: undefined, primary: false},
 {name: "dueDate", type: "TEXT", unique: undefined, primary: false},
 {name: "scheduledDate", type: "TEXT", unique: undefined, primary: false},
 {name: "completedAt", type: "TEXT", unique: undefined, primary: false},

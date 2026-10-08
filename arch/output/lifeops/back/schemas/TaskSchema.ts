@@ -16,7 +16,7 @@ const TaskBaseSchema = z.object({
     valueScore: z.number().nullable().optional().default(5),
     motivationScore: z.number().nullable().optional().default(5),
     effortScore: z.number().nullable().optional().default(5),
-    urgencyScore: z.number().nullable().optional(),
+    urgent: z.boolean().optional().default(false),
     dueDate: z.coerce.date().nullable().optional(),
     scheduledDate: z.coerce.date().nullable().optional(),
     completedAt: z.coerce.date().nullable().optional(),

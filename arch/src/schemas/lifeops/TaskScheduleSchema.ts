@@ -71,8 +71,9 @@ const entitySchema: IEntitySchema = {
                 effortScore: {
                     type: "number",
                 },
-                urgencyScore: {
-                    type: "number",
+                urgent: {
+                    type: "boolean",
+                    default: false,
                 },
                 tags: {
                     type: "array.string",

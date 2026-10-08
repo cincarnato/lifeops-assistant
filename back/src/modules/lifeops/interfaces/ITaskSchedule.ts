@@ -19,7 +19,7 @@ interface ITaskScheduleTaskTemplate {
     valueScore?: number
     motivationScore?: number
     effortScore?: number
-    urgencyScore?: number
+    urgent?: boolean
     tags?: Array<string>
 }
 

@@ -122,7 +122,7 @@ user: [(v: any) => !!v || 'validation.required']
 {name:'valueScore',type:'number',label:'valueScore',default:5},
 {name:'motivationScore',type:'number',label:'motivationScore',default:5},
 {name:'effortScore',type:'number',label:'effortScore',default:5},
-{name:'urgencyScore',type:'number',label:'urgencyScore',default:null},
+{name:'urgent',type:'boolean',label:'urgent',default:false},
 {name:'dueDate',type:'date',label:'dueDate',default:null},
 {name:'scheduledDate',type:'date',label:'scheduledDate',default:null},
 {name:'completedAt',type:'date',label:'completedAt',default:null},
