@@ -2748,18 +2748,46 @@ onBeforeUnmount(() => {
 @media (max-width: 720px) {
   .kanban-settings-dialog {
     border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    max-height: 100dvh;
+  }
+
+  .kanban-settings-dialog__title {
+    flex: 0 0 auto;
+    min-height: 64px;
   }
 
   .kanban-settings-dialog__content {
+    flex: 1 1 auto;
     display: block;
     min-height: 0;
+    overflow: hidden;
   }
 
   .kanban-settings-tabs {
     border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+    flex: 0 0 auto;
+  }
+
+  .kanban-settings-window {
+    height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .kanban-settings-window :deep(.v-window__container) {
+    height: auto !important;
+    min-height: 100%;
+  }
+
+  .kanban-settings-window :deep(.v-window-item) {
+    min-height: 100%;
   }
 
   .kanban-settings-section {
+    gap: 14px;
     padding: 16px;
   }
 
