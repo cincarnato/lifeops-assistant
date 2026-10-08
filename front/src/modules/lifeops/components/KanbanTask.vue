@@ -927,11 +927,6 @@ function onTaskPointerDown(task: ITask, event: PointerEvent) {
     return;
   }
 
-  const target = event.target as HTMLElement;
-  if (target.closest(".kanban-card__action, .kanban-score-chip, .kanban-score-menu, .kanban-editable-chip, .kanban-editable-menu")) {
-    return;
-  }
-
   const source = event.currentTarget as HTMLElement;
   source.setPointerCapture(event.pointerId);
 
@@ -1276,17 +1271,17 @@ onBeforeUnmount(() => {
                     <template #activator="{ props }">
                       <v-btn
                           v-bind="props"
-                          class="kanban-card__action kanban-mobile-move-btn"
-                          prepend-icon="mdi-view-dashboard-edit-outline"
-                          variant="tonal"
+                          class="kanban-card__action"
+                          icon="mdi-view-dashboard-edit-outline"
+                          variant="text"
                           density="comfortable"
                           size="small"
                           color="primary"
+                          title="Cambiar estado"
+                          aria-label="Cambiar estado"
                           :disabled="savingIds.has(task._id)"
                           @click.stop
-                      >
-                        Mover
-                      </v-btn>
+                      />
                     </template>
 
                     <v-card class="kanban-mobile-status-menu" @click.stop>
@@ -1484,26 +1479,76 @@ onBeforeUnmount(() => {
                         'kanban-card--dragging': draggedTaskId === task._id
                       }
                   ]"
-                  @pointerdown="onTaskPointerDown(task, $event)"
               >
                 <div class="kanban-card__accent"/>
 
                 <div class="kanban-card__body">
                   <div class="kanban-card__top">
-                    <v-chip
-                        v-if="isCardPropertyVisible('priority') && task.priority"
-                        :color="priorityColor(task.priority)"
-                        size="x-small"
-                        variant="tonal"
-                        class="kanban-priority-chip"
-                    >
-                      {{ task.priority }}
-                    </v-chip>
-                    <span v-else-if="isCardPropertyVisible('priority')" class="kanban-priority-placeholder">Sin prioridad</span>
-                    <span v-else/>
+                    <div class="kanban-card__leading">
+                      <v-btn
+                          class="kanban-card__drag"
+                          icon="mdi-drag"
+                          variant="text"
+                          density="comfortable"
+                          size="small"
+                          title="Arrastrar tarea"
+                          aria-label="Arrastrar tarea"
+                          @pointerdown.stop="onTaskPointerDown(task, $event)"
+                      />
+                      <v-chip
+                          v-if="isCardPropertyVisible('priority') && task.priority"
+                          :color="priorityColor(task.priority)"
+                          size="x-small"
+                          variant="tonal"
+                          class="kanban-priority-chip"
+                      >
+                        {{ task.priority }}
+                      </v-chip>
+                      <span v-else-if="isCardPropertyVisible('priority')" class="kanban-priority-placeholder">Sin prioridad</span>
+                    </div>
 
                     <div class="kanban-card__tools">
-                      <v-icon icon="mdi-drag" size="18" class="text-medium-emphasis kanban-card__drag"/>
+                      <v-menu location="bottom end" :close-on-content-click="true">
+                        <template #activator="{ props }">
+                          <v-btn
+                              v-bind="props"
+                              class="kanban-card__action"
+                              icon="mdi-view-dashboard-edit-outline"
+                              variant="text"
+                              density="comfortable"
+                              size="small"
+                              color="primary"
+                              title="Cambiar estado"
+                              aria-label="Cambiar estado"
+                              :disabled="savingIds.has(task._id)"
+                              @click.stop
+                          />
+                        </template>
+
+                        <v-card class="kanban-mobile-status-menu" @click.stop>
+                          <v-card-subtitle class="kanban-mobile-status-menu__title">
+                            Cambiar estado
+                          </v-card-subtitle>
+                          <div class="kanban-mobile-status-grid">
+                            <button
+                                v-for="statusColumn in visibleColumns"
+                                :key="statusColumn.key"
+                                class="kanban-mobile-status-option"
+                                :class="{'kanban-mobile-status-option--active': (task.status || '') === statusColumn.key}"
+                                :style="kanbanColumnStyle(statusColumn.key)"
+                                type="button"
+                                :disabled="savingIds.has(task._id) || (task.status || '') === statusColumn.key"
+                                @click="moveTask(task, statusColumn.key)"
+                            >
+                              <span class="kanban-mobile-status-option__dot"/>
+                              <span class="kanban-mobile-status-option__text">
+                                <strong>{{ statusColumn.title }}</strong>
+                                <small>{{ mobileStatusActionLabel(task, statusColumn.key) }}</small>
+                              </span>
+                            </button>
+                          </div>
+                        </v-card>
+                      </v-menu>
                       <v-tooltip text="Analizar con IA">
                         <template #activator="{ props }">
                           <v-btn
@@ -2347,12 +2392,12 @@ onBeforeUnmount(() => {
   border: 1px solid rgba(var(--v-border-color), calc(var(--v-border-opacity) + 0.06));
   border-radius: 12px;
   box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
-  cursor: grab;
+  cursor: default;
   display: flex;
   flex: 0 0 auto;
   min-height: 0;
   overflow: hidden;
-  touch-action: none;
+  touch-action: auto;
   user-select: none;
   -webkit-user-select: none;
   transition: border-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
@@ -2362,10 +2407,6 @@ onBeforeUnmount(() => {
   border-color: rgba(var(--v-theme-primary), 0.38);
   box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
   transform: translateY(-1px);
-}
-
-.kanban-card:active {
-  cursor: grabbing;
 }
 
 .kanban-card--saving {
@@ -2407,8 +2448,16 @@ onBeforeUnmount(() => {
 .kanban-card__top {
   align-items: center;
   display: flex;
+  gap: 8px;
   justify-content: space-between;
   min-height: 30px;
+}
+
+.kanban-card__leading {
+  align-items: center;
+  display: flex;
+  gap: 4px;
+  min-width: 0;
 }
 
 .kanban-card__tools {
@@ -2420,6 +2469,11 @@ onBeforeUnmount(() => {
 
 .kanban-card__drag {
   cursor: grab;
+  touch-action: none;
+}
+
+.kanban-card__drag:active {
+  cursor: grabbing;
 }
 
 .kanban-title {
@@ -2655,10 +2709,6 @@ onBeforeUnmount(() => {
 .kanban-mobile-card__tools :deep(.v-btn) {
   min-height: 40px;
   min-width: 40px;
-}
-
-.kanban-mobile-move-btn {
-  min-width: 78px !important;
 }
 
 .kanban-mobile-status-menu {
