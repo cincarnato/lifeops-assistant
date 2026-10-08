@@ -24,6 +24,14 @@ class TaskController extends AbstractFastifyController<ITask, ITaskBase, ITaskBa
         this.userAssert = true;
     }
 
+    async preUpdate(request: CustomRequest, payload: ITaskBase): Promise<ITaskBase> {
+        return this.removeScheduleMetadata(payload)
+    }
+
+    async preUpdatePartial(request: CustomRequest, payload: ITaskBase): Promise<ITaskBase> {
+        return this.removeScheduleMetadata(payload)
+    }
+
     async triage(request: CustomRequest, reply: FastifyReply) {
         try {
             this.assertUpdatePermission(request)
@@ -52,6 +60,12 @@ class TaskController extends AbstractFastifyController<ITask, ITaskBase, ITaskBa
         } catch (e) {
             this.handleError(e, reply)
         }
+    }
+
+    private removeScheduleMetadata(payload: ITaskBase): ITaskBase {
+        delete payload.taskSchedule
+        delete payload.scheduledFor
+        return payload
     }
 
 }

@@ -104,6 +104,8 @@ class TaskService extends AbstractService<ITask, ITaskBase, ITaskBase> {
     }
 
     private async prepareUpdateData(id: string, data: ITaskBase): Promise<ITaskBase> {
+        this.removeScheduleMetadata(data)
+
         const previousTask = await this.findById(id)
 
         data.notes = this.normalizeNotes(data.notes, previousTask?.notes)
@@ -112,10 +114,12 @@ class TaskService extends AbstractService<ITask, ITaskBase, ITaskBase> {
         return data
     }
 
+    private removeScheduleMetadata(data: ITaskBase): void {
+        delete data.taskSchedule
+        delete data.scheduledFor
+    }
+
     private applyStatusHistory(data: ITaskBase, previousTask: ITask | null): void {
-
-        console.log("applyStatusHistory",data, previousTask)
-
         if (!previousTask || !Object.prototype.hasOwnProperty.call(data, 'status')) {
             return
         }
