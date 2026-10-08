@@ -2,6 +2,13 @@ import type {MenuItem} from '../types/menu'
 
 const menu: MenuItem[] = [
   {
+    icon: 'mdi-view-dashboard-outline',
+    text: 'commandCenter.title',
+    link: {name: 'CommandCenterPage'},
+    gallery: true,
+    auth: true
+  },
+  {
     icon: 'mdi-home',
     text: 'home',
     link: {name: "Home"},

@@ -21,6 +21,10 @@ class TaskScheduleProvider extends AbstractCrudRestProvider<ITaskSchedule, ITask
     return super.create(this.withoutRuntime(data))
   }
 
+  async setActive(id: string, active: boolean): Promise<ITaskSchedule> {
+    return await this.httpClient.post(`${this.basePath}/${id}/${active ? 'activate' : 'deactivate'}`, {}) as ITaskSchedule
+  }
+
   async update(id: string, data: ITaskScheduleBase): Promise<ITaskSchedule> {
     return super.update(id, this.withoutRuntime(data))
   }
@@ -34,4 +38,3 @@ class TaskScheduleProvider extends AbstractCrudRestProvider<ITaskSchedule, ITask
 }
 
 export default TaskScheduleProvider
-

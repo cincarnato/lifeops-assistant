@@ -2,7 +2,7 @@
 import {computed, ref, watch} from 'vue'
 import {useI18n} from 'vue-i18n'
 import {useCrud} from '@drax/crud-vue'
-import type {IEntityCrudOperation} from '@drax/crud-share'
+import type {IEntityCrud, IEntityCrudOperation} from '@drax/crud-share'
 import ContactCrud from '../cruds/ContactCrud'
 import type {
   IContactAddress,
@@ -13,10 +13,12 @@ import type {
 const props = defineProps<{
   item: Record<string, any>
   operation: IEntityCrudOperation
+  entity?: IEntityCrud
 }>()
 
+const emit = defineEmits<{saved: [item?: Record<string, unknown> & {_id: string}]; canceled: []}>()
 const {t} = useI18n()
-const {onSubmit, onCancel, loading, error} = useCrud(ContactCrud.instance)
+const {onSubmit, onCancel, loading, error} = useCrud(props.entity ?? ContactCrud.instance)
 const tab = ref('general')
 
 const photoInput = ref<HTMLInputElement>()
@@ -135,7 +137,13 @@ function formatSyncDate(value: string | Date | undefined) {
 
 async function submit() {
   localError.value = ''
-  await onSubmit(form.value)
+  const result = await onSubmit(form.value)
+  if (['created', 'updated', 'deleted'].includes(result.status)) emit('saved', result.item)
+}
+
+function cancel() {
+  onCancel()
+  emit('canceled')
 }
 </script>
 
@@ -488,7 +496,7 @@ async function submit() {
     </v-tabs-window>
 
     <div class="contact-form__actions d-flex align-center justify-end ga-2 mt-5 pa-3">
-      <v-btn variant="text" @click="onCancel">
+      <v-btn variant="text" @click="cancel">
         {{ readOnlyMode && !isDelete ? t('action.close') : t('action.cancel') }}
       </v-btn>
       <v-btn
