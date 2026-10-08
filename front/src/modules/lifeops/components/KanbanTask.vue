@@ -487,7 +487,7 @@ function taskCardPropertyValue(task: ITask, key: TaskCardPropertyKey) {
     valueScore: () => formatScore(task.valueScore),
     motivationScore: () => formatScore(task.motivationScore),
     effortScore: () => formatScore(task.effortScore),
-    urgent: () => task.urgent ? "Urgente" : "",
+    urgent: () => task.urgent ? "Si" : "No",
     redmineIssueId: () => task.redmineIssueId || "",
     emailMessageId: () => task.emailMessageId || "",
     calendarEventId: () => task.calendarEventId || "",
@@ -518,6 +518,7 @@ function renderedCardProperties(task: ITask) {
           value,
           color: property.key === "status"
               ? taskStatusColor(task.status)
+              : property.key === "urgent" && task.urgent ? "warning"
               : isScoreProperty(property.key) ? scorePropertyColors[property.key] : undefined
         };
       })
