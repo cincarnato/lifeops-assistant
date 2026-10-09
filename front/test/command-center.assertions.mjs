@@ -65,6 +65,17 @@ equal(center.centerFilters('serviceTransactions', 'pending', {field: 'service', 
 const entities = center.centerEntities()
 equal(entities.find(entity => entity.key === 'projects').columns, ['name', 'priority', 'businessPartner', 'tags'])
 
+const relations = parse(read('components/command-center/CommandCenterRelations.vue')).descriptor.template.content
+assert.equal(compileTemplate({source: relations, filename: 'CommandCenterRelations.vue', id: 'test'}).errors.length, 0)
+const projectRelation = relations.split('\n').find(line => line.includes("related('projects'"))
+const projectCondition = projectRelation.match(/v-if="([^"]+)"/)[1]
+assert.equal(runInNewContext(projectCondition, {tab: 'goals', visible: ['projects']}), false)
+assert.equal(runInNewContext(projectCondition, {tab: 'businessPartners', visible: ['projects']}), true)
+assert.equal(runInNewContext(projectCondition, {tab: 'businessPartners', visible: []}), false)
+assert.ok(projectRelation.includes("related('projects', 'businessPartner')"))
+assert.ok(!relations.includes('item.goals'))
+assert.ok(relations.includes("tab === 'goals' ? 'goals'"))
+
 const removedProjectFields = ['goals', 'priorityScore', 'startDate', 'targetDate', 'completedAt', 'progressPercent']
 for (const name of ['Project', 'BusinessPartner']) {
   const imports = {
@@ -109,11 +120,12 @@ const granted = new Set(['servicetransaction:manage'])
 const requests = []
 transactionProvider.paginate = async options => { requests.push(options); return {items: [], total: 37} }
 const route = vue.reactive({query: {tab: 'serviceTransactions', preset: 'pending'}})
-const workspace = evaluate(read('components/command-center/useCommandCenter.ts'), {
+const createWorkspace = () => evaluate(read('components/command-center/useCommandCenter.ts'), {
   vue: {...vue, onBeforeUnmount: () => {}}, './commandCenter': center,
   '@drax/identity-vue': {useAuth: () => ({hasPermission: permission => granted.has(permission)})},
   'vue-router': {useRoute: () => route, useRouter: () => ({replace: async ({query}) => { route.query = query; await vue.nextTick() }})},
 }).useCommandCenter()
+const workspace = createWorkspace()
 assert.equal(workspace.can('services', 'view'), false)
 for (const operation of ['view', 'create', 'update', 'delete']) assert.equal(workspace.can('serviceTransactions', operation), true)
 equal(workspace.visibleEntities.value.map(entity => entity.key), ['serviceTransactions'])
@@ -135,6 +147,18 @@ granted.add('service:view')
 assert.equal(workspace.can('services', 'view'), true)
 assert.equal(workspace.can('services', 'create'), false)
 assert.equal(workspace.can('serviceTransactions', 'view'), false)
+granted.add('other:view')
+route.query = {tab: 'projects', contextField: 'goals', contextId: 'g1'}
+const relationsWorkspace = createWorkspace()
+await vue.nextTick()
+assert.equal(relationsWorkspace.activeTab.value, 'projects')
+assert.equal(relationsWorkspace.state.value.context, undefined)
+route.query = {tab: 'projects', contextField: 'businessPartner', contextId: 'bp1'}
+await vue.nextTick()
+assert.equal(relationsWorkspace.state.value.context.field, 'businessPartner')
+route.query = {tab: 'tasks', contextField: 'goals', contextId: 'g1'}
+await vue.nextTick()
+assert.equal(relationsWorkspace.state.value.context.field, 'goals')
 
 const translations = evaluate(read('i18n/CommandCenter-i18n.ts'), {}).default
 for (const language of ['en', 'es']) {
