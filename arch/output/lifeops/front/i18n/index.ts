@@ -3,6 +3,8 @@ import merge from "deepmerge";
 import GoalMessages from "./Goal-i18n"
 import ProjectMessages from "./Project-i18n"
 import BusinessPartnerMessages from "./BusinessPartner-i18n"
+import ServiceMessages from "./Service-i18n"
+import ServiceTransactionMessages from "./ServiceTransaction-i18n"
 import ContactMessages from "./Contact-i18n"
 import TaskTypeMessages from "./TaskType-i18n"
 import TaskStatusMessages from "./TaskStatus-i18n"
@@ -25,6 +27,8 @@ const messages = merge.all([
     GoalMessages,
     ProjectMessages,
     BusinessPartnerMessages,
+    ServiceMessages,
+    ServiceTransactionMessages,
     ContactMessages,
     TaskTypeMessages,
     TaskStatusMessages,

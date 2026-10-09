@@ -20,6 +20,8 @@ import {NotificationPermissions} from "../modules/base/permissions/NotificationP
 import {GoalPermissions} from "../modules/lifeops/permissions/GoalPermissions.js";
 import {ProjectPermissions} from "../modules/lifeops/permissions/ProjectPermissions.js";
 import {BusinessPartnerPermissions} from "../modules/lifeops/permissions/BusinessPartnerPermissions.js";
+import {ServicePermissions} from "../modules/lifeops/permissions/ServicePermissions.js";
+import {ServiceTransactionPermissions} from "../modules/lifeops/permissions/ServiceTransactionPermissions.js";
 import {ContactPermissions} from "../modules/lifeops/permissions/ContactPermissions.js";
 
 import {TaskTypePermissions} from "../modules/lifeops/permissions/TaskTypePermissions.js";
@@ -77,6 +79,8 @@ function InitializePermissions() {
         ...Object.values(GoalPermissions),
         ...Object.values(ProjectPermissions),
         ...Object.values(BusinessPartnerPermissions),
+        ...Object.values(ServicePermissions),
+        ...Object.values(ServiceTransactionPermissions),
         ...Object.values(ContactPermissions),
         ...Object.values(TaskTypePermissions),
         ...Object.values(TaskStatusPermissions),

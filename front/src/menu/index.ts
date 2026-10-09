@@ -146,6 +146,20 @@ const menu: MenuItem[] = [
         permission: 'businesspartner:manage'
       },
       {
+        icon: 'mdi-handshake-outline',
+        text: 'service.menu',
+        link: {name: 'ServiceCrudPage'},
+        gallery: true,
+        permission: 'service:manage'
+      },
+      {
+        icon: 'mdi-cash-check',
+        text: 'servicetransaction.menu',
+        link: {name: 'ServiceTransactionCrudPage'},
+        gallery: true,
+        permission: 'servicetransaction:manage'
+      },
+      {
         icon: 'mdi-card-account-details-outline',
         text: 'contact.menu',
         link: {name: "ContactCrudPage"},

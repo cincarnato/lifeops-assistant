@@ -2,6 +2,8 @@ import { ArchGenerator } from '@drax/arch';
 import GoalSchema from './schemas/lifeops/GoalSchema.js';
 import ProjectSchema from './schemas/lifeops/ProjectSchema.js';
 import BusinessPartnerSchema from './schemas/lifeops/BusinessPartnerSchema.js';
+import ServiceSchema from './schemas/lifeops/ServiceSchema.js';
+import ServiceTransactionSchema from './schemas/lifeops/ServiceTransactionSchema.js';
 import ContactSchema from './schemas/lifeops/ContactSchema.js';
 
 import TaskTypeSchema from './schemas/lifeops/TaskTypeSchema.js';
@@ -34,6 +36,8 @@ const schemas = [
     GoalSchema,
     ProjectSchema,
     BusinessPartnerSchema,
+    ServiceSchema,
+    ServiceTransactionSchema,
     ContactSchema,
     TaskTypeSchema,
     TaskStatusSchema,
