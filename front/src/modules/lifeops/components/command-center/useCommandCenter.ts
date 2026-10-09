@@ -1,7 +1,10 @@
 import {computed, onBeforeUnmount, reactive, ref, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import {useAuth} from '@drax/identity-vue'
-import {centerEntities, centerFilters, centerMetrics, valueAt} from './commandCenter'
+import {centerEntities, centerFilters, centerMetrics, currentPeriod, referenceId, valueAt} from './commandCenter'
+import AgentJobExecutionProvider from '../../providers/AgentJobExecutionProvider'
+import ServiceTransactionProvider from '../../providers/ServiceTransactionProvider'
+
 import type {CenterContext, CenterDestination, CenterItem, CenterTab} from './commandCenter'
 
 export function useCommandCenter() {
@@ -27,6 +30,7 @@ export function useCommandCenter() {
   }>)
   const activeEntity = computed(() => entities.find(entity => entity.key === activeTab.value)!)
   const state = computed(() => states[activeTab.value])
+  const canMetric = (metric: typeof centerMetrics[number]) => can(metric.tab, 'view') && (!metric.permission || hasPermission(metric.permission))
   const metrics = reactive(centerMetrics.map(metric => ({...metric, total: null as number | null, loading: false, error: false})))
   const memory = reactive({item: null as CenterItem | null, loading: false, error: false, index: -1})
   const attention = reactive({item: null as CenterItem | null, reason: '', loading: false, error: false})
@@ -38,6 +42,11 @@ export function useCommandCenter() {
 
   function provider(tab: CenterTab) {
     return entities.find(entity => entity.key === tab)!.crud.provider
+  }
+
+  async function generatedTasks() {
+    const rows = await provider('tasks').groupBy!({fields: ['taskSchedule']})
+    return rows.filter((row: Record<string, unknown>) => referenceId(row.taskSchedule)) as {taskSchedule: unknown; count: number}[]
   }
 
   async function load(tab = activeTab.value) {
@@ -53,6 +62,28 @@ export function useCommandCenter() {
       }
     }
     try {
+      if (tab === 'tasks' && current.preset === 'generated') {
+        const rows = await generatedTasks()
+        if (!rows.length) {
+          if (!disposed && request === current.request) {
+            current.items = []; current.total = 0; current.loaded = true
+          }
+          return
+        }
+        filters.push({field: 'taskSchedule', operator: 'in', value: rows.map(row => referenceId(row.taskSchedule)!)})
+      }
+      if (tab === 'serviceTransactions' && ['income_month', 'expense_month'].includes(current.preset)) {
+        const summary = await ServiceTransactionProvider.instance.monthly(currentPeriod())
+        const type = current.preset === 'income_month' ? 'INCOME' : 'EXPENSE'
+        const ids = [...new Set(summary.transactions.filter(item => item.status === 'PAID' && item.service.type === type).map(item => item.service._id))]
+        if (!ids.length) {
+          if (!disposed && request === current.request) {
+            current.items = []; current.total = 0; current.loaded = true
+          }
+          return
+        }
+        filters.push({field: 'service', operator: 'in', value: ids})
+      }
       const result = await provider(tab).paginate({page: current.page, limit: 10, search: current.search, orderBy: current.sortKey, order: current.sortOrder, filters})
       if (disposed || request !== current.request) return
       if (current.page > 1 && result.total <= (current.page - 1) * 10) {
@@ -70,12 +101,37 @@ export function useCommandCenter() {
   }
 
   async function loadMetrics() {
-    await Promise.allSettled(metrics.filter(metric => can(metric.tab, 'view')).map(async metric => {
+    let monthly: ReturnType<typeof ServiceTransactionProvider.instance.monthly> | undefined
+    await Promise.allSettled(metrics.filter(canMetric).map(async metric => {
       metric.loading = true
       metric.error = false
       try {
-        const result = await provider(metric.tab).paginate({page: 1, limit: 1, filters: centerFilters(metric.tab, metric.preset)})
-        metric.total = result.total
+        if (metric.tab === 'serviceTransactions' && ['paid_month', 'income_month', 'expense_month'].includes(metric.preset)) {
+          monthly ??= ServiceTransactionProvider.instance.monthly(currentPeriod())
+          const summary = await monthly
+          metric.total = metric.preset === 'paid_month' ? summary.transactions.filter(item => item.status === 'PAID').length
+            : metric.preset === 'income_month' ? summary.collectedIncome : summary.paidExpenses
+        } else if (metric.preset === 'executed') {
+          let total = 0
+          // Keep owner-scoped job IDs in every history request and bound URL size.
+          for (let page = 1; ; page++) {
+            const jobs = await provider('jobs').paginate({page, limit: 50, orderBy: '_id', order: 'asc'})
+            if (!jobs.items.length) break
+            const result = await AgentJobExecutionProvider.instance.paginate({page: 1, limit: 1, filters: [
+              {field: 'jobId', operator: 'in', value: jobs.items.map(job => job._id)},
+              {field: 'status', operator: 'in', value: ['success', 'failed', 'timeout']},
+            ]})
+            total += result.total
+            if (page * 50 >= jobs.total) break
+          }
+          metric.total = total
+        } else if (metric.preset === 'generated') {
+          const rows = await generatedTasks()
+          metric.total = rows.reduce((total, row) => total + Number(row.count), 0)
+        } else {
+          const result = await provider(metric.tab).paginate({page: 1, limit: 1, filters: centerFilters(metric.tab, metric.preset)})
+          metric.total = result.total
+        }
       } catch {
         metric.total = null
         metric.error = true
@@ -163,6 +219,7 @@ export function useCommandCenter() {
   }
 
   function navigate(destination: CenterDestination) {
+    if (destination.tab === 'schedules' && destination.preset === 'generated') destination = {tab: 'tasks', preset: 'generated'}
     if (!can(destination.tab, 'view')) return
     const current = states[destination.tab]
     current.preset = destination.preset ?? ''
@@ -223,5 +280,5 @@ export function useCommandCenter() {
   })
 
   return {entities, visibleEntities, activeTab, activeEntity, state, metrics, memory, attention, automation,
-    can, load, loadMetrics, anotherMemory, loadAttention, loadAutomation, refresh, refreshedAt, refreshing, changed, navigate, selectTab}
+    can, canMetric, load, loadMetrics, anotherMemory, loadAttention, loadAutomation, refresh, refreshedAt, refreshing, changed, navigate, selectTab}
 }

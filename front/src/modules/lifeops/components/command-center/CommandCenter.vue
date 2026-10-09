@@ -94,7 +94,7 @@ onMounted(async () => {
       <span v-if="refreshedAt" class="text-caption text-medium-emphasis">{{ t('commandCenter.updatedAt', {time: refreshedAt.toLocaleTimeString(locale, {hour: '2-digit', minute: '2-digit'})}) }}</span>
       <v-btn variant="text" prepend-icon="mdi-refresh" size="small" :loading="refreshing" @click="center.refresh">{{ t('commandCenter.refresh') }}</v-btn>
     </div>
-    <command-center-metrics :metrics="metrics.filter(metric => can(metric.tab, 'view'))" @navigate="navigate" @retry="center.loadMetrics" />
+    <command-center-metrics :metrics="metrics.filter(center.canMetric)" @navigate="navigate" @retry="center.loadMetrics" />
     <command-center-actions :entities="center.entities.filter(entity => can(entity.key, 'create'))" @create="open($event, 'create')" />
     <command-center-attention :memory="memory" :attention="attention" :automation="automation" :visible="visibleTabs" @open="(tab, item) => open(tab, 'view', item)" @another="center.anotherMemory" @retry-task="center.loadAttention" @retry-automation="center.loadAutomation" />
     <v-progress-linear v-if="opening" indeterminate color="primary" class="mb-2" />

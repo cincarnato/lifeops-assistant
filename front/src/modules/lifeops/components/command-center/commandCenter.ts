@@ -69,12 +69,31 @@ export function dayBounds(now = new Date()) {
   return {start: start.toISOString(), end: new Date(start.getTime() + 86400000).toISOString()}
 }
 
+export function currentPeriod(now = new Date()) {
+  return dayBounds(now).start.slice(0, 7)
+}
+
+export function monthBounds(now = new Date()) {
+  const [year, month] = currentPeriod(now).split('-').map(Number)
+  const start = new Date(`${currentPeriod(now)}-01T00:00:00-03:00`)
+  const end = new Date(Date.UTC(year!, month!, 1, 3))
+  return {start: start.toISOString(), end: end.toISOString()}
+}
+
 export function centerFilters(tab: CenterTab, preset = '', context?: CenterContext): IDraxFieldFilter[] {
   const filters: IDraxFieldFilter[] = []
   if (context) filters.push({field: context.field, operator: 'eq', value: context.id})
   if (tab === 'tasks' && preset) {
-    filters.push({field: 'completedAt', operator: 'empty', value: ''}, {field: 'archivedAt', operator: 'empty', value: ''})
+    const completed = ['completed_today', 'completed_month'].includes(preset)
+    if (!completed && preset !== 'generated') filters.push({field: 'completedAt', operator: 'empty', value: ''}, {field: 'archivedAt', operator: 'empty', value: ''})
     const {start, end} = dayBounds()
+    if (completed) {
+      const bounds = preset === 'completed_today' ? {start, end} : monthBounds()
+      filters.push({field: 'completedAt', operator: 'gte', value: bounds.start}, {field: 'completedAt', operator: 'lt', value: bounds.end})
+    }
+    if (preset === 'pending') filters.push({field: 'status', operator: 'eq', value: 'Pendiente'})
+    if (preset === 'in_progress') filters.push({field: 'status', operator: 'eq', value: 'En progreso'})
+    if (preset === 'due_soon') filters.push({field: 'dueDate', operator: 'gte', value: start}, {field: 'dueDate', operator: 'lt', value: new Date(new Date(start).getTime() + 7 * 86400000).toISOString()})
     if (preset === 'overdue') filters.push({field: 'dueDate', operator: 'lt', value: start})
     if (preset === 'urgent') filters.push({field: 'urgent', operator: 'eq', value: true})
     if (preset === 'unassigned') filters.push({field: 'project', operator: 'empty', value: ''})
@@ -89,7 +108,9 @@ export function centerFilters(tab: CenterTab, preset = '', context?: CenterConte
     }
   }
   if (tab === 'serviceTransactions' && ['pending', 'paid'].includes(preset)) filters.push({field: 'status', operator: 'eq', value: preset.toUpperCase()})
-  if (tab === 'services' && preset === 'inactive') filters.push({field: 'active', operator: 'eq', value: false})
+  if (tab === 'serviceTransactions' && ['paid_month', 'income_month', 'expense_month'].includes(preset)) filters.push({field: 'status', operator: 'eq', value: 'PAID'}, {field: 'period', operator: 'eq', value: currentPeriod()})
+    if (tab === 'jobs' && preset === 'executed') filters.push({field: 'runtime.lastStatus', operator: 'in', value: ['success', 'failed', 'timeout']}, {field: 'runtime.lastRunAt', operator: 'gte', value: '1970-01-01T00:00:00.001Z'})
+    if (tab === 'services' && preset === 'inactive') filters.push({field: 'active', operator: 'eq', value: false})
   if (preset === 'active') filters.push({field: 'active', operator: 'eq', value: true})
   if (preset === 'failed') filters.push({field: 'runtime.lastStatus', operator: 'in', value: ['failed', 'timeout']})
   return filters
@@ -103,12 +124,25 @@ export function centerWorkspaceTabs(entities: CenterEntity[]) {
   ]
 }
 
-export const centerMetrics: {tab: CenterTab; preset: string; icon: string; color: string}[] = [
+export const centerMetrics: {tab: CenterTab; preset: string; icon: string; color: string; aggregate?: 'amount' | 'runs'; permission?: string}[] = [
+  {tab: 'tasks', preset: 'pending', icon: 'mdi-format-list-checks', color: 'primary'},
+  {tab: 'tasks', preset: 'in_progress', icon: 'mdi-progress-clock', color: 'info'},
+  {tab: 'tasks', preset: 'completed_today', icon: 'mdi-check-circle-outline', color: 'success'},
+  {tab: 'tasks', preset: 'due_soon', icon: 'mdi-calendar-clock', color: 'warning'},
   {tab: 'tasks', preset: 'overdue', icon: 'mdi-calendar-alert', color: 'error'},
-  {tab: 'tasks', preset: 'today', icon: 'mdi-calendar-today', color: 'primary'},
-  {tab: 'tasks', preset: 'urgent', icon: 'mdi-lightning-bolt-outline', color: 'warning'},
-  {tab: 'schedules', preset: 'active', icon: 'mdi-calendar-sync-outline', color: 'info'},
+  {tab: 'tasks', preset: 'completed_month', icon: 'mdi-calendar-check', color: 'success'},
+  {tab: 'serviceTransactions', preset: 'pending', icon: 'mdi-cash-clock', color: 'warning'},
+  {tab: 'serviceTransactions', preset: 'paid_month', icon: 'mdi-cash-check', color: 'success'},
+  {tab: 'serviceTransactions', preset: 'income_month', icon: 'mdi-cash-plus', color: 'success', aggregate: 'amount'},
+  {tab: 'serviceTransactions', preset: 'expense_month', icon: 'mdi-cash-minus', color: 'error', aggregate: 'amount'},
   {tab: 'jobs', preset: 'active', icon: 'mdi-robot-outline', color: 'primary'},
   {tab: 'jobs', preset: 'failed', icon: 'mdi-alert-circle-outline', color: 'error'},
-  {tab: 'serviceTransactions', preset: 'pending', icon: 'mdi-cash-clock', color: 'warning'},
+  {tab: 'jobs', preset: 'executed', icon: 'mdi-robot-happy-outline', color: 'success', aggregate: 'runs', permission: 'agentjobexecution:view'},
+  {tab: 'schedules', preset: 'active', icon: 'mdi-calendar-sync-outline', color: 'info'},
+  {tab: 'schedules', preset: 'generated', icon: 'mdi-calendar-multiple-check', color: 'success', permission: 'task:view'},
+  {tab: 'goals', preset: 'total', icon: 'mdi-bullseye-arrow', color: 'primary'},
+  {tab: 'businessPartners', preset: 'total', icon: 'mdi-domain', color: 'info'},
+  {tab: 'services', preset: 'total', icon: 'mdi-handshake-outline', color: 'success'},
+  {tab: 'projects', preset: 'total', icon: 'mdi-briefcase-outline', color: 'primary'},
+  {tab: 'memories', preset: 'total', icon: 'mdi-brain', color: 'info'},
 ]

@@ -21,6 +21,10 @@ class ServiceTransactionProvider extends AbstractCrudRestProvider<IServiceTransa
     return super.update(id, {service, period, amount, status})
   }
 
+  async monthly(period: string): Promise<{collectedIncome: number; paidExpenses: number; transactions: IServiceTransaction[]}> {
+    return await this.httpClient.get(`${this.basePath}/monthly/${period}`) as {collectedIncome: number; paidExpenses: number; transactions: IServiceTransaction[]}
+  }
+
   static get instance() {
     if(!ServiceTransactionProvider.singleton){
       ServiceTransactionProvider.singleton = new ServiceTransactionProvider()
