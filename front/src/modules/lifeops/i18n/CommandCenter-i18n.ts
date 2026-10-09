@@ -13,6 +13,7 @@ const messages = {
       attention: 'Requiere atención', attentionCards: 'Atención y contexto', noAttention: 'No hay tareas vencidas ni urgentes pendientes.',
       nextAutomation: 'Próxima automatización', noAutomation: 'No hay próximas corridas con fecha disponible.',
       mainContact: 'Contacto principal', lastTask: 'Última tarea',
+      sortBy: 'Ordenar por', sortAscending: 'Orden ascendente', sortDescending: 'Orden descendente',
       executionsPending: 'Esta vista muestra la configuración y el último estado del job. Las ejecuciones quedan pendientes de un contrato con aislamiento por propietario.',
       tabs: {tasks: 'Tareas', schedules: 'Programadas', jobs: 'Jobs IA', projects: 'Proyectos', goals: 'Objetivos', contacts: 'Contactos', businessPartners: 'Socios comerciales', memories: 'Memorias', services: 'Servicios', serviceTransactions: 'Transacciones'},
       presets: {today: 'Hoy', overdue: 'Vencidas', urgent: 'Urgentes', unassigned: 'Sin proyecto', active: 'Activas', failed: 'Con error', services_active: 'Activos', services_inactive: 'Inactivos', pending: 'Pendientes', paid: 'Pagadas'},
@@ -25,7 +26,7 @@ const messages = {
         serviceTransactions_pending: 'Todas las transacciones pendientes de pago, de todos los períodos, incluidos servicios inactivos.',
       },
       fields: {
-        title: 'Título', name: 'Nombre', content: 'Contenido', type: 'Tipo', lifeArea: 'Área', tags: 'Etiquetas',
+        title: 'Título', name: 'Nombre', content: 'Contenido', type: 'Tipo', lifeArea: 'Área', tags: 'Etiquetas', source: 'Fuente', createdAt: 'Creada',
         status: 'Estado', priority: 'Prioridad', project: 'Proyecto', businessPartner: 'Socio comercial', dueDate: 'Vencimiento', scheduledDate: 'Programación',
         targetDate: 'Fecha objetivo', progressPercent: 'Avance declarado', timeHorizon: 'Horizonte', displayName: 'Nombre',
         emails: 'Emails', phones: 'Teléfonos', organization: 'Organización', roles: 'Roles', mainContact: 'Contacto principal',
@@ -49,6 +50,7 @@ const messages = {
       attention: 'Needs attention', attentionCards: 'Attention and context', noAttention: 'No pending overdue or urgent tasks.',
       nextAutomation: 'Next automation', noAutomation: 'No upcoming runs with an available date.',
       mainContact: 'Main contact', lastTask: 'Last task',
+      sortBy: 'Sort by', sortAscending: 'Ascending order', sortDescending: 'Descending order',
       executionsPending: 'This view shows job configuration and its last status. Execution history requires a contract that isolates records by job owner.',
       tabs: {tasks: 'Tasks', schedules: 'Scheduled', jobs: 'AI jobs', projects: 'Projects', goals: 'Goals', contacts: 'Contacts', businessPartners: 'Business Partners', memories: 'Memories', services: 'Services', serviceTransactions: 'Transactions'},
       presets: {today: 'Today', overdue: 'Overdue', urgent: 'Urgent', unassigned: 'No project', active: 'Active', failed: 'Failed', services_active: 'Active', services_inactive: 'Inactive', pending: 'Pending', paid: 'Paid'},
@@ -61,7 +63,7 @@ const messages = {
         serviceTransactions_pending: 'All pending transactions across all periods, including inactive services.',
       },
       fields: {
-        title: 'Title', name: 'Name', content: 'Content', type: 'Type', lifeArea: 'Area', tags: 'Tags',
+        title: 'Title', name: 'Name', content: 'Content', type: 'Type', lifeArea: 'Area', tags: 'Tags', source: 'Source', createdAt: 'Created',
         status: 'Status', priority: 'Priority', project: 'Project', businessPartner: 'Business Partner', dueDate: 'Due date', scheduledDate: 'Scheduled date',
         targetDate: 'Target date', progressPercent: 'Declared progress', timeHorizon: 'Horizon', displayName: 'Name',
         emails: 'Emails', phones: 'Phones', organization: 'Organization', roles: 'Roles', mainContact: 'Main contact',

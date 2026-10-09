@@ -167,6 +167,29 @@ for (const language of ['en', 'es']) {
   assert.ok(translations[language].commandCenter.metrics.serviceTransactions_pending)
   assert.ok(translations[language].commandCenter.metricHints.serviceTransactions_pending)
 }
+for (const filename of ['CommandCenterWorkspace.vue', 'CommandCenterMemoryCard.vue']) {
+  const {descriptor} = parse(read(`components/command-center/${filename}`))
+  assert.equal(compileTemplate({source: descriptor.template.content, filename, id: 'memory-test'}).errors.length, 0)
+}
+const memoryWorkspaceTemplate = parse(read('components/command-center/CommandCenterWorkspace.vue')).descriptor.template.content
+assert.ok(memoryWorkspaceTemplate.includes('<div v-if="entity.key === \'memories\'"'))
+assert.ok(memoryWorkspaceTemplate.includes('<v-data-table-server v-else-if="!smAndDown"'))
+assert.ok(memoryWorkspaceTemplate.includes('<command-center-memory-card'))
+function memoryCard(item, colors = {}) {
+  const {descriptor} = parse(read('components/command-center/CommandCenterMemoryCard.vue'))
+  return evaluate(`${descriptor.scriptSetup.content}\nexport const result = {accent: accent.value, accentColor: accentColor.value, tags: tags.value}`, {
+    vue, 'vue-i18n': {useI18n: () => ({t: key => key})}, './commandCenter': center,
+    './CommandCenterCell.vue': {default: {}},
+  }, {defineProps: () => ({item, colors}), defineEmits: () => () => {}}).result
+}
+equal(memoryCard({_id: 'm1', priority: 'High', tags: ['work', '', '  ', null, 'ideas']}, {priority: {High: '#ff9800'}}), {
+  accent: '#ff9800', accentColor: '#ff9800', tags: ['work', 'ideas'],
+})
+equal(memoryCard({_id: 'm2'}), {accent: 'primary', accentColor: 'rgb(var(--v-theme-primary))', tags: []})
+for (const language of ['en', 'es']) {
+  for (const key of ['sortBy', 'sortAscending', 'sortDescending']) assert.ok(translations[language].commandCenter[key])
+  for (const key of ['source', 'createdAt']) assert.ok(translations[language].commandCenter.fields[key])
+}
 const serviceTranslations = evaluate(read('i18n/Service-i18n.ts'), {}).default
 const transactionTranslations = evaluate(read('i18n/ServiceTransaction-i18n.ts'), {}).default
 function display(tab, field, value) {
