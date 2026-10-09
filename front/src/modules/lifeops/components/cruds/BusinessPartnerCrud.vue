@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import BusinessPartnerCrud from '../../cruds/BusinessPartnerCrud'
 import {Crud} from "@drax/crud-vue";
-import {formatDate} from "@drax/common-front"
+
 import PriorityCombobox from '../../comboboxes/PriorityCombobox.vue'
 
 import {useI18n} from "vue-i18n";
@@ -92,15 +92,38 @@ const taxConditions = [
 
 
 
-    <template v-slot:item.roles="{value}">
-      <v-chip v-for="role in value" :key="role">{{t(`businesspartner.role.${role}`)}}</v-chip>
+    <template #item.name="{value}">
+      <div class="d-flex align-center ga-2 py-2">
+        <v-icon icon="mdi-domain" color="primary" size="20" />
+        <span class="font-weight-medium">{{ value || '—' }}</span>
+      </div>
     </template>
-    <template v-slot:item.priority="{value}">{{value}}</template>
-    <template v-slot:item.mainContact="{value}">{{value?.displayName}}</template>
-    <template v-slot:item.redmineProjectIds="{value}"><v-chip v-for="v in value">{{v}}</v-chip></template>
-    <template v-slot:item.tags="{value}"><v-chip v-for="v in value">{{v}}</v-chip></template>
-    <template v-slot:item.user="{value}">{{value?.username}}</template>
-    <template v-slot:item.archivedAt="{value}">{{formatDate(value)}}</template>
+    <template #item.roles="{value}">
+      <div v-if="value?.length" class="d-flex flex-wrap ga-1 py-2">
+        <v-chip
+          v-for="role in value"
+          :key="role"
+          :color="role === 'client' ? 'success' : 'info'"
+          :prepend-icon="role === 'client' ? 'mdi-account-tie-outline' : 'mdi-truck-outline'"
+          size="small"
+          variant="tonal"
+        >{{ t(`businesspartner.role.${role}`) }}</v-chip>
+      </div>
+      <span v-else class="text-medium-emphasis">—</span>
+    </template>
+    <template #item.priority="{value}">
+      <v-chip v-if="value" color="primary" size="small" variant="tonal" prepend-icon="mdi-flag-outline">{{ value }}</v-chip>
+      <span v-else class="text-medium-emphasis">—</span>
+    </template>
+    <template #item.mainContact="{value}">
+      <div v-if="value?.displayName" class="d-flex align-center ga-2">
+        <v-avatar color="secondary" variant="tonal" size="28">
+          <v-icon icon="mdi-account-outline" size="18" />
+        </v-avatar>
+        <span>{{ value.displayName }}</span>
+      </div>
+      <span v-else class="text-medium-emphasis">—</span>
+    </template>
   </crud>
 </template>
 

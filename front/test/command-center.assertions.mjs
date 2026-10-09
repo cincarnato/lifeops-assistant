@@ -63,6 +63,42 @@ equal(center.centerFilters('serviceTransactions', 'pending', {field: 'service', 
   {field: 'service', operator: 'eq', value: 's1'}, {field: 'status', operator: 'eq', value: 'PENDING'},
 ])
 const entities = center.centerEntities()
+equal(entities.find(entity => entity.key === 'projects').columns, ['name', 'priority', 'businessPartner', 'tags'])
+
+const removedProjectFields = ['goals', 'priorityScore', 'startDate', 'targetDate', 'completedAt', 'progressPercent']
+for (const name of ['Project', 'BusinessPartner']) {
+  const imports = {
+    '@drax/crud-vue': {EntityCrud},
+    '@drax/identity-vue': {UserCrud: {instance: {}}},
+    [`../providers/${name}Provider`]: {default: {instance: {}}},
+    './BusinessPartnerCrud': {default: {instance: {}}},
+    './ContactCrud': {default: {instance: {}}},
+  }
+  const crud = evaluate(read(`cruds/${name}Crud.ts`), imports).default.instance
+  const removed = name === 'Project' ? removedProjectFields : ['redmineProjectIds']
+  for (const key of removed) {
+    assert.ok(!crud.fields.some(field => field.name === key))
+    assert.ok(!crud.headers.some(header => header.key === key))
+  }
+  for (const field of crud.fields) {
+    assert.equal(field.cols, 12)
+    assert.ok(field.md >= 1 && field.md <= 12)
+    assert.ok(field.lg >= 1 && field.lg <= 12)
+  }
+  if (name === 'Project') {
+    assert.equal(crud.fields.find(field => field.name === 'redmineProjectId').type, 'string')
+    assert.ok(!('Goal' in crud.refs))
+  }
+  const {descriptor} = parse(read(`components/cruds/${name}Crud.vue`))
+  assert.equal(compileTemplate({source: descriptor.template.content, filename: `${name}Crud.vue`, id: 'test'}).errors.length, 0)
+  for (const header of crud.headers) assert.ok(descriptor.template.content.includes(`#item.${header.key}=`))
+  const messages = evaluate(read(`i18n/${name}-i18n.ts`), {}).default
+  for (const locale of ['en', 'es']) {
+    const labels = messages[locale][name.toLowerCase()].field
+    for (const field of crud.fields) assert.ok(labels[field.name], `Missing ${locale} label: ${name}.${field.name}`)
+    for (const key of removed) assert.ok(!(key in labels))
+  }
+}
 const serviceEntities = entities.filter(entity => ['services', 'serviceTransactions'].includes(entity.key))
 equal(center.centerWorkspaceTabs(serviceEntities).map(({key, tab}) => ({key, tab})), [{key: 'services', tab: 'services'}])
 equal(center.centerWorkspaceTabs([serviceEntities[1]]).map(({key, tab}) => ({key, tab})), [{key: 'services', tab: 'serviceTransactions'}])

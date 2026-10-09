@@ -3,16 +3,11 @@ interface IProjectBase {
     name: string
     description?: string
     priority?: string
-    goals?: Array<any>
+    redmineProjectId?: string
     businessPartner?: any
     valueScore?: number
     motivationScore?: number
     effortScore?: number
-    priorityScore?: number
-    startDate?: Date
-    targetDate?: Date
-    completedAt?: Date
-    progressPercent?: number
     aliases?: Array<string>
     tags?: Array<string>
     user: any
@@ -26,16 +21,11 @@ interface IProject {
     name: string
     description?: string
     priority?: string
-    goals?: Array<any>
+    redmineProjectId?: string
     businessPartner?: any
     valueScore?: number
     motivationScore?: number
     effortScore?: number
-    priorityScore?: number
-    startDate?: Date
-    targetDate?: Date
-    completedAt?: Date
-    progressPercent?: number
     aliases?: Array<string>
     tags?: Array<string>
     user: any
@@ -45,6 +35,6 @@ interface IProject {
 }
 
 export type {
-IProjectBase, 
+IProjectBase,
 IProject
 }

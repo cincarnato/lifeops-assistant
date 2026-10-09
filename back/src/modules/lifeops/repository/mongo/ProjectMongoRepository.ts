@@ -25,7 +25,7 @@ class ProjectMongoRepository extends AbstractMongoRepository<IProject, IProjectB
         super();
         this._model = ProjectModel;
         this._searchFields = ['name', 'aliases', 'description'];
-        this._populateFields = ['goals', 'businessPartner', 'user'];
+        this._populateFields = ['businessPartner', 'user'];
         this._lean = true
     }
 

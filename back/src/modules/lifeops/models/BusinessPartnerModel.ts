@@ -19,7 +19,6 @@ const BusinessPartnerSchema = new mongoose.Schema<IBusinessPartner>({
             website: {type: String,   required: false, index: false, unique: false },
             aliases: [{type: String,   required: false, index: true, unique: false }],
             mainContact: {type: mongoose.Schema.Types.ObjectId, ref: 'Contact',  required: false, index: true, unique: false },
-            redmineProjectIds: [{type: String,   required: false, index: true, unique: false }],
             tags: [{type: String,   required: false, index: true, unique: false }],
             notes: {type: String,   required: false, index: false, unique: false },
             user: {type: mongoose.Schema.Types.ObjectId, ref: 'User',  required: true, index: true, unique: false },

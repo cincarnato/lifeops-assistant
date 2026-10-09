@@ -13,7 +13,7 @@ import type {
 import ProjectProvider from "../providers/ProjectProvider";
 
 //Import EntityCrud Refs
-import GoalCrud from "./GoalCrud";
+
 import BusinessPartnerCrud from "./BusinessPartnerCrud";
 import {UserCrud} from "@drax/identity-vue"
 
@@ -49,9 +49,8 @@ class ProjectCrud extends EntityCrud implements IEntityCrud {
       {title: 'aliases', key: 'aliases', align: 'start'},
       {title: 'priority', key: 'priority', align: 'start'},
       {title: 'businessPartner', key: 'businessPartner', align: 'start'},
-      {title: 'priorityScore', key: 'priorityScore', align: 'start'},
-      {title: 'targetDate', key: 'targetDate', align: 'start'},
-      {title: 'progressPercent', key: 'progressPercent', align: 'start'},
+      {title: 'redmineProjectId', key: 'redmineProjectId', align: 'start'},
+      {title: 'tags', key: 'tags', align: 'start'},
       // {title: 'user', key: 'user', align: 'start'}
     ]
   }
@@ -79,7 +78,7 @@ class ProjectCrud extends EntityCrud implements IEntityCrud {
 
   get refs(): IEntityCrudRefs {
     return {
-      Goal: GoalCrud.instance,
+
       BusinessPartner: BusinessPartnerCrud.instance,
       User: UserCrud.instance
     }
@@ -93,27 +92,17 @@ class ProjectCrud extends EntityCrud implements IEntityCrud {
 
   get fields(): IEntityCrudField[] {
     return [
-      {name: 'name', type: 'string', label: 'name', default: '', md: 6},
-      {name: 'aliases', type: 'array.string', label: 'aliases', default: [], md: 6},
-      {name: 'description', type: 'longString', label: 'description', default: ''},
-      {
-        name: 'priority',
-        type: 'string',
-        label: 'priority',
-        default: '', md: 6
-      },
-      {name: 'businessPartner', type: 'ref', label: 'businessPartner', default: null, ref: 'BusinessPartner', refDisplay: 'name', md: 6},
-      {name: 'goals', type: 'array.ref', label: 'goals', default: [], ref: 'Goal', refDisplay: 'name'},
-      {name: 'valueScore', type: 'number', label: 'valueScore', default: 5, md: 3},
-      {name: 'motivationScore', type: 'number', label: 'motivationScore', default: 5, md: 3},
-      {name: 'effortScore', type: 'number', label: 'effortScore', default: 5, md: 3},
-      {name: 'priorityScore', type: 'number', label: 'priorityScore', default: null, md: 3},
-      {name: 'progressPercent', type: 'number', label: 'progressPercent', default: 0},
-      {name: 'tags', type: 'array.string', label: 'tags', default: []},
-      {name: 'startDate', type: 'date', label: 'startDate', default: null, md: 6},
-      {name: 'targetDate', type: 'date', label: 'targetDate', default: null, md: 6},
-      {name: 'completedAt', type: 'date', label: 'completedAt', default: null, md: 6},
-      {name: 'archivedAt', type: 'date', label: 'archivedAt', default: null, md: 6}
+      {name: 'name', type: 'string', label: 'name', default: '', cols: 12, md: 8, lg: 8},
+      {name: 'priority', type: 'string', label: 'priority', default: '', cols: 12, md: 4, lg: 4},
+      {name: 'businessPartner', type: 'ref', label: 'businessPartner', default: null, ref: 'BusinessPartner', refDisplay: 'name', cols: 12, md: 6, lg: 6},
+      {name: 'redmineProjectId', type: 'string', label: 'redmineProjectId', default: '', cols: 12, md: 6, lg: 6},
+      {name: 'description', type: 'longString', label: 'description', default: '', rows: 3, cols: 12, md: 12, lg: 12},
+      {name: 'valueScore', type: 'number', label: 'valueScore', default: 5, cols: 12, md: 4, lg: 4},
+      {name: 'motivationScore', type: 'number', label: 'motivationScore', default: 5, cols: 12, md: 4, lg: 4},
+      {name: 'effortScore', type: 'number', label: 'effortScore', default: 5, cols: 12, md: 4, lg: 4},
+      {name: 'aliases', type: 'array.string', label: 'aliases', default: [], cols: 12, md: 6, lg: 6},
+      {name: 'tags', type: 'array.string', label: 'tags', default: [], cols: 12, md: 6, lg: 6},
+      {name: 'archivedAt', type: 'date', label: 'archivedAt', default: null, cols: 12, md: 6, lg: 6}
       // {name: 'user', type: 'ref', label: 'user', default: null, ref: 'User', refDisplay: 'username'},
     ]
   }

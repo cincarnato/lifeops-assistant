@@ -11,7 +11,7 @@ class BusinessPartnerSqliteRepository extends AbstractSqliteRepository<IBusiness
     protected dataBaseFile: string;
     protected searchFields: string[] = ['name', 'aliases', 'legalName', 'taxCondition', 'taxIdType', 'taxIdNumber', 'taxAddress', 'taxEmail', 'description', 'website'];
     protected booleanFields: string[] = [];
-    protected jsonFields: string[] = ['roles', 'aliases', 'redmineProjectIds', 'tags'];
+    protected jsonFields: string[] = ['roles', 'aliases', 'tags'];
     protected identifier: string = '_id';
     protected populateFields = [
         { field: 'mainContact', table: 'mainContact', identifier: '_id' },
@@ -32,7 +32,6 @@ class BusinessPartnerSqliteRepository extends AbstractSqliteRepository<IBusiness
 {name: "website", type: "TEXT", unique: undefined, primary: false},
 {name: "aliases", type: "TEXT", unique: undefined, primary: false},
 {name: "mainContact", type: "TEXT", unique: undefined, primary: false},
-{name: "redmineProjectIds", type: "TEXT", unique: undefined, primary: false},
 {name: "tags", type: "TEXT", unique: undefined, primary: false},
 {name: "notes", type: "TEXT", unique: undefined, primary: false},
 {name: "user", type: "TEXT", unique: undefined, primary: false},

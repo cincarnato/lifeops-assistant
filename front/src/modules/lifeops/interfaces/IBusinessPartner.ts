@@ -13,7 +13,6 @@ interface IBusinessPartnerBase {
     website?: string
     aliases?: Array<string>
     mainContact?: any
-    redmineProjectIds?: Array<string>
     tags?: Array<string>
     notes?: string
     user: any
@@ -37,7 +36,7 @@ interface IBusinessPartner {
     website?: string
     aliases?: Array<string>
     mainContact?: any
-    redmineProjectIds?: Array<string>
+
     tags?: Array<string>
     notes?: string
     user: any

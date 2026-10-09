@@ -15,7 +15,6 @@ const BusinessPartnerBaseSchema = z.object({
     website: z.string().optional().default(""),
     aliases: z.array(z.string()).optional().default([]),
     mainContact: z.coerce.string().optional().nullable(),
-    redmineProjectIds: z.array(z.string()).optional().default([]),
     tags: z.array(z.string()).optional().default([]),
     notes: z.string().optional().default(""),
     user: z.coerce.string().min(1, 'validation.required'),

@@ -88,45 +88,22 @@ class BusinessPartnerCrud extends EntityCrud implements IEntityCrud {
 
   get fields(): IEntityCrudField[] {
     return [
-      {name: 'name', type: 'string', label: 'name', default: '', groupTab: 'BASIC'},
-      {name: 'description', type: 'longString', label: 'description', default: '', groupTab: 'BASIC'},
-      {name: 'aliases', type: 'array.string', label: 'aliases', default: [], groupTab: 'BASIC'},
-      {
-        name: 'roles',
-        type: 'array.enum',
-        label: 'roles',
-        default: [],
-        enum: ['client', 'provider'],
-        groupTab: 'BASIC'
-      },
-      {
-        name: 'priority',
-        type: 'string',
-        label: 'priority',
-        default: '',
-        groupTab: 'BASIC'
-      },
-      {name: 'website', type: 'string', label: 'website', default: '', groupTab: 'BASIC'},
-      {name: 'legalName', type: 'string', label: 'legalName', default: '', groupTab: 'FACTURACION'},
-      {name: 'taxCondition', type: 'string', label: 'taxCondition', default: '', groupTab: 'FACTURACION'},
-      {name: 'taxIdType', type: 'string', label: 'taxIdType', default: '', groupTab: 'FACTURACION'},
-      {name: 'taxIdNumber', type: 'string', label: 'taxIdNumber', default: '', groupTab: 'FACTURACION'},
-      {name: 'taxAddress', type: 'longString', label: 'taxAddress', default: '', groupTab: 'FACTURACION'},
-      {name: 'taxEmail', type: 'string', label: 'taxEmail', default: '', groupTab: 'FACTURACION'},
-
-      {
-        name: 'mainContact',
-        type: 'ref',
-        label: 'mainContact',
-        default: null,
-        ref: 'Contact',
-        refDisplay: 'displayName',
-        groupTab: 'BASIC'
-      },
-      {name: 'redmineProjectIds', type: 'array.string', label: 'redmineProjectIds', default: [], groupTab: 'BASIC'},
-      {name: 'tags', type: 'array.string', label: 'tags', default: [], groupTab: 'BASIC'},
-      {name: 'notes', type: 'longString', label: 'notes', default: '', groupTab: 'BASIC'},
-      {name: 'archivedAt', type: 'date', label: 'archivedAt', default: null, groupTab: 'BASIC'}
+      {name: 'name', type: 'string', label: 'name', default: '', groupTab: 'BASIC', cols: 12, md: 8, lg: 8},
+      {name: 'priority', type: 'string', label: 'priority', default: '', groupTab: 'BASIC', cols: 12, md: 4, lg: 4},
+      {name: 'roles', type: 'array.enum', label: 'roles', default: [], enum: ['client', 'provider'], groupTab: 'BASIC', cols: 12, md: 6, lg: 6},
+      {name: 'mainContact', type: 'ref', label: 'mainContact', default: null, ref: 'Contact', refDisplay: 'displayName', groupTab: 'BASIC', cols: 12, md: 6, lg: 6},
+      {name: 'website', type: 'string', label: 'website', default: '', groupTab: 'BASIC', cols: 12, md: 6, lg: 6},
+      {name: 'aliases', type: 'array.string', label: 'aliases', default: [], groupTab: 'BASIC', cols: 12, md: 6, lg: 6},
+      {name: 'description', type: 'longString', label: 'description', default: '', rows: 3, groupTab: 'BASIC', cols: 12, md: 6, lg: 6},
+      {name: 'notes', type: 'longString', label: 'notes', default: '', rows: 3, groupTab: 'BASIC', cols: 12, md: 6, lg: 6},
+      {name: 'tags', type: 'array.string', label: 'tags', default: [], groupTab: 'BASIC', cols: 12, md: 6, lg: 6},
+      {name: 'archivedAt', type: 'date', label: 'archivedAt', default: null, groupTab: 'BASIC', cols: 12, md: 6, lg: 6},
+      {name: 'legalName', type: 'string', label: 'legalName', default: '', groupTab: 'FACTURACION', cols: 12, md: 6, lg: 6},
+      {name: 'taxCondition', type: 'string', label: 'taxCondition', default: '', groupTab: 'FACTURACION', cols: 12, md: 6, lg: 6},
+      {name: 'taxIdType', type: 'string', label: 'taxIdType', default: '', groupTab: 'FACTURACION', cols: 12, md: 6, lg: 6},
+      {name: 'taxIdNumber', type: 'string', label: 'taxIdNumber', default: '', groupTab: 'FACTURACION', cols: 12, md: 6, lg: 6},
+      {name: 'taxEmail', type: 'string', label: 'taxEmail', default: '', groupTab: 'FACTURACION', cols: 12, md: 12, lg: 12},
+      {name: 'taxAddress', type: 'longString', label: 'taxAddress', default: '', rows: 2, groupTab: 'FACTURACION', cols: 12, md: 12, lg: 12}
 // {name:'user',type:'ref',label:'user',default:null,ref: 'User',refDisplay: 'username'},
     ]
   }

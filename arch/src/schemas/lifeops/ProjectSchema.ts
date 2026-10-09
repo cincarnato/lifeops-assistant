@@ -30,13 +30,6 @@ const entitySchema: IEntitySchema = {
             index: true,
             header: true,
         },
-        goals: {
-            type: "array.ref",
-            ref: "Goal",
-            refDisplay: "name",
-            default: [],
-            index: true,
-        },
         businessPartner: {
             type: "ref",
             ref: "BusinessPartner",
@@ -56,26 +49,8 @@ const entitySchema: IEntitySchema = {
             type: "number",
             default: 5,
         },
-        priorityScore: {
-            type: "number",
-            index: true,
-            header: true,
-        },
-        startDate: {
-            type: "date",
-        },
-        targetDate: {
-            type: "date",
-            index: true,
-            header: true,
-        },
-        completedAt: {
-            type: "date",
-        },
-        progressPercent: {
-            type: "number",
-            default: 0,
-            header: true,
+        redmineProjectId: {
+            type: "string",
         },
         tags: {
             type: "array.string",

@@ -34,7 +34,7 @@ export function centerEntities(): CenterEntity[] {
     {key: 'tasks', icon: 'mdi-format-list-checks', crud: TaskCrud.instance, columns: ['title', 'status', 'priority', 'project', 'dueDate', 'scheduledDate']},
     {key: 'schedules', icon: 'mdi-calendar-sync-outline', crud: TaskScheduleCrud.instance, columns: ['name', 'task.title', 'schedule', 'active', 'runtime.nextRunAt', 'runtime.lastStatus']},
     {key: 'jobs', icon: 'mdi-robot-outline', crud: AgentJobCrud.instance, columns: ['name', 'schedule', 'active', 'runtime.nextRunAt', 'runtime.lastStatus']},
-    {key: 'projects', icon: 'mdi-briefcase-outline', crud: ProjectCrud.instance, columns: ['name', 'priority', 'businessPartner', 'targetDate', 'progressPercent']},
+    {key: 'projects', icon: 'mdi-briefcase-outline', crud: ProjectCrud.instance, columns: ['name', 'priority', 'businessPartner', 'tags']},
     {key: 'goals', icon: 'mdi-bullseye-arrow', crud: GoalCrud.instance, columns: ['name', 'lifeArea', 'timeHorizon', 'targetDate', 'progressPercent']},
     {key: 'contacts', icon: 'mdi-account-box-outline', crud: ContactCrud.instance, columns: ['displayName', 'emails', 'phones', 'organization', 'status']},
     {key: 'businessPartners', icon: 'mdi-domain', crud: BusinessPartnerCrud.instance, columns: ['name', 'roles', 'mainContact', 'priority']},

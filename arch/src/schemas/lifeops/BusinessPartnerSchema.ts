@@ -72,11 +72,6 @@ const entitySchema: IEntitySchema = {
             index: true,
             header: true,
         },
-        redmineProjectIds: {
-            type: "array.string",
-            default: [],
-            index: true,
-        },
         tags: {
             type: "array.string",
             default: [],

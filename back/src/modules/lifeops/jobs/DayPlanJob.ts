@@ -223,7 +223,7 @@ class DayPlanJob {
             filters: [{field: "user", operator: "eq", value: userId}],
         });
 
-        return projects.filter(project => !project.completedAt && !project.archivedAt);
+        return projects.filter(project => !project.archivedAt);
     }
 
     private async generateSuggestions(context: {
@@ -323,9 +323,6 @@ class DayPlanJob {
                 description: project.description,
                 priority: project.priority,
                 valueScore: project.valueScore,
-                priorityScore: project.priorityScore,
-                progressPercent: project.progressPercent,
-                goals: this.stringifyIds(project.goals),
             })), null, 2),
         ].join("\n");
     }
@@ -440,10 +437,6 @@ class DayPlanJob {
             String(date.getMonth() + 1).padStart(2, "0"),
             String(date.getDate()).padStart(2, "0"),
         ].join("-");
-    }
-
-    private stringifyIds(values?: any[]): string[] {
-        return Array.isArray(values) ? values.map(value => this.stringifyId(value)).filter(Boolean) : [];
     }
 
     private stringifyId(value: any): string {
