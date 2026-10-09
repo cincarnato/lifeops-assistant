@@ -17,6 +17,8 @@ function open(tab: CenterTab, value: unknown) {
 
 <template>
   <div class="d-flex flex-wrap ga-1">
+    <v-btn v-if="tab === 'services' && visible.includes('serviceTransactions')" variant="text" size="x-small" prepend-icon="mdi-cash-clock" @click="related('serviceTransactions', 'service')">{{ t('commandCenter.tabs.serviceTransactions') }}</v-btn>
+    <v-btn v-if="tab === 'serviceTransactions' && item.service && visible.includes('services')" variant="text" size="x-small" @click="open('services', item.service)">{{ displayValue(item.service) }}</v-btn>
     <v-btn v-if="['projects', 'goals', 'schedules'].includes(tab) && visible.includes('tasks')" variant="text" size="x-small" prepend-icon="mdi-format-list-checks" @click="related('tasks', tab === 'projects' ? 'project' : tab === 'goals' ? 'goals' : 'taskSchedule')">{{ t('commandCenter.tabs.tasks') }}</v-btn>
     <v-btn v-if="['businessPartners', 'goals'].includes(tab) && visible.includes('projects')" variant="text" size="x-small" prepend-icon="mdi-briefcase-outline" @click="related('projects', tab === 'businessPartners' ? 'businessPartner' : 'goals')">{{ t('commandCenter.tabs.projects') }}</v-btn>
     <v-btn v-if="tab === 'businessPartners' && item.mainContact && visible.includes('contacts')" variant="text" size="x-small" @click="open('contacts', item.mainContact)">{{ t('commandCenter.mainContact') }}</v-btn>

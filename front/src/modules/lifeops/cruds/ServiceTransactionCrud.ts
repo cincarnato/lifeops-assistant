@@ -112,13 +112,17 @@ status: [(v: string) => ['PENDING', 'PAID'].includes(v) || 'validation.required'
   }
 
   get onInputs(): IEntityCrudOnInput {
+    return this.onInputsForStore(this.store)
+  }
+
+  onInputsForStore(store: ReturnType<typeof useCrudStore>): IEntityCrudOnInput {
     return {
       service: async (id: unknown) => {
-        const form = this.store.form
-        if (this.store.operation !== 'create' || typeof id !== 'string' || !id || form.amount != null) return
+        const form = store.form
+        if (store.operation !== 'create' || typeof id !== 'string' || !id || form.amount != null) return
         try {
           const service = await ServiceProvider.instance.findById(id)
-          if (this.store.form === form && this.store.operation === 'create' && form.service === id && form.amount == null) {
+          if (store.form === form && store.operation === 'create' && form.service === id && form.amount == null) {
             form.amount = service.amount
           }
         } catch (error) {

@@ -4,6 +4,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import Fastify from 'fastify';
+import RunServiceTransactionJob, {currentServicePeriod} from '../../../../src/jobs/RunServiceTransactionJob.js';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { mongoose, ForbiddenError, UnauthorizedError } from '@drax/common-back';
 import ServiceSqliteRepository from '../../../../src/modules/lifeops/repository/sqlite/ServiceSqliteRepository.js';
@@ -99,6 +100,25 @@ for (const engine of ['SQLite', 'MongoDB'] as const) {
             await assert.rejects(transactions.create({ service: service._id, period: '2026-02', amount: -1 }));
             await assert.rejects(transactions.create({ service: '507f1f77bcf86cd799439012', period: '2026-02' }));
             await assert.rejects(transactions.create({ service: service._id, period: '2026-02', paidAt: new Date() } as any));
+        });
+
+        it('automatically persists current-month transactions and preserves payments on later runs', async () => {
+            const service = await createService();
+            await createService({active: false});
+            await createService({frequency: 'ON_DEMAND'});
+            const period = currentServicePeriod();
+            const scheduler = RunServiceTransactionJob({runOnStart: true});
+            await scheduler.stop();
+            const first = await transactions.monthly(period);
+            assert.equal(first.transactions.length, 1);
+            assert.equal(first.transactions[0].service._id, service._id);
+            const paid = await transactions.updatePartial(first.transactions[0]._id, {status: 'PAID', amount: 125} as any);
+            await RunServiceTransactionJob({runOnStart: true}).stop();
+            const second = await transactions.monthly(period);
+            assert.equal(second.transactions.length, 1);
+            assert.equal(second.collectedIncome, 125);
+            assert.equal(second.pendingIncome, 0);
+            assert.deepEqual(second.transactions[0].paidAt, paid.paidAt);
         });
 
         it('generates January-anchored cadence, excludes inactive/on-demand, and is idempotent', async () => {

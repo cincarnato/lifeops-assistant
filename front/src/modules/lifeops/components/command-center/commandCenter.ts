@@ -7,8 +7,10 @@ import GoalCrud from '../../cruds/GoalCrud'
 import ContactCrud from '../../cruds/ContactCrud'
 import BusinessPartnerCrud from '../../cruds/BusinessPartnerCrud'
 import MemoryCrud from '../../cruds/MemoryCrud'
+import ServiceCrud from '../../cruds/ServiceCrud'
+import ServiceTransactionCrud from '../../cruds/ServiceTransactionCrud'
 
-export type CenterTab = 'tasks' | 'schedules' | 'jobs' | 'projects' | 'goals' | 'contacts' | 'businessPartners' | 'memories'
+export type CenterTab = 'tasks' | 'schedules' | 'jobs' | 'projects' | 'goals' | 'contacts' | 'businessPartners' | 'memories' | 'services' | 'serviceTransactions'
 export type CenterItem = Record<string, unknown> & {_id: string}
 export interface CenterEntity {
   key: CenterTab
@@ -37,6 +39,8 @@ export function centerEntities(): CenterEntity[] {
     {key: 'contacts', icon: 'mdi-account-box-outline', crud: ContactCrud.instance, columns: ['displayName', 'emails', 'phones', 'organization', 'status']},
     {key: 'businessPartners', icon: 'mdi-domain', crud: BusinessPartnerCrud.instance, columns: ['name', 'roles', 'mainContact', 'priority']},
     {key: 'memories', icon: 'mdi-brain', crud: MemoryCrud.instance, columns: ['title', 'content', 'type', 'lifeArea', 'tags']},
+    {key: 'services', icon: 'mdi-handshake-outline', crud: ServiceCrud.instance, columns: ['name', 'businessPartner', 'type', 'amount', 'frequency', 'active']},
+    {key: 'serviceTransactions', icon: 'mdi-cash-clock', crud: ServiceTransactionCrud.instance, columns: ['service', 'period', 'amount', 'status', 'paidAt']},
   ]
 }
 
@@ -84,9 +88,19 @@ export function centerFilters(tab: CenterTab, preset = '', context?: CenterConte
       }
     }
   }
+  if (tab === 'serviceTransactions' && ['pending', 'paid'].includes(preset)) filters.push({field: 'status', operator: 'eq', value: preset.toUpperCase()})
+  if (tab === 'services' && preset === 'inactive') filters.push({field: 'active', operator: 'eq', value: false})
   if (preset === 'active') filters.push({field: 'active', operator: 'eq', value: true})
   if (preset === 'failed') filters.push({field: 'runtime.lastStatus', operator: 'in', value: ['failed', 'timeout']})
   return filters
+}
+
+export function centerWorkspaceTabs(entities: CenterEntity[]) {
+  const services = entities.filter(entity => ['services', 'serviceTransactions'].includes(entity.key))
+  return [
+    ...entities.filter(entity => !services.includes(entity)).map(entity => ({key: entity.key, tab: entity.key, icon: entity.icon})),
+    ...(services.length ? [{key: 'services' as const, tab: services[0]!.key, icon: 'mdi-handshake-outline'}] : []),
+  ]
 }
 
 export const centerMetrics: {tab: CenterTab; preset: string; icon: string; color: string}[] = [
@@ -96,4 +110,5 @@ export const centerMetrics: {tab: CenterTab; preset: string; icon: string; color
   {tab: 'schedules', preset: 'active', icon: 'mdi-calendar-sync-outline', color: 'info'},
   {tab: 'jobs', preset: 'active', icon: 'mdi-robot-outline', color: 'primary'},
   {tab: 'jobs', preset: 'failed', icon: 'mdi-alert-circle-outline', color: 'error'},
+  {tab: 'serviceTransactions', preset: 'pending', icon: 'mdi-cash-clock', color: 'warning'},
 ]

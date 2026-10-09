@@ -11,7 +11,7 @@ export function useCommandCenter() {
   const entities = centerEntities()
   const can = (tab: CenterTab, operation: 'view' | 'create' | 'update' | 'delete') => {
     const permissions = entities.find(entity => entity.key === tab)!.crud.permissions
-    return hasPermission(permissions[operation])
+    return hasPermission(permissions[operation]) || (['services', 'serviceTransactions'].includes(tab) && hasPermission(permissions.manage))
   }
   const visibleEntities = computed(() => entities.filter(entity => can(entity.key, 'view')))
   const activeTab = ref<CenterTab>('tasks')
@@ -187,7 +187,7 @@ export function useCommandCenter() {
     if (!entity) return
     const current = states[entity.key]
     const preset = typeof query.preset === 'string' ? query.preset : ''
-    const allowedFields: Partial<Record<CenterTab, string[]>> = {tasks: ['project', 'goals', 'taskSchedule'], projects: ['businessPartner', 'goals']}
+    const allowedFields: Partial<Record<CenterTab, string[]>> = {tasks: ['project', 'goals', 'taskSchedule'], projects: ['businessPartner', 'goals'], serviceTransactions: ['service']}
     const context = typeof query.contextField === 'string' && allowedFields[entity.key]?.includes(query.contextField) && typeof query.contextId === 'string'
       ? {field: query.contextField, id: query.contextId, label: String(query.contextLabel || query.contextId)} : undefined
     const modified = current.preset !== preset || JSON.stringify(current.context) !== JSON.stringify(context)

@@ -3,9 +3,15 @@ import {computed} from 'vue'
 import {useI18n} from 'vue-i18n'
 import {displayValue, valueAt} from './commandCenter'
 
-const props = defineProps<{value: unknown; field: string; colors?: Record<string, string>}>()
+const props = defineProps<{value: unknown; field: string; tab?: string; colors?: Record<string, string>}>()
 const {t, te, locale} = useI18n()
+const serviceEntity = computed(() => props.tab === 'services' ? 'service' : props.tab === 'serviceTransactions' ? 'servicetransaction' : '')
 const text = computed(() => {
+  if (serviceEntity.value) {
+    const key = `${serviceEntity.value}.${props.field}.${props.value}`
+    if (te(key)) return t(key)
+    if (props.field === 'amount' && typeof props.value === 'number') return new Intl.NumberFormat(locale.value, {minimumFractionDigits: 2, maximumFractionDigits: 2}).format(props.value)
+  }
   if (props.field === 'schedule') {
     const schedule = props.value
     const type = String(valueAt(schedule, 'type') || '')
@@ -25,9 +31,9 @@ const text = computed(() => {
 </script>
 
 <template>
-  <v-chip v-if="field === 'active'" :color="value ? 'success' : undefined" size="x-small" variant="tonal">{{ t(value ? 'commandCenter.active' : 'commandCenter.paused') }}</v-chip>
+  <v-chip v-if="field === 'active'" :color="value ? 'success' : undefined" size="x-small" variant="tonal">{{ t(tab === 'services' ? (value ? 'commandCenter.presets.services_active' : 'commandCenter.presets.services_inactive') : (value ? 'commandCenter.active' : 'commandCenter.paused')) }}</v-chip>
   <div v-else-if="field === 'progressPercent' && typeof value === 'number'" class="d-flex align-center ga-2"><v-progress-linear :model-value="value" color="primary" rounded height="5" style="min-width: 60px" /><span class="text-caption">{{ value }}%</span></div>
-  <v-chip v-else-if="['status', 'priority', 'runtime.lastStatus'].includes(field) && value" :color="colors?.[String(value)]" size="x-small">{{ text }}</v-chip>
+  <v-chip v-else-if="['status', 'priority', 'runtime.lastStatus'].includes(field) && value" :color="tab === 'serviceTransactions' ? (value === 'PAID' ? 'success' : 'warning') : colors?.[String(value)]" size="x-small">{{ text }}</v-chip>
   <span v-else :title="text" class="cell-text" :class="{'cell-excerpt': field === 'content'}">{{ text }}</span>
 </template>
 

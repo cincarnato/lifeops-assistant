@@ -4,7 +4,7 @@ import {useI18n} from 'vue-i18n'
 import {useDisplay} from 'vuetify'
 import CommandCenterCell from './CommandCenterCell.vue'
 import CommandCenterRelations from './CommandCenterRelations.vue'
-import {valueAt} from './commandCenter'
+import {centerWorkspaceTabs, valueAt} from './commandCenter'
 import type {CenterDestination, CenterEntity, CenterItem, CenterTab} from './commandCenter'
 import type {useCommandCenter} from './useCommandCenter'
 import MemoryTypeCombobox from '../../comboboxes/MemoryTypeCombobox.vue'
@@ -28,11 +28,18 @@ const emit = defineEmits<{
 const {t, te} = useI18n()
 const {smAndDown} = useDisplay()
 const visible = computed(() => props.entities.map(entity => entity.key))
-const presets = computed(() => props.entity.key === 'tasks' ? ['today', 'overdue', 'urgent', 'unassigned'] : ['schedules', 'jobs'].includes(props.entity.key) ? ['active', ...(props.entity.key === 'jobs' ? ['failed'] : [])] : [])
+const serviceViews = computed(() => props.entities.filter(entity => ['services', 'serviceTransactions'].includes(entity.key)))
+const workspaceTabs = computed(() => centerWorkspaceTabs(props.entities))
+const mainTab = computed(() => ['services', 'serviceTransactions'].includes(tab.value) ? 'services' : tab.value)
+const presets = computed(() => props.entity.key === 'tasks' ? ['today', 'overdue', 'urgent', 'unassigned']
+  : props.entity.key === 'services' ? ['active', 'inactive']
+  : props.entity.key === 'serviceTransactions' ? ['pending', 'paid']
+  : ['schedules', 'jobs'].includes(props.entity.key) ? ['active', ...(props.entity.key === 'jobs' ? ['failed'] : [])] : [])
 const headers = computed(() => [...props.entity.columns.map(key => ({key, title: fieldLabel(key), sortable: key !== 'schedule' && key !== 'content'})), {key: 'actions', title: t('commandCenter.actions'), sortable: false}])
 
 function fieldLabel(key: string) {
   const entityKey = `${props.entity.crud.name.toLowerCase()}.field.${key}`
+  if (['services', 'serviceTransactions'].includes(props.entity.key) && te(entityKey)) return t(entityKey)
   return te(`commandCenter.fields.${key}`) ? t(`commandCenter.fields.${key}`) : te(entityKey) ? t(entityKey) : key
 }
 
@@ -54,17 +61,20 @@ function page(value: number) {
 
 <template>
   <v-card variant="flat" border>
-    <v-tabs :model-value="tab" color="primary" density="compact" show-arrows @update:model-value="tab = $event as CenterTab">
-      <v-tab v-for="entry in entities" :key="entry.key" :value="entry.key" class="text-none" :prepend-icon="entry.icon">{{ t(`commandCenter.tabs.${entry.key}`) }}</v-tab>
+    <v-tabs :model-value="mainTab" color="primary" density="compact" show-arrows @update:model-value="tab = workspaceTabs.find(entry => entry.key === $event)!.tab">
+      <v-tab v-for="entry in workspaceTabs" :key="entry.key" :value="entry.key" class="text-none" :prepend-icon="entry.icon">{{ t(`commandCenter.tabs.${entry.key}`) }}</v-tab>
     </v-tabs>
     <v-divider />
+    <v-tabs v-if="mainTab === 'services'" :model-value="tab" color="primary" density="compact" show-arrows @update:model-value="tab = $event as CenterTab">
+      <v-tab v-for="entry in serviceViews" :key="entry.key" :value="entry.key" class="text-none" :prepend-icon="entry.icon">{{ t(`commandCenter.tabs.${entry.key}`) }}</v-tab>
+    </v-tabs>
     <div class="pa-3">
       <v-row dense align="center">
         <v-col cols="12" sm="6" md="5">
           <v-text-field v-model="state.search" :label="t('commandCenter.search')" prepend-inner-icon="mdi-magnify" variant="outlined" density="compact" hide-details clearable @update:model-value="state.search = $event ?? ''" />
         </v-col>
         <v-col cols="12" sm="6" md="7" class="d-flex align-center flex-wrap ga-2">
-          <v-chip v-for="value in presets" :key="value" :color="state.preset === value ? 'primary' : undefined" :variant="state.preset === value ? 'tonal' : 'outlined'" size="small" @click="preset(value)">{{ t(`commandCenter.presets.${value}`) }}</v-chip>
+          <v-chip v-for="value in presets" :key="value" :color="state.preset === value ? 'primary' : undefined" :variant="state.preset === value ? 'tonal' : 'outlined'" size="small" @click="preset(value)">{{ t(`commandCenter.presets.${entity.key === 'services' ? `services_${value}` : value}`) }}</v-chip>
           <v-spacer />
           <v-btn v-if="canCreate" size="small" variant="tonal" prepend-icon="mdi-plus" @click="$emit('create')">{{ t('commandCenter.add') }}</v-btn>
           <v-btn icon="mdi-refresh" size="small" variant="text" :loading="state.loading" :aria-label="t('commandCenter.refresh')" @click="$emit('load')" />
@@ -83,8 +93,8 @@ function page(value: number) {
     <template v-else>
       <v-data-table-server v-if="!smAndDown" :headers="headers" :items="state.items" :items-length="state.total" :loading="state.loading" :items-per-page="10" :page="state.page" :sort-by="[{key: state.sortKey, order: state.sortOrder}]" density="compact" hover hide-default-footer :no-data-text="t('commandCenter.empty')" :loading-text="t('commandCenter.loading')" @update:sort-by="sort">
         <template v-for="field in entity.columns" :key="field" #[`item.${field}`]="{item}">
-          <v-btn v-if="field === entity.columns[0]" class="text-none justify-start text-wrap px-0" variant="text" size="small" @click="$emit('open', item)">{{ valueAt(item, field) }}</v-btn>
-          <command-center-cell v-else :field="field" :value="valueAt(item, field)" :colors="colors[field]" />
+          <v-btn v-if="field === entity.columns[0]" class="text-none justify-start text-wrap px-0" variant="text" size="small" @click="$emit('open', item)"><command-center-cell :field="field" :value="valueAt(item, field)" :tab="entity.key" :colors="colors[field]" /></v-btn>
+          <command-center-cell v-else :field="field" :value="valueAt(item, field)" :tab="entity.key" :colors="colors[field]" />
         </template>
         <template #item.actions="{item}">
           <div class="d-flex align-center ga-1">
@@ -101,8 +111,8 @@ function page(value: number) {
         <div v-else-if="!state.items.length" class="text-center text-medium-emphasis py-8">{{ t('commandCenter.empty') }}</div>
         <v-card v-for="item in state.items" v-else :key="item._id" variant="outlined" class="mb-2">
           <v-card-text class="pa-3">
-            <v-btn class="text-none text-wrap justify-start px-0" variant="text" @click="$emit('open', item)">{{ valueAt(item, entity.columns[0]!) }}</v-btn>
-            <div v-for="field in entity.columns.slice(1)" :key="field" class="text-caption mb-1"><span class="text-medium-emphasis mr-2">{{ fieldLabel(field) }}:</span><command-center-cell :value="valueAt(item, field)" :field="field" :colors="colors[field]" /></div>
+            <v-btn class="text-none text-wrap justify-start px-0" variant="text" @click="$emit('open', item)"><command-center-cell :field="entity.columns[0]!" :value="valueAt(item, entity.columns[0]!)" :tab="entity.key" /></v-btn>
+            <div v-for="field in entity.columns.slice(1)" :key="field" class="text-caption mb-1"><span class="text-medium-emphasis mr-2">{{ fieldLabel(field) }}:</span><command-center-cell :value="valueAt(item, field)" :field="field" :tab="entity.key" :colors="colors[field]" /></div>
             <command-center-relations :tab="entity.key" :item="item" :visible="visible" @navigate="$emit('navigate', $event)" @open-reference="(target, id) => $emit('openReference', target, id)" />
             <div class="d-flex ga-2 mt-1">
               <v-btn v-if="canUpdate" size="small" variant="text" prepend-icon="mdi-pencil-outline" @click="$emit('edit', item)">{{ t('commandCenter.edit') }}</v-btn>

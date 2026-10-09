@@ -6,6 +6,8 @@ import {CrudForm, useCrud, useCrudStore} from '@drax/crud-vue'
 import type {IEntityCrud, IEntityCrudField, IEntityCrudOperation} from '@drax/crud-share'
 import type {ITask} from '../../interfaces/ITask'
 import TaskView from '../TaskView.vue'
+import ServiceTransactionCrud from '../../cruds/ServiceTransactionCrud'
+import CommandCenterCell from './CommandCenterCell.vue'
 import ContactForm from '../ContactForm.vue'
 import TaskTypeCombobox from '../../comboboxes/TaskTypeCombobox.vue'
 import TaskStatusCombobox from '../../comboboxes/TaskStatusCombobox.vue'
@@ -69,6 +71,7 @@ const entity: IEntityCrud = new Proxy(original, {
     if (property === 'name') return storeName
     if (property === 'i18nName') return original.name.toLowerCase()
     if (property === 'provider') return provider
+    if (property === 'onInputs' && props.entity.key === 'serviceTransactions') return ServiceTransactionCrud.instance.onInputsForStore(store)
     if (['fields', 'createFields', 'updateFields', 'viewFields', 'deleteFields'].includes(String(property))) {
       let selected = Reflect.get(target, property) as IEntityCrudField[]
       if (property === 'createFields' && quick.value && !expanded.value) {
@@ -92,12 +95,21 @@ const dialog = computed({get: () => store.dialog, set: value => {
   if (!value) emit('close')
 }})
 const readonly = computed(() => ['view', 'delete'].includes(props.operation))
+const serviceFields = computed(() => ['services', 'serviceTransactions'].includes(props.entity.key)
+  ? entity.fields.filter(field => field.type === 'enum' || field.name === 'paidAt') : [])
 const catalogSlots = computed(() => {
+  if (['services', 'serviceTransactions'].includes(props.entity.key)) return []
   const components = {type: props.entity.key === 'memories' ? MemoryTypeCombobox : TaskTypeCombobox, status: TaskStatusCombobox, source: SourceCombobox, priority: PriorityCombobox, lifeArea: LifeAreaCombobox}
   return Object.entries(components).flatMap(([name, component]) => [
     {name: `field.${name}`, component}, {name: `field.task.${name}`, component},
   ])
 })
+function serviceRules(name: string) {
+  return entity.getRule(name)?.map(rule => (value: unknown) => {
+    const result = rule(value) as boolean | string
+    return typeof result === 'string' && te(result) ? t(result) : result
+  })
+}
 const title = computed(() => t(`operation.${props.operation}`, {entity: t(`${original.name.toLowerCase()}.entity`)}))
 function saved(item?: CenterItem) {emit('saved', item)}
 </script>
@@ -125,6 +137,13 @@ function saved(item?: CenterItem) {emit('saved', item)}
         </template>
         <contact-form v-else-if="props.entity.key === 'contacts'" :entity="entity" :item="store.form" :operation="operation" @saved="saved" @canceled="dialog = false" />
         <crud-form v-else :entity="entity" @created="saved" @updated="saved" @deleted="saved()" @canceled="dialog = false" @viewed="dialog = false">
+          <template v-for="entry in serviceFields" :key="entry.name" #[`field.${entry.name}`]="{field, modelValue, setValue}">
+            <div v-if="field.name === 'paidAt'" class="mb-4">
+              <div class="text-caption text-medium-emphasis">{{ field.label }}</div>
+              <command-center-cell :field="field.name" :value="modelValue" :tab="props.entity.key" />
+            </div>
+            <v-select v-else :model-value="modelValue" :items="field.enum?.map(value => ({title: t(`${original.name.toLowerCase()}.${field.name}.${value}`), value}))" :label="field.label" :readonly="readonly" :rules="serviceRules(field.name)" :error-messages="store.getFieldInputErrors(field.name)" variant="outlined" @update:model-value="setValue" />
+          </template>
           <template #field.schedule="{field, modelValue, setValue}">
             <command-center-schedule-field :entity="entity" :field="field" :model-value="modelValue" :readonly="readonly" @update:model-value="setValue" />
           </template>
