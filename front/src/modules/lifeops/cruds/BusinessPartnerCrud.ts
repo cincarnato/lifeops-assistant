@@ -88,12 +88,14 @@ class BusinessPartnerCrud extends EntityCrud implements IEntityCrud {
 
   get fields(): IEntityCrudField[] {
     return [
-      {name: 'name', type: 'string', label: 'name', default: '', groupTab: 'BASIC', cols: 12, md: 8, lg: 8},
-      {name: 'priority', type: 'string', label: 'priority', default: '', groupTab: 'BASIC', cols: 12, md: 4, lg: 4},
-      {name: 'roles', type: 'array.enum', label: 'roles', default: [], enum: ['client', 'provider'], groupTab: 'BASIC', cols: 12, md: 6, lg: 6},
+
+      {name: 'name', type: 'string', label: 'name', default: '', groupTab: 'BASIC', cols: 12, md: 6, lg: 6},
+      { name: 'aliases', type: 'array.string', label: 'aliases', default: [], groupTab: 'BASIC', cols: 12, md: 6, lg: 6 },
+       {name: 'roles', type: 'array.enum', label: 'roles', default: [], enum: ['client', 'provider'], groupTab: 'BASIC', cols: 12, md: 6, lg: 6},
+      { name: 'priority', type: 'string', label: 'priority', default: '', groupTab: 'BASIC', cols: 12, md: 6, lg: 6 },
       {name: 'mainContact', type: 'ref', label: 'mainContact', default: null, ref: 'Contact', refDisplay: 'displayName', groupTab: 'BASIC', cols: 12, md: 6, lg: 6},
       {name: 'website', type: 'string', label: 'website', default: '', groupTab: 'BASIC', cols: 12, md: 6, lg: 6},
-      {name: 'aliases', type: 'array.string', label: 'aliases', default: [], groupTab: 'BASIC', cols: 12, md: 6, lg: 6},
+  
       {name: 'description', type: 'longString', label: 'description', default: '', rows: 3, groupTab: 'BASIC', cols: 12, md: 6, lg: 6},
       {name: 'notes', type: 'longString', label: 'notes', default: '', rows: 3, groupTab: 'BASIC', cols: 12, md: 6, lg: 6},
       {name: 'tags', type: 'array.string', label: 'tags', default: [], groupTab: 'BASIC', cols: 12, md: 6, lg: 6},

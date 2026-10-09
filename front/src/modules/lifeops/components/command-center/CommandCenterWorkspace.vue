@@ -105,7 +105,7 @@ function page(value: number) {
           <p>{{ t('commandCenter.empty') }}</p>
         </div>
         <v-row v-else dense>
-          <v-col v-for="item in state.items" :key="item._id" cols="12" md="6" xl="4" class="pa-2">
+          <v-col v-for="item in state.items" :key="item._id" cols="12" sm="6" md="4" xl="3" class="pa-2">
             <command-center-memory-card :item="item" :colors="colors" :can-update="canUpdate" :can-delete="canDelete" @open="$emit('open', $event)" @edit="$emit('edit', $event)" @delete="$emit('delete', $event)" />
           </v-col>
         </v-row>
