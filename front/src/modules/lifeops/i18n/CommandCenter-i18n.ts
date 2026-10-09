@@ -14,7 +14,7 @@ const messages = {
       nextAutomation: 'Próxima automatización', noAutomation: 'No hay próximas corridas con fecha disponible.',
       mainContact: 'Contacto principal', lastTask: 'Última tarea',
       executionsPending: 'Esta vista muestra la configuración y el último estado del job. Las ejecuciones quedan pendientes de un contrato con aislamiento por propietario.',
-      tabs: {tasks: 'Tareas', schedules: 'Programadas', jobs: 'Jobs IA', projects: 'Proyectos', goals: 'Objetivos', contacts: 'Contactos', clients: 'Clientes', memories: 'Memorias'},
+      tabs: {tasks: 'Tareas', schedules: 'Programadas', jobs: 'Jobs IA', projects: 'Proyectos', goals: 'Objetivos', contacts: 'Contactos', businessPartners: 'Socios comerciales', memories: 'Memorias'},
       presets: {today: 'Hoy', overdue: 'Vencidas', urgent: 'Urgentes', unassigned: 'Sin proyecto', active: 'Activas', failed: 'Con error'},
       metrics: {tasks_overdue: 'Vencidas', tasks_today: 'Para hoy', tasks_urgent: 'Urgentes', schedules_active: 'Programadas activas', jobs_active: 'Jobs activos', jobs_failed: 'Jobs con error'},
       metricHints: {
@@ -25,7 +25,7 @@ const messages = {
       },
       fields: {
         title: 'Título', name: 'Nombre', content: 'Contenido', type: 'Tipo', lifeArea: 'Área', tags: 'Etiquetas',
-        status: 'Estado', priority: 'Prioridad', project: 'Proyecto', client: 'Cliente', dueDate: 'Vencimiento', scheduledDate: 'Programación',
+        status: 'Estado', priority: 'Prioridad', project: 'Proyecto', businessPartner: 'Socio comercial', dueDate: 'Vencimiento', scheduledDate: 'Programación',
         targetDate: 'Fecha objetivo', progressPercent: 'Avance declarado', timeHorizon: 'Horizonte', displayName: 'Nombre',
         emails: 'Emails', phones: 'Teléfonos', organization: 'Organización', roles: 'Roles', mainContact: 'Contacto principal',
         schedule: 'Recurrencia', active: 'Activa', task: {title: 'Título de la plantilla'}, runtime: {nextRunAt: 'Próxima corrida', lastStatus: 'Último resultado'},
@@ -49,7 +49,7 @@ const messages = {
       nextAutomation: 'Next automation', noAutomation: 'No upcoming runs with an available date.',
       mainContact: 'Main contact', lastTask: 'Last task',
       executionsPending: 'This view shows job configuration and its last status. Execution history requires a contract that isolates records by job owner.',
-      tabs: {tasks: 'Tasks', schedules: 'Scheduled', jobs: 'AI jobs', projects: 'Projects', goals: 'Goals', contacts: 'Contacts', clients: 'Clients', memories: 'Memories'},
+      tabs: {tasks: 'Tasks', schedules: 'Scheduled', jobs: 'AI jobs', projects: 'Projects', goals: 'Goals', contacts: 'Contacts', businessPartners: 'Business Partners', memories: 'Memories'},
       presets: {today: 'Today', overdue: 'Overdue', urgent: 'Urgent', unassigned: 'No project', active: 'Active', failed: 'Failed'},
       metrics: {tasks_overdue: 'Overdue', tasks_today: 'For today', tasks_urgent: 'Urgent', schedules_active: 'Active schedules', jobs_active: 'Active jobs', jobs_failed: 'Failed jobs'},
       metricHints: {
@@ -60,7 +60,7 @@ const messages = {
       },
       fields: {
         title: 'Title', name: 'Name', content: 'Content', type: 'Type', lifeArea: 'Area', tags: 'Tags',
-        status: 'Status', priority: 'Priority', project: 'Project', client: 'Client', dueDate: 'Due date', scheduledDate: 'Scheduled date',
+        status: 'Status', priority: 'Priority', project: 'Project', businessPartner: 'Business Partner', dueDate: 'Due date', scheduledDate: 'Scheduled date',
         targetDate: 'Target date', progressPercent: 'Declared progress', timeHorizon: 'Horizon', displayName: 'Name',
         emails: 'Emails', phones: 'Phones', organization: 'Organization', roles: 'Roles', mainContact: 'Main contact',
         schedule: 'Recurrence', active: 'Active', task: {title: 'Template title'}, runtime: {nextRunAt: 'Next run', lastStatus: 'Last result'},

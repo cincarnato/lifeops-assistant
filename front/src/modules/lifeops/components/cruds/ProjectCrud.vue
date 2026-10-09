@@ -20,7 +20,7 @@ import PriorityCombobox from '../../comboboxes/PriorityCombobox.vue'
     </template>
     <template v-slot:item.priority="{value}">{{value}}</template>
     <template v-slot:item.goals="{value}">{{ value.map((v: any) => v.name).join(",") }}</template>
-    <template v-slot:item.client="{value}">{{value?.name}}</template>
+    <template v-slot:item.businessPartner="{value}">{{value?.name}}</template>
     <template v-slot:item.startDate="{value}">{{formatDate(value)}}</template>
     <template v-slot:item.targetDate="{value}">{{formatDate(value)}}</template>
     <template v-slot:item.completedAt="{value}">{{formatDate(value)}}</template>

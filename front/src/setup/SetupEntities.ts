@@ -3,7 +3,7 @@ import { useEntityStore } from '@drax/crud-vue'
 import { FileEntityCrud } from '@drax/media-vue'
 import AgentJobCrud from "@/modules/lifeops/cruds/AgentJobCrud";
 import AgentJobExecutionCrud from "@/modules/lifeops/cruds/AgentJobExecutionCrud";
-import ClientCrud from "@/modules/lifeops/cruds/ClientCrud";
+import BusinessPartnerCrud from "@/modules/lifeops/cruds/BusinessPartnerCrud";
 
 import ContactCrud from "@/modules/lifeops/cruds/ContactCrud";
 import ContactTypeCrud from "@/modules/lifeops/cruds/ContactTypeCrud";
@@ -29,7 +29,7 @@ function setupEntities(){
   entityStore.addEntity(FileEntityCrud.instance)
   entityStore.addEntity(AgentJobCrud.instance)
   entityStore.addEntity(AgentJobExecutionCrud.instance)
-  entityStore.addEntity(ClientCrud.instance)
+  entityStore.addEntity(BusinessPartnerCrud.instance)
   entityStore.addEntity(ContactCrud.instance)
   entityStore.addEntity(ContactTypeCrud.instance)
   entityStore.addEntity(GoalCrud.instance)

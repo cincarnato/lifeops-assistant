@@ -19,8 +19,8 @@ import HabitServiceFactory from "../factory/services/HabitServiceFactory.js";
 import {HabitBaseSchema} from "../schemas/HabitSchema.js";
 import GoalServiceFactory from "../factory/services/GoalServiceFactory.js";
 import {GoalBaseSchema} from "../schemas/GoalSchema.js";
-import ClientServiceFactory from "../factory/services/ClientServiceFactory.js";
-import {ClientBaseSchema} from "../schemas/ClientSchema.js";
+import BusinessPartnerServiceFactory from "../factory/services/BusinessPartnerServiceFactory.js";
+import {BusinessPartnerBaseSchema} from "../schemas/BusinessPartnerSchema.js";
 
 import ContactServiceFactory from "../factory/services/ContactServiceFactory.js";
 import {ContactBaseSchema} from "../schemas/ContactSchema.js";
@@ -42,7 +42,7 @@ import MemoryPermissions from "../permissions/MemoryPermissions.js";
 import PurposePermissions from "../permissions/PurposePermissions.js";
 import HabitPermissions from "../permissions/HabitPermissions.js";
 import GoalPermissions from "../permissions/GoalPermissions.js";
-import ClientPermissions from "../permissions/ClientPermissions.js";
+import BusinessPartnerPermissions from "../permissions/BusinessPartnerPermissions.js";
 
 import ContactPermissions from "../permissions/ContactPermissions.js";
 import ProjectPermissions from "../permissions/ProjectPermissions.js";
@@ -215,14 +215,14 @@ abstract class BaseAgent {
         }, context);
     }
 
-    protected buildClientTool(context: DraxAgentPromptContext): DraxAgentToolBuilder {
+    protected buildBusinessPartnerTool(context: DraxAgentPromptContext): DraxAgentToolBuilder {
         return this.buildContextTool({
             entityDescription: "Partes u organizaciones",
-            entityName: "Client",
+            entityName: "BusinessPartner",
             methods: ["search", "create", "updatePartial"],
-            schema: ClientBaseSchema.omit({user: true}),
-            service: ClientServiceFactory.instance,
-            permission: ClientPermissions,
+            schema: BusinessPartnerBaseSchema.omit({user: true}),
+            service: BusinessPartnerServiceFactory.instance,
+            permission: BusinessPartnerPermissions,
             userFilter: true,
             userSetter: true,
             userAssert: true

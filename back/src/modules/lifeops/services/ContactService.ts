@@ -6,6 +6,10 @@ import type {ZodObject, ZodRawShape} from "zod";
 
 class ContactService extends AbstractService<IContact, IContactBase, IContactBase> {
 
+    async migrateBusinessPartnerReference(): Promise<void> {
+        await (this._repository as IContactRepository).migrateBusinessPartnerReference?.()
+    }
+
 
     constructor(ContactRepository: IContactRepository, baseSchema?: ZodObject<ZodRawShape>, fullSchema?: ZodObject<ZodRawShape>) {
         super(ContactRepository, baseSchema, fullSchema);

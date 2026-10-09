@@ -1,6 +1,6 @@
 import GoalCrudRoute from "./GoalCrudRoute"
 import ProjectCrudRoute from "./ProjectCrudRoute"
-import ClientCrudRoute from "./ClientCrudRoute"
+import BusinessPartnerCrudRoute from "./BusinessPartnerCrudRoute"
 import ContactCrudRoute from "./ContactCrudRoute"
 
 import TaskTypeCrudRoute from "./TaskTypeCrudRoute"
@@ -28,7 +28,7 @@ import DayPlanCrudRoute from "./DayPlanCrudRoute"
 export const routes = [
   ...GoalCrudRoute,
   ...ProjectCrudRoute,
-  ...ClientCrudRoute,
+  ...BusinessPartnerCrudRoute,
   ...ContactCrudRoute,
   ...TaskTypeCrudRoute,
   ...TaskStatusCrudRoute,

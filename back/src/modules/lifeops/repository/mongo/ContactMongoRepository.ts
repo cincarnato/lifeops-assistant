@@ -7,6 +7,20 @@ import type {IContact, IContactBase} from "../../interfaces/IContact";
 
 class ContactMongoRepository extends AbstractMongoRepository<IContact, IContactBase, IContactBase> implements IContactRepository {
 
+    async migrateBusinessPartnerReference(): Promise<void> {
+        for (const collection of [ContactModel.collection]) {
+            await collection.updateMany(
+                {client: {$exists: true}},
+                [
+                    {$set: {businessPartner: {$cond: [
+                        {$eq: [{$type: '$businessPartner'}, 'missing']}, '$client', '$businessPartner'
+                    ]}}},
+                    {$unset: 'client'}
+                ]
+            )
+        }
+    }
+
     constructor() {
         super();
         this._model = ContactModel;

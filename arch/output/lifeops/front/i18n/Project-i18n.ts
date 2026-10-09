@@ -12,7 +12,7 @@ const messages = {
            status:'status',
            priority:'priority',
            goals:'goals',
-           client:'client',
+           businessPartner:'businessPartner',
            valueScore:'valueScore',
            motivationScore:'motivationScore',
            effortScore:'effortScore',
@@ -45,7 +45,7 @@ const messages = {
            status:'status',
            priority:'priority',
            goals:'goals',
-           client:'client',
+           businessPartner:'businessPartner',
            valueScore:'valueScore',
            motivationScore:'motivationScore',
            effortScore:'effortScore',
@@ -69,4 +69,4 @@ const messages = {
   }
 }
 
-export default messages;  
+export default messages;

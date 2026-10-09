@@ -18,7 +18,7 @@ import TaskTypeCrud from "./TaskTypeCrud";
 import TaskStatusCrud from "./TaskStatusCrud";
 import GoalCrud from "./GoalCrud";
 import ProjectCrud from "./ProjectCrud";
-import ClientCrud from "./ClientCrud";
+import BusinessPartnerCrud from "./BusinessPartnerCrud";
 import ContactCrud from "./ContactCrud";
 import {UserCrud} from "@drax/identity-vue"
 
@@ -58,7 +58,7 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
 {title: 'status',key:'status', align: 'start'},
 {title: 'priority',key:'priority', align: 'start'},
 {title: 'project',key:'project', align: 'start'},
-{title: 'client',key:'client', align: 'start'},
+{title: 'businessPartner',key:'businessPartner', align: 'start'},
 {title: 'valueScore',key:'valueScore', align: 'start'},
 {title: 'dueDate',key:'dueDate', align: 'start'},
 {title: 'scheduledDate',key:'scheduledDate', align: 'start'},
@@ -94,7 +94,7 @@ TaskType: TaskTypeCrud.instance ,
 TaskStatus: TaskStatusCrud.instance ,
 Goal: GoalCrud.instance ,
 Project: ProjectCrud.instance ,
-Client: ClientCrud.instance ,
+BusinessPartner: BusinessPartnerCrud.instance ,
 Contact: ContactCrud.instance ,
 User: UserCrud.instance 
     }
@@ -117,7 +117,7 @@ user: [(v: any) => !!v || 'validation.required']
 {name:'priority',type:'string',label:'priority',default:''},
 {name:'goals',type:'array.ref',label:'goals',default:[],ref: 'Goal',refDisplay: 'name'},
 {name:'project',type:'ref',label:'project',default:null,ref: 'Project',refDisplay: 'name'},
-{name:'client',type:'ref',label:'client',default:null,ref: 'Client',refDisplay: 'name'},
+{name:'businessPartner',type:'ref',label:'businessPartner',default:null,ref: 'BusinessPartner',refDisplay: 'name'},
 {name:'contacts',type:'array.ref',label:'contacts',default:[],ref: 'Contact',refDisplay: 'displayName'},
 {name:'valueScore',type:'number',label:'valueScore',default:5},
 {name:'motivationScore',type:'number',label:'motivationScore',default:5},
@@ -232,4 +232,3 @@ user: [(v: any) => !!v || 'validation.required']
 }
 
 export default TaskCrud
-

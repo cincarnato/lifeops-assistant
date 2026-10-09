@@ -15,7 +15,7 @@ const messages = {
            priority:'priority',
            goals:'goals',
            project:'project',
-           client:'client',
+           businessPartner:'businessPartner',
            contacts:'contacts',
            valueScore:'valueScore',
            motivationScore:'motivationScore',
@@ -58,7 +58,7 @@ const messages = {
            priority:'priority',
            goals:'goals',
            project:'project',
-           client:'client',
+           businessPartner:'businessPartner',
            contacts:'contacts',
            valueScore:'valueScore',
            motivationScore:'motivationScore',
@@ -89,4 +89,4 @@ const messages = {
   }
 }
 
-export default messages;  
+export default messages;

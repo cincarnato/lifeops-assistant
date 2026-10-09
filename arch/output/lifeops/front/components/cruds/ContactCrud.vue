@@ -8,7 +8,7 @@ import {formatDate} from "@drax/common-front"
 
 <template>
   <crud :entity="ContactCrud.instance">
-    <template v-slot:item.client="{value}">{{value?.name}}</template>
+    <template v-slot:item.businessPartner="{value}">{{value?.name}}</template>
     <template v-slot:item.emails="{value}"><v-chip v-for="v in value">{{v}}</v-chip></template>
     <template v-slot:item.phones="{value}"><v-chip v-for="v in value">{{v}}</v-chip></template>
     <template v-slot:item.tags="{value}"><v-chip v-for="v in value">{{v}}</v-chip></template>
@@ -20,4 +20,3 @@ import {formatDate} from "@drax/common-front"
 <style scoped>
 
 </style>
-

@@ -13,7 +13,7 @@ import {formatDate} from "@drax/common-front"
     <template v-slot:item.status="{value}">{{value?.name}}</template>
     <template v-slot:item.goals="{value}">{{ value.map(v => v.name).join(",") }}</template>
     <template v-slot:item.project="{value}">{{value?.name}}</template>
-    <template v-slot:item.client="{value}">{{value?.name}}</template>
+    <template v-slot:item.businessPartner="{value}">{{value?.name}}</template>
     <template v-slot:item.contacts="{value}">{{ value.map(v => v.displayName).join(",") }}</template>
     <template v-slot:item.dueDate="{value}">{{formatDate(value)}}</template>
     <template v-slot:item.scheduledDate="{value}">{{formatDate(value)}}</template>
@@ -27,4 +27,3 @@ import {formatDate} from "@drax/common-front"
 <style scoped>
 
 </style>
-

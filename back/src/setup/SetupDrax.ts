@@ -10,6 +10,7 @@ import "./RegisterMongoModels.js";
 import {projectPasswordPolicy} from "./data/policies/PasswordPolicy.js";
 import InitLifeops from "./scripts/InitLifeops.js";
 import initializeAgent from "./InitializeAgent.js";
+import MigrateClientToBusinessPartner from "./scripts/MigrateClientToBusinessPartner.js";
 
 async function SetupDrax(seed: boolean = false){
 
@@ -21,7 +22,8 @@ async function SetupDrax(seed: boolean = false){
     if(DraxConfig.getOrLoad(CommonConfig.DbEngine) === 'mongo'){
         const mongooseUri = DraxConfig.getOrLoad(CommonConfig.MongoDbUri)
         const mongooseConector = new MongooseConector(mongooseUri)
-        mongooseConector.connect()
+        await mongooseConector.connect()
+        await MigrateClientToBusinessPartner()
     }
 
     //Setup Permissions

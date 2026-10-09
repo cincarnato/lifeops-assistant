@@ -11,7 +11,7 @@ const TaskBaseSchema = z.object({
     priority: z.string().optional(),
     goals: z.array(z.coerce.string()).optional(),
     project: z.coerce.string().optional().nullable(),
-    client: z.coerce.string().optional().nullable(),
+    businessPartner: z.coerce.string().optional().nullable(),
     contacts: z.array(z.coerce.string()).optional(),
     valueScore: z.number().nullable().optional().default(5),
     motivationScore: z.number().nullable().optional().default(5),
@@ -40,7 +40,7 @@ type: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional()
 status: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
 goals: z.array(z.object({_id: z.coerce.string(), name: z.string()})).optional(),
 project: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
-client: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
+businessPartner: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
 contacts: z.array(z.object({_id: z.coerce.string(), displayName: z.string()})).optional(),
 user: z.object({_id: z.coerce.string(), username: z.string()})
     })

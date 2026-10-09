@@ -8,6 +8,10 @@ import TaskStatusServiceFactory from "../factory/services/TaskStatusServiceFacto
 
 class TaskService extends AbstractService<ITask, ITaskBase, ITaskBase> {
 
+    async migrateBusinessPartnerReference(): Promise<void> {
+        await (this._repository as ITaskRepository).migrateBusinessPartnerReference?.()
+    }
+
 
     constructor(TaskRepository: ITaskRepository, baseSchema?: ZodObject<ZodRawShape>, fullSchema?: ZodObject<ZodRawShape>) {
         super(TaskRepository, baseSchema, fullSchema);

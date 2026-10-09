@@ -18,10 +18,10 @@ function open(tab: CenterTab, value: unknown) {
 <template>
   <div class="d-flex flex-wrap ga-1">
     <v-btn v-if="['projects', 'goals', 'schedules'].includes(tab) && visible.includes('tasks')" variant="text" size="x-small" prepend-icon="mdi-format-list-checks" @click="related('tasks', tab === 'projects' ? 'project' : tab === 'goals' ? 'goals' : 'taskSchedule')">{{ t('commandCenter.tabs.tasks') }}</v-btn>
-    <v-btn v-if="['clients', 'goals'].includes(tab) && visible.includes('projects')" variant="text" size="x-small" prepend-icon="mdi-briefcase-outline" @click="related('projects', tab === 'clients' ? 'client' : 'goals')">{{ t('commandCenter.tabs.projects') }}</v-btn>
-    <v-btn v-if="tab === 'clients' && item.mainContact && visible.includes('contacts')" variant="text" size="x-small" @click="open('contacts', item.mainContact)">{{ t('commandCenter.mainContact') }}</v-btn>
+    <v-btn v-if="['businessPartners', 'goals'].includes(tab) && visible.includes('projects')" variant="text" size="x-small" prepend-icon="mdi-briefcase-outline" @click="related('projects', tab === 'businessPartners' ? 'businessPartner' : 'goals')">{{ t('commandCenter.tabs.projects') }}</v-btn>
+    <v-btn v-if="tab === 'businessPartners' && item.mainContact && visible.includes('contacts')" variant="text" size="x-small" @click="open('contacts', item.mainContact)">{{ t('commandCenter.mainContact') }}</v-btn>
     <template v-if="tab === 'projects'">
-      <v-btn v-if="item.client && visible.includes('clients')" variant="text" size="x-small" @click="open('clients', item.client)">{{ displayValue(item.client) }}</v-btn>
+      <v-btn v-if="item.businessPartner && visible.includes('businessPartners')" variant="text" size="x-small" @click="open('businessPartners', item.businessPartner)">{{ displayValue(item.businessPartner) }}</v-btn>
       <template v-if="Array.isArray(item.goals) && visible.includes('goals')">
         <v-btn v-for="goal in item.goals" :key="referenceId(goal)" variant="text" size="x-small" @click="open('goals', goal)">{{ displayValue(goal) }}</v-btn>
       </template>

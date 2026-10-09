@@ -10,7 +10,7 @@ Principales capacidades:
 
 - Gestion de tareas, estados, prioridades, fuentes, tipos y programaciones recurrentes.
 - Gestion de objetivos, proyectos, areas de vida, propositos, habitos y registros de habitos.
-- CRM personal para organizaciones/personas, clientes/proveedores/prospectos y contactos.
+- CRM personal para organizaciones/personas, clientes/proveedores y contactos.
 - Memorias persistentes para guardar contexto reutilizable por usuarios y agentes.
 - Agentes IA conversacionales y jobs de agente programados.
 - Planificacion diaria con eventos de Google Calendar, tareas candidatas, habitos y sugerencias IA.
@@ -32,7 +32,7 @@ Principales capacidades:
 - Gestion de metas personales, proyectos y areas de vida.
 - Gestion experimental de propositos y habitos.
 - Generacion de planes diarios.
-- Gestion de clientes, proveedores, prospectos y contactos.
+- Gestion de clientes, proveedores y contactos.
 - Sincronizacion de contactos con Google Contacts.
 - Consulta de Gmail y Google Calendar desde el frontend y desde tools de agentes.
 - Creacion de eventos de calendario via API.
@@ -448,11 +448,11 @@ Triggers:
 
 ### Objetivo
 
-Gestionar personas, organizaciones, clientes, proveedores y prospectos que se relacionan con proyectos, tareas y contactos externos.
+Gestionar personas, organizaciones, clientes y proveedores que se relacionan con proyectos, tareas y contactos externos.
 
 ### Funcionalidades
 
-- Gestionar clientes/partes con roles `client`, `provider`, `prospect` o `none`.
+- Gestionar socios comerciales con roles `client`, `provider` o ambos; sin clasificar: `roles: []`.
 - Registrar informacion fiscal, sitio web, aliases, tags, notas y contacto principal.
 - Gestionar contactos con emails, telefonos, direcciones, organizacion, cumpleaños, foto, tags y estado.
 - Sincronizar contactos individuales con Google.
@@ -460,7 +460,7 @@ Gestionar personas, organizaciones, clientes, proveedores y prospectos que se re
 
 ### Entidades principales
 
-**Client**
+**BusinessPartner**
 
 Proposito:
 Representa una organizacion, parte comercial o persona de interes para proyectos/trabajo.
@@ -540,7 +540,7 @@ Estados:
 
 ### Observaciones
 
-- El termino "Client" en codigo funciona mas ampliamente como parte, organizacion, cliente, proveedor o prospecto.
+- La entidad "BusinessPartner" representa una relacion comercial como cliente, proveedor o ambos.
 
 ## 4.4 Integracion Google
 
@@ -951,7 +951,7 @@ User
       -> TaskSchedule
   -> Goal
   -> Project
-      -> Client
+      -> BusinessPartner
   -> DayPlan
       -> Task
       -> Habit
@@ -962,7 +962,7 @@ User
       -> HabitLog
   -> Memory
   -> Purpose
-  -> Client
+  -> BusinessPartner
       -> Contact
   -> Contact
   -> GoogleConnection
@@ -1194,7 +1194,7 @@ CRUDs principales:
 - `/api/priorities`
 - `/api/goals`
 - `/api/projects`
-- `/api/clients`
+- `/api/business-partners`
 - `/api/contacts`
 - `/api/contact-types`
 - `/api/memories`
@@ -1430,7 +1430,7 @@ Dependencias fuertes observadas:
 - No se encontraron entidades economicas/financieras. ¿Cuales son las entidades esperadas para cubrir control economico?
 - `Operator` es el rol por defecto en `.env.example`, pero se crea sin permisos. ¿El usuario inicial operativo se configura manualmente despues?
 - `Supervisor` esta definido pero no se crea. ¿Debe habilitarse o eliminarse?
-- Hay referencias a Redmine en `Client` y `Task`, pero no se encontro integracion implementada en modulos activos. ¿Redmine sigue en roadmap?
+- Hay referencias a Redmine en `BusinessPartner` y `Task`, pero no se encontro integracion implementada en modulos activos. ¿Redmine sigue en roadmap?
 - Los webhooks WhatsApp se registran, pero no se encontro procesamiento posterior. ¿El procesamiento esta pendiente o ocurre fuera de este repo?
 - El proceso de jobs usa timers en memoria. ¿Se espera correr una sola instancia o hace falta coordinacion distribuida?
 - GoogleConnection permite CRUD administrativo con `userFilter=false`. ¿Debe restringirse por usuario en vistas no admin?
@@ -1466,7 +1466,7 @@ Dependencias fuertes observadas:
 ## Inferido
 
 - Aunque el sistema tiene RBAC multiusuario, funcionalmente esta pensado para uso personal.
-- `Client` funciona como "parte/organizacion" mas amplio que cliente comercial estricto.
+- `BusinessPartner` representa socios comerciales con roles de cliente, proveedor o ambos.
 - Las entidades catalogo (`Source`, `Priority`, `LifeArea`, `TaskType`, etc.) actuan como vocabulario controlado para tareas, memorias y agentes.
 - Los agentes estan pensados para operar datos del usuario con herramientas seguras y trazables.
 - WhatsApp esta en una etapa de recepcion/registro mas que de automatizacion conversacional completa.

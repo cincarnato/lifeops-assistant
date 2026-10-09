@@ -187,7 +187,7 @@ export function useCommandCenter() {
     if (!entity) return
     const current = states[entity.key]
     const preset = typeof query.preset === 'string' ? query.preset : ''
-    const allowedFields: Partial<Record<CenterTab, string[]>> = {tasks: ['project', 'goals', 'taskSchedule'], projects: ['client', 'goals']}
+    const allowedFields: Partial<Record<CenterTab, string[]>> = {tasks: ['project', 'goals', 'taskSchedule'], projects: ['businessPartner', 'goals']}
     const context = typeof query.contextField === 'string' && allowedFields[entity.key]?.includes(query.contextField) && typeof query.contextId === 'string'
       ? {field: query.contextField, id: query.contextId, label: String(query.contextLabel || query.contextId)} : undefined
     const modified = current.preset !== preset || JSON.stringify(current.context) !== JSON.stringify(context)

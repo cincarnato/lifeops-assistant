@@ -6,6 +6,10 @@ import type {ZodObject, ZodRawShape} from "zod";
 
 class ProjectService extends AbstractService<IProject, IProjectBase, IProjectBase> {
 
+    async migrateBusinessPartnerReference(): Promise<void> {
+        await (this._repository as IProjectRepository).migrateBusinessPartnerReference?.()
+    }
+
 
     constructor(ProjectRepository: IProjectRepository, baseSchema?: ZodObject<ZodRawShape>, fullSchema?: ZodObject<ZodRawShape>) {
         super(ProjectRepository, baseSchema, fullSchema);

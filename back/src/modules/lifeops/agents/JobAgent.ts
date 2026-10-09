@@ -79,7 +79,7 @@ class JobAgent extends BaseAgent {
         return context => [
             this.buildTaskTool(context),
             this.buildMemoryTool(context),
-            this.buildClientTool(context),
+            this.buildBusinessPartnerTool(context),
             this.buildProjectTool(context),
             this.buildContactTool(context)
         ];

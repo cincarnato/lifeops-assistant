@@ -28,7 +28,7 @@ import {AccountRoutes} from "../modules/base/routes/AccountRoutes.js"
 import {NotificationFastifyRoutes} from "../modules/base/routes/NotificationRoutes.js"
 import {GoalFastifyRoutes} from "../modules/lifeops/routes/GoalRoutes.js"
 import {ProjectFastifyRoutes} from "../modules/lifeops/routes/ProjectRoutes.js"
-import {ClientFastifyRoutes} from "../modules/lifeops/routes/ClientRoutes.js"
+import {BusinessPartnerFastifyRoutes} from "../modules/lifeops/routes/BusinessPartnerRoutes.js"
 import {ContactFastifyRoutes} from "../modules/lifeops/routes/ContactRoutes.js"
 
 import {TaskTypeFastifyRoutes} from "../modules/lifeops/routes/TaskTypeRoutes.js"
@@ -100,7 +100,7 @@ function FastifyServerFactory(rootDir:string) {
     server.fastifyRegister(NotificationFastifyRoutes)
     server.fastifyRegister(GoalFastifyRoutes)
     server.fastifyRegister(ProjectFastifyRoutes)
-    server.fastifyRegister(ClientFastifyRoutes)
+    server.fastifyRegister(BusinessPartnerFastifyRoutes)
     server.fastifyRegister(ContactFastifyRoutes)
     server.fastifyRegister(TaskTypeFastifyRoutes)
     server.fastifyRegister(TaskStatusFastifyRoutes)

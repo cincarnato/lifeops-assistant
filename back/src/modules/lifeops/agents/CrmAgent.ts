@@ -24,7 +24,7 @@ class CrmAgent extends BaseAgent {
 
     private get crmToolBuilders(): DraxAgentToolBuilderSource {
         return context => [
-            this.buildClientTool(context),
+            this.buildBusinessPartnerTool(context),
             this.buildContactTool(context)
         ];
     }

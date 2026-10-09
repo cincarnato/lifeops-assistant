@@ -40,7 +40,7 @@ class DefaultAgent extends BaseAgent {
             this.buildTaskTool(context),
             this.buildTaskScheduleTool(context),
             this.buildMemoryTool(context),
-            this.buildClientTool(context),
+            this.buildBusinessPartnerTool(context),
             this.buildProjectTool(context),
             this.buildContactTool(context)
         ];

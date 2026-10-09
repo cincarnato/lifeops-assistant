@@ -25,7 +25,7 @@ Se revisaron `docs/project-overview.md`, schemas Zod, controllers, services, rep
 | Jobs IA | Configuración, tools, schedule, timeout, reintentos y runtime; ejecuciones con resultado, errores y tokens | Separar el job configurado de cada ejecución. `active` no significa que esté ejecutándose |
 | Proyectos | Objetivos, cliente, fechas, progreso, scores, tags y archivo | Permitir abrir sus tareas y objetivos manteniendo el contexto de proyecto |
 | Objetivos | Área, horizonte temporal, fecha objetivo, progreso, completado y archivo | Mostrar dirección y avance declarado, sin inventar un cálculo automático |
-| CRM | `Client` también representa proveedores/prospectos; contacto principal; contactos con organización textual, teléfonos/emails y cumpleaños | Ofrecer clientes y contactos por separado. La organización de un contacto no es una referencia directa a `Client` |
+| CRM | `BusinessPartner` también representa clientes/proveedores; contacto principal; contactos con organización textual, teléfonos/emails y cumpleaños | Ofrecer clientes y contactos por separado. La organización de un contacto no es una referencia directa a `BusinessPartner` |
 | Memorias | Título, contenido, tipo, área, tags, prioridad y fuente | Excelente material para redescubrimiento; no hay relación directa con proyecto/objetivo ni marcador de favorito |
 | Plan diario | DayPlan con eventos, tareas, hábitos, sugerencias y decisiones; generación manual disponible | Una pestaña opcional “Hoy” aporta valor transversal sin crear una nueva entidad |
 | Integraciones | Google Calendar, Gmail y Contacts; agentes conversacionales; notificaciones/push | Accesos contextuales opcionales, condicionados a permisos, conexión y scopes |
@@ -146,7 +146,7 @@ Ocultar una tarjeta durante la sesión no archiva la entidad ni modifica su esta
 | CC30 | Proyecto → tareas/objetivos/cliente; objetivo → tareas/proyectos; cliente → proyectos/contacto principal | Sí, navegación por vínculos reales | D / media |
 | CC31 | Memorias: lista con extracto, filtros por tipo/área/tags y lectura amplia | Sí | E+D / media |
 | CC32 | Contactos: email/teléfono principal, copiar datos, abrir `mailto:` / `tel:` y estado de sync | No | E+D / baja-media |
-| CC33 | Clientes: distinguir cliente/proveedor/prospecto y abrir contacto principal/proyectos | Sí, detalle básico | E+D / media |
+| CC33 | Clientes: distinguir cliente/proveedor y abrir contacto principal/proyectos | Sí, detalle básico | E+D / media |
 | CC34 | Comparar avance de objetivos/proyectos con sus tareas; cifras auxiliares separadas del progreso manual | No | D / media-alta |
 
 **Regla transversal:** cada salto debe mantener la orientación. Ejemplo: desde Proyecto A → “Ver tareas” abre Tareas con chip “Proyecto A”; cerrar el detalle no elimina el filtro. Si se decide agregar la creación contextual, crear desde Proyecto A precarga su referencia y permite revisarla antes de guardar.
@@ -243,7 +243,7 @@ Puntos para elegir: ¿Hoy o Tareas como entrada?, ¿ocho entidades separadas o a
 
 ### Inicio del prompt
 
-Actúa como diseñador de producto y desarrollador senior del proyecto Jarvops / LifeOps. Construye un **centro de comando personal visualmente cuidado, compacto y operativo**, integrado en este repositorio. Debe permitirme entender qué requiere atención y trabajar con Task, TaskSchedule, AgentJob, Project, Goal, Contact, Client y Memory desde la misma pantalla.
+Actúa como diseñador de producto y desarrollador senior del proyecto Jarvops / LifeOps. Construye un **centro de comando personal visualmente cuidado, compacto y operativo**, integrado en este repositorio. Debe permitirme entender qué requiere atención y trabajar con Task, TaskSchedule, AgentJob, Project, Goal, Contact, BusinessPartner y Memory desde la misma pantalla.
 
 #### A. Alcance y fuentes de verdad
 
@@ -273,7 +273,7 @@ Actúa como diseñador de producto y desarrollador senior del proyecto Jarvops /
 18. Jobs IA: muestra configuración separada de ejecuciones. Activar/pausar modifica `active` a través del Service; `runtime.lastStatus` no prueba que haya una ejecución actual. Muestra resultados/errores/tokens solo desde ejecuciones reales y autorizadas. No crear ni editar estados de ejecución como forma de lanzar un job.
 19. “Ejecutar ahora” solo existe si se selecciona CC29: añade el contrato mínimo autorizado y reutiliza el runner existente. Respeta tools, timeout, reintentos e inactividad, evita duplicados y representa el progreso real. No confundir activar con ejecutar.
 20. Proyectos y objetivos: muestra fecha objetivo, progreso almacenado, prioridad y vínculos reales. “Ver tareas” aplica el filtro correspondiente. No sobrescribas `progressPercent` con una fórmula inventada.
-21. Clientes: muestra roles reales, contacto principal y proyectos relacionados. Contactos: muestra datos disponibles, estado y organización textual. No deduzcas un Client por coincidencia de nombre; el vínculo confirmado es `Client.mainContact`.
+21. Clientes: muestra roles reales, contacto principal y proyectos relacionados. Contactos: muestra datos disponibles, estado y organización textual. No deduzcas un BusinessPartner por coincidencia de nombre; el vínculo confirmado es `BusinessPartner.mainContact`.
 22. Memorias: prioriza lectura de contenido y filtros por tipo, área y tags. La captura exige título/contenido/tipo. Implementa selección aleatoria con alcance de usuario, sin cargar toda la colección; explica la estrategia elegida y sus límites.
 23. Si se selecciona Hoy, consulta el DayPlan existente sin generarlo automáticamente. Presenta decisiones como decisiones, no como completado. La tarea se completa mediante TaskService. La regeneración manual debe advertir y confirmar que actualmente reemplaza decisiones y colecciones; no efectuarla al abrir o refrescar.
 24. Si se incluyen integraciones o agente, reutiliza conexiones, scopes, providers y componentes existentes. Diferencia sin conexión, sin permisos, vacío y error. Abrir la pantalla no debe ejecutar tools de IA, sincronizaciones ni jobs.

@@ -6,7 +6,7 @@ interface IContactBase {
     type?: string
     status?: string
     priority?: string
-    client?: any
+    businessPartner?: any
     jobTitle?: string
     department?: string
     emails?: Array<string>
@@ -29,7 +29,7 @@ interface IContact {
     type?: string
     status?: string
     priority?: string
-    client?: any
+    businessPartner?: any
     jobTitle?: string
     department?: string
     emails?: Array<string>

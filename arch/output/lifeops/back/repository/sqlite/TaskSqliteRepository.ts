@@ -19,7 +19,7 @@ class TaskSqliteRepository extends AbstractSqliteRepository<ITask, ITaskBase, IT
 { field: 'status', table: 'status', identifier: '_id' },
 { field: 'goals', table: 'goals', identifier: '_id' },
 { field: 'project', table: 'project', identifier: '_id' },
-{ field: 'client', table: 'client', identifier: '_id' },
+{ field: 'businessPartner', table: 'BusinessPartner', identifier: '_id' },
 { field: 'contacts', table: 'contacts', identifier: '_id' },
 { field: 'user', table: 'user', identifier: '_id' }
     ]
@@ -33,7 +33,7 @@ class TaskSqliteRepository extends AbstractSqliteRepository<ITask, ITaskBase, IT
 {name: "priority", type: "TEXT", unique: undefined, primary: false},
 {name: "goals", type: "TEXT", unique: undefined, primary: false},
 {name: "project", type: "TEXT", unique: undefined, primary: false},
-{name: "client", type: "TEXT", unique: undefined, primary: false},
+{name: "businessPartner", type: "TEXT", unique: undefined, primary: false},
 {name: "contacts", type: "TEXT", unique: undefined, primary: false},
 {name: "valueScore", type: "NUMERIC", unique: undefined, primary: false},
 {name: "valueScore", type: "TEXT", unique: undefined, primary: false},

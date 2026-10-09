@@ -37,9 +37,9 @@ const entitySchema: IEntitySchema = {
             default: [],
             index: true,
         },
-        client: {
+        businessPartner: {
             type: "ref",
-            ref: "Client",
+            ref: "BusinessPartner",
             refDisplay: "name",
             index: true,
             header: true,

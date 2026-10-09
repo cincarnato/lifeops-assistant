@@ -14,7 +14,7 @@ const TaskSchema = new mongoose.Schema<ITask>({
             priority: {type: String,   required: false, index: true, unique: false },
             goals: [{type: mongoose.Schema.Types.ObjectId, ref: 'Goal',  required: false, index: true, unique: false }],
             project: {type: mongoose.Schema.Types.ObjectId, ref: 'Project',  required: false, index: true, unique: false },
-            client: {type: mongoose.Schema.Types.ObjectId, ref: 'Client',  required: false, index: true, unique: false },
+            businessPartner: {type: mongoose.Schema.Types.ObjectId, ref: 'BusinessPartner',  required: false, index: true, unique: false },
             contacts: [{type: mongoose.Schema.Types.ObjectId, ref: 'Contact',  required: false, index: true, unique: false }],
             valueScore: {type: Number,   required: false, index: true, unique: false },
             motivationScore: {type: Number,   required: false, index: false, unique: false },

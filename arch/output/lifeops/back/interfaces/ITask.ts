@@ -8,7 +8,7 @@ interface ITaskBase {
     priority?: string
     goals?: Array<any>
     project?: any
-    client?: any
+    businessPartner?: any
     contacts?: Array<any>
     valueScore?: number
     motivationScore?: number
@@ -41,7 +41,7 @@ interface ITask {
     priority?: string
     goals?: Array<any>
     project?: any
-    client?: any
+    businessPartner?: any
     contacts?: Array<any>
     valueScore?: number
     motivationScore?: number

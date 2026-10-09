@@ -11,6 +11,20 @@ import type {ITask, ITaskBase} from "../../interfaces/ITask";
 
 class TaskMongoRepository extends AbstractMongoRepository<ITask, ITaskBase, ITaskBase> implements ITaskRepository {
 
+    async migrateBusinessPartnerReference(): Promise<void> {
+        for (const collection of [TaskModel.collection, TaskArchivedModel.collection]) {
+            await collection.updateMany(
+                {client: {$exists: true}},
+                [
+                    {$set: {businessPartner: {$cond: [
+                        {$eq: [{$type: '$businessPartner'}, 'missing']}, '$client', '$businessPartner'
+                    ]}}},
+                    {$unset: 'client'}
+                ]
+            )
+        }
+    }
+
     constructor() {
         super();
         this._model = TaskModel;

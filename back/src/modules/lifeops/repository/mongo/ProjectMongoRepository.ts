@@ -7,11 +7,25 @@ import type {IProject, IProjectBase} from "../../interfaces/IProject";
 
 class ProjectMongoRepository extends AbstractMongoRepository<IProject, IProjectBase, IProjectBase> implements IProjectRepository {
 
+    async migrateBusinessPartnerReference(): Promise<void> {
+        for (const collection of [ProjectModel.collection]) {
+            await collection.updateMany(
+                {client: {$exists: true}},
+                [
+                    {$set: {businessPartner: {$cond: [
+                        {$eq: [{$type: '$businessPartner'}, 'missing']}, '$client', '$businessPartner'
+                    ]}}},
+                    {$unset: 'client'}
+                ]
+            )
+        }
+    }
+
     constructor() {
         super();
         this._model = ProjectModel;
         this._searchFields = ['name', 'aliases', 'description'];
-        this._populateFields = ['goals', 'client', 'user'];
+        this._populateFields = ['goals', 'businessPartner', 'user'];
         this._lean = true
     }
 

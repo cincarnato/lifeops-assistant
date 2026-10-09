@@ -13,7 +13,7 @@ const messages = {
            type:'type',
            status:'status',
            priority:'priority',
-           client:'client',
+           businessPartner:'businessPartner',
            jobTitle:'jobTitle',
            department:'department',
            emails:'emails',
@@ -46,7 +46,7 @@ const messages = {
            type:'type',
            status:'status',
            priority:'priority',
-           client:'client',
+           businessPartner:'businessPartner',
            jobTitle:'jobTitle',
            department:'department',
            emails:'emails',
@@ -69,4 +69,4 @@ const messages = {
   }
 }
 
-export default messages;  
+export default messages;

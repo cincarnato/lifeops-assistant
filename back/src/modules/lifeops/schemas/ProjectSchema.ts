@@ -6,7 +6,7 @@ const ProjectBaseSchema = z.object({
     description: z.string().optional().default(""),
     priority: z.string().optional().default(""),
     goals: z.array(z.coerce.string()).optional(),
-    client: z.coerce.string().optional().nullable().default(null),
+    businessPartner: z.coerce.string().optional().nullable().default(null),
     valueScore: z.number().nullable().optional().default(5),
     motivationScore: z.number().nullable().optional().default(5),
     effortScore: z.number().nullable().optional().default(5),
@@ -25,7 +25,7 @@ const ProjectSchema = ProjectBaseSchema
     .extend({
         _id: z.coerce.string(),
         goals: z.array(z.object({_id: z.coerce.string(), name: z.string()})).optional(),
-        client: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
+        businessPartner: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
         user: z.object({_id: z.coerce.string(), username: z.string()}),
         createdAt: z.coerce.date().nullable().optional(),
         updatedAt: z.coerce.date().nullable().optional(),

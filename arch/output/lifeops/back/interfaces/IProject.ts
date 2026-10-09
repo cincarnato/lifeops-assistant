@@ -5,7 +5,7 @@ interface IProjectBase {
     status?: string
     priority?: string
     goals?: Array<any>
-    client?: any
+    businessPartner?: any
     valueScore?: number
     motivationScore?: number
     effortScore?: number
@@ -28,7 +28,7 @@ interface IProject {
     status?: string
     priority?: string
     goals?: Array<any>
-    client?: any
+    businessPartner?: any
     valueScore?: number
     motivationScore?: number
     effortScore?: number

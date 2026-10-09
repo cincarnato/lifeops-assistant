@@ -2,7 +2,7 @@ import "../modules/base/models/NotificationModel.js";
 import "../modules/google/models/GoogleConnectionModel.js";
 import "../modules/lifeops/models/AgentJobExecutionModel.js";
 import "../modules/lifeops/models/AgentJobModel.js";
-import "../modules/lifeops/models/ClientModel.js";
+import "../modules/lifeops/models/BusinessPartnerModel.js";
 
 import "../modules/lifeops/models/ContactModel.js";
 import "../modules/lifeops/models/ContactTypeModel.js";

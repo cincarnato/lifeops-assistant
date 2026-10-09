@@ -15,7 +15,7 @@ class ProjectSqliteRepository extends AbstractSqliteRepository<IProject, IProjec
     protected identifier: string = '_id';
     protected populateFields = [
         { field: 'goals', table: 'goals', identifier: '_id' },
-{ field: 'client', table: 'client', identifier: '_id' },
+{ field: 'businessPartner', table: 'BusinessPartner', identifier: '_id' },
 { field: 'user', table: 'user', identifier: '_id' }
     ]
     protected verbose: boolean = false;
@@ -25,7 +25,7 @@ class ProjectSqliteRepository extends AbstractSqliteRepository<IProject, IProjec
 {name: "status", type: "TEXT", unique: undefined, primary: false},
 {name: "priority", type: "TEXT", unique: undefined, primary: false},
 {name: "goals", type: "TEXT", unique: undefined, primary: false},
-{name: "client", type: "TEXT", unique: undefined, primary: false},
+{name: "businessPartner", type: "TEXT", unique: undefined, primary: false},
 {name: "valueScore", type: "NUMERIC", unique: undefined, primary: false},
 {name: "valueScore", type: "TEXT", unique: undefined, primary: false},
 {name: "motivationScore", type: "NUMERIC", unique: undefined, primary: false},
@@ -48,4 +48,3 @@ class ProjectSqliteRepository extends AbstractSqliteRepository<IProject, IProjec
 
 export default ProjectSqliteRepository
 export {ProjectSqliteRepository}
-

@@ -140,10 +140,10 @@ const menu: MenuItem[] = [
     children: [
       {
         icon: 'mdi-domain',
-        text: 'client.menu',
-        link: {name: "ClientCrudPage"},
+        text: 'businesspartner.menu',
+        link: {name: "BusinessPartnerCrudPage"},
         gallery: true,
-        permission: 'client:manage'
+        permission: 'businesspartner:manage'
       },
       {
         icon: 'mdi-card-account-details-outline',

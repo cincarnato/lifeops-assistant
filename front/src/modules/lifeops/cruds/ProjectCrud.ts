@@ -14,7 +14,7 @@ import ProjectProvider from "../providers/ProjectProvider";
 
 //Import EntityCrud Refs
 import GoalCrud from "./GoalCrud";
-import ClientCrud from "./ClientCrud";
+import BusinessPartnerCrud from "./BusinessPartnerCrud";
 import {UserCrud} from "@drax/identity-vue"
 
 class ProjectCrud extends EntityCrud implements IEntityCrud {
@@ -48,7 +48,7 @@ class ProjectCrud extends EntityCrud implements IEntityCrud {
       {title: 'name', key: 'name', align: 'start'},
       {title: 'aliases', key: 'aliases', align: 'start'},
       {title: 'priority', key: 'priority', align: 'start'},
-      {title: 'client', key: 'client', align: 'start'},
+      {title: 'businessPartner', key: 'businessPartner', align: 'start'},
       {title: 'priorityScore', key: 'priorityScore', align: 'start'},
       {title: 'targetDate', key: 'targetDate', align: 'start'},
       {title: 'progressPercent', key: 'progressPercent', align: 'start'},
@@ -80,7 +80,7 @@ class ProjectCrud extends EntityCrud implements IEntityCrud {
   get refs(): IEntityCrudRefs {
     return {
       Goal: GoalCrud.instance,
-      Client: ClientCrud.instance,
+      BusinessPartner: BusinessPartnerCrud.instance,
       User: UserCrud.instance
     }
   }
@@ -102,7 +102,7 @@ class ProjectCrud extends EntityCrud implements IEntityCrud {
         label: 'priority',
         default: '', md: 6
       },
-      {name: 'client', type: 'ref', label: 'client', default: null, ref: 'Client', refDisplay: 'name', md: 6},
+      {name: 'businessPartner', type: 'ref', label: 'businessPartner', default: null, ref: 'BusinessPartner', refDisplay: 'name', md: 6},
       {name: 'goals', type: 'array.ref', label: 'goals', default: [], ref: 'Goal', refDisplay: 'name'},
       {name: 'valueScore', type: 'number', label: 'valueScore', default: 5, md: 3},
       {name: 'motivationScore', type: 'number', label: 'motivationScore', default: 5, md: 3},

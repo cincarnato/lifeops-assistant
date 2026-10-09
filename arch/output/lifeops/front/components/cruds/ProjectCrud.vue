@@ -9,7 +9,7 @@ import {formatDate} from "@drax/common-front"
 <template>
   <crud :entity="ProjectCrud.instance">
     <template v-slot:item.goals="{value}">{{ value.map(v => v.name).join(",") }}</template>
-    <template v-slot:item.client="{value}">{{value?.name}}</template>
+    <template v-slot:item.businessPartner="{value}">{{value?.name}}</template>
     <template v-slot:item.startDate="{value}">{{formatDate(value)}}</template>
     <template v-slot:item.targetDate="{value}">{{formatDate(value)}}</template>
     <template v-slot:item.completedAt="{value}">{{formatDate(value)}}</template>
@@ -22,4 +22,3 @@ import {formatDate} from "@drax/common-front"
 <style scoped>
 
 </style>
-

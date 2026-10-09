@@ -14,7 +14,7 @@ class ContactSqliteRepository extends AbstractSqliteRepository<IContact, IContac
     protected jsonFields: string[] = ['emails', 'phones', 'tags'];
     protected identifier: string = '_id';
     protected populateFields = [
-        { field: 'client', table: 'client', identifier: '_id' },
+        { field: 'businessPartner', table: 'BusinessPartner', identifier: '_id' },
 { field: 'user', table: 'user', identifier: '_id' }
     ]
     protected verbose: boolean = false;
@@ -25,7 +25,7 @@ class ContactSqliteRepository extends AbstractSqliteRepository<IContact, IContac
 {name: "type", type: "TEXT", unique: undefined, primary: false},
 {name: "status", type: "TEXT", unique: undefined, primary: false},
 {name: "priority", type: "TEXT", unique: undefined, primary: false},
-{name: "client", type: "TEXT", unique: undefined, primary: false},
+{name: "businessPartner", type: "TEXT", unique: undefined, primary: false},
 {name: "jobTitle", type: "TEXT", unique: undefined, primary: false},
 {name: "department", type: "TEXT", unique: undefined, primary: false},
 {name: "emails", type: "TEXT", unique: undefined, primary: false},
@@ -44,4 +44,3 @@ class ContactSqliteRepository extends AbstractSqliteRepository<IContact, IContac
 
 export default ContactSqliteRepository
 export {ContactSqliteRepository}
-
