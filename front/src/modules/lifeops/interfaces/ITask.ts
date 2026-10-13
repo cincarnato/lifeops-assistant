@@ -1,4 +1,6 @@
 
+type TaskImportance = 'A' | 'B' | 'C' | 'D' | 'E'
+
 interface ITaskStatusHistory {
     date?: Date
     previousStatus?: string | null
@@ -18,6 +20,7 @@ interface ITaskBase {
     lifeArea?: string
     status?: string
     priority?: string
+    importance?: TaskImportance | null
     goals?: Array<any>
     project?: any
     valueScore?: number
@@ -48,6 +51,7 @@ interface ITask {
     lifeArea?: string
     status?: string
     priority?: string
+    importance?: TaskImportance | null
     goals?: Array<any>
     project?: any
     valueScore?: number
@@ -70,6 +74,7 @@ interface ITask {
 }
 
 export type {
+TaskImportance,
 ITaskBase,
 ITask,
 ITaskNote,

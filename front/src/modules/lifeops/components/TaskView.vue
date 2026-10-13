@@ -4,6 +4,11 @@ import type {ITask} from "../interfaces/ITask";
 import {CrudRefDisplay} from "@drax/crud-vue"
 import ProjectCrud from "@/modules/lifeops/cruds/ProjectCrud.js";
 import GoalCrud from "@/modules/lifeops/cruds/GoalCrud.js";
+import {useI18n} from 'vue-i18n';
+import {useTaskImportance} from '../composables/useTaskImportance';
+
+const {t} = useI18n();
+const {importanceOption} = useTaskImportance();
 
 
 const props = defineProps<{
@@ -177,6 +182,15 @@ function normalizeNotes(notes?: ITask["notes"]) {
     <main class="task-view__content">
       <section class="task-view__hero">
         <div class="task-view__chips">
+          <v-chip
+              v-if="task.importance"
+              :color="importanceOption(task.importance)?.color"
+              :title="importanceOption(task.importance)?.description"
+              variant="tonal"
+              size="small"
+          >
+            {{ t('task.field.importance') }}: {{ importanceOption(task.importance)?.title }}
+          </v-chip>
           <v-chip v-if="task.priority" color="primary" variant="flat" size="small">
             Prioridad: {{ task.priority }}
           </v-chip>

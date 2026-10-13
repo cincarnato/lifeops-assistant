@@ -52,6 +52,7 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
       {title: 'lifeArea', key: 'lifeArea', align: 'start'},
       {title: 'status', key: 'status', align: 'start'},
       {title: 'priority', key: 'priority', align: 'start'},
+      {title: 'importance', key: 'importance', align: 'start'},
       {title: 'project', key: 'project', align: 'start'},
       {title: 'valueScore', key: 'valueScore', align: 'start'},
       {title: 'motivationScore', key: 'motivationScore', align: 'start'},
@@ -142,6 +143,7 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
       },
       {name: 'priority', type: 'string', label: 'priority', default: null,  sm: 4, md:4},
       {name: 'urgent', type: 'boolean', label: 'urgent', default: false, md: 2},
+      {name: 'importance', type: 'enum', label: 'importance', default: null, enum: ['A', 'B', 'C', 'D', 'E']},
 
       {
         name: 'goals',

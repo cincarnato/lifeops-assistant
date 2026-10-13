@@ -5,6 +5,13 @@ const messages = {
       entity: 'Task',
       menu: 'Tasks',
       crud: 'Manage Task',
+      importance: {
+        A: {title: 'Must do', description: 'Serious consequences if I do not do it.'},
+        B: {title: 'Should do', description: 'Minor consequences if I do not do it.'},
+        C: {title: 'Nice to do', description: 'No relevant consequences if I do not do it.'},
+        D: {title: 'Delegate', description: 'Someone else can handle it.'},
+        E: {title: 'Eliminate', description: 'Not worth spending time or attention on.'},
+      },
       notes: {
         newNote: 'New note',
         add: 'Add note',
@@ -48,6 +55,7 @@ const messages = {
         lifeArea: 'Life Area',
         status: 'Status',
         priority: 'Priority',
+        importance: 'Importance',
         goals: 'Goals',
         project: 'Project',
         valueScore: 'Value Score',
@@ -84,6 +92,13 @@ const messages = {
       entity: 'Tarea',
       menu: 'Tareas',
       crud: 'Gestionar tarea',
+      importance: {
+        A: {title: 'Debo hacer', description: 'Consecuencias graves si no la realizo.'},
+        B: {title: 'Debería hacer', description: 'Consecuencias menores si no la realizo.'},
+        C: {title: 'Sería bueno hacer', description: 'Sin consecuencias relevantes si no la realizo.'},
+        D: {title: 'Delegar', description: 'Otra persona puede encargarse.'},
+        E: {title: 'Eliminar', description: 'No merece consumir tiempo ni atención.'},
+      },
       notes: {
         newNote: 'Nueva nota',
         add: 'Agregar nota',
@@ -127,6 +142,7 @@ const messages = {
         lifeArea: 'Área de vida',
         status: 'Estado',
         priority: 'Prioridad',
+        importance: 'Importancia',
         goals: 'Objetivos',
         project: 'Proyecto',
         valueScore: 'Valor',

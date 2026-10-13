@@ -10,6 +10,7 @@ import LifeAreaCombobox from "@/modules/lifeops/comboboxes/LifeAreaCombobox.vue"
 import ProjectCombobox from "@/modules/lifeops/comboboxes/ProjectCombobox.vue";
 import GoalCombobox from "@/modules/lifeops/comboboxes/GoalCombobox.vue";
 import TaskNotes from './TaskNotes.vue';
+import TaskImportanceSelect from './TaskImportanceSelect.vue';
 import {useCrud} from '@drax/crud-vue';
 
 const {t, te} = useI18n();
@@ -38,6 +39,13 @@ function taskFieldLabel(label?: string) {
       @viewed="$emit('viewed')"
       @canceled="$emit('canceled')"
   >
+    <template #field.importance="{modelValue, setValue}">
+      <task-importance-select
+          :model-value="modelValue"
+          :readonly="operation === 'view' || operation === 'delete'"
+          @update:model-value="setValue"
+      />
+    </template>
     <template #field.notes="{modelValue, setValue}">
       <task-notes
           :model-value="modelValue"

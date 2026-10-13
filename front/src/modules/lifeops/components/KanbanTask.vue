@@ -14,6 +14,7 @@ import ProjectCombobox from "../comboboxes/ProjectCombobox.vue";
 import GoalCombobox from "../comboboxes/GoalCombobox.vue";
 import TaskTypeCombobox from "../comboboxes/TaskTypeCombobox.vue";
 import LifeAreaCombobox from "../comboboxes/LifeAreaCombobox.vue";
+import {useTaskImportance} from '../composables/useTaskImportance';
 
 type KanbanColumn = {
   key: string
@@ -22,6 +23,7 @@ type KanbanColumn = {
 
 type TaskCardPropertyKey =
     "priority"
+    | "importance"
     | "status"
     | "description"
     | "dueDate"
@@ -73,6 +75,7 @@ const taskCrud = TaskCrud.instance;
 const taskProvider = TaskProvider.instance;
 const taskStatusProvider = TaskStatusProvider.instance;
 const {t, te} = useI18n();
+const {importanceOption} = useTaskImportance();
 const {xs} = useDisplay();
 
 const {
@@ -130,7 +133,7 @@ const DEFAULT_COLUMN_WIDTH = 320;
 const MIN_COLUMN_WIDTH = 260;
 const MAX_COLUMN_WIDTH = 460;
 
-const defaultVisibleCardPropertyKeys: TaskCardPropertyKey[] = ["priority"];
+const defaultVisibleCardPropertyKeys: TaskCardPropertyKey[] = ["priority", "importance"];
 const scorePropertyKeys: ScoreTaskCardPropertyKey[] = ["valueScore", "motivationScore", "effortScore"];
 const editablePropertyKeys: EditableTaskCardPropertyKey[] = ["project", "goals", "type", "lifeArea"];
 const scorePropertyColors: Record<ScoreTaskCardPropertyKey, string> = {
@@ -142,6 +145,7 @@ const scoreValues = Array.from({length: 10}, (_, index) => index + 1);
 
 const cardProperties: TaskCardProperty[] = [
   {key: "priority", label: "Prioridad", icon: "mdi-flag-outline", group: "Basicas"},
+  {key: "importance", label: "task.field.importance", icon: "mdi-format-list-numbered", group: "Basicas"},
   {key: "status", label: "Estado", icon: "mdi-view-column-outline", group: "Basicas"},
   {key: "description", label: "Descripcion", icon: "mdi-text-box-outline", group: "Basicas"},
   {key: "type", label: "Tipo", icon: "mdi-shape-outline", group: "Clasificacion"},
@@ -472,6 +476,7 @@ function mobileStatusActionLabel(task: ITask, status: string) {
 function taskCardPropertyValue(task: ITask, key: TaskCardPropertyKey) {
   const valueFormatters: Record<TaskCardPropertyKey, () => string> = {
     priority: () => task.priority || "",
+    importance: () => importanceOption(task.importance)?.title || "",
     status: () => task.status || "",
     description: () => task.description || "",
     dueDate: () => formatCardDate(task.dueDate),
@@ -518,6 +523,7 @@ function renderedCardProperties(task: ITask) {
           value,
           color: property.key === "status"
               ? taskStatusColor(task.status)
+              : property.key === "importance" ? importanceOption(task.importance)?.color
               : property.key === "urgent" && task.urgent ? "warning"
               : isScoreProperty(property.key) ? scorePropertyColors[property.key] : undefined
         };

@@ -3,6 +3,7 @@ import {PaginateModel} from "mongoose";
 import uniqueValidator from 'mongoose-unique-validator';
 import mongoosePaginate from 'mongoose-paginate-v2'
 import type {ITask} from '../interfaces/ITask'
+import {TaskBaseSchema} from '../schemas/TaskSchema.js'
 
 const TaskSchemaDefinition = {
     title: {type: String, required: true, index: true, unique: false},
@@ -12,6 +13,7 @@ const TaskSchemaDefinition = {
     lifeArea: {type: String, required: false, index: true, unique: false},
     status: {type: String, required: false, index: true, unique: false},
     priority: {type: String, required: false, index: true, unique: false},
+    importance: {type: String, required: false, enum: TaskBaseSchema.shape.importance.unwrap().unwrap().options},
     goals: [{type: mongoose.Schema.Types.ObjectId, ref: 'Goal', required: false, index: true, unique: false}],
     project: {type: mongoose.Schema.Types.ObjectId, ref: 'Project', required: false, index: true, unique: false},
     valueScore: {type: Number, required: false, index: true, unique: false},

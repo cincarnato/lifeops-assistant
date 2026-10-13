@@ -1,4 +1,9 @@
 
+import type {z} from 'zod'
+import type {TaskBaseSchema} from '../schemas/TaskSchema.js'
+
+type TaskImportance = z.infer<typeof TaskBaseSchema.shape.importance>
+
 interface ITaskStatusHistory {
     date?: Date
     previousStatus?: string | null
@@ -18,6 +23,7 @@ interface ITaskBase {
     lifeArea?: string
     status?: string
     priority?: string
+    importance?: TaskImportance
     goals?: Array<any>
     project?: any
     valueScore?: number
@@ -50,6 +56,7 @@ interface ITask {
     type?: string
     lifeArea?: string
     priority?: string
+    importance?: TaskImportance
     goals?: Array<any>
     project?: any
     valueScore?: number

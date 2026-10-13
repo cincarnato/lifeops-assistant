@@ -27,6 +27,7 @@ class TaskSqliteRepository extends AbstractSqliteRepository<ITask, ITaskBase, IT
 {name: "lifeArea", type: "TEXT", unique: undefined, primary: false},
 {name: "status", type: "TEXT", unique: undefined, primary: false},
 {name: "priority", type: "TEXT", unique: undefined, primary: false},
+{name: "importance", type: "TEXT", unique: undefined, primary: false},
 {name: "goals", type: "TEXT", unique: undefined, primary: false},
 {name: "project", type: "TEXT", unique: undefined, primary: false},
 {name: "valueScore", type: "NUMERIC", unique: undefined, primary: false},

@@ -31,6 +31,92 @@ describe("Task endpoints", () => {
         await testSetup.dropAndClose()
     })
 
+    it.each(['A', 'B', 'C', 'D', 'E'] as const)("creates and reads tasks with importance %s", async importance => {
+        const {accessToken} = await testSetup.rootUserLogin()
+        const response = await testSetup.fastifyInstance.inject({
+            method: "POST",
+            url: "/api/tasks",
+            headers: {Authorization: `Bearer ${accessToken}`},
+            payload: {title: "Task with importance", importance}
+        })
+
+        expect(response.statusCode).toBe(200)
+        const task = response.json()
+        expect(task.importance).toBe(importance)
+        const persisted = await TaskModel.findById(task._id).lean().exec()
+        expect(persisted?.importance).toBe(importance)
+
+        const readResponse = await testSetup.fastifyInstance.inject({
+            method: "GET",
+            url: `/api/tasks/${task._id}`,
+            headers: {Authorization: `Bearer ${accessToken}`}
+        })
+        expect(readResponse.statusCode).toBe(200)
+        expect(readResponse.json().importance).toBe(importance)
+    })
+
+    it.each(["PUT", "PATCH"] as const)("updates and clears importance on %s", async method => {
+        const {accessToken} = await testSetup.rootUserLogin()
+        const task = await TaskServiceFactory.instance.create({
+            title: "Task with importance",
+            user: testSetup.rootUser._id,
+            importance: 'A'
+        })
+
+        for (const importance of ['D', null]) {
+            const response = await testSetup.fastifyInstance.inject({
+                method,
+                url: `/api/tasks/${task._id}`,
+                headers: {Authorization: `Bearer ${accessToken}`},
+                payload: {importance}
+            })
+
+            expect(response.statusCode).toBe(200)
+            expect(response.json().importance).toBe(importance)
+            const persisted = await TaskModel.findById(task._id).lean().exec()
+            expect(persisted?.importance).toBe(importance)
+        }
+    })
+
+    it.each(["POST", "PUT", "PATCH"] as const)("rejects invalid importance on %s", async method => {
+        const {accessToken} = await testSetup.rootUserLogin()
+        const task = await TaskServiceFactory.instance.create({
+            title: "Task with importance",
+            user: testSetup.rootUser._id,
+            importance: 'B'
+        })
+        const response = await testSetup.fastifyInstance.inject({
+            method,
+            url: method === "POST" ? "/api/tasks" : `/api/tasks/${task._id}`,
+            headers: {Authorization: `Bearer ${accessToken}`},
+            payload: {title: "Invalid importance", importance: 'F'}
+        })
+
+        expect(response.statusCode).toBe(422)
+        const persisted = await TaskModel.findById(task._id).lean().exec()
+        expect(persisted?.importance).toBe('B')
+    })
+
+    it("keeps importance unchanged when a PATCH omits it", async () => {
+        const {accessToken} = await testSetup.rootUserLogin()
+        const task = await TaskServiceFactory.instance.create({
+            title: "Task with importance",
+            user: testSetup.rootUser._id,
+            importance: 'C'
+        })
+        const response = await testSetup.fastifyInstance.inject({
+            method: "PATCH",
+            url: `/api/tasks/${task._id}`,
+            headers: {Authorization: `Bearer ${accessToken}`},
+            payload: {urgent: true}
+        })
+
+        expect(response.statusCode).toBe(200)
+        expect(response.json().importance).toBe('C')
+        const persisted = await TaskModel.findById(task._id).lean().exec()
+        expect(persisted?.importance).toBe('C')
+    })
+
     it("assigns note dates in the backend when creating a task", async () => {
         const {accessToken} = await testSetup.rootUserLogin()
         const startedAt = Date.now()

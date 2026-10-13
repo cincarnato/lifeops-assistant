@@ -13,8 +13,11 @@ import LifeAreaCombobox from "@/modules/lifeops/comboboxes/LifeAreaCombobox.vue"
 import TaskProvider from "@/modules/lifeops/providers/TaskProvider";
 import type {ITask} from "@/modules/lifeops/interfaces/ITask";
 import TaskNotes from '../TaskNotes.vue'
+import TaskImportanceSelect from '../TaskImportanceSelect.vue'
+import {useTaskImportance} from '../../composables/useTaskImportance'
 
 const {operation} = useCrud(TaskCrud.instance)
+const {importanceOption} = useTaskImportance()
 
 const triagingIds = ref<Set<string>>(new Set())
 const snackbar = ref(false)
@@ -74,6 +77,20 @@ async function triageTask(item: any) {
           :readonly="operation === 'view' || operation === 'delete'"
           @update:model-value="setValue"
       />
+    </template>
+
+    <template #field.importance="{modelValue, setValue}">
+      <task-importance-select
+          :model-value="modelValue"
+          :readonly="operation === 'view' || operation === 'delete'"
+          @update:model-value="setValue"
+      />
+    </template>
+
+    <template #item.importance="{value}">
+      <v-chip v-if="value" :color="importanceOption(value)?.color" size="small">
+        {{ importanceOption(value)?.title }}
+      </v-chip>
     </template>
 
     <template v-slot:field.type="{field, form}">

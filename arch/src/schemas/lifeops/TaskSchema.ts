@@ -44,6 +44,11 @@ const entitySchema: IEntitySchema = {
             index: true,
             header: true,
         },
+        importance: {
+            type: "enum",
+            enum: ["A", "B", "C", "D", "E"],
+            header: true,
+        },
         goals: {
             type: "array.ref",
             ref: "Goal",
