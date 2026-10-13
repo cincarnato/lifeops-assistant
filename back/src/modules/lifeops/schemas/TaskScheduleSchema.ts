@@ -1,4 +1,5 @@
 import {z} from 'zod';
+import {InstructionSchema} from './InstructionSchema.js';
 import {TaskScheduleCalculator} from "../services/TaskScheduleCalculator.js";
 
 const timeSchema = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "validation.time.HHMM").optional();
@@ -31,6 +32,7 @@ const TaskScheduleRawSchema = z.object({
     task: z.object({
         title: z.string().trim().min(1, 'validation.required'),
         description: z.string().optional(),
+        instruction: z.string().regex(/^[a-f\d]{24}$/i, 'validation.invalid').nullable().optional(),
         source: z.coerce.string().optional().nullable(),
         type: z.coerce.string().optional().nullable(),
         lifeArea: z.coerce.string().optional().nullable(),
@@ -120,6 +122,7 @@ const TaskScheduleSchema = TaskScheduleRawSchema
         task: z.object({
             title: z.string().trim().min(1, 'validation.required'),
             description: z.string().optional(),
+            instruction: InstructionSchema.nullable().optional(),
             source: z.coerce.string().optional().nullable(),
             type: z.coerce.string().optional().nullable(),
             lifeArea: z.coerce.string().optional().nullable(),

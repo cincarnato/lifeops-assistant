@@ -55,6 +55,7 @@ const messages = {
       field: {
         title: 'Title',
         description: 'Description',
+        instruction: 'Instruction',
         source: 'Source',
         type: 'Type',
         lifeArea: 'Life Area',
@@ -149,6 +150,7 @@ const messages = {
       field: {
         title: 'Título',
         description: 'Descripción',
+        instruction: 'Instrucción',
         source: 'Origen',
         type: 'Tipo',
         lifeArea: 'Área de vida',

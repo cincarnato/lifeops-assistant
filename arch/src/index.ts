@@ -13,6 +13,7 @@ import SourceSchema from './schemas/lifeops/SourceSchema.js';
 import ShoppingItemSchema from './schemas/lifeops/ShoppingItemSchema.js';
 import TaskSchema from './schemas/lifeops/TaskSchema.js';
 import TaskScheduleSchema from './schemas/lifeops/TaskScheduleSchema.js';
+import InstructionSchema from './schemas/lifeops/InstructionSchema.js';
 import PrioritySchema from './schemas/lifeops/PrioritySchema.js';
 import ContactTypeSchema from './schemas/lifeops/ContactTypeSchema.js';
 
@@ -48,6 +49,7 @@ const schemas = [
     ShoppingItemSchema,
     TaskSchema,
     TaskScheduleSchema,
+    InstructionSchema,
     PrioritySchema,
     ContactTypeSchema,
     AgentJobSchema,

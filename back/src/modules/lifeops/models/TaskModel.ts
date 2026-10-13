@@ -8,6 +8,7 @@ import {TaskBaseSchema} from '../schemas/TaskSchema.js'
 const TaskSchemaDefinition = {
     title: {type: String, required: true, index: true, unique: false},
     description: {type: String, required: false, index: false, unique: false},
+    instruction: {type: mongoose.Schema.Types.ObjectId, ref: 'Instruction', required: false},
     source: {type: String, required: false, index: true, unique: false},
     type: {type: String, required: false, index: true, unique: false},
     lifeArea: {type: String, required: false, index: true, unique: false},

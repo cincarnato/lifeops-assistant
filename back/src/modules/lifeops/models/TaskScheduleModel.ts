@@ -11,6 +11,7 @@ const TaskScheduleSchema = new mongoose.Schema<ITaskSchedule>({
             task: {
             title: {type: String,   required: true, index: false, unique: false },
             description: {type: String,   required: false, index: false, unique: false },
+            instruction: {type: mongoose.Schema.Types.ObjectId, ref: 'Instruction', required: false},
             source: {type: String,   required: false, index: false, unique: false },
             type: {type: String,   required: false, index: false, unique: false },
             lifeArea: {type: String,   required: false, index: false, unique: false },

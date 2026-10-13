@@ -223,6 +223,7 @@ class TaskScheduleService extends AbstractService<ITaskSchedule, ITaskScheduleBa
         const payload: ITaskBase = {
             title: task.title,
             description: task.description,
+            instruction: this.stringifyOptionalId(task.instruction),
             source: this.stringifyOptionalId(task.source),
             type: this.stringifyOptionalId(task.type),
             lifeArea: this.stringifyOptionalId(task.lifeArea),

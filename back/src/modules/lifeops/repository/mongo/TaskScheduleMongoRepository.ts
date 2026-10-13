@@ -11,7 +11,7 @@ class TaskScheduleMongoRepository extends AbstractMongoRepository<ITaskSchedule,
         super();
         this._model = TaskScheduleModel;
         this._searchFields = ['name'];
-        this._populateFields = ['task.goals', 'task.project', 'user', 'runtime.lastTaskId'];
+        this._populateFields = ['task.goals', 'task.project', 'task.instruction', 'user', 'runtime.lastTaskId'];
         this._lean = true
     }
 

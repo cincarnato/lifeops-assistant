@@ -13,6 +13,7 @@ import ShoppingListRoute from './ShoppingListRoute'
 import ShoppingItemCrudRoute from './ShoppingItemCrudRoute'
 import TaskCrudRoute from "./TaskCrudRoute"
 import TaskScheduleCrudRoute from "./TaskScheduleCrudRoute"
+import InstructionCrudRoute from "./InstructionCrudRoute"
 import PriorityCrudRoute from "./PriorityCrudRoute"
 import ChatbotTaskRoute from "./ChatbotTaskRoute"
 import KanbanTaskRoute from "./KanbanTaskRoute"
@@ -45,6 +46,7 @@ export const routes = [
   ...ShoppingItemCrudRoute,
   ...TaskCrudRoute,
   ...TaskScheduleCrudRoute,
+  ...InstructionCrudRoute,
   ...PriorityCrudRoute,
   ...ContactTypeCrudRoute,
   ...AgentRoute,

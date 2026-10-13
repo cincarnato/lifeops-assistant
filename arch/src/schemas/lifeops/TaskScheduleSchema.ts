@@ -36,6 +36,11 @@ const entitySchema: IEntitySchema = {
                 description: {
                     type: "longString",
                 },
+                instruction: {
+                    type: "ref",
+                    ref: "Instruction",
+                    refDisplay: "title",
+                },
                 source: {
                     type: "string",
                 },

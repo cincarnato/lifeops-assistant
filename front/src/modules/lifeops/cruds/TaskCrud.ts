@@ -16,6 +16,7 @@ import ProjectProvider from "../providers/ProjectProvider";
 //Import EntityCrud Refs
 import GoalCrud from "./GoalCrud";
 import ProjectCrud from "./ProjectCrud";
+import InstructionCrud from "./InstructionCrud";
 import DelegateCrud from './DelegateCrud';
 import {UserCrud} from "@drax/identity-vue"
 
@@ -96,6 +97,7 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
     return {
       Goal: GoalCrud.instance,
       Project: ProjectCrud.instance,
+      Instruction: InstructionCrud.instance,
       Delegate: DelegateCrud.instance,
       User: UserCrud.instance
     }
@@ -135,6 +137,7 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
       {name: 'title', type: 'string', label: 'title', default: '', sm: 7, md: 8},
       {name: 'status', type: 'string', label: 'status', default: null, sm: 5, md: 4},
       {name: 'description', type: 'longString', label: 'description', default: ''},
+      {name: 'instruction', type: 'ref', label: 'instruction', default: null, ref: 'Instruction', refDisplay: 'title'},
       {
         name: 'project',
         type: 'ref',

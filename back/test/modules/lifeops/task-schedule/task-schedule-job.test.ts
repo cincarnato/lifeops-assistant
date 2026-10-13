@@ -5,6 +5,7 @@ import TaskServiceFactory from "../../../../src/modules/lifeops/factory/services
 import {TaskScheduleJob} from "../../../../src/modules/lifeops/jobs/TaskScheduleJob"
 import {TaskModel} from "../../../../src/modules/lifeops/models/TaskModel"
 import {TaskScheduleModel} from "../../../../src/modules/lifeops/models/TaskScheduleModel"
+import InstructionServiceFactory from "../../../../src/modules/lifeops/factory/services/InstructionServiceFactory"
 import type {ITaskScheduleBase} from "../../../../src/modules/lifeops/interfaces/ITaskSchedule"
 
 describe("TaskScheduleJob", () => {
@@ -63,6 +64,28 @@ describe("TaskScheduleJob", () => {
         expect(updatedSchedule?.runtime?.lastStatus).toBe("success")
         expect(updatedSchedule?.runtime?.lastTaskId?.toString()).toBe(task?._id.toString())
         expect(updatedSchedule?.runtime?.nextRunAt?.toISOString()).toBe("2026-12-05T12:00:00.000Z")
+    })
+
+    it("inherits the populated instruction from the task template", async () => {
+        const instruction = await InstructionServiceFactory.instance.create({
+            title: "Pagar tarjeta", content: "Revisar resumen y pagar saldo"
+        })
+        const schedule = await createSchedule({
+            task: {title: "Pagar tarjeta Visa", instruction: instruction._id},
+            runtime: {nextRunAt: now}
+        })
+        expect(schedule.task.instruction).toMatchObject(instruction)
+
+        const result = await runJob()
+        expect(result.succeeded).toBe(1)
+        expect(result.results[0].task?.instruction).toMatchObject(instruction)
+        const task = await TaskModel.findOne({taskSchedule: schedule._id}).lean().exec()
+        expect(task?.instruction?.toString()).toBe(instruction._id)
+
+        const cleared = await TaskScheduleServiceFactory.instance.updatePartial(schedule._id, {
+            task: {...schedule.task, instruction: null}
+        })
+        expect(cleared.task.instruction).toBeNull()
     })
 
     it("does not process future or inactive schedules", async () => {

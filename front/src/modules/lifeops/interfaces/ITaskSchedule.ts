@@ -2,7 +2,8 @@
 interface ITaskScheduleBase {
     name: string
     active?: boolean
-    task: {    title: string
+    task: {    instruction?: string | null
+    title: string
     description?: string
     source?: any
     type?: any
@@ -44,7 +45,8 @@ interface ITaskSchedule {
     _id: string
     name: string
     active?: boolean
-    task: {    title: string
+    task: {    instruction?: import('./IInstruction').IInstruction | null
+    title: string
     description?: string
     source?: any
     type?: any

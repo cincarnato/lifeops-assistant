@@ -18,6 +18,11 @@ const entitySchema: IEntitySchema = {
             type: "longString",
             search: true,
         },
+        instruction: {
+            type: "ref",
+            ref: "Instruction",
+            refDisplay: "title",
+        },
         source: {
             type: "ref",
             ref: "Source",

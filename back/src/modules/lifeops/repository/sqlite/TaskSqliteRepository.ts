@@ -14,6 +14,7 @@ class TaskSqliteRepository extends AbstractSqliteRepository<ITask, ITaskBase, IT
     protected jsonFields: string[] = ['tags', 'notes', 'statusHistory'];
     protected identifier: string = '_id';
     protected populateFields = [
+        { field: 'instruction', table: 'Instruction', identifier: '_id' },
         { field: 'goals', table: 'goals', identifier: '_id' },
 { field: 'project', table: 'project', identifier: '_id' },
 { field: 'delegate', table: 'Delegate', identifier: '_id' },
@@ -23,6 +24,7 @@ class TaskSqliteRepository extends AbstractSqliteRepository<ITask, ITaskBase, IT
     protected tableFields: SqliteTableField[] = [
         {name: "title", type: "TEXT", unique: undefined, primary: false},
 {name: "description", type: "TEXT", unique: undefined, primary: false},
+{name: "instruction", type: "TEXT", unique: undefined, primary: false},
 {name: "source", type: "TEXT", unique: undefined, primary: false},
 {name: "type", type: "TEXT", unique: undefined, primary: false},
 {name: "lifeArea", type: "TEXT", unique: undefined, primary: false},

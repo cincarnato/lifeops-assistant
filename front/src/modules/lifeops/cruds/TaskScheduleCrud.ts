@@ -17,6 +17,7 @@ import {UserCrud} from "@drax/identity-vue"
 import GoalCrud from "@/modules/lifeops/cruds/GoalCrud.js";
 import ProjectCrud from "@/modules/lifeops/cruds/ProjectCrud.js";
 import TaskCrud from "@/modules/lifeops/cruds/TaskCrud.js";
+import InstructionCrud from "./InstructionCrud";
 
 class TaskScheduleCrud extends EntityCrud implements IEntityCrud {
 
@@ -81,6 +82,7 @@ class TaskScheduleCrud extends EntityCrud implements IEntityCrud {
       Task: TaskCrud.instance,
       Goal: GoalCrud.instance,
       Project: ProjectCrud.instance,
+      Instruction: InstructionCrud.instance,
       User: UserCrud.instance
     }
   }
@@ -106,6 +108,7 @@ class TaskScheduleCrud extends EntityCrud implements IEntityCrud {
         default: {
           "title": "",
           "description": "",
+          "instruction": null,
           "source": null,
           "type": null,
           "lifeArea": null,
@@ -122,6 +125,7 @@ class TaskScheduleCrud extends EntityCrud implements IEntityCrud {
         groupTab: 'TASK',
         objectFields: [{name: 'title', type: 'string', label: 'title', default: ''},
           {name: 'description', type: 'longString', label: 'description', default: ''},
+          {name: 'instruction', type: 'ref', label: 'instruction', default: null, ref: 'Instruction', refDisplay: 'title'},
           {name: 'source', type: 'string', label: 'source', default: ''},
           {name: 'type', type: 'string', label: 'type', default: ''},
           {name: 'lifeArea', type: 'string', label: 'lifeArea', default: ''},

@@ -53,6 +53,13 @@ const menu: MenuItem[] = [
         permission: 'taskschedule:manage'
       },
       {
+        icon: 'mdi-book-open-page-variant-outline',
+        text: 'instruction.menu',
+        link: {name: "InstructionCrudPage"},
+        gallery: true,
+        permission: 'instruction:manage'
+      },
+      {
         icon: 'mdi-view-dashboard-outline',
         text: 'Kanban Tareas',
         link: {name: "KanbanTaskPage"},

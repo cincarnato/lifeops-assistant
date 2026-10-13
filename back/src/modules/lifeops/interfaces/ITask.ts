@@ -16,6 +16,7 @@ interface ITaskNote {
 }
 
 interface ITaskBase {
+    instruction?: string | null
     title: string
     description?: string
     source?: string
@@ -50,6 +51,7 @@ interface ITaskBase {
 }
 
 interface ITask {
+    instruction?: import('./IInstruction').IInstruction | null
     _id: string
     title: string
     status?: string

@@ -7,6 +7,7 @@ type TaskScheduleDueDateRuleType = "none" | "sameDay" | "daysAfter"
 type TaskScheduleRuntimeStatus = "success" | "failed"
 
 interface ITaskScheduleTaskTemplate {
+    instruction?: string | import('./IInstruction').IInstruction | null
     title: string
     description?: string
     source?: any
