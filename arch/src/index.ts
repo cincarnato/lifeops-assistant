@@ -10,6 +10,7 @@ import DelegateSchema from './schemas/lifeops/DelegateSchema.js';
 import TaskTypeSchema from './schemas/lifeops/TaskTypeSchema.js';
 import TaskStatusSchema from './schemas/lifeops/TaskStatusSchema.js';
 import SourceSchema from './schemas/lifeops/SourceSchema.js';
+import ShoppingItemSchema from './schemas/lifeops/ShoppingItemSchema.js';
 import TaskSchema from './schemas/lifeops/TaskSchema.js';
 import TaskScheduleSchema from './schemas/lifeops/TaskScheduleSchema.js';
 import PrioritySchema from './schemas/lifeops/PrioritySchema.js';
@@ -44,6 +45,7 @@ const schemas = [
     TaskTypeSchema,
     TaskStatusSchema,
     SourceSchema,
+    ShoppingItemSchema,
     TaskSchema,
     TaskScheduleSchema,
     PrioritySchema,

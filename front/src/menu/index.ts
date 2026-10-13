@@ -32,6 +32,13 @@ const menu: MenuItem[] = [
     lg:4,
     children: [
       {
+        icon: 'mdi-cart-outline',
+        text: 'shoppingitem.menu',
+        link: {name: 'ShoppingListPage'},
+        gallery: true,
+        permission: 'shoppingitem:view'
+      },
+      {
         icon: 'mdi-format-list-checks',
         text: 'task.menu',
         link: {name: "TaskCrudPage"},

@@ -38,6 +38,7 @@ class DefaultAgent extends BaseAgent {
     private get toolBuilders(): DraxAgentToolBuilderSource {
         return context => [
             this.buildTaskTool(context),
+            this.buildShoppingItemTool(context),
             this.buildTaskScheduleTool(context),
             this.buildMemoryTool(context),
             this.buildBusinessPartnerTool(context),

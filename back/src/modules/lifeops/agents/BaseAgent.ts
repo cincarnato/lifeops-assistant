@@ -46,6 +46,9 @@ import BusinessPartnerPermissions from "../permissions/BusinessPartnerPermission
 
 import ContactPermissions from "../permissions/ContactPermissions.js";
 import ProjectPermissions from "../permissions/ProjectPermissions.js";
+import ShoppingItemServiceFactory from "../factory/services/ShoppingItemServiceFactory.js";
+import {ShoppingItemBaseSchema} from "../schemas/ShoppingItemSchema.js";
+import ShoppingItemPermissions from "../permissions/ShoppingItemPermissions.js";
 
 interface TaskOptionNames {
     sources: string[];
@@ -139,6 +142,20 @@ abstract class BaseAgent {
             schema: TaskBaseSchema.omit({user: true, taskSchedule: true, scheduledFor: true}),
             service: TaskServiceFactory.instance,
             permission: TaskPermissions,
+            userFilter: true,
+            userSetter: true,
+            userAssert: true
+        }, context);
+    }
+
+    protected buildShoppingItemTool(context: DraxAgentPromptContext): DraxAgentToolBuilder {
+        return this.buildContextTool({
+            entityDescription: "Lista de compras",
+            entityName: "ShoppingItem",
+            methods: ["search", "find", "create", "updatePartial"],
+            schema: ShoppingItemBaseSchema.omit({user: true, purchasedAt: true}),
+            service: ShoppingItemServiceFactory.instance,
+            permission: ShoppingItemPermissions,
             userFilter: true,
             userSetter: true,
             userAssert: true
@@ -502,6 +519,7 @@ abstract class BaseAgent {
             `- Task.goals: _id[] Goal; Busca ids con tools Goal.`,
             `Memory.type=nombre string; solo opciones: ${this.formatOptionNames(options.memories.types)}`,
             "Mail: to=email valido del contacto buscado. Avisos fuera del chat: push notification.",
+            "Compras/ShoppingItem: agrega productos con name y quantity (texto opcional). Para marcar comprado, busca el producto pendiente y actualiza purchased=true por su _id. Para volver a pendientes, purchased=false. Las fechas createdAt y purchasedAt las calcula el sistema. Si hay varios productos coincidentes, pregunta cuál. Usa la lista de compras para pedidos de compra.",
             "Cuando el usuario no especifique atributos como source, priority, lifeArea, type y status usa tu criterio para completarlo, si no esta nada claro pregunta."
         ].join("\n");
     }

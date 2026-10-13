@@ -37,6 +37,7 @@ import {DelegateFastifyRoutes} from "../modules/lifeops/routes/DelegateRoutes.js
 import {TaskTypeFastifyRoutes} from "../modules/lifeops/routes/TaskTypeRoutes.js"
 import {TaskStatusFastifyRoutes} from "../modules/lifeops/routes/TaskStatusRoutes.js"
 import {SourceFastifyRoutes} from "../modules/lifeops/routes/SourceRoutes.js"
+import {ShoppingItemFastifyRoutes} from "../modules/lifeops/routes/ShoppingItemRoutes.js"
 import {TaskFastifyRoutes} from "../modules/lifeops/routes/TaskRoutes.js"
 import {TaskScheduleFastifyRoutes} from "../modules/lifeops/routes/TaskScheduleRoutes.js"
 import {PriorityFastifyRoutes} from "../modules/lifeops/routes/PriorityRoutes.js"
@@ -111,6 +112,7 @@ function FastifyServerFactory(rootDir:string) {
     server.fastifyRegister(TaskTypeFastifyRoutes)
     server.fastifyRegister(TaskStatusFastifyRoutes)
     server.fastifyRegister(SourceFastifyRoutes)
+    server.fastifyRegister(ShoppingItemFastifyRoutes)
     server.fastifyRegister(TaskFastifyRoutes)
     server.fastifyRegister(TaskScheduleFastifyRoutes)
     server.fastifyRegister(PriorityFastifyRoutes)

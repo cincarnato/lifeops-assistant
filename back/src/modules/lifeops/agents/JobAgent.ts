@@ -78,6 +78,7 @@ class JobAgent extends BaseAgent {
     private get toolBuilders(): DraxAgentToolBuilderSource {
         return context => [
             this.buildTaskTool(context),
+            this.buildShoppingItemTool(context),
             this.buildMemoryTool(context),
             this.buildBusinessPartnerTool(context),
             this.buildProjectTool(context),

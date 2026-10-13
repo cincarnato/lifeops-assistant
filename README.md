@@ -8,6 +8,14 @@ El repositorio esta organizado como monorepo con tres paquetes principales:
 - `back/`: API backend con Fastify, MongoDB, Zod y Vitest.
 - `arch/`: paquete de arquitectura y generacion basado en `@drax/arch`.
 
+## Lista de compras
+
+La página `/shopping-list` (menú **Core → Lista de compras**) permite agregar artículos con cantidad opcional, editarlos, eliminarlos y alternar entre pendientes y comprados desde el celular. El CRUD Drax también está disponible en `/crud/shoppingitem`.
+
+Cada lista pertenece al usuario autenticado. `createdAt` se registra al crear el artículo; `purchasedAt` se registra automáticamente al marcarlo comprado y se limpia al volver a pendientes. Editar el nombre o la cantidad conserva ambas fechas.
+
+El agente principal y los jobs cuentan con herramientas `ShoppingItem` para consultar la lista, agregar productos y marcarlos comprados. Por ejemplo: «Agregá leche, 2 litros, a la lista» o «Ya compré la leche». Se usan los permisos `shoppingitem:view/create/update/delete/manage`.
+
 ## AI skills
 
 Este scaffold usa `.agent` como submodulo Git para compartir los skills de agentes entre proyectos Drax.
