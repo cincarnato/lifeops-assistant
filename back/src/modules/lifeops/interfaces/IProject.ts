@@ -3,6 +3,7 @@ interface IProjectBase {
     name: string
     description?: string
     priority?: string
+    goals?: Array<any>
     businessPartner?: any
     valueScore?: number
     motivationScore?: number
@@ -21,6 +22,7 @@ interface IProject {
     name: string
     description?: string
     priority?: string
+    goals?: Array<any>
     businessPartner?: any
     valueScore?: number
     motivationScore?: number

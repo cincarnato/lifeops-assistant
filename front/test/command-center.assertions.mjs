@@ -76,13 +76,14 @@ assert.ok(projectRelation.includes("related('projects', 'businessPartner')"))
 assert.ok(!relations.includes('item.goals'))
 assert.ok(relations.includes("tab === 'goals' ? 'goals'"))
 
-const removedProjectFields = ['goals', 'priorityScore', 'startDate', 'targetDate', 'completedAt', 'progressPercent']
+const removedProjectFields = ['priorityScore', 'startDate', 'targetDate', 'completedAt', 'progressPercent']
 for (const name of ['Project', 'BusinessPartner']) {
   const imports = {
     '@drax/crud-vue': {EntityCrud},
     '@drax/identity-vue': {UserCrud: {instance: {}}},
     [`../providers/${name}Provider`]: {default: {instance: {}}},
     './BusinessPartnerCrud': {default: {instance: {}}},
+    './GoalCrud': {default: {instance: {}}},
     './ContactCrud': {default: {instance: {}}},
   }
   const crud = evaluate(read(`cruds/${name}Crud.ts`), imports).default.instance
@@ -98,7 +99,8 @@ for (const name of ['Project', 'BusinessPartner']) {
   }
   if (name === 'Project') {
     assert.equal(crud.fields.find(field => field.name === 'redmineProjectId').type, 'string')
-    assert.ok(!('Goal' in crud.refs))
+    assert.ok('Goal' in crud.refs)
+    assert.equal(crud.fields.find(field => field.name === 'goals').type, 'array.ref')
   }
   const {descriptor} = parse(read(`components/cruds/${name}Crud.vue`))
   assert.equal(compileTemplate({source: descriptor.template.content, filename: `${name}Crud.vue`, id: 'test'}).errors.length, 0)

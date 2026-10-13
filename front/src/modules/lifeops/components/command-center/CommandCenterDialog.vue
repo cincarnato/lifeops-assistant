@@ -7,6 +7,7 @@ import type {IEntityCrud, IEntityCrudField, IEntityCrudOperation} from '@drax/cr
 import type {ITask} from '../../interfaces/ITask'
 import TaskView from '../TaskView.vue'
 import ServiceTransactionCrud from '../../cruds/ServiceTransactionCrud'
+import TaskCrud from '../../cruds/TaskCrud'
 import CommandCenterCell from './CommandCenterCell.vue'
 import ContactForm from '../ContactForm.vue'
 import TaskTypeCombobox from '../../comboboxes/TaskTypeCombobox.vue'
@@ -72,6 +73,7 @@ const entity: IEntityCrud = new Proxy(original, {
     if (property === 'i18nName') return original.name.toLowerCase()
     if (property === 'provider') return provider
     if (property === 'onInputs' && props.entity.key === 'serviceTransactions') return ServiceTransactionCrud.instance.onInputsForStore(store)
+    if (property === 'onInputs' && props.entity.key === 'tasks') return TaskCrud.instance.onInputsForStore(store)
     if (['fields', 'createFields', 'updateFields', 'viewFields', 'deleteFields'].includes(String(property))) {
       let selected = Reflect.get(target, property) as IEntityCrudField[]
       if (property === 'createFields' && quick.value && !expanded.value) {

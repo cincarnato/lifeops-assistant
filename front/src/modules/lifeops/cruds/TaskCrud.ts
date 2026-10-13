@@ -1,15 +1,17 @@
-import {EntityCrud} from "@drax/crud-vue";
+import {EntityCrud, useCrudStore} from "@drax/crud-vue";
 import type {
   IDraxCrudProvider,
   IEntityCrud,
   IEntityCrudField,
   IEntityCrudFilter,
   IEntityCrudHeader,
+  IEntityCrudOnInput,
   IEntityCrudPermissions,
   IEntityCrudRefs,
   IEntityCrudRules
 } from "@drax/crud-share";
 import TaskProvider from "../providers/TaskProvider";
+import ProjectProvider from "../providers/ProjectProvider";
 
 //Import EntityCrud Refs
 import GoalCrud from "./GoalCrud";
@@ -98,6 +100,28 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
     return {
       title: [(v: any) => !!v || 'validation.required'],
       user: [(v: any) => !!v || 'validation.required']
+    }
+  }
+
+  get onInputs(): IEntityCrudOnInput {
+    return this.onInputsForStore(useCrudStore(this.name))
+  }
+
+  onInputsForStore(store: ReturnType<typeof useCrudStore>): IEntityCrudOnInput {
+    return {
+      project: async (id: unknown) => {
+        const form = store.form
+        const goals = form.goals
+        if (!['create', 'edit'].includes(store.operation ?? '') || typeof id !== 'string' || !id) return
+        try {
+          const project = await ProjectProvider.instance.findById(id)
+          if (store.form === form && ['create', 'edit'].includes(store.operation ?? '') && form.project === id && form.goals === goals) {
+            form.goals = (project.goals ?? []).map(goal => typeof goal === 'string' ? goal : goal._id)
+          }
+        } catch (error) {
+          console.error('Could not inherit the project goals', error)
+        }
+      }
     }
   }
 

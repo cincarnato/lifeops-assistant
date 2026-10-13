@@ -4,9 +4,23 @@ import {BusinessPartnerBaseSchema, BusinessPartnerSchema} from "../../../../src/
 import {ProjectModel} from "../../../../src/modules/lifeops/models/ProjectModel"
 import {BusinessPartnerModel} from "../../../../src/modules/lifeops/models/BusinessPartnerModel"
 
-const removedProjectFields = ["goals", "priorityScore", "startDate", "targetDate", "completedAt", "progressPercent"]
+const removedProjectFields = ["priorityScore", "startDate", "targetDate", "completedAt", "progressPercent"]
 
 describe("Project and BusinessPartner entity contracts", () => {
+    it("accepts goal ids in inputs and populated goals in outputs without injecting them into PATCH", () => {
+        const input = {name: "Project", user: "user-id", goals: ["goal-id"]}
+        const goals = [{_id: "goal-id", name: "Goal"}]
+        const output = {...input, _id: "project-id", user: {_id: "user-id", username: "User"}, goals}
+
+        expect(ProjectBaseSchema.parse(input).goals).toEqual(["goal-id"])
+        expect(ProjectSchema.parse(output).goals).toEqual(goals)
+        expect(ProjectBaseSchema.partial().parse({name: "Renamed"})).not.toHaveProperty("goals")
+        expect(ProjectBaseSchema.partial().parse({goals: []}).goals).toEqual([])
+        expect(ProjectBaseSchema.safeParse({...input, goals: null}).success).toBe(false)
+        expect(ProjectSchema.safeParse({...output, goals: ["goal-id"]}).success).toBe(false)
+        expect(ProjectModel.schema.path("goals").options.type[0].ref).toBe("Goal")
+    })
+
     it("accepts an optional string Redmine project id in inputs and outputs without a default", () => {
         const input = {name: "Project", user: "user-id"}
         const output = {...input, _id: "project-id", user: {_id: "user-id", username: "User"}}
@@ -26,7 +40,7 @@ describe("Project and BusinessPartner entity contracts", () => {
 
     it("removes obsolete Project fields from input and output contracts", () => {
         const legacyFields = {
-            goals: ["goal-id"], priorityScore: 9, startDate: "2026-01-01",
+            priorityScore: 9, startDate: "2026-01-01",
             targetDate: "2026-02-01", completedAt: "2026-02-01", progressPercent: 100
         }
         const input = {name: "Project", user: "user-id", ...legacyFields}

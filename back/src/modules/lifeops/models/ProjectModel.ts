@@ -9,6 +9,7 @@ const ProjectSchema = new mongoose.Schema<IProject>({
             name: {type: String,   required: true, index: true, unique: false },
             description: {type: String,   required: false, index: false, unique: false },
             priority: {type: String, required: false, index: true, unique: false },
+            goals: [{type: mongoose.Schema.Types.ObjectId, ref: 'Goal', required: false, index: true}],
             businessPartner: {type: mongoose.Schema.Types.ObjectId, ref: 'BusinessPartner',  required: false, index: true, unique: false },
             valueScore: {type: Number,   required: false, index: false, unique: false },
             motivationScore: {type: Number,   required: false, index: false, unique: false },

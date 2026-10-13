@@ -35,6 +35,12 @@ import PriorityCombobox from '../../comboboxes/PriorityCombobox.vue'
       <v-chip v-if="value?.name" color="secondary" size="small" variant="tonal" prepend-icon="mdi-domain">{{ value.name }}</v-chip>
       <span v-else class="text-medium-emphasis">—</span>
     </template>
+    <template #item.goals="{value}">
+      <div v-if="value?.length" class="d-flex flex-wrap ga-1 py-2">
+        <v-chip v-for="goal in value" :key="goal._id" color="success" size="small" variant="tonal" prepend-icon="mdi-target">{{ goal.name }}</v-chip>
+      </div>
+      <span v-else class="text-medium-emphasis">—</span>
+    </template>
     <template #item.redmineProjectId="{value}">
       <v-chip v-if="value" color="error" size="small" variant="outlined" prepend-icon="mdi-source-repository">{{ value }}</v-chip>
       <span v-else class="text-medium-emphasis">—</span>

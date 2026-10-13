@@ -5,6 +5,7 @@ const ProjectBaseSchema = z.object({
     name: z.string().min(1, 'validation.required'),
     description: z.string().optional().default(""),
     priority: z.string().optional().default(""),
+    goals: z.array(z.coerce.string()).optional(),
     businessPartner: z.coerce.string().optional().nullable().default(null),
     valueScore: z.number().nullable().optional().default(5),
     motivationScore: z.number().nullable().optional().default(5),
@@ -19,6 +20,7 @@ const ProjectBaseSchema = z.object({
 const ProjectSchema = ProjectBaseSchema
     .extend({
         _id: z.coerce.string(),
+        goals: z.array(z.object({_id: z.coerce.string(), name: z.string()})).optional(),
         businessPartner: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
         user: z.object({_id: z.coerce.string(), username: z.string()}),
         createdAt: z.coerce.date().nullable().optional(),

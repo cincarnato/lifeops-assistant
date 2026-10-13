@@ -37,6 +37,13 @@ const entitySchema: IEntitySchema = {
             index: true,
             header: true,
         },
+        goals: {
+            type: "array.ref",
+            ref: "Goal",
+            refDisplay: "name",
+            index: true,
+            header: true,
+        },
         valueScore: {
             type: "number",
             default: 5,

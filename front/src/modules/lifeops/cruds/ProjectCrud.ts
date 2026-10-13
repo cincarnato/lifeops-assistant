@@ -15,6 +15,7 @@ import ProjectProvider from "../providers/ProjectProvider";
 //Import EntityCrud Refs
 
 import BusinessPartnerCrud from "./BusinessPartnerCrud";
+import GoalCrud from "./GoalCrud";
 import {UserCrud} from "@drax/identity-vue"
 
 class ProjectCrud extends EntityCrud implements IEntityCrud {
@@ -49,6 +50,7 @@ class ProjectCrud extends EntityCrud implements IEntityCrud {
       {title: 'businessPartner', key: 'businessPartner', align: 'start'},
  { title: 'redmineProjectId', key: 'redmineProjectId', align: 'start' },
       {title: 'priority', key: 'priority', align: 'start'},
+      {title: 'goals', key: 'goals', align: 'start'},
       {title: 'aliases', key: 'aliases', align: 'start'},
       {title: 'tags', key: 'tags', align: 'start'},
       // {title: 'user', key: 'user', align: 'start'}
@@ -80,6 +82,7 @@ class ProjectCrud extends EntityCrud implements IEntityCrud {
     return {
 
       BusinessPartner: BusinessPartnerCrud.instance,
+      Goal: GoalCrud.instance,
       User: UserCrud.instance
     }
   }
@@ -96,6 +99,7 @@ class ProjectCrud extends EntityCrud implements IEntityCrud {
       { name: 'aliases', type: 'array.string', label: 'aliases', default: [], cols: 12, md: 6, lg: 6 },
       {name: 'businessPartner', type: 'ref', label: 'businessPartner', default: null, ref: 'BusinessPartner', refDisplay: 'name', cols: 12, md: 6, lg: 6},
       { name: 'priority', type: 'string', label: 'priority', default: '', cols: 12, md: 6, lg: 6 },
+      {name: 'goals', type: 'array.ref', label: 'goals', default: [], ref: 'Goal', refDisplay: 'name', cols: 12, md: 6, lg: 6},
       { name: 'redmineProjectId', type: 'string', label: 'redmineProjectId', default: '', cols: 12, md: 6, lg: 6 },
       {name: 'tags', type: 'array.string', label: 'tags', default: [], cols: 12, md: 6, lg: 6},
       {name: 'description', type: 'longString', label: 'description', default: '', rows: 3, cols: 12, md: 12, lg: 12},
