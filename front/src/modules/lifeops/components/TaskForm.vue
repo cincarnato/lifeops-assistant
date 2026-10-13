@@ -9,8 +9,11 @@ import PriorityCombobox from "../comboboxes/PriorityCombobox.vue";
 import LifeAreaCombobox from "@/modules/lifeops/comboboxes/LifeAreaCombobox.vue";
 import ProjectCombobox from "@/modules/lifeops/comboboxes/ProjectCombobox.vue";
 import GoalCombobox from "@/modules/lifeops/comboboxes/GoalCombobox.vue";
+import TaskNotes from './TaskNotes.vue';
+import {useCrud} from '@drax/crud-vue';
 
 const {t, te} = useI18n();
+const {operation} = useCrud(TaskCrud.instance);
 
 function taskFieldLabel(label?: string) {
   if (!label) {
@@ -35,6 +38,13 @@ function taskFieldLabel(label?: string) {
       @viewed="$emit('viewed')"
       @canceled="$emit('canceled')"
   >
+    <template #field.notes="{modelValue, setValue}">
+      <task-notes
+          :model-value="modelValue"
+          :readonly="operation === 'view' || operation === 'delete'"
+          @update:model-value="setValue"
+      />
+    </template>
     <template v-slot:field.source="{field, form}">
       <source-combobox
           v-model="form.source"

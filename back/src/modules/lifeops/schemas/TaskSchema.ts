@@ -27,7 +27,7 @@ const TaskBaseSchema = z.object({
             date: z.coerce.date().nullable().optional(),
             note: z.string().optional().default('')
         })
-    ).optional().default([]),
+    ).optional(),
     statusHistory: z.array(
         z.object({
             date: z.coerce.date().nullable().optional(),

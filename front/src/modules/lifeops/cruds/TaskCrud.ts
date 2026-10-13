@@ -152,11 +152,10 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
         type: 'array.object',
         label: 'notes',
         default: [],
-        groupTab: 'NOTES',
         arrayObjectUI: 'accordion',
         arrayObjectShowField: 'note',
         objectFields: [
-          {name: 'date', type: 'date', label: 'date', default: null},
+          {name: 'date', type: 'date', label: 'date', default: null, readonly: true},
           {name: 'note', type: 'longString', label: 'note', default: ''}
         ]
       },
@@ -253,7 +252,7 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
   }
 
   get tabs() {
-    return ['NOTES', 'CLASSIFICATION',  'SCHEDULE', 'INTEGRATIONS']
+    return ['CLASSIFICATION',  'SCHEDULE', 'INTEGRATIONS']
   }
 
   get menus() {

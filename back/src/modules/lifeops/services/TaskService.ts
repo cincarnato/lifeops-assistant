@@ -17,7 +17,10 @@ class TaskService extends AbstractService<ITask, ITaskBase, ITaskBase> {
         super(TaskRepository, baseSchema, fullSchema);
 
         this._validateOutput = true
-        this.transformCreate = this.applyStatusAutomations.bind(this)
+        this.transformCreate = async data => {
+            data.notes = this.normalizeNotes(data.notes)
+            return this.applyStatusAutomations(data)
+        }
         this.transformUpdate = this.applyStatusAutomations.bind(this)
         this.transformUpdatePartial = this.applyStatusAutomations.bind(this)
         this.transformRead = this.normalizeTaskRead.bind(this)
@@ -78,7 +81,6 @@ class TaskService extends AbstractService<ITask, ITaskBase, ITaskBase> {
     }
 
     private async applyStatusAutomations(data: ITaskBase): Promise<ITaskBase> {
-        data.notes = this.normalizeNotes(data.notes)
         this.removeEmptyScheduleMetadata(data)
 
         if (!data.status) {
@@ -112,7 +114,9 @@ class TaskService extends AbstractService<ITask, ITaskBase, ITaskBase> {
 
         const previousTask = await this.findById(id)
 
-        data.notes = this.normalizeNotes(data.notes, previousTask?.notes)
+        if (data.notes !== undefined) {
+            data.notes = this.normalizeNotes(data.notes, previousTask?.notes)
+        }
         this.applyStatusHistory(data, previousTask)
 
         return data
@@ -148,7 +152,11 @@ class TaskService extends AbstractService<ITask, ITaskBase, ITaskBase> {
     }
 
     private normalizeTaskRead(data: ITask): Promise<ITask> {
-        data.notes = this.normalizeNotes(data.notes)
+        data.notes = Array.isArray(data.notes)
+            ? data.notes.map(note => this.normalizeNote(note))
+            : typeof data.notes === 'string' && data.notes.trim()
+                ? [{note: data.notes.trim()}]
+                : []
         data.statusHistory = Array.isArray(data.statusHistory) ? data.statusHistory : []
         return Promise.resolve(data)
     }
@@ -172,7 +180,18 @@ class TaskService extends AbstractService<ITask, ITaskBase, ITaskBase> {
         }
 
         if (Array.isArray(notes)) {
-            return notes.map(note => this.normalizeNote(note))
+            return notes.map(note => {
+                const normalizedNote = this.normalizeNote(note)
+                const previousNote = normalizedPreviousNotes.find(previous =>
+                    previous.note === normalizedNote.note &&
+                    previous.date?.getTime() === normalizedNote.date?.getTime()
+                )
+
+                return {
+                    note: normalizedNote.note,
+                    date: previousNote?.date ?? new Date()
+                }
+            })
         }
 
         return normalizedPreviousNotes
@@ -180,7 +199,7 @@ class TaskService extends AbstractService<ITask, ITaskBase, ITaskBase> {
 
     private normalizeNote(note: any): ITaskNote {
         return {
-            date: note?.date ? new Date(note.date) : new Date(),
+            date: note?.date ? new Date(note.date) : undefined,
             note: note?.note ?? ''
         }
     }

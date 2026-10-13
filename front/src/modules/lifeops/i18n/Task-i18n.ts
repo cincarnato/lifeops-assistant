@@ -5,6 +5,13 @@ const messages = {
       entity: 'Task',
       menu: 'Tasks',
       crud: 'Manage Task',
+      notes: {
+        newNote: 'New note',
+        add: 'Add note',
+        hint: 'Add the note (Ctrl/Cmd + Enter) and save the task to keep it.',
+        empty: 'No notes yet.',
+        pending: 'Date assigned when saving',
+      },
       tabs: {
         CLASSIFICATION: 'Classification',
         NOTES: 'Notes',
@@ -77,6 +84,13 @@ const messages = {
       entity: 'Tarea',
       menu: 'Tareas',
       crud: 'Gestionar tarea',
+      notes: {
+        newNote: 'Nueva nota',
+        add: 'Agregar nota',
+        hint: 'Agregá la nota (Ctrl/Cmd + Enter) y guardá la tarea para conservarla.',
+        empty: 'Todavía no hay notas.',
+        pending: 'La fecha se asigna al guardar',
+      },
       tabs: {
         CLASSIFICATION: 'Clasificación',
         NOTES: 'Notas',

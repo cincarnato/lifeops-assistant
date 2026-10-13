@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import {ref} from 'vue'
 import TaskCrud from '../../cruds/TaskCrud'
-import {Crud} from "@drax/crud-vue";
+import {Crud, useCrud} from "@drax/crud-vue";
 import {formatDate} from "@drax/common-front"
 import SourceCombobox from '../../comboboxes/SourceCombobox.vue'
 import TaskTypeCombobox from '../../comboboxes/TaskTypeCombobox.vue'
@@ -12,6 +12,9 @@ import TaskView from "@/modules/lifeops/components/TaskView.vue";
 import LifeAreaCombobox from "@/modules/lifeops/comboboxes/LifeAreaCombobox.vue";
 import TaskProvider from "@/modules/lifeops/providers/TaskProvider";
 import type {ITask} from "@/modules/lifeops/interfaces/ITask";
+import TaskNotes from '../TaskNotes.vue'
+
+const {operation} = useCrud(TaskCrud.instance)
 
 const triagingIds = ref<Set<string>>(new Set())
 const snackbar = ref(false)
@@ -61,10 +64,17 @@ async function triageTask(item: any) {
   <crud :entity="TaskCrud.instance">
 
 
-    <template v-slot:form="{operation, form}">
-      <task-view v-if="operation === 'view'" :item="form"></task-view>
+    <template v-if="operation === 'view'" v-slot:form="{form}">
+      <task-view :item="form"></task-view>
     </template>
 
+    <template #field.notes="{modelValue, setValue}">
+      <task-notes
+          :model-value="modelValue"
+          :readonly="operation === 'view' || operation === 'delete'"
+          @update:model-value="setValue"
+      />
+    </template>
 
     <template v-slot:field.type="{field, form}">
       <task-type-combobox
