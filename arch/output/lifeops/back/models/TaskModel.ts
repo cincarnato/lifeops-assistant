@@ -20,6 +20,8 @@ const TaskSchema = new mongoose.Schema<ITask>({
             motivationScore: {type: Number,   required: false, index: false, unique: false },
             effortScore: {type: Number,   required: false, index: false, unique: false },
             urgent: {type: Boolean, default: false,  required: false, index: false, unique: false },
+            delegable: {type: Boolean, default: false, required: false},
+            delegate: {type: mongoose.Schema.Types.ObjectId, ref: 'Delegate', required: false},
             dueDate: {type: Date,   required: false, index: true, unique: false },
             scheduledDate: {type: Date,   required: false, index: true, unique: false },
             completedAt: {type: Date,   required: false, index: false, unique: false },

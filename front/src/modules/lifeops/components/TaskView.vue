@@ -51,6 +51,8 @@ const classificationItems = computed<DetailItem[]>(() => compactDetails([
   {key: "type", label: "Tipo", value: task.value?.type, icon: "mdi-shape-outline"},
   {key: "status", label: "Estado", value: task.value?.status, icon: "mdi-list-status"},
   {key: "urgent", label: "Urgente", value: task.value?.urgent ? "Si" : "", icon: "mdi-alarm"},
+  {key: 'delegable', label: t('task.field.delegable'), value: task.value?.delegable ? t('task.delegation.yes') : t('task.delegation.no'), icon: 'mdi-account-arrow-right-outline'},
+  {key: 'delegate', label: t('task.field.delegate'), value: task.value?.delegate?.contact?.displayName, icon: 'mdi-account-outline'},
   {key: "lifeArea", label: "Area", value: task.value?.lifeArea, icon: "mdi-image-area"},
   {key: "project", label: "Proyecto", value: task.value?.project, icon: "mdi-folder-open-outline"},
   {key: "goals", label: "Objetivos", value: task.value?.goals, icon: "mdi-folder-open-outline"},

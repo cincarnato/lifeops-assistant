@@ -4,6 +4,13 @@ const messages = {
     task: {
       entity: 'Task',
       menu: 'Tasks',
+      delegation: {
+        hint: 'Could someone else do this task?',
+        yes: 'Yes',
+        no: 'No',
+        requiresDelegable: 'Mark the task as delegable before assigning it.',
+        invalidDelegate: 'Choose an active delegate belonging to you.'
+      },
       crud: 'Manage Task',
       importance: {
         HIGH: {title: 'Must do (High)', description: 'Very important. Serious consequences if I do not do it.'},
@@ -60,6 +67,8 @@ const messages = {
         motivationScore: 'Motivation Score',
         effortScore: 'Effort Score',
         urgent: 'Urgent',
+        delegable: 'Delegable',
+        delegate: 'Delegate to',
         dueDate: 'Due Date',
         scheduledDate: 'Scheduled Date',
         completedAt: 'Completed At',
@@ -89,6 +98,13 @@ const messages = {
     task: {
       entity: 'Tarea',
       menu: 'Tareas',
+      delegation: {
+        hint: '¿Podría otra persona realizar esta tarea?',
+        yes: 'Sí',
+        no: 'No',
+        requiresDelegable: 'Marcá la tarea como delegable antes de asignarla.',
+        invalidDelegate: 'Elegí una persona activa que te pertenezca.'
+      },
       crud: 'Gestionar tarea',
       importance: {
         HIGH: {title: 'Debo hacer (Alta)', description: 'Muy importante. Consecuencias graves si no la realizo.'},
@@ -145,6 +161,8 @@ const messages = {
         motivationScore: 'Motivación',
         effortScore: 'Esfuerzo',
         urgent: 'Urgente',
+        delegable: 'Delegable',
+        delegate: 'Delegar a',
         dueDate: 'Fecha de vencimiento',
         scheduledDate: 'Fecha programada',
         completedAt: 'Completada el',

@@ -17,6 +17,8 @@ const TaskBaseSchema = z.object({
     motivationScore: z.number().nullable().optional().default(5),
     effortScore: z.number().nullable().optional().default(5),
     urgent: z.boolean().optional().default(false),
+    delegable: z.boolean().optional(),
+    delegate: z.coerce.string().nullable().optional(),
     dueDate: z.coerce.date().nullable().optional(),
     scheduledDate: z.coerce.date().nullable().optional(),
     completedAt: z.coerce.date().nullable().optional(),
@@ -40,6 +42,7 @@ type: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional()
 status: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
 goals: z.array(z.object({_id: z.coerce.string(), name: z.string()})).optional(),
 project: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
+delegate: z.object({_id: z.coerce.string(), contact: z.object({_id: z.coerce.string(), displayName: z.string()}).nullable().optional()}).nullable().optional(),
 businessPartner: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
 contacts: z.array(z.object({_id: z.coerce.string(), displayName: z.string()})).optional(),
 user: z.object({_id: z.coerce.string(), username: z.string()})

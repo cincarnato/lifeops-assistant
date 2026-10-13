@@ -23,6 +23,7 @@ import {BusinessPartnerPermissions} from "../modules/lifeops/permissions/Busines
 import {ServicePermissions} from "../modules/lifeops/permissions/ServicePermissions.js";
 import {ServiceTransactionPermissions} from "../modules/lifeops/permissions/ServiceTransactionPermissions.js";
 import {ContactPermissions} from "../modules/lifeops/permissions/ContactPermissions.js";
+import {DelegatePermissions} from "../modules/lifeops/permissions/DelegatePermissions.js";
 
 import {TaskTypePermissions} from "../modules/lifeops/permissions/TaskTypePermissions.js";
 import {TaskStatusPermissions} from "../modules/lifeops/permissions/TaskStatusPermissions.js";
@@ -82,6 +83,7 @@ function InitializePermissions() {
         ...Object.values(ServicePermissions),
         ...Object.values(ServiceTransactionPermissions),
         ...Object.values(ContactPermissions),
+        ...Object.values(DelegatePermissions),
         ...Object.values(TaskTypePermissions),
         ...Object.values(TaskStatusPermissions),
         ...Object.values(SourcePermissions),

@@ -15,6 +15,8 @@ import type {ITask} from "@/modules/lifeops/interfaces/ITask";
 import TaskNotes from '../TaskNotes.vue'
 import TaskImportanceSelect from '../TaskImportanceSelect.vue'
 import {useTaskImportance} from '../../composables/useTaskImportance'
+import TaskDelegableSwitch from '../TaskDelegableSwitch.vue'
+import DelegateCombobox from '../../comboboxes/DelegateCombobox.vue'
 
 const {operation} = useCrud(TaskCrud.instance)
 const {importanceOption} = useTaskImportance()
@@ -65,6 +67,21 @@ async function triageTask(item: any) {
 
 <template>
   <crud :entity="TaskCrud.instance">
+    <template #field.delegable="{form}">
+      <task-delegable-switch
+          v-model="form.delegable"
+          v-model:delegate="form.delegate"
+          :readonly="operation === 'view' || operation === 'delete'"
+      />
+    </template>
+    <template #field.delegate="{form}">
+      <delegate-combobox
+          v-if="form.delegable"
+          v-model="form.delegate"
+          :readonly="operation === 'view' || operation === 'delete'"
+      />
+    </template>
+    <template #item.delegate="{value}">{{ value?.contact?.displayName }}</template>
 
 
     <template v-if="operation === 'view'" v-slot:form="{form}">

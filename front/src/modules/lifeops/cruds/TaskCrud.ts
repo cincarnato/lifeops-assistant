@@ -16,6 +16,7 @@ import ProjectProvider from "../providers/ProjectProvider";
 //Import EntityCrud Refs
 import GoalCrud from "./GoalCrud";
 import ProjectCrud from "./ProjectCrud";
+import DelegateCrud from './DelegateCrud';
 import {UserCrud} from "@drax/identity-vue"
 
 class TaskCrud extends EntityCrud implements IEntityCrud {
@@ -58,6 +59,8 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
       {title: 'motivationScore', key: 'motivationScore', align: 'start'},
       {title: 'effortScore', key: 'effortScore', align: 'start'},
       {title: 'urgent', key: 'urgent', align: 'start'},
+      {title: 'delegable', key: 'delegable', align: 'start'},
+      {title: 'delegate', key: 'delegate', align: 'start'},
       {title: 'dueDate', key: 'dueDate', align: 'start'},
       {title: 'scheduledDate', key: 'scheduledDate', align: 'start'},
       {title: 'completedAt', key: 'completedAt', align: 'start'},
@@ -93,6 +96,7 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
     return {
       Goal: GoalCrud.instance,
       Project: ProjectCrud.instance,
+      Delegate: DelegateCrud.instance,
       User: UserCrud.instance
     }
   }
@@ -143,6 +147,8 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
       },
       {name: 'priority', type: 'string', label: 'priority', default: null,  sm: 4, md:4},
       {name: 'urgent', type: 'boolean', label: 'urgent', default: false, md: 2},
+      {name: 'delegable', type: 'boolean', label: 'delegable', default: false, sm: 4, md: 4},
+      {name: 'delegate', type: 'ref', label: 'delegate', default: null, ref: 'Delegate', refDisplay: 'contact.displayName', sm: 8, md: 8},
       {name: 'importance', type: 'enum', label: 'importance', default: null, enum: ['HIGH', 'MEDIUM', 'LOW']},
 
       {

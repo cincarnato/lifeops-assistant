@@ -18,6 +18,7 @@ import TaskTypeCrud from "./TaskTypeCrud";
 import TaskStatusCrud from "./TaskStatusCrud";
 import GoalCrud from "./GoalCrud";
 import ProjectCrud from "./ProjectCrud";
+import DelegateCrud from './DelegateCrud';
 import BusinessPartnerCrud from "./BusinessPartnerCrud";
 import ContactCrud from "./ContactCrud";
 import {UserCrud} from "@drax/identity-vue"
@@ -94,6 +95,7 @@ TaskType: TaskTypeCrud.instance ,
 TaskStatus: TaskStatusCrud.instance ,
 Goal: GoalCrud.instance ,
 Project: ProjectCrud.instance ,
+Delegate: DelegateCrud.instance,
 BusinessPartner: BusinessPartnerCrud.instance ,
 Contact: ContactCrud.instance ,
 User: UserCrud.instance 
@@ -123,6 +125,8 @@ user: [(v: any) => !!v || 'validation.required']
 {name:'motivationScore',type:'number',label:'motivationScore',default:5},
 {name:'effortScore',type:'number',label:'effortScore',default:5},
 {name:'urgent',type:'boolean',label:'urgent',default:false},
+{name:'delegable',type:'boolean',label:'delegable',default:false},
+{name:'delegate',type:'ref',label:'delegate',default:null,ref:'Delegate',refDisplay:'contact.displayName'},
 {name:'dueDate',type:'date',label:'dueDate',default:null},
 {name:'scheduledDate',type:'date',label:'scheduledDate',default:null},
 {name:'completedAt',type:'date',label:'completedAt',default:null},

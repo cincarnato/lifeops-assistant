@@ -95,6 +95,17 @@ const entitySchema: IEntitySchema = {
             type: "boolean",
             default: false,
         },
+        delegable: {
+            type: 'boolean',
+            default: false,
+            header: true,
+        },
+        delegate: {
+            type: 'ref',
+            ref: 'Delegate',
+            refDisplay: 'contact.displayName',
+            header: true,
+        },
         dueDate: {
             type: "date",
             index: true,

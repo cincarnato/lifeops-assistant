@@ -11,7 +11,10 @@ class TaskMongoRepository extends AbstractMongoRepository<ITask, ITaskBase, ITas
         super();
         this._model = TaskModel;
         this._searchFields = ['title', 'description', 'nextAction', 'redmineIssueId', 'emailMessageId', 'calendarEventId'];
-        this._populateFields = ['source', 'type', 'status', 'goals', 'project', 'businessPartner', 'contacts', 'user'];
+        this._populateFields = [
+            ...['source', 'type', 'status', 'goals', 'project', 'businessPartner', 'contacts', 'user'].map(path => ({path})),
+            {path: 'delegate', populate: {path: 'contact'}}
+        ];
         this._lean = true
     }
 

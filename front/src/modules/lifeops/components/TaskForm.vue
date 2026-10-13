@@ -12,6 +12,8 @@ import GoalCombobox from "@/modules/lifeops/comboboxes/GoalCombobox.vue";
 import TaskNotes from './TaskNotes.vue';
 import TaskImportanceSelect from './TaskImportanceSelect.vue';
 import {useCrud} from '@drax/crud-vue';
+import TaskDelegableSwitch from './TaskDelegableSwitch.vue';
+import DelegateCombobox from '../comboboxes/DelegateCombobox.vue';
 
 const {t, te} = useI18n();
 const {operation} = useCrud(TaskCrud.instance);
@@ -44,6 +46,20 @@ function taskFieldLabel(label?: string) {
           :model-value="modelValue"
           :readonly="operation === 'view' || operation === 'delete'"
           @update:model-value="setValue"
+      />
+    </template>
+    <template #field.delegable="{form}">
+      <task-delegable-switch
+          v-model="form.delegable"
+          v-model:delegate="form.delegate"
+          :readonly="operation === 'view' || operation === 'delete'"
+      />
+    </template>
+    <template #field.delegate="{form}">
+      <delegate-combobox
+          v-if="form.delegable"
+          v-model="form.delegate"
+          :readonly="operation === 'view' || operation === 'delete'"
       />
     </template>
     <template #field.notes="{modelValue, setValue}">

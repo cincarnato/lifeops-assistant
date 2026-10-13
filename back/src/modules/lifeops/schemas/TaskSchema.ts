@@ -15,6 +15,8 @@ const TaskBaseSchema = z.object({
     motivationScore: z.number().nullable().optional().default(null),
     effortScore: z.number().nullable().optional().default(null),
     urgent: z.boolean().optional().default(false),
+    delegable: z.boolean().optional(),
+    delegate: z.string().regex(/^[a-f\d]{24}$/i, 'validation.invalid').nullable().optional(),
     dueDate: z.coerce.date().nullable().optional().default(null),
     scheduledDate: z.coerce.date().nullable().optional().default(null),
     taskSchedule: z.coerce.string().optional().nullable(),
@@ -48,6 +50,10 @@ const TaskSchema = TaskBaseSchema
         _id: z.coerce.string(),
         goals: z.array(z.object({_id: z.coerce.string(), name: z.string()})).optional(),
         project: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
+        delegate: z.object({
+            _id: z.coerce.string(),
+            contact: z.object({_id: z.coerce.string(), displayName: z.string()}).nullable().optional()
+        }).nullable().optional(),
         taskSchedule: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
         user: z.object({_id: z.coerce.string(), username: z.string()}),
         createdAt: z.coerce.date().nullable().optional(),

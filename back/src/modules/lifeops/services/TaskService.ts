@@ -5,6 +5,8 @@ import {AbstractService} from "@drax/crud-back";
 import type {IDraxPaginateOptions, IDraxPaginateResult} from "@drax/crud-share";
 import type {ZodObject, ZodRawShape} from "zod";
 import TaskStatusServiceFactory from "../factory/services/TaskStatusServiceFactory.js";
+import DelegateServiceFactory from '../factory/services/DelegateServiceFactory.js';
+import {ValidationError} from '@drax/common-back';
 
 class TaskService extends AbstractService<ITask, ITaskBase, ITaskBase> {
 
@@ -18,6 +20,8 @@ class TaskService extends AbstractService<ITask, ITaskBase, ITaskBase> {
 
         this._validateOutput = true
         this.transformCreate = async data => {
+            await this.prepareDelegation(data)
+            data.delegable ??= false
             data.notes = this.normalizeNotes(data.notes)
             return this.applyStatusAutomations(data)
         }
@@ -113,6 +117,7 @@ class TaskService extends AbstractService<ITask, ITaskBase, ITaskBase> {
         this.removeScheduleMetadata(data)
 
         const previousTask = await this.findById(id)
+        await this.prepareDelegation(data, previousTask)
 
         if (data.notes !== undefined) {
             data.notes = this.normalizeNotes(data.notes, previousTask?.notes)
@@ -125,6 +130,27 @@ class TaskService extends AbstractService<ITask, ITaskBase, ITaskBase> {
     private removeScheduleMetadata(data: ITaskBase): void {
         delete data.taskSchedule
         delete data.scheduledFor
+    }
+
+    private async prepareDelegation(data: ITaskBase, previousTask?: ITask | null): Promise<void> {
+        if (data.delegable === false) {
+            data.delegate = null
+            return
+        }
+
+        if (!data.delegate) {
+            return
+        }
+
+        if ((data.delegable ?? previousTask?.delegable) !== true) {
+            throw new ValidationError([{field: 'delegate', reason: 'task.delegation.requiresDelegable'}])
+        }
+
+        const delegate = await DelegateServiceFactory.instance.findById(data.delegate)
+        const user = previousTask?.user ?? data.user
+        if (!delegate?.active || String(delegate.user?._id ?? delegate.user) !== String(user?._id ?? user)) {
+            throw new ValidationError([{field: 'delegate', reason: 'task.delegation.invalidDelegate'}])
+        }
     }
 
     private applyStatusHistory(data: ITaskBase, previousTask: ITask | null): void {

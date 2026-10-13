@@ -10,12 +10,13 @@ class TaskSqliteRepository extends AbstractSqliteRepository<ITask, ITaskBase, IT
     protected tableName: string = 'Task';
     protected dataBaseFile: string;
     protected searchFields: string[] = ['title', 'description', 'redmineIssueId', 'emailMessageId', 'calendarEventId'];
-    protected booleanFields: string[] = ['urgent'];
+    protected booleanFields: string[] = ['urgent', 'delegable'];
     protected jsonFields: string[] = ['tags', 'notes', 'statusHistory'];
     protected identifier: string = '_id';
     protected populateFields = [
         { field: 'goals', table: 'goals', identifier: '_id' },
 { field: 'project', table: 'project', identifier: '_id' },
+{ field: 'delegate', table: 'Delegate', identifier: '_id' },
 { field: 'user', table: 'user', identifier: '_id' }
     ]
     protected verbose: boolean = false;
@@ -37,6 +38,8 @@ class TaskSqliteRepository extends AbstractSqliteRepository<ITask, ITaskBase, IT
 {name: "effortScore", type: "NUMERIC", unique: undefined, primary: false},
 {name: "effortScore", type: "TEXT", unique: undefined, primary: false},
 {name: "urgent", type: "INTEGER", unique: undefined, primary: false},
+{name: "delegable", type: "INTEGER", unique: false, primary: false},
+{name: "delegate", type: "TEXT", unique: false, primary: false},
 {name: "dueDate", type: "TEXT", unique: undefined, primary: false},
 {name: "scheduledDate", type: "TEXT", unique: undefined, primary: false},
 {name: "completedAt", type: "TEXT", unique: undefined, primary: false},
@@ -49,7 +52,13 @@ class TaskSqliteRepository extends AbstractSqliteRepository<ITask, ITaskBase, IT
 {name: "user", type: "TEXT", unique: undefined, primary: false},
 {name: "archivedAt", type: "TEXT", unique: undefined, primary: false}
     ]
-  
+
+    async decorate(item: any) {
+        await super.decorate(item)
+        if (item?.delegate?.contact) {
+            item.delegate.contact = this.db.prepare('SELECT * FROM Contact WHERE _id = ?').get(item.delegate.contact)
+        }
+    }
 }
 
 export default TaskSqliteRepository

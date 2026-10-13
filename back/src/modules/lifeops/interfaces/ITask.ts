@@ -30,6 +30,8 @@ interface ITaskBase {
     motivationScore?: number
     effortScore?: number
     urgent?: boolean
+    delegable?: boolean
+    delegate?: any
     dueDate?: Date
     scheduledDate?: Date
     taskSchedule?: any
@@ -63,6 +65,8 @@ interface ITask {
     motivationScore?: number
     effortScore?: number
     urgent?: boolean
+    delegable?: boolean
+    delegate?: any
     dueDate?: Date
     scheduledDate?: Date
     taskSchedule?: any

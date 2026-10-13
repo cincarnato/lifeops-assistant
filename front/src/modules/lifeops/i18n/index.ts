@@ -6,6 +6,7 @@ import BusinessPartnerMessages from "./BusinessPartner-i18n"
 import ServiceMessages from './Service-i18n'
 import ServiceTransactionMessages from './ServiceTransaction-i18n'
 import ContactMessages from "./Contact-i18n"
+import DelegateMessages from './Delegate-i18n'
 
 import TaskTypeMessages from "./TaskType-i18n"
 import TaskStatusMessages from "./TaskStatus-i18n"
@@ -33,6 +34,7 @@ const messages = merge.all([
     ServiceMessages,
     ServiceTransactionMessages,
     ContactMessages,
+    DelegateMessages,
     TaskTypeMessages,
     TaskStatusMessages,
     SourceMessages,

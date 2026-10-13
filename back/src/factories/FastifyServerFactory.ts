@@ -32,6 +32,7 @@ import {BusinessPartnerFastifyRoutes} from "../modules/lifeops/routes/BusinessPa
 import {ServiceFastifyRoutes} from "../modules/lifeops/routes/ServiceRoutes.js"
 import {ServiceTransactionFastifyRoutes} from "../modules/lifeops/routes/ServiceTransactionRoutes.js"
 import {ContactFastifyRoutes} from "../modules/lifeops/routes/ContactRoutes.js"
+import {DelegateFastifyRoutes} from "../modules/lifeops/routes/DelegateRoutes.js"
 
 import {TaskTypeFastifyRoutes} from "../modules/lifeops/routes/TaskTypeRoutes.js"
 import {TaskStatusFastifyRoutes} from "../modules/lifeops/routes/TaskStatusRoutes.js"
@@ -106,6 +107,7 @@ function FastifyServerFactory(rootDir:string) {
     server.fastifyRegister(ServiceFastifyRoutes)
     server.fastifyRegister(ServiceTransactionFastifyRoutes)
     server.fastifyRegister(ContactFastifyRoutes)
+    server.fastifyRegister(DelegateFastifyRoutes)
     server.fastifyRegister(TaskTypeFastifyRoutes)
     server.fastifyRegister(TaskStatusFastifyRoutes)
     server.fastifyRegister(SourceFastifyRoutes)

@@ -4,6 +4,7 @@ import BusinessPartnerCrudRoute from "./BusinessPartnerCrudRoute"
 import ServiceCrudRoute from './ServiceCrudRoute'
 import ServiceTransactionCrudRoute from './ServiceTransactionCrudRoute'
 import ContactCrudRoute from "./ContactCrudRoute"
+import DelegateCrudRoute from './DelegateCrudRoute'
 
 import TaskTypeCrudRoute from "./TaskTypeCrudRoute"
 import TaskStatusCrudRoute from "./TaskStatusCrudRoute"
@@ -34,6 +35,7 @@ export const routes = [
   ...ServiceCrudRoute,
   ...ServiceTransactionCrudRoute,
   ...ContactCrudRoute,
+  ...DelegateCrudRoute,
   ...TaskTypeCrudRoute,
   ...TaskStatusCrudRoute,
   ...SourceCrudRoute,

@@ -10,7 +10,7 @@ class TaskSqliteRepository extends AbstractSqliteRepository<ITask, ITaskBase, IT
     protected tableName: string = 'Task';
     protected dataBaseFile: string;
     protected searchFields: string[] = ['title', 'description', 'nextAction', 'redmineIssueId', 'emailMessageId', 'calendarEventId'];
-    protected booleanFields: string[] = ['urgent'];
+    protected booleanFields: string[] = ['urgent', 'delegable'];
     protected jsonFields: string[] = ['tags'];
     protected identifier: string = '_id';
     protected populateFields = [
@@ -19,6 +19,7 @@ class TaskSqliteRepository extends AbstractSqliteRepository<ITask, ITaskBase, IT
 { field: 'status', table: 'status', identifier: '_id' },
 { field: 'goals', table: 'goals', identifier: '_id' },
 { field: 'project', table: 'project', identifier: '_id' },
+{ field: 'delegate', table: 'Delegate', identifier: '_id' },
 { field: 'businessPartner', table: 'BusinessPartner', identifier: '_id' },
 { field: 'contacts', table: 'contacts', identifier: '_id' },
 { field: 'user', table: 'user', identifier: '_id' }
@@ -42,6 +43,8 @@ class TaskSqliteRepository extends AbstractSqliteRepository<ITask, ITaskBase, IT
 {name: "effortScore", type: "NUMERIC", unique: undefined, primary: false},
 {name: "effortScore", type: "TEXT", unique: undefined, primary: false},
 {name: "urgent", type: "INTEGER", unique: undefined, primary: false},
+{name: "delegable", type: "INTEGER", unique: false, primary: false},
+{name: "delegate", type: "TEXT", unique: false, primary: false},
 {name: "dueDate", type: "TEXT", unique: undefined, primary: false},
 {name: "scheduledDate", type: "TEXT", unique: undefined, primary: false},
 {name: "completedAt", type: "TEXT", unique: undefined, primary: false},

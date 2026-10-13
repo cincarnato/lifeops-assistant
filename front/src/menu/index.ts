@@ -166,6 +166,13 @@ const menu: MenuItem[] = [
         gallery: true,
         permission: 'contact:manage'
       },
+      {
+        icon: 'mdi-account-arrow-right-outline',
+        text: 'delegate.menu',
+        link: {name: 'DelegateCrudPage'},
+        gallery: true,
+        permission: 'delegate:manage'
+      },
 
     ]
   },

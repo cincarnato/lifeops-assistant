@@ -5,6 +5,7 @@ import BusinessPartnerSchema from './schemas/lifeops/BusinessPartnerSchema.js';
 import ServiceSchema from './schemas/lifeops/ServiceSchema.js';
 import ServiceTransactionSchema from './schemas/lifeops/ServiceTransactionSchema.js';
 import ContactSchema from './schemas/lifeops/ContactSchema.js';
+import DelegateSchema from './schemas/lifeops/DelegateSchema.js';
 
 import TaskTypeSchema from './schemas/lifeops/TaskTypeSchema.js';
 import TaskStatusSchema from './schemas/lifeops/TaskStatusSchema.js';
@@ -39,6 +40,7 @@ const schemas = [
     ServiceSchema,
     ServiceTransactionSchema,
     ContactSchema,
+    DelegateSchema,
     TaskTypeSchema,
     TaskStatusSchema,
     SourceSchema,

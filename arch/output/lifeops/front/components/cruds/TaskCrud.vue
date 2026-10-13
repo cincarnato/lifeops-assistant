@@ -8,6 +8,7 @@ import {formatDate} from "@drax/common-front"
 
 <template>
   <crud :entity="TaskCrud.instance">
+    <template #item.delegate="{value}">{{ value?.contact?.displayName }}</template>
     <template v-slot:item.source="{value}">{{value?.name}}</template>
     <template v-slot:item.type="{value}">{{value?.name}}</template>
     <template v-slot:item.status="{value}">{{value?.name}}</template>
