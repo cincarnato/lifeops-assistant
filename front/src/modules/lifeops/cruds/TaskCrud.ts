@@ -143,7 +143,7 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
       },
       {name: 'priority', type: 'string', label: 'priority', default: null,  sm: 4, md:4},
       {name: 'urgent', type: 'boolean', label: 'urgent', default: false, md: 2},
-      {name: 'importance', type: 'enum', label: 'importance', default: null, enum: ['A', 'B', 'C', 'D', 'E']},
+      {name: 'importance', type: 'enum', label: 'importance', default: null, enum: ['HIGH', 'MEDIUM', 'LOW']},
 
       {
         name: 'goals',

@@ -2,20 +2,19 @@ import {computed} from 'vue'
 import {useI18n} from 'vue-i18n'
 import type {TaskImportance} from '../interfaces/ITask'
 
-const importanceColors: Record<TaskImportance, string> = {
-  A: 'red-darken-2',
-  B: 'orange-darken-2',
-  C: 'teal-darken-1',
-  D: 'blue-darken-1',
-  E: 'grey-darken-1'
+const importanceLevels: Record<TaskImportance, {letter: string, color: string}> = {
+  HIGH: {letter: 'A', color: 'red-darken-2'},
+  MEDIUM: {letter: 'B', color: 'orange-darken-2'},
+  LOW: {letter: 'C', color: 'teal-darken-1'}
 }
 
 export function useTaskImportance() {
   const {t} = useI18n()
-  const importanceOptions = computed(() => Object.entries(importanceColors).map(([value, color]) => ({
+  const importanceOptions = computed(() => Object.entries(importanceLevels).map(([value, {letter, color}]) => ({
     value: value as TaskImportance,
+    letter,
     color,
-    title: `${value} · ${t(`task.importance.${value}.title`)}`,
+    title: `${letter} - ${t(`task.importance.${value}.title`)}`,
     description: t(`task.importance.${value}.description`)
   })))
 

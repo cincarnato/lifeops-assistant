@@ -1,5 +1,5 @@
 
-type TaskImportance = 'A' | 'B' | 'C' | 'D' | 'E'
+type TaskImportance = 'HIGH' | 'MEDIUM' | 'LOW'
 
 interface ITaskStatusHistory {
     date?: Date

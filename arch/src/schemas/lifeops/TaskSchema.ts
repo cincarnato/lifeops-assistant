@@ -46,7 +46,7 @@ const entitySchema: IEntitySchema = {
         },
         importance: {
             type: "enum",
-            enum: ["A", "B", "C", "D", "E"],
+            enum: ["HIGH", "MEDIUM", "LOW"],
             header: true,
         },
         goals: {

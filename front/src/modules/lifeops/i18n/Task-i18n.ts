@@ -6,11 +6,9 @@ const messages = {
       menu: 'Tasks',
       crud: 'Manage Task',
       importance: {
-        A: {title: 'Must do', description: 'Serious consequences if I do not do it.'},
-        B: {title: 'Should do', description: 'Minor consequences if I do not do it.'},
-        C: {title: 'Nice to do', description: 'No relevant consequences if I do not do it.'},
-        D: {title: 'Delegate', description: 'Someone else can handle it.'},
-        E: {title: 'Eliminate', description: 'Not worth spending time or attention on.'},
+        HIGH: {title: 'Must do (High)', description: 'Very important. Serious consequences if I do not do it.'},
+        MEDIUM: {title: 'Should do (Medium)', description: 'Important. Minor consequences if I do not do it.'},
+        LOW: {title: 'Could do (Low)', description: 'Interesting. No relevant consequences if I do not do it.'},
       },
       notes: {
         newNote: 'New note',
@@ -93,11 +91,9 @@ const messages = {
       menu: 'Tareas',
       crud: 'Gestionar tarea',
       importance: {
-        A: {title: 'Debo hacer', description: 'Consecuencias graves si no la realizo.'},
-        B: {title: 'Debería hacer', description: 'Consecuencias menores si no la realizo.'},
-        C: {title: 'Sería bueno hacer', description: 'Sin consecuencias relevantes si no la realizo.'},
-        D: {title: 'Delegar', description: 'Otra persona puede encargarse.'},
-        E: {title: 'Eliminar', description: 'No merece consumir tiempo ni atención.'},
+        HIGH: {title: 'Debo hacer (Alta)', description: 'Muy importante. Consecuencias graves si no la realizo.'},
+        MEDIUM: {title: 'Debería hacer (Media)', description: 'Importante. Consecuencias menores si no la realizo.'},
+        LOW: {title: 'Podría hacer (Baja)', description: 'Interesante. Sin consecuencias relevantes si no la realizo.'},
       },
       notes: {
         newNote: 'Nueva nota',

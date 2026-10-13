@@ -31,7 +31,7 @@ describe("Task endpoints", () => {
         await testSetup.dropAndClose()
     })
 
-    it.each(['A', 'B', 'C', 'D', 'E'] as const)("creates and reads tasks with importance %s", async importance => {
+    it.each(['HIGH', 'MEDIUM', 'LOW'] as const)("creates and reads tasks with importance %s", async importance => {
         const {accessToken} = await testSetup.rootUserLogin()
         const response = await testSetup.fastifyInstance.inject({
             method: "POST",
@@ -60,10 +60,10 @@ describe("Task endpoints", () => {
         const task = await TaskServiceFactory.instance.create({
             title: "Task with importance",
             user: testSetup.rootUser._id,
-            importance: 'A'
+            importance: 'HIGH'
         })
 
-        for (const importance of ['D', null]) {
+        for (const importance of ['LOW', null]) {
             const response = await testSetup.fastifyInstance.inject({
                 method,
                 url: `/api/tasks/${task._id}`,
@@ -83,18 +83,18 @@ describe("Task endpoints", () => {
         const task = await TaskServiceFactory.instance.create({
             title: "Task with importance",
             user: testSetup.rootUser._id,
-            importance: 'B'
+            importance: 'MEDIUM'
         })
         const response = await testSetup.fastifyInstance.inject({
             method,
             url: method === "POST" ? "/api/tasks" : `/api/tasks/${task._id}`,
             headers: {Authorization: `Bearer ${accessToken}`},
-            payload: {title: "Invalid importance", importance: 'F'}
+            payload: {title: "Invalid importance", importance: 'D'}
         })
 
         expect(response.statusCode).toBe(422)
         const persisted = await TaskModel.findById(task._id).lean().exec()
-        expect(persisted?.importance).toBe('B')
+        expect(persisted?.importance).toBe('MEDIUM')
     })
 
     it("keeps importance unchanged when a PATCH omits it", async () => {
@@ -102,7 +102,7 @@ describe("Task endpoints", () => {
         const task = await TaskServiceFactory.instance.create({
             title: "Task with importance",
             user: testSetup.rootUser._id,
-            importance: 'C'
+            importance: 'LOW'
         })
         const response = await testSetup.fastifyInstance.inject({
             method: "PATCH",
@@ -112,9 +112,9 @@ describe("Task endpoints", () => {
         })
 
         expect(response.statusCode).toBe(200)
-        expect(response.json().importance).toBe('C')
+        expect(response.json().importance).toBe('LOW')
         const persisted = await TaskModel.findById(task._id).lean().exec()
-        expect(persisted?.importance).toBe('C')
+        expect(persisted?.importance).toBe('LOW')
     })
 
     it("assigns note dates in the backend when creating a task", async () => {

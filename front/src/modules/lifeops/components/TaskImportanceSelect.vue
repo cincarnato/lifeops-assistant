@@ -25,7 +25,7 @@ const selectedOption = computed(() => importanceOption(model.value))
       <v-list-item v-bind="props" :subtitle="item.raw.description">
         <template #prepend>
           <v-avatar :color="item.raw.color" rounded size="36" class="mr-3">
-            {{ item.raw.value }}
+            {{ item.raw.letter }}
           </v-avatar>
         </template>
       </v-list-item>

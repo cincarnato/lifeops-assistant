@@ -48,7 +48,7 @@ describe("Task archive job", function () {
 
     it("migrates tasks archived more than 72 hours ago preserving the same id", async () => {
         const task = await createTask("old archived", olderThanGrace)
-        await TaskServiceFactory.instance.updatePartial(task._id, {importance: 'A'})
+        await TaskServiceFactory.instance.updatePartial(task._id, {importance: 'HIGH'})
 
         const result = await runJob()
 
@@ -58,12 +58,12 @@ describe("Task archive job", function () {
         const archivedTask = await TaskArchivedModel.findById(task._id).lean().exec()
         expect(archivedTask?._id.toString()).toBe(task._id.toString())
         expect(archivedTask?.title).toBe("old archived")
-        expect(archivedTask?.importance).toBe('A')
+        expect(archivedTask?.importance).toBe('HIGH')
         expect(archivedTask?.migratedAt).toBeInstanceOf(Date)
         expect(archivedTask?.schemaVersion).toBe(1)
 
         const historicalTask = await TaskServiceFactory.instance.findById(task._id)
-        expect(historicalTask?.importance).toBe('A')
+        expect(historicalTask?.importance).toBe('HIGH')
     })
 
     it("findById finds active and historical tasks", async () => {
