@@ -13,7 +13,7 @@ import LifeAreaCombobox from "@/modules/lifeops/comboboxes/LifeAreaCombobox.vue"
 import TaskProvider from "@/modules/lifeops/providers/TaskProvider";
 import type {ITask} from "@/modules/lifeops/interfaces/ITask";
 import TaskNotes from '../TaskNotes.vue'
-import TaskImportanceSelect from '../TaskImportanceSelect.vue'
+import TaskImportanceSelect from '../../comboboxes/TaskImportanceSelect.vue'
 import {useTaskImportance} from '../../composables/useTaskImportance'
 import TaskDelegableSwitch from '../TaskDelegableSwitch.vue'
 import DelegateCombobox from '../../comboboxes/DelegateCombobox.vue'

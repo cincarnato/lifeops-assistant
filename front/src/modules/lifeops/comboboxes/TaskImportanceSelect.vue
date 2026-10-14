@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {computed} from 'vue'
 import {useI18n} from 'vue-i18n'
-import type {TaskImportance} from '../interfaces/ITask'
-import {useTaskImportance} from '../composables/useTaskImportance'
+import type {TaskImportance} from '../interfaces/ITask.js'
+import {useTaskImportance} from '../composables/useTaskImportance.js'
 
 const model = defineModel<TaskImportance | null>()
 defineProps<{readonly?: boolean}>()
@@ -20,6 +20,7 @@ const selectedOption = computed(() => importanceOption(model.value))
       :hint="selectedOption?.description"
       persistent-hint
       clearable
+      variant="outlined"
   >
     <template #item="{props, item}">
       <v-list-item v-bind="props" :subtitle="item.raw.description">

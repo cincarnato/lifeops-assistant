@@ -10,7 +10,7 @@ import LifeAreaCombobox from "@/modules/lifeops/comboboxes/LifeAreaCombobox.vue"
 import ProjectCombobox from "@/modules/lifeops/comboboxes/ProjectCombobox.vue";
 import GoalCombobox from "@/modules/lifeops/comboboxes/GoalCombobox.vue";
 import TaskNotes from './TaskNotes.vue';
-import TaskImportanceSelect from './TaskImportanceSelect.vue';
+import TaskImportanceSelect from '../comboboxes/TaskImportanceSelect.vue';
 import {useCrud} from '@drax/crud-vue';
 import TaskDelegableSwitch from './TaskDelegableSwitch.vue';
 import DelegateCombobox from '../comboboxes/DelegateCombobox.vue';

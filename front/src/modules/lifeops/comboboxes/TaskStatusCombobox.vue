@@ -33,7 +33,7 @@ const {name, label} = defineProps({
   singleLine: {type: Boolean, default: false},
   addOnTheFly: {type: Boolean, default: false},
   density: {type: String as PropType<'comfortable' | 'compact' | 'default'>, default: 'default'},
-  variant: {type: String as PropType<'underlined' | 'outlined' | 'filled' | 'solo' | 'solo-inverted' | 'solo-filled' | 'plain'>, default: 'filled'},
+  variant: {type: String as PropType<'underlined' | 'outlined' | 'filled' | 'solo' | 'solo-inverted' | 'solo-filled' | 'plain'>, default: 'outlined'},
 })
 
 

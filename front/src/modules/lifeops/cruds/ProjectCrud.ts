@@ -46,9 +46,9 @@ class ProjectCrud extends EntityCrud implements IEntityCrud {
 
   get headers(): IEntityCrudHeader[] {
     return [
-      { title: 'name', key: 'name', align: 'start' },
+      {title: 'name', key: 'name', align: 'start'},
       {title: 'businessPartner', key: 'businessPartner', align: 'start'},
- { title: 'redmineProjectId', key: 'redmineProjectId', align: 'start' },
+      {title: 'redmineProjectId', key: 'redmineProjectId', align: 'start'},
       {title: 'priority', key: 'priority', align: 'start'},
       {title: 'importance', key: 'importance', align: 'start'},
       {title: 'goals', key: 'goals', align: 'start'},
@@ -96,13 +96,42 @@ class ProjectCrud extends EntityCrud implements IEntityCrud {
 
   get fields(): IEntityCrudField[] {
     return [
-      { name: 'name', type: 'string', label: 'name', default: '', cols: 12, md: 6, lg: 6 },
-      { name: 'aliases', type: 'array.string', label: 'aliases', default: [], cols: 12, md: 6, lg: 6 },
-      {name: 'businessPartner', type: 'ref', label: 'businessPartner', default: null, ref: 'BusinessPartner', refDisplay: 'name', cols: 12, md: 6, lg: 6},
-      { name: 'priority', type: 'string', label: 'priority', default: '', cols: 12, md: 6, lg: 6 },
-      {name: 'importance', type: 'enum', label: 'importance', default: null, enum: ['HIGH', 'MEDIUM', 'LOW'], cols: 12, md: 6, lg: 6},
-      {name: 'goals', type: 'array.ref', label: 'goals', default: [], ref: 'Goal', refDisplay: 'name', cols: 12, md: 6, lg: 6},
-      { name: 'redmineProjectId', type: 'string', label: 'redmineProjectId', default: '', cols: 12, md: 6, lg: 6 },
+      {name: 'name', type: 'string', label: 'name', default: '', cols: 12, md: 6, lg: 6},
+      {name: 'aliases', type: 'array.string', label: 'aliases', default: [], cols: 12, md: 6, lg: 6},
+      {
+        name: 'businessPartner',
+        type: 'ref',
+        label: 'businessPartner',
+        default: null,
+        ref: 'BusinessPartner',
+        refDisplay: 'name',
+        cols: 12,
+        md: 6,
+        lg: 6
+      },
+      {
+        name: 'goals',
+        type: 'array.ref',
+        label: 'goals',
+        default: [],
+        ref: 'Goal',
+        refDisplay: 'name',
+        cols: 12,
+        md: 6,
+        lg: 6
+      },
+      {
+        name: 'importance',
+        type: 'enum',
+        label: 'importance',
+        default: null,
+        enum: ['HIGH', 'MEDIUM', 'LOW'],
+        cols: 12,
+        md: 6,
+        lg: 6
+      },
+      {name: 'priority', type: 'string', label: 'priority', default: '', cols: 12, md: 6, lg: 6},
+      {name: 'redmineProjectId', type: 'string', label: 'redmineProjectId', default: '', cols: 12, md: 6, lg: 6},
       {name: 'tags', type: 'array.string', label: 'tags', default: [], cols: 12, md: 6, lg: 6},
       {name: 'description', type: 'longString', label: 'description', default: '', rows: 3, cols: 12, md: 12, lg: 12},
 
