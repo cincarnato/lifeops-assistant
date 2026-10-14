@@ -13,9 +13,7 @@ const messages = {
         aliases: 'Aliases',
         redmineProjectId: 'Redmine Project ID',
         businessPartner: 'Business Partner',
-        valueScore: 'Value Score',
-        motivationScore: 'Motivation Score',
-        effortScore: 'Effort Score',
+        importance: 'Importance',
 
         tags: 'Tags',
         user: 'User',
@@ -43,9 +41,7 @@ const messages = {
         aliases: 'Alias',
         redmineProjectId: 'ID de proyecto en Redmine',
         businessPartner: 'Socio comercial',
-        valueScore: 'Valor',
-        motivationScore: 'Motivación',
-        effortScore: 'Esfuerzo',
+        importance: 'Importancia',
 
         tags: 'Etiquetas',
         user: 'Usuario',

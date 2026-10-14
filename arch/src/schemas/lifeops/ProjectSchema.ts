@@ -44,17 +44,10 @@ const entitySchema: IEntitySchema = {
             index: true,
             header: true,
         },
-        valueScore: {
-            type: "number",
-            default: 5,
-        },
-        motivationScore: {
-            type: "number",
-            default: 5,
-        },
-        effortScore: {
-            type: "number",
-            default: 5,
+        importance: {
+            type: "enum",
+            enum: ["HIGH", "MEDIUM", "LOW"],
+            header: true,
         },
         redmineProjectId: {
             type: "string",

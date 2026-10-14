@@ -4,6 +4,7 @@ import {PaginateModel} from "mongoose";
 import uniqueValidator from 'mongoose-unique-validator';
 import mongoosePaginate from 'mongoose-paginate-v2'
 import type {IProject} from '../interfaces/IProject'
+import {ProjectBaseSchema} from '../schemas/ProjectSchema.js'
 
 const ProjectSchema = new mongoose.Schema<IProject>({
             name: {type: String,   required: true, index: true, unique: false },
@@ -11,9 +12,7 @@ const ProjectSchema = new mongoose.Schema<IProject>({
             priority: {type: String, required: false, index: true, unique: false },
             goals: [{type: mongoose.Schema.Types.ObjectId, ref: 'Goal', required: false, index: true}],
             businessPartner: {type: mongoose.Schema.Types.ObjectId, ref: 'BusinessPartner',  required: false, index: true, unique: false },
-            valueScore: {type: Number,   required: false, index: false, unique: false },
-            motivationScore: {type: Number,   required: false, index: false, unique: false },
-            effortScore: {type: Number,   required: false, index: false, unique: false },
+            importance: {type: String, required: false, enum: ProjectBaseSchema.shape.importance.unwrap().unwrap().options},
             redmineProjectId: {type: String,   required: false, index: false, unique: false },
             aliases: [{type: String,   required: false, index: true, unique: false }],
             tags: [{type: String,   required: false, index: true, unique: false }],

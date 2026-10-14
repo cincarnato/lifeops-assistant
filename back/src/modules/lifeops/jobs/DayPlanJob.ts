@@ -322,7 +322,7 @@ class DayPlanJob {
                 name: project.name,
                 description: project.description,
                 priority: project.priority,
-                valueScore: project.valueScore,
+                importance: project.importance,
             })), null, 2),
         ].join("\n");
     }

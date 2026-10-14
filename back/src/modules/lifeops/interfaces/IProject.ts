@@ -1,3 +1,7 @@
+import type {z} from 'zod'
+import type {ProjectBaseSchema} from '../schemas/ProjectSchema.js'
+
+type ProjectImportance = z.infer<typeof ProjectBaseSchema.shape.importance>
 
 interface IProjectBase {
     name: string
@@ -5,9 +9,7 @@ interface IProjectBase {
     priority?: string
     goals?: Array<any>
     businessPartner?: any
-    valueScore?: number
-    motivationScore?: number
-    effortScore?: number
+    importance?: ProjectImportance
     redmineProjectId?: string
     aliases?: Array<string>
     tags?: Array<string>
@@ -24,9 +26,7 @@ interface IProject {
     priority?: string
     goals?: Array<any>
     businessPartner?: any
-    valueScore?: number
-    motivationScore?: number
-    effortScore?: number
+    importance?: ProjectImportance
     redmineProjectId?: string
     aliases?: Array<string>
     tags?: Array<string>

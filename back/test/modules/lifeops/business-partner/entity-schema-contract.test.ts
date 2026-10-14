@@ -4,9 +4,38 @@ import {BusinessPartnerBaseSchema, BusinessPartnerSchema} from "../../../../src/
 import {ProjectModel} from "../../../../src/modules/lifeops/models/ProjectModel"
 import {BusinessPartnerModel} from "../../../../src/modules/lifeops/models/BusinessPartnerModel"
 
-const removedProjectFields = ["priorityScore", "startDate", "targetDate", "completedAt", "progressPercent"]
+const removedProjectFields = ["priorityScore", "startDate", "targetDate", "completedAt", "progressPercent", "valueScore", "motivationScore", "effortScore"]
 
 describe("Project and BusinessPartner entity contracts", () => {
+    it.each(['HIGH', 'MEDIUM', 'LOW', null, undefined])("accepts importance %s in Project inputs, outputs and Mongo documents", importance => {
+        const input = {name: "Project", user: "507f1f77bcf86cd799439011", importance}
+        const output = {...input, _id: "project-id", user: {_id: input.user, username: "User"}}
+
+        expect(ProjectBaseSchema.parse(input).importance).toBe(importance)
+        expect(ProjectSchema.parse(output).importance).toBe(importance)
+        const project = new ProjectModel(input)
+        expect(project.validateSync()).toBeUndefined()
+        expect(project.importance).toBe(importance)
+    })
+
+    it.each(['URGENT', '', 1])("rejects invalid Project importance %s", importance => {
+        const input = {name: "Project", user: "507f1f77bcf86cd799439011", importance}
+        const output = {...input, _id: "project-id", user: {_id: input.user, username: "User"}}
+
+        expect(ProjectBaseSchema.safeParse(input).success).toBe(false)
+        expect(ProjectSchema.safeParse(output).success).toBe(false)
+        expect(new ProjectModel(input).validateSync()?.errors.importance).toBeDefined()
+    })
+
+    it("does not default Project importance and preserves PATCH omission and clearing", () => {
+        const input = {name: "Project", user: "user-id"}
+        expect(ProjectBaseSchema.parse(input)).not.toHaveProperty("importance")
+        expect(new ProjectModel(input).toObject()).not.toHaveProperty("importance")
+        expect(ProjectBaseSchema.partial().parse({name: "Renamed"})).not.toHaveProperty("importance")
+        expect(ProjectBaseSchema.partial().parse({importance: null})).toHaveProperty("importance", null)
+        expect(ProjectModel.schema.path("importance").options.enum).toEqual(['HIGH', 'MEDIUM', 'LOW'])
+    })
+
     it("accepts goal ids in inputs and populated goals in outputs without injecting them into PATCH", () => {
         const input = {name: "Project", user: "user-id", goals: ["goal-id"]}
         const goals = [{_id: "goal-id", name: "Goal"}]
@@ -41,7 +70,8 @@ describe("Project and BusinessPartner entity contracts", () => {
     it("removes obsolete Project fields from input and output contracts", () => {
         const legacyFields = {
             priorityScore: 9, startDate: "2026-01-01",
-            targetDate: "2026-02-01", completedAt: "2026-02-01", progressPercent: 100
+            targetDate: "2026-02-01", completedAt: "2026-02-01", progressPercent: 100,
+            valueScore: 8, motivationScore: 7, effortScore: 6
         }
         const input = {name: "Project", user: "user-id", ...legacyFields}
         const output = {...input, _id: "project-id", user: {_id: "user-id", username: "User"}}

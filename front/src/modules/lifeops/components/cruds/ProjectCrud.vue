@@ -2,10 +2,33 @@
 import ProjectCrud from '../../cruds/ProjectCrud'
 import {Crud} from '@drax/crud-vue'
 import PriorityCombobox from '../../comboboxes/PriorityCombobox.vue'
+import TaskImportanceSelect from '../../comboboxes/TaskImportanceSelect.vue'
+import {useTaskImportance} from '../../composables/useTaskImportance'
+import {useI18n} from 'vue-i18n'
+import {ref} from 'vue'
+import type {IEntityCrudOperation} from '@drax/crud-share'
+
+const {t} = useI18n()
+const {importanceOption} = useTaskImportance()
+const operation = ref<IEntityCrudOperation>()
 </script>
 
 <template>
-  <crud :entity="ProjectCrud.instance">
+  <crud :entity="ProjectCrud.instance" @operation="operation = $event">
+    <template #field.importance="{modelValue, setValue}">
+      <task-importance-select
+        :model-value="modelValue"
+        :label="t('project.field.importance')"
+        :readonly="operation === 'view' || operation === 'delete'"
+        @update:model-value="setValue"
+      />
+    </template>
+    <template #item.importance="{value}">
+      <v-chip v-if="value" :color="importanceOption(value)?.color" size="small">
+        {{ importanceOption(value)?.title }}
+      </v-chip>
+      <span v-else class="text-medium-emphasis">—</span>
+    </template>
     <template #field.priority="{field, form}">
       <priority-combobox
         v-model="form.priority"

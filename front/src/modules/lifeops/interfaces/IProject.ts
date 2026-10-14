@@ -1,3 +1,4 @@
+type ProjectImportance = 'HIGH' | 'MEDIUM' | 'LOW'
 
 interface IProjectBase {
     name: string
@@ -6,9 +7,7 @@ interface IProjectBase {
     goals?: Array<any>
     redmineProjectId?: string
     businessPartner?: any
-    valueScore?: number
-    motivationScore?: number
-    effortScore?: number
+    importance?: ProjectImportance | null
     aliases?: Array<string>
     tags?: Array<string>
     user: any
@@ -25,9 +24,7 @@ interface IProject {
     goals?: Array<any>
     redmineProjectId?: string
     businessPartner?: any
-    valueScore?: number
-    motivationScore?: number
-    effortScore?: number
+    importance?: ProjectImportance | null
     aliases?: Array<string>
     tags?: Array<string>
     user: any
