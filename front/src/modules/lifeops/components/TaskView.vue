@@ -218,7 +218,6 @@ function normalizeNotes(notes?: ITask["notes"]) {
       <v-card v-if="task.instruction" class="mb-4" variant="outlined">
         <v-card-title>{{ t('task.field.instruction') }}: {{ task.instruction.title }}</v-card-title>
         <v-card-text>
-          <p v-if="task.instruction.description" class="mb-3">{{ task.instruction.description }}</p>
           <div class="text-body-1" style="white-space: pre-wrap">{{ task.instruction.content }}</div>
         </v-card-text>
       </v-card>

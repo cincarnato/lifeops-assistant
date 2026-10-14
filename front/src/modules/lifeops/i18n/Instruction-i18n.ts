@@ -8,7 +8,6 @@ const messages = {
           crud: 'Instruction library',
           field:{
                        title:'Title',
-           description:'Description',
            content:'Content'
           },
           tabs: {
@@ -30,7 +29,6 @@ const messages = {
           crud: 'Biblioteca de instrucciones',
           field:{
                        title:'Título',
-           description:'Descripción',
            content:'Contenido'
           },
           tabs: {

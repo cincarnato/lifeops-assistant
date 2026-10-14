@@ -8,7 +8,6 @@ const messages = {
           crud: 'Instruction',
           field:{
                        title:'title',
-           description:'description',
            content:'content'
           },
           tabs: {
@@ -30,7 +29,6 @@ const messages = {
           crud: 'Instruction',
           field:{
                        title:'title',
-           description:'description',
            content:'content'
           },
           tabs: {

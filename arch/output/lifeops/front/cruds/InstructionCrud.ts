@@ -47,7 +47,6 @@ class InstructionCrud extends EntityCrud implements IEntityCrud {
   get headers(): IEntityCrudHeader[] {
     return [
         {title: 'title',key:'title', align: 'start'},
-{title: 'description',key:'description', align: 'start'}
     ]
   }
 
@@ -88,7 +87,6 @@ content: [(v: any) => !!v || 'validation.required']
   get fields(): IEntityCrudField[]{
     return [
         {name:'title',type:'string',label:'title',default:''},
-{name:'description',type:'longString',label:'description',default:''},
 {name:'content',type:'longString',label:'content',default:''}
     ]
   }

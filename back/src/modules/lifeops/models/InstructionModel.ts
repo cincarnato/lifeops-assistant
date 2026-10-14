@@ -7,7 +7,6 @@ import type {IInstruction} from '../interfaces/IInstruction'
 
 const InstructionSchema = new mongoose.Schema<IInstruction>({
             title: {type: String,   required: true, index: false, unique: false },
-            description: {type: String,   required: false, index: false, unique: false },
             content: {type: String,   required: true, index: false, unique: false }
 }, {timestamps: true});
 

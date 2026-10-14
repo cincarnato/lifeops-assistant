@@ -9,7 +9,7 @@ class InstructionSqliteRepository extends AbstractSqliteRepository<IInstruction,
     protected db: any;
     protected tableName: string = 'Instruction';
     protected dataBaseFile: string;
-    protected searchFields: string[] = ['title', 'description'];
+    protected searchFields: string[] = ['title'];
     protected booleanFields: string[] = [];
     protected jsonFields: string[] = [];
     protected identifier: string = '_id';
@@ -19,7 +19,6 @@ class InstructionSqliteRepository extends AbstractSqliteRepository<IInstruction,
     protected verbose: boolean = false;
     protected tableFields: SqliteTableField[] = [
         {name: "title", type: "TEXT", unique: undefined, primary: false},
-{name: "description", type: "TEXT", unique: undefined, primary: false},
 {name: "content", type: "TEXT", unique: undefined, primary: false}
     ]
 

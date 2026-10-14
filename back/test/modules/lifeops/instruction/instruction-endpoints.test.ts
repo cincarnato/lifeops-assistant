@@ -33,7 +33,7 @@ describe('Instruction library and task instructions', () => {
 
     async function createInstruction() {
         return InstructionServiceFactory.instance.create({
-            title: 'Pagar tarjeta', description: 'Procedimiento mensual', content: '1. Revisar resumen\n2. Pagar saldo'
+            title: 'Pagar tarjeta', content: '1. Revisar resumen\n2. Pagar saldo'
         })
     }
 
@@ -45,19 +45,20 @@ describe('Instruction library and task instructions', () => {
         expect(created.statusCode).toBe(200)
         const instruction = created.json()
         expect(instruction).toMatchObject({title: 'Pagar tarjeta', content: 'Revisar resumen'})
+        expect(instruction).not.toHaveProperty('description')
         const read = await testSetup.fastifyInstance.inject({method: 'GET', url: `/api/instructions/${instruction._id}`, headers})
         expect(read.statusCode).toBe(200)
         expect(read.json()).toEqual(instruction)
         const updated = await testSetup.fastifyInstance.inject({
             method: 'PUT', url: `/api/instructions/${instruction._id}`, headers,
-            payload: {title: 'Pagar resumen', content: 'Revisar y pagar', description: 'Mensual'}
+            payload: {title: 'Pagar resumen', content: 'Revisar y pagar'}
         })
         expect(updated.statusCode).toBe(200)
         const patched = await testSetup.fastifyInstance.inject({
             method: 'PATCH', url: `/api/instructions/${instruction._id}`, headers, payload: {title: 'Pago mensual'}
         })
         expect(patched.statusCode).toBe(200)
-        expect(patched.json()).toMatchObject({title: 'Pago mensual', content: 'Revisar y pagar', description: 'Mensual'})
+        expect(patched.json()).toMatchObject({title: 'Pago mensual', content: 'Revisar y pagar'})
         const deleted = await testSetup.fastifyInstance.inject({method: 'DELETE', url: `/api/instructions/${instruction._id}`, headers})
         expect(deleted.statusCode).toBe(200)
         const missing = await testSetup.fastifyInstance.inject({method: 'GET', url: `/api/instructions/${instruction._id}`, headers})
@@ -69,7 +70,7 @@ describe('Instruction library and task instructions', () => {
         const paginated = await testSetup.fastifyInstance.inject({method: 'GET', url: '/api/instructions', headers})
         expect(paginated.statusCode).toBe(200)
         expect(paginated.json().total).toBe(1)
-        const searched = await testSetup.fastifyInstance.inject({method: 'GET', url: '/api/instructions/search?search=mensual', headers})
+        const searched = await testSetup.fastifyInstance.inject({method: 'GET', url: '/api/instructions/search?search=tarjeta', headers})
         expect(searched.statusCode).toBe(200)
         expect(searched.json()).toHaveLength(1)
     })

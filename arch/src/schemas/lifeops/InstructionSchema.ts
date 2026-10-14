@@ -8,7 +8,6 @@ const entitySchema: IEntitySchema = {
     collectionName: "Instruction",
     schema: {
         title: {type: "string", required: true, search: true, header: true},
-        description: {type: "longString", search: true, header: true},
         content: {type: "longString", required: true},
     },
 };

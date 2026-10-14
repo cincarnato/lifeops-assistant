@@ -1,7 +1,6 @@
 
 interface IInstructionBase {
     title: string
-    description?: string
     content: string
     createdAt?: Date
     updatedAt?: Date
@@ -10,7 +9,6 @@ interface IInstructionBase {
 interface IInstruction {
     _id: string
     title: string
-    description?: string
     content: string
     createdAt?: Date
     updatedAt?: Date
