@@ -31,6 +31,7 @@ const TaskCrud = evaluate(read('cruds/TaskCrud.ts'), {
   '../providers/TaskProvider': {default: {instance: {}}},
   '../providers/ProjectProvider': {default: {instance: {findById: async id => projectLookup(id)}}},
   './GoalCrud': {default: {instance: {}}}, './ProjectCrud': {default: {instance: {}}},
+  './InstructionCrud': {default: {instance: {}}}, './DelegateCrud': {default: {instance: {}}},
 }).default
 const taskStore = useCrudStore('Task')
 const taskCrud = TaskCrud.instance

@@ -116,23 +116,43 @@ const serviceEntities = entities.filter(entity => ['services', 'serviceTransacti
 equal(center.centerWorkspaceTabs(serviceEntities).map(({key, tab}) => ({key, tab})), [{key: 'services', tab: 'services'}])
 equal(center.centerWorkspaceTabs([serviceEntities[1]]).map(({key, tab}) => ({key, tab})), [{key: 'services', tab: 'serviceTransactions'}])
 assert.equal(center.centerWorkspaceTabs(entities).length, 9)
-assert.equal(center.centerMetrics.filter(metric => metric.tab === 'serviceTransactions').length, 1)
+equal(center.centerMetrics.filter(metric => metric.tab === 'serviceTransactions').map(({preset, aggregate}) => ({preset, aggregate})), [
+  {preset: 'pending'}, {preset: 'paid_month'},
+  {preset: 'income_month', aggregate: 'amount'}, {preset: 'expense_month', aggregate: 'amount'},
+])
 
 const granted = new Set(['servicetransaction:manage'])
 const requests = []
+const monthlyRequests = []
+transactionProvider.monthly = async period => {
+  monthlyRequests.push(period)
+  return {
+    transactions: [{status: 'PAID'}, {status: 'PENDING'}, {status: 'PAID'}],
+    collectedIncome: 1500,
+    paidExpenses: 400,
+  }
+}
 transactionProvider.paginate = async options => { requests.push(options); return {items: [], total: 37} }
 const route = vue.reactive({query: {tab: 'serviceTransactions', preset: 'pending'}})
 const createWorkspace = () => evaluate(read('components/command-center/useCommandCenter.ts'), {
   vue: {...vue, onBeforeUnmount: () => {}}, './commandCenter': center,
   '@drax/identity-vue': {useAuth: () => ({hasPermission: permission => granted.has(permission)})},
   'vue-router': {useRoute: () => route, useRouter: () => ({replace: async ({query}) => { route.query = query; await vue.nextTick() }})},
+  '../../providers/AgentJobExecutionProvider': {default: {instance: generic.provider}},
+  '../../providers/ServiceTransactionProvider': {default: {instance: transactionProvider}},
 }).useCommandCenter()
 const workspace = createWorkspace()
 assert.equal(workspace.can('services', 'view'), false)
 for (const operation of ['view', 'create', 'update', 'delete']) assert.equal(workspace.can('serviceTransactions', operation), true)
 equal(workspace.visibleEntities.value.map(entity => entity.key), ['serviceTransactions'])
 await workspace.loadMetrics()
-assert.equal(workspace.metrics.find(metric => metric.tab === 'serviceTransactions').total, 37)
+equal(workspace.metrics.filter(metric => metric.tab === 'serviceTransactions').map(({preset, total, error}) => ({preset, total, error})), [
+  {preset: 'pending', total: 37, error: false},
+  {preset: 'paid_month', total: 2, error: false},
+  {preset: 'income_month', total: 1500, error: false},
+  {preset: 'expense_month', total: 400, error: false},
+])
+equal(monthlyRequests, [center.currentPeriod()])
 equal(requests.at(-1).filters, [{field: 'status', operator: 'eq', value: 'PENDING'}])
 workspace.navigate({tab: 'serviceTransactions', context: {field: 'service', id: 's1', label: 'Internet'}})
 await vue.nextTick()
