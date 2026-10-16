@@ -8,30 +8,21 @@ import {setupAuth} from "./setup/SetupAuth";
 import setupSetting from "./setup/SetupSetting";
 import SetupEntities from "./setup/SetupEntities";
 
-//Setup App
-const app = createApp(App)
+async function bootstrap() {
+  const app = createApp(App)
 
-//Setup Pinia
-app.use(pinia)
+  app.use(pinia)
+  await setupAuth()
 
-//Setup Settings
-setupSetting().then(() => {console.log("Setting Setup Done")})
+  setupSetting().then(() => {console.log("Setting Setup Done")})
+  SetupEntities()
 
-//Setup Entities
-SetupEntities()
+  app
+    .use(vuetify)
+    .use(router)
+    .use(indexI18n)
 
-//Setup Custom Identity Cruds
-//setupCustomIdentity()
+  app.mount('#app')
+}
 
-
-//Setup Router, I18n and Vuetify
-app
-  .use(vuetify)
-  .use(router)
-  .use(indexI18n)
-
-//Setup Auth
-setupAuth()
-
-//Mount App
-app.mount('#app')
+void bootstrap()

@@ -16,11 +16,27 @@ const router = createRouter({
   routes,
 })
 
-import {useAuth} from "@drax/identity-vue";
+import {isRememberMeEnabled, refreshAuthSession, useAuth, useAuthStore} from "@drax/identity-vue";
 
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
+  try {
+    await refreshAuthSession()
+  } catch {
+    // Rejected credentials are cleared by Identity; transient failures remain recoverable.
+  }
+
   const {isAuthenticated, hasPermission} = useAuth()
-  if ( !['Login'].includes(to.name as string) && (to.meta.auth && !isAuthenticated()) || (to.meta.permission && !hasPermission(to.meta.permission as string))) {
+  const requiresAuth = !['Login'].includes(to.name as string) && to.meta.auth
+  const requiresPermission = to.meta.permission as string | undefined
+
+  if (requiresAuth || requiresPermission) {
+    const authStore = useAuthStore()
+    if (!isAuthenticated() && isRememberMeEnabled() && authStore.refreshToken) {
+      return false
+    }
+  }
+
+  if ((requiresAuth && !isAuthenticated()) || (requiresPermission && !hasPermission(requiresPermission))) {
     return {path: '/login', query: {redirect: to.fullPath}}
   }
 })
