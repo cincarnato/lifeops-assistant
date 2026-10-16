@@ -13,6 +13,8 @@ import type {
 import GoalProvider from "../providers/GoalProvider";
 
 //Import EntityCrud Refs
+import PriorityCrud from './PriorityCrud';
+import LifeAreaCrud from './LifeAreaCrud';
 import {UserCrud} from "@drax/identity-vue"
 
 
@@ -77,6 +79,8 @@ class GoalCrud extends EntityCrud implements IEntityCrud {
 
   get refs(): IEntityCrudRefs {
     return {
+      Priority: PriorityCrud.instance,
+      LifeArea: LifeAreaCrud.instance,
       User: UserCrud.instance
     }
   }
@@ -93,14 +97,17 @@ class GoalCrud extends EntityCrud implements IEntityCrud {
       {name: 'description', type: 'longString', label: 'description', default: ''},
       {
         name: 'priority',
-        type: 'string',
+        type: 'refvalue',
+        ref: 'Priority',
+        refDisplay: 'name',
+        refValue: 'name',
         label: 'priority',
         default: ''
       },
       {name: 'valueScore', type: 'number', label: 'valueScore', default: 5},
       {name: 'motivationScore', type: 'number', label: 'motivationScore', default: 5},
       {name: 'effortScore', type: 'number', label: 'effortScore', default: 5},
-      {name: 'lifeArea', type: 'string', label: 'lifeArea', default: ''},
+      {name: 'lifeArea', type: 'refvalue', ref: 'LifeArea', refDisplay: 'name', refValue: 'name', label: 'lifeArea', default: ''},
       {
         name: 'timeHorizon',
         type: 'enum',

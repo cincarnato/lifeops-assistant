@@ -85,6 +85,7 @@ for (const name of ['Project', 'BusinessPartner']) {
     './BusinessPartnerCrud': {default: {instance: {}}},
     './GoalCrud': {default: {instance: {}}},
     './ContactCrud': {default: {instance: {}}},
+    './PriorityCrud': {default: {instance: {}}},
   }
   const crud = evaluate(read(`cruds/${name}Crud.ts`), imports).default.instance
   const removed = name === 'Project' ? removedProjectFields : ['redmineProjectIds']

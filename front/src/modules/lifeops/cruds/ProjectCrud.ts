@@ -16,6 +16,7 @@ import ProjectProvider from "../providers/ProjectProvider";
 
 import BusinessPartnerCrud from "./BusinessPartnerCrud";
 import GoalCrud from "./GoalCrud";
+import PriorityCrud from './PriorityCrud';
 import {UserCrud} from "@drax/identity-vue"
 
 class ProjectCrud extends EntityCrud implements IEntityCrud {
@@ -84,6 +85,7 @@ class ProjectCrud extends EntityCrud implements IEntityCrud {
 
       BusinessPartner: BusinessPartnerCrud.instance,
       Goal: GoalCrud.instance,
+      Priority: PriorityCrud.instance,
       User: UserCrud.instance
     }
   }
@@ -130,7 +132,7 @@ class ProjectCrud extends EntityCrud implements IEntityCrud {
         md: 6,
         lg: 6
       },
-      {name: 'priority', type: 'string', label: 'priority', default: '', cols: 12, md: 6, lg: 6},
+      {name: 'priority', type: 'refvalue', ref: 'Priority', refDisplay: 'name', refValue: 'name', label: 'priority', default: '', cols: 12, md: 6, lg: 6},
       {name: 'redmineProjectId', type: 'string', label: 'redmineProjectId', default: '', cols: 12, md: 6, lg: 6},
       {name: 'tags', type: 'array.string', label: 'tags', default: [], cols: 12, md: 6, lg: 6},
       {name: 'description', type: 'longString', label: 'description', default: '', rows: 3, cols: 12, md: 12, lg: 12},

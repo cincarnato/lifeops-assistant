@@ -18,6 +18,10 @@ import GoalCrud from "./GoalCrud";
 import ProjectCrud from "./ProjectCrud";
 import InstructionCrud from "./InstructionCrud";
 import DelegateCrud from './DelegateCrud';
+import PriorityCrud from './PriorityCrud';
+import SourceCrud from './SourceCrud';
+import LifeAreaCrud from './LifeAreaCrud';
+import TaskTypeCrud from './TaskTypeCrud';
 import {UserCrud} from "@drax/identity-vue"
 
 class TaskCrud extends EntityCrud implements IEntityCrud {
@@ -99,6 +103,10 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
       Project: ProjectCrud.instance,
       Instruction: InstructionCrud.instance,
       Delegate: DelegateCrud.instance,
+      Priority: PriorityCrud.instance,
+      Source: SourceCrud.instance,
+      LifeArea: LifeAreaCrud.instance,
+      TaskType: TaskTypeCrud.instance,
       User: UserCrud.instance
     }
   }
@@ -172,14 +180,14 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
 
 
       {name: 'instruction', type: 'ref', label: 'instruction', default: null, ref: 'Instruction', groupTab: 'INSTRUCTIONS', refDisplay: 'title'},
-      {name: 'source', type: 'string', label: 'source', default: null, groupTab: 'CLASSIFICATION', sm: 4, md:4},
-      {name: 'type', type: 'string', label: 'type', default: null, groupTab: 'CLASSIFICATION', sm: 4, md:4},
-      {name: 'lifeArea', type: 'string', label: 'lifeArea', default: null, groupTab: 'CLASSIFICATION', sm: 4, md:4},
+      {name: 'source', type: 'refvalue', ref: 'Source', refDisplay: 'name', refValue: 'name', label: 'source', default: null, groupTab: 'CLASSIFICATION', sm: 4, md:4},
+      {name: 'type', type: 'refvalue', ref: 'TaskType', refDisplay: 'name', refValue: 'name', label: 'type', default: null, groupTab: 'CLASSIFICATION', sm: 4, md:4},
+      {name: 'lifeArea', type: 'refvalue', ref: 'LifeArea', refDisplay: 'name', refValue: 'name', label: 'lifeArea', default: null, groupTab: 'CLASSIFICATION', sm: 4, md:4},
 
 
       {name: 'tags', type: 'array.string', label: 'tags', default: [], groupTab: 'CLASSIFICATION', sm:12, md: 12},
 
-      {name: 'priority', type: 'string', label: 'priority', default: null,   groupTab: 'CLASSIFICATION', sm: 3},
+      {name: 'priority', type: 'refvalue', ref: 'Priority', refDisplay: 'name', refValue: 'name', label: 'priority', default: null,   groupTab: 'CLASSIFICATION', sm: 3},
       {name: 'valueScore', type: 'number', label: 'valueScore', default: null, groupTab: 'CLASSIFICATION', sm: 3},
       {name: 'motivationScore', type: 'number', label: 'motivationScore', default: null, groupTab: 'CLASSIFICATION', sm: 3},
       {name: 'effortScore', type: 'number', label: 'effortScore', default: null, groupTab: 'CLASSIFICATION', sm: 3},

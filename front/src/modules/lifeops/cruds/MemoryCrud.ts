@@ -13,6 +13,10 @@ import type {
 import MemoryProvider from "../providers/MemoryProvider";
 
 //Import EntityCrud Refs
+import MemoryTypeCrud from './MemoryTypeCrud';
+import LifeAreaCrud from './LifeAreaCrud';
+import PriorityCrud from './PriorityCrud';
+import SourceCrud from './SourceCrud';
 
 
 class MemoryCrud extends EntityCrud implements IEntityCrud {
@@ -73,7 +77,12 @@ class MemoryCrud extends EntityCrud implements IEntityCrud {
   }
 
   get refs(): IEntityCrudRefs {
-    return {}
+    return {
+      MemoryType: MemoryTypeCrud.instance,
+      LifeArea: LifeAreaCrud.instance,
+      Priority: PriorityCrud.instance,
+      Source: SourceCrud.instance
+    }
   }
 
   get rules(): IEntityCrudRules {
@@ -88,10 +97,10 @@ class MemoryCrud extends EntityCrud implements IEntityCrud {
     return [
       {name: 'title', type: 'string', label: 'title', default: ''},
       {name: 'content', type: 'longString', label: 'content', default: ''},
-      {name: 'type', type: 'string', label: 'type', default: null, md: 3},
-      {name: 'lifeArea', type: 'string', label: 'lifeArea', default: null, md: 3},
-      {name: 'priority', type: 'string', label: 'priority', default: null, md: 3},
-      {name: 'source', type: 'string', label: 'source', default: null, md: 3},
+      {name: 'type', type: 'refvalue', ref: 'MemoryType', refDisplay: 'name', refValue: 'name', label: 'type', default: null, md: 3},
+      {name: 'lifeArea', type: 'refvalue', ref: 'LifeArea', refDisplay: 'name', refValue: 'name', label: 'lifeArea', default: null, md: 3},
+      {name: 'priority', type: 'refvalue', ref: 'Priority', refDisplay: 'name', refValue: 'name', label: 'priority', default: null, md: 3},
+      {name: 'source', type: 'refvalue', ref: 'Source', refDisplay: 'name', refValue: 'name', label: 'source', default: null, md: 3},
       {name: 'tags', type: 'array.string', label: 'tags', default: []}
     ]
   }
