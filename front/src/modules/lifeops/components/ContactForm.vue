@@ -149,356 +149,358 @@ function cancel() {
 
 <template>
   <v-form class="contact-form" @submit.prevent="submit">
-    <div class="contact-form__heading d-flex align-center justify-space-between ga-3 mb-4">
-      <div class="min-width-0">
-        <div class="text-caption text-medium-emphasis mb-1">{{ operationTitle }}</div>
-        <h2 class="text-h5 font-weight-bold text-truncate">
-          {{ namePreview || t('contact.form.newContact') }}
-        </h2>
-      </div>
-      <v-chip :color="statusColor" size="small" variant="tonal">
-        <v-icon icon="mdi-circle" size="8" start />
-        {{ t(`contact.form.status.${form.status}`) }}
-      </v-chip>
-    </div>
-
-    <v-alert v-if="isDelete" type="warning" variant="tonal" class="mb-4">
-      {{ t('contact.form.deleteWarning') }}
-    </v-alert>
-    <v-alert v-if="localError || error" type="error" variant="tonal" class="mb-4">
-      {{ localError || error }}
-    </v-alert>
-
-    <v-card class="contact-form__profile mb-4" rounded="xl" variant="outlined">
-      <v-card-text>
-        <v-row align="center">
-          <v-col cols="12" md="3" class="d-flex flex-column align-center">
-            <div class="contact-form__avatar-wrap mb-4">
-              <v-avatar size="96" color="primary" variant="tonal">
-                <v-img v-if="form.photoUrl" :src="form.photoUrl" cover />
-                <span v-else-if="namePreview" class="text-h5 font-weight-bold">{{ initials }}</span>
-                <v-icon v-else icon="mdi-account-outline" size="44" />
-              </v-avatar>
-              <v-btn
-                v-if="!readOnlyMode"
-                class="contact-form__camera"
-                color="primary"
-                icon="mdi-camera"
-                size="small"
-                :aria-label="t('contact.form.changePhoto')"
-                :title="t('contact.form.changePhoto')"
-                elevation="0"
-                @click="choosePhoto"
-              />
-              <input ref="photoInput" class="d-none" type="file" accept="image/png,image/jpeg,image/webp" @change="loadPhoto">
-            </div>
-            <span class="text-caption text-medium-emphasis text-center">{{ t('contact.form.photoHint') }}</span>
-          </v-col>
-
-          <v-col cols="12" md="9">
-            <div class="d-flex align-center ga-2 mb-3">
-              <v-icon icon="mdi-badge-account-outline" color="primary" />
-              <div>
-                <div class="contact-form__label mb-0">{{ t('contact.form.googleDisplayName') }}</div>
-                <div class="text-body-1 font-weight-medium">{{ namePreview || t('contact.form.newContact') }}</div>
-              </div>
-            </div>
-            <v-row dense>
-              <v-col cols="12" sm="6">
-                <label class="contact-form__label">{{ t('contact.form.givenName') }}</label>
-                <v-text-field v-model="form.givenName" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
-              </v-col>
-              <v-col cols="12" sm="6">
-                <label class="contact-form__label">{{ t('contact.form.familyName') }}</label>
-                <v-text-field v-model="form.familyName" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
-              </v-col>
-              <v-col cols="12">
-                <label class="contact-form__label">{{ t('contact.form.nickname') }}</label>
-                <v-text-field v-model="form.nickname" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
-              </v-col>
-            </v-row>
-          </v-col>
-        </v-row>
-      </v-card-text>
-    </v-card>
-
-    <v-tabs
-      v-model="tab"
-      class="contact-form__tabs mb-4"
-      color="primary"
-      grow
-      show-arrows
-      height="52"
-      hide-slider
-      rounded="lg"
-    >
-      <v-tab value="general" prepend-icon="mdi-card-account-details-outline">{{ t('contact.form.tabs.general') }}</v-tab>
-      <v-tab value="addresses" prepend-icon="mdi-map-marker-outline">
-        {{ t('contact.form.tabs.addresses') }}
-        <v-chip size="x-small" class="ml-2">{{ form.addresses.length }}</v-chip>
-      </v-tab>
-      <v-tab value="more" prepend-icon="mdi-dots-horizontal">{{ t('contact.form.tabs.more') }}</v-tab>
-    </v-tabs>
-
-    <v-tabs-window v-model="tab">
-      <v-tabs-window-item value="general">
-        <v-row>
-          <v-col cols="12" lg="6">
-            <v-card rounded="lg" variant="outlined" height="100%">
-              <v-card-title class="contact-form__section-title">
-                <v-icon color="primary" icon="mdi-phone-outline" />
-                {{ t('contact.form.phones') }}
-                <v-spacer />
-                <span class="text-caption text-medium-emphasis">{{ t('contact.form.registered', {count: form.phones.length}) }}</span>
-              </v-card-title>
-              <v-divider />
-              <v-card-text class="d-flex flex-column ga-2">
-                <div v-for="(phone, index) in form.phones as IContactPhone[]" :key="index" class="contact-form__channel d-flex align-center ga-2">
-                  <v-btn
-                    :icon="phone.primary ? 'mdi-star' : 'mdi-star-outline'"
-                    :color="phone.primary ? 'primary' : 'secondary'"
-                    variant="text"
-                    size="small"
-                    :disabled="readOnlyMode"
-                    :aria-label="t('contact.form.makePrimary')"
-                    @click="setPrimary(form.phones, index)"
-                  />
-                  <v-text-field v-model="phone.value" :readonly="readOnlyMode" :placeholder="t('contact.form.phonePlaceholder')" variant="outlined" hide-details density="compact" />
-                  <v-select v-model="phone.type" :readonly="readOnlyMode" :items="phoneTypes" variant="outlined" hide-details density="compact" class="contact-form__type-select" />
-                  <v-btn v-if="!readOnlyMode" icon="mdi-close" color="secondary" variant="text" size="small" @click="removeItem(form.phones, index)" />
-                </div>
-                <v-btn v-if="!readOnlyMode" prepend-icon="mdi-plus" class="contact-form__add" variant="text" block @click="addPhone">
-                  {{ t('contact.form.addPhone') }}
-                </v-btn>
-                <div v-if="!form.phones.length && readOnlyMode" class="text-body-2 text-medium-emphasis">{{ t('contact.form.noData') }}</div>
-              </v-card-text>
-            </v-card>
-          </v-col>
-
-          <v-col cols="12" lg="6">
-            <v-card rounded="lg" variant="outlined" height="100%">
-              <v-card-title class="contact-form__section-title">
-                <v-icon color="primary" icon="mdi-email-outline" />
-                {{ t('contact.form.emails') }}
-                <v-spacer />
-                <span class="text-caption text-medium-emphasis">{{ t('contact.form.registered', {count: form.emails.length}) }}</span>
-              </v-card-title>
-              <v-divider />
-              <v-card-text class="d-flex flex-column ga-2">
-                <div v-for="(email, index) in form.emails as IContactEmail[]" :key="index" class="contact-form__channel d-flex align-center ga-2">
-                  <v-btn
-                    :icon="email.primary ? 'mdi-star' : 'mdi-star-outline'"
-                    :color="email.primary ? 'primary' : 'secondary'"
-                    variant="text"
-                    size="small"
-                    :disabled="readOnlyMode"
-                    :aria-label="t('contact.form.makePrimary')"
-                    @click="setPrimary(form.emails, index)"
-                  />
-                  <v-text-field v-model="email.value" :readonly="readOnlyMode" type="email" :placeholder="t('contact.form.emailPlaceholder')" variant="outlined" hide-details density="compact" />
-                  <v-select v-model="email.type" :readonly="readOnlyMode" :items="emailTypes" variant="outlined" hide-details density="compact" class="contact-form__type-select" />
-                  <v-btn v-if="!readOnlyMode" icon="mdi-close" color="secondary" variant="text" size="small" @click="removeItem(form.emails, index)" />
-                </div>
-                <v-btn v-if="!readOnlyMode" prepend-icon="mdi-plus" class="contact-form__add" variant="text" block @click="addEmail">
-                  {{ t('contact.form.addEmail') }}
-                </v-btn>
-                <div v-if="!form.emails.length && readOnlyMode" class="text-body-2 text-medium-emphasis">{{ t('contact.form.noData') }}</div>
-              </v-card-text>
-            </v-card>
-          </v-col>
-
-          <v-col cols="12">
-            <v-card rounded="lg" variant="outlined">
-              <v-card-title class="contact-form__section-title">
-                <v-icon color="primary" icon="mdi-domain" />
-                <div>
-                  <div>{{ t('contact.form.organization') }}</div>
-                  <div class="text-caption text-medium-emphasis font-weight-regular">{{ t('contact.form.organizationHint') }}</div>
-                </div>
-              </v-card-title>
-              <v-divider />
-              <v-card-text>
-                <v-row dense>
-                  <v-col cols="12" md="6" lg="3">
-                    <label class="contact-form__label">{{ t('contact.form.organizationName') }}</label>
-                    <v-text-field v-model="form.organization.name" :readonly="readOnlyMode" prepend-inner-icon="mdi-office-building-outline" variant="outlined" density="comfortable" hide-details />
-                  </v-col>
-                  <v-col cols="12" md="6" lg="3">
-                    <label class="contact-form__label">{{ t('contact.form.title') }}</label>
-                    <v-text-field v-model="form.organization.title" :readonly="readOnlyMode" prepend-inner-icon="mdi-briefcase-outline" variant="outlined" density="comfortable" hide-details />
-                  </v-col>
-                  <v-col cols="12" md="6" lg="3">
-                    <label class="contact-form__label">{{ t('contact.form.department') }}</label>
-                    <v-text-field v-model="form.organization.department" :readonly="readOnlyMode" prepend-inner-icon="mdi-hub-outline" variant="outlined" density="comfortable" hide-details />
-                  </v-col>
-                  <v-col cols="12" md="6" lg="3">
-                    <label class="contact-form__label">{{ t('contact.form.domain') }}</label>
-                    <v-text-field v-model="form.organization.domain" :readonly="readOnlyMode" prepend-inner-icon="mdi-web" variant="outlined" density="comfortable" hide-details />
-                  </v-col>
-                </v-row>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-tabs-window-item>
-
-      <v-tabs-window-item value="addresses">
-        <div class="d-flex flex-wrap align-center justify-space-between ga-3 mb-4">
-          <div>
-            <h3 class="text-h6 font-weight-bold">{{ t('contact.form.addressesTitle') }}</h3>
-            <p class="text-body-2 text-medium-emphasis">{{ t('contact.form.addressesHint') }}</p>
-          </div>
-          <v-btn v-if="!readOnlyMode" prepend-icon="mdi-map-marker-plus-outline" color="primary" @click="addAddress">
-            {{ t('contact.form.addAddress') }}
-          </v-btn>
+    <div class="contact-form__body">
+      <div class="contact-form__heading d-flex align-center justify-space-between ga-3 mb-4">
+        <div class="min-width-0">
+          <div class="text-caption text-medium-emphasis mb-1">{{ operationTitle }}</div>
+          <h2 class="text-h5 font-weight-bold text-truncate">
+            {{ namePreview || t('contact.form.newContact') }}
+          </h2>
         </div>
+        <v-chip :color="statusColor" size="small" variant="tonal">
+          <v-icon icon="mdi-circle" size="8" start />
+          {{ t(`contact.form.status.${form.status}`) }}
+        </v-chip>
+      </div>
 
-        <v-card v-for="(address, index) in form.addresses as IContactAddress[]" :key="index" class="mb-3" rounded="lg" variant="outlined">
-          <v-card-title class="contact-form__section-title">
-            <v-icon color="primary" icon="mdi-map-marker-outline" />
-            {{ address.formattedValue || `${t('contact.form.address')} ${index + 1}` }}
-            <v-chip v-if="address.primary" color="primary" variant="tonal" size="x-small">{{ t('contact.form.primary') }}</v-chip>
-            <v-spacer />
-            <v-btn v-if="!readOnlyMode" icon="mdi-delete-outline" color="error" variant="text" size="small" @click="removeItem(form.addresses, index)" />
-          </v-card-title>
-          <v-divider />
-          <v-card-text>
-            <v-row dense>
-              <v-col cols="12" md="8">
-                <label class="contact-form__label">{{ t('contact.form.streetAddress') }}</label>
-                <v-text-field v-model="address.streetAddress" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
-              </v-col>
-              <v-col cols="12" md="4">
-                <label class="contact-form__label">{{ t('contact.form.addressType') }}</label>
-                <v-select v-model="address.type" :readonly="readOnlyMode" :items="addressTypes" variant="outlined" density="comfortable" hide-details />
-              </v-col>
-              <v-col cols="12" sm="6" md="3">
-                <label class="contact-form__label">{{ t('contact.form.city') }}</label>
-                <v-text-field v-model="address.city" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
-              </v-col>
-              <v-col cols="12" sm="6" md="3">
-                <label class="contact-form__label">{{ t('contact.form.region') }}</label>
-                <v-text-field v-model="address.region" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
-              </v-col>
-              <v-col cols="12" sm="6" md="3">
-                <label class="contact-form__label">{{ t('contact.form.postalCode') }}</label>
-                <v-text-field v-model="address.postalCode" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
-              </v-col>
-              <v-col cols="12" sm="6" md="3">
-                <label class="contact-form__label">{{ t('contact.form.country') }}</label>
-                <v-text-field v-model="address.country" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
-              </v-col>
-              <v-col cols="12" class="d-flex align-center ga-2">
-                <v-switch
-                  :model-value="!!address.primary"
-                  :disabled="readOnlyMode"
+      <v-alert v-if="isDelete" type="warning" variant="tonal" class="mb-4">
+        {{ t('contact.form.deleteWarning') }}
+      </v-alert>
+      <v-alert v-if="localError || error" type="error" variant="tonal" class="mb-4">
+        {{ localError || error }}
+      </v-alert>
+
+      <v-card class="contact-form__profile mb-4" rounded="xl" variant="outlined">
+        <v-card-text>
+          <v-row align="center">
+            <v-col cols="12" md="3" class="d-flex flex-column align-center">
+              <div class="contact-form__avatar-wrap mb-4">
+                <v-avatar size="96" color="primary" variant="tonal">
+                  <v-img v-if="form.photoUrl" :src="form.photoUrl" cover />
+                  <span v-else-if="namePreview" class="text-h5 font-weight-bold">{{ initials }}</span>
+                  <v-icon v-else icon="mdi-account-outline" size="44" />
+                </v-avatar>
+                <v-btn
+                  v-if="!readOnlyMode"
+                  class="contact-form__camera"
                   color="primary"
-                  hide-details
-                  density="compact"
-                  :label="t('contact.form.primaryAddress')"
-                  @update:model-value="value => value && setPrimary(form.addresses, index)"
+                  icon="mdi-camera"
+                  size="small"
+                  :aria-label="t('contact.form.changePhoto')"
+                  :title="t('contact.form.changePhoto')"
+                  elevation="0"
+                  @click="choosePhoto"
                 />
-              </v-col>
-            </v-row>
-          </v-card-text>
-        </v-card>
-        <v-empty-state v-if="!form.addresses.length" icon="mdi-map-marker-off-outline" :title="t('contact.form.noAddresses')" />
-      </v-tabs-window-item>
+                <input ref="photoInput" class="d-none" type="file" accept="image/png,image/jpeg,image/webp" @change="loadPhoto">
+              </div>
+              <span class="text-caption text-medium-emphasis text-center">{{ t('contact.form.photoHint') }}</span>
+            </v-col>
 
-      <v-tabs-window-item value="more">
-        <v-row>
-          <v-col cols="12" lg="8">
-            <v-card class="mb-4" rounded="lg" variant="outlined">
-              <v-card-title class="contact-form__section-title">
-                <v-icon color="primary" icon="mdi-cake-variant-outline" />
-                {{ t('contact.form.birthday') }}
-              </v-card-title>
-              <v-divider />
-              <v-card-text>
-                <v-row dense>
-                  <v-col cols="4">
-                    <label class="contact-form__label">{{ t('contact.form.day') }}</label>
-                    <v-text-field v-model.number="form.birthday.day" :readonly="readOnlyMode" type="number" min="1" max="31" variant="outlined" density="comfortable" hide-details />
-                  </v-col>
-                  <v-col cols="4">
-                    <label class="contact-form__label">{{ t('contact.form.monthLabel') }}</label>
-                    <v-select v-model="form.birthday.month" :readonly="readOnlyMode" :items="monthItems" variant="outlined" density="comfortable" hide-details />
-                  </v-col>
-                  <v-col cols="4">
-                    <label class="contact-form__label">{{ t('contact.form.year') }}</label>
-                    <v-text-field v-model.number="form.birthday.year" :readonly="readOnlyMode" type="number" min="1900" :max="new Date().getFullYear()" variant="outlined" density="comfortable" hide-details />
-                  </v-col>
-                </v-row>
-              </v-card-text>
-            </v-card>
+            <v-col cols="12" md="9">
+              <div class="d-flex align-center ga-2 mb-3">
+                <v-icon icon="mdi-badge-account-outline" color="primary" />
+                <div>
+                  <div class="contact-form__label mb-0">{{ t('contact.form.googleDisplayName') }}</div>
+                  <div class="text-body-1 font-weight-medium">{{ namePreview || t('contact.form.newContact') }}</div>
+                </div>
+              </div>
+              <v-row dense>
+                <v-col cols="12" sm="6">
+                  <label class="contact-form__label">{{ t('contact.form.givenName') }}</label>
+                  <v-text-field v-model="form.givenName" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <label class="contact-form__label">{{ t('contact.form.familyName') }}</label>
+                  <v-text-field v-model="form.familyName" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
+                </v-col>
+                <v-col cols="12">
+                  <label class="contact-form__label">{{ t('contact.form.nickname') }}</label>
+                  <v-text-field v-model="form.nickname" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
+                </v-col>
+              </v-row>
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </v-card>
 
-            <v-card class="mb-4" rounded="lg" variant="outlined">
-              <v-card-title class="contact-form__section-title">
-                <v-icon color="primary" icon="mdi-tag-multiple-outline" />
-                {{ t('contact.form.tags') }}
-              </v-card-title>
-              <v-divider />
-              <v-card-text>
-                <v-combobox
-                  v-model="form.tags"
-                  :readonly="readOnlyMode"
-                  multiple
-                  chips
-                  closable-chips
-                  :placeholder="t('contact.form.tagsPlaceholder')"
-                  variant="outlined"
-                  density="comfortable"
-                  hide-details
-                />
-              </v-card-text>
-            </v-card>
+      <v-tabs
+        v-model="tab"
+        class="contact-form__tabs mb-4"
+        color="primary"
+        grow
+        show-arrows
+        height="52"
+        hide-slider
+        rounded="lg"
+      >
+        <v-tab value="general" prepend-icon="mdi-card-account-details-outline">{{ t('contact.form.tabs.general') }}</v-tab>
+        <v-tab value="addresses" prepend-icon="mdi-map-marker-outline">
+          {{ t('contact.form.tabs.addresses') }}
+          <v-chip size="x-small" class="ml-2">{{ form.addresses.length }}</v-chip>
+        </v-tab>
+        <v-tab value="more" prepend-icon="mdi-dots-horizontal">{{ t('contact.form.tabs.more') }}</v-tab>
+      </v-tabs>
 
-            <v-card rounded="lg" variant="outlined">
-              <v-card-title class="contact-form__section-title">
-                <v-icon color="primary" icon="mdi-note-text-outline" />
-                {{ t('contact.form.notes') }}
-              </v-card-title>
-              <v-divider />
-              <v-card-text>
-                <v-textarea v-model="form.notes" :readonly="readOnlyMode" :placeholder="t('contact.form.notesPlaceholder')" rows="5" variant="outlined" density="comfortable" hide-details />
-              </v-card-text>
-            </v-card>
-          </v-col>
+      <v-tabs-window v-model="tab">
+        <v-tabs-window-item value="general">
+          <v-row>
+            <v-col cols="12" lg="6">
+              <v-card rounded="lg" variant="outlined" height="100%">
+                <v-card-title class="contact-form__section-title">
+                  <v-icon color="primary" icon="mdi-phone-outline" />
+                  {{ t('contact.form.phones') }}
+                  <v-spacer />
+                  <span class="text-caption text-medium-emphasis">{{ t('contact.form.registered', {count: form.phones.length}) }}</span>
+                </v-card-title>
+                <v-divider />
+                <v-card-text class="d-flex flex-column ga-2">
+                  <div v-for="(phone, index) in form.phones as IContactPhone[]" :key="index" class="contact-form__channel d-flex align-center ga-2">
+                    <v-btn
+                      :icon="phone.primary ? 'mdi-star' : 'mdi-star-outline'"
+                      :color="phone.primary ? 'primary' : 'secondary'"
+                      variant="text"
+                      size="small"
+                      :disabled="readOnlyMode"
+                      :aria-label="t('contact.form.makePrimary')"
+                      @click="setPrimary(form.phones, index)"
+                    />
+                    <v-text-field v-model="phone.value" :readonly="readOnlyMode" :placeholder="t('contact.form.phonePlaceholder')" variant="outlined" hide-details density="compact" />
+                    <v-select v-model="phone.type" :readonly="readOnlyMode" :items="phoneTypes" variant="outlined" hide-details density="compact" class="contact-form__type-select" />
+                    <v-btn v-if="!readOnlyMode" icon="mdi-close" color="secondary" variant="text" size="small" @click="removeItem(form.phones, index)" />
+                  </div>
+                  <v-btn v-if="!readOnlyMode" prepend-icon="mdi-plus" class="contact-form__add" variant="text" block @click="addPhone">
+                    {{ t('contact.form.addPhone') }}
+                  </v-btn>
+                  <div v-if="!form.phones.length && readOnlyMode" class="text-body-2 text-medium-emphasis">{{ t('contact.form.noData') }}</div>
+                </v-card-text>
+              </v-card>
+            </v-col>
 
-          <v-col cols="12" lg="4">
-            <v-card rounded="lg" variant="outlined">
-              <v-card-title class="contact-form__section-title">
-                <v-icon color="primary" icon="mdi-cloud-sync-outline" />
-                {{ t('contact.form.syncMetadata') }}
-              </v-card-title>
-              <v-divider />
-              <v-card-text class="d-flex flex-column ga-3">
-                <div>
-                  <label class="contact-form__label">{{ t('contact.form.statusLabel') }}</label>
-                  <v-select v-model="form.status" :readonly="readOnlyMode" :items="statusItems" variant="outlined" density="comfortable" hide-details />
-                </div>
-                <div>
-                  <label class="contact-form__label">{{ t('contact.form.source') }}</label>
-                  <v-select v-model="form.source" :readonly="readOnlyMode" :items="sourceItems" variant="outlined" density="comfortable" hide-details />
-                </div>
-                <div>
-                  <label class="contact-form__label">{{ t('contact.form.externalProvider') }}</label>
-                  <v-text-field v-model="form.externalProvider" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
-                </div>
-                <div>
-                  <label class="contact-form__label">{{ t('contact.form.externalId') }}</label>
-                  <v-text-field v-model="form.externalId" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
-                </div>
-                <div class="contact-form__meta pa-3 rounded-lg">
-                  <span class="text-caption text-medium-emphasis">{{ t('contact.form.lastSync') }}</span>
-                  <div class="text-body-2 font-weight-medium mt-1">{{ formatSyncDate(form.lastSyncedAt) }}</div>
-                </div>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-tabs-window-item>
-    </v-tabs-window>
+            <v-col cols="12" lg="6">
+              <v-card rounded="lg" variant="outlined" height="100%">
+                <v-card-title class="contact-form__section-title">
+                  <v-icon color="primary" icon="mdi-email-outline" />
+                  {{ t('contact.form.emails') }}
+                  <v-spacer />
+                  <span class="text-caption text-medium-emphasis">{{ t('contact.form.registered', {count: form.emails.length}) }}</span>
+                </v-card-title>
+                <v-divider />
+                <v-card-text class="d-flex flex-column ga-2">
+                  <div v-for="(email, index) in form.emails as IContactEmail[]" :key="index" class="contact-form__channel d-flex align-center ga-2">
+                    <v-btn
+                      :icon="email.primary ? 'mdi-star' : 'mdi-star-outline'"
+                      :color="email.primary ? 'primary' : 'secondary'"
+                      variant="text"
+                      size="small"
+                      :disabled="readOnlyMode"
+                      :aria-label="t('contact.form.makePrimary')"
+                      @click="setPrimary(form.emails, index)"
+                    />
+                    <v-text-field v-model="email.value" :readonly="readOnlyMode" type="email" :placeholder="t('contact.form.emailPlaceholder')" variant="outlined" hide-details density="compact" />
+                    <v-select v-model="email.type" :readonly="readOnlyMode" :items="emailTypes" variant="outlined" hide-details density="compact" class="contact-form__type-select" />
+                    <v-btn v-if="!readOnlyMode" icon="mdi-close" color="secondary" variant="text" size="small" @click="removeItem(form.emails, index)" />
+                  </div>
+                  <v-btn v-if="!readOnlyMode" prepend-icon="mdi-plus" class="contact-form__add" variant="text" block @click="addEmail">
+                    {{ t('contact.form.addEmail') }}
+                  </v-btn>
+                  <div v-if="!form.emails.length && readOnlyMode" class="text-body-2 text-medium-emphasis">{{ t('contact.form.noData') }}</div>
+                </v-card-text>
+              </v-card>
+            </v-col>
+
+            <v-col cols="12">
+              <v-card rounded="lg" variant="outlined">
+                <v-card-title class="contact-form__section-title">
+                  <v-icon color="primary" icon="mdi-domain" />
+                  <div>
+                    <div>{{ t('contact.form.organization') }}</div>
+                    <div class="text-caption text-medium-emphasis font-weight-regular">{{ t('contact.form.organizationHint') }}</div>
+                  </div>
+                </v-card-title>
+                <v-divider />
+                <v-card-text>
+                  <v-row dense>
+                    <v-col cols="12" md="6" lg="3">
+                      <label class="contact-form__label">{{ t('contact.form.organizationName') }}</label>
+                      <v-text-field v-model="form.organization.name" :readonly="readOnlyMode" prepend-inner-icon="mdi-office-building-outline" variant="outlined" density="comfortable" hide-details />
+                    </v-col>
+                    <v-col cols="12" md="6" lg="3">
+                      <label class="contact-form__label">{{ t('contact.form.title') }}</label>
+                      <v-text-field v-model="form.organization.title" :readonly="readOnlyMode" prepend-inner-icon="mdi-briefcase-outline" variant="outlined" density="comfortable" hide-details />
+                    </v-col>
+                    <v-col cols="12" md="6" lg="3">
+                      <label class="contact-form__label">{{ t('contact.form.department') }}</label>
+                      <v-text-field v-model="form.organization.department" :readonly="readOnlyMode" prepend-inner-icon="mdi-hub-outline" variant="outlined" density="comfortable" hide-details />
+                    </v-col>
+                    <v-col cols="12" md="6" lg="3">
+                      <label class="contact-form__label">{{ t('contact.form.domain') }}</label>
+                      <v-text-field v-model="form.organization.domain" :readonly="readOnlyMode" prepend-inner-icon="mdi-web" variant="outlined" density="comfortable" hide-details />
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-tabs-window-item>
+
+        <v-tabs-window-item value="addresses">
+          <div class="d-flex flex-wrap align-center justify-space-between ga-3 mb-4">
+            <div>
+              <h3 class="text-h6 font-weight-bold">{{ t('contact.form.addressesTitle') }}</h3>
+              <p class="text-body-2 text-medium-emphasis">{{ t('contact.form.addressesHint') }}</p>
+            </div>
+            <v-btn v-if="!readOnlyMode" prepend-icon="mdi-map-marker-plus-outline" color="primary" @click="addAddress">
+              {{ t('contact.form.addAddress') }}
+            </v-btn>
+          </div>
+
+          <v-card v-for="(address, index) in form.addresses as IContactAddress[]" :key="index" class="mb-3" rounded="lg" variant="outlined">
+            <v-card-title class="contact-form__section-title">
+              <v-icon color="primary" icon="mdi-map-marker-outline" />
+              {{ address.formattedValue || `${t('contact.form.address')} ${index + 1}` }}
+              <v-chip v-if="address.primary" color="primary" variant="tonal" size="x-small">{{ t('contact.form.primary') }}</v-chip>
+              <v-spacer />
+              <v-btn v-if="!readOnlyMode" icon="mdi-delete-outline" color="error" variant="text" size="small" @click="removeItem(form.addresses, index)" />
+            </v-card-title>
+            <v-divider />
+            <v-card-text>
+              <v-row dense>
+                <v-col cols="12" md="8">
+                  <label class="contact-form__label">{{ t('contact.form.streetAddress') }}</label>
+                  <v-text-field v-model="address.streetAddress" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
+                </v-col>
+                <v-col cols="12" md="4">
+                  <label class="contact-form__label">{{ t('contact.form.addressType') }}</label>
+                  <v-select v-model="address.type" :readonly="readOnlyMode" :items="addressTypes" variant="outlined" density="comfortable" hide-details />
+                </v-col>
+                <v-col cols="12" sm="6" md="3">
+                  <label class="contact-form__label">{{ t('contact.form.city') }}</label>
+                  <v-text-field v-model="address.city" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
+                </v-col>
+                <v-col cols="12" sm="6" md="3">
+                  <label class="contact-form__label">{{ t('contact.form.region') }}</label>
+                  <v-text-field v-model="address.region" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
+                </v-col>
+                <v-col cols="12" sm="6" md="3">
+                  <label class="contact-form__label">{{ t('contact.form.postalCode') }}</label>
+                  <v-text-field v-model="address.postalCode" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
+                </v-col>
+                <v-col cols="12" sm="6" md="3">
+                  <label class="contact-form__label">{{ t('contact.form.country') }}</label>
+                  <v-text-field v-model="address.country" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
+                </v-col>
+                <v-col cols="12" class="d-flex align-center ga-2">
+                  <v-switch
+                    :model-value="!!address.primary"
+                    :disabled="readOnlyMode"
+                    color="primary"
+                    hide-details
+                    density="compact"
+                    :label="t('contact.form.primaryAddress')"
+                    @update:model-value="value => value && setPrimary(form.addresses, index)"
+                  />
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+          <v-empty-state v-if="!form.addresses.length" icon="mdi-map-marker-off-outline" :title="t('contact.form.noAddresses')" />
+        </v-tabs-window-item>
+
+        <v-tabs-window-item value="more">
+          <v-row>
+            <v-col cols="12" lg="8">
+              <v-card class="mb-4" rounded="lg" variant="outlined">
+                <v-card-title class="contact-form__section-title">
+                  <v-icon color="primary" icon="mdi-cake-variant-outline" />
+                  {{ t('contact.form.birthday') }}
+                </v-card-title>
+                <v-divider />
+                <v-card-text>
+                  <v-row dense>
+                    <v-col cols="4">
+                      <label class="contact-form__label">{{ t('contact.form.day') }}</label>
+                      <v-text-field v-model.number="form.birthday.day" :readonly="readOnlyMode" type="number" min="1" max="31" variant="outlined" density="comfortable" hide-details />
+                    </v-col>
+                    <v-col cols="4">
+                      <label class="contact-form__label">{{ t('contact.form.monthLabel') }}</label>
+                      <v-select v-model="form.birthday.month" :readonly="readOnlyMode" :items="monthItems" variant="outlined" density="comfortable" hide-details />
+                    </v-col>
+                    <v-col cols="4">
+                      <label class="contact-form__label">{{ t('contact.form.year') }}</label>
+                      <v-text-field v-model.number="form.birthday.year" :readonly="readOnlyMode" type="number" min="1900" :max="new Date().getFullYear()" variant="outlined" density="comfortable" hide-details />
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </v-card>
+
+              <v-card class="mb-4" rounded="lg" variant="outlined">
+                <v-card-title class="contact-form__section-title">
+                  <v-icon color="primary" icon="mdi-tag-multiple-outline" />
+                  {{ t('contact.form.tags') }}
+                </v-card-title>
+                <v-divider />
+                <v-card-text>
+                  <v-combobox
+                    v-model="form.tags"
+                    :readonly="readOnlyMode"
+                    multiple
+                    chips
+                    closable-chips
+                    :placeholder="t('contact.form.tagsPlaceholder')"
+                    variant="outlined"
+                    density="comfortable"
+                    hide-details
+                  />
+                </v-card-text>
+              </v-card>
+
+              <v-card rounded="lg" variant="outlined">
+                <v-card-title class="contact-form__section-title">
+                  <v-icon color="primary" icon="mdi-note-text-outline" />
+                  {{ t('contact.form.notes') }}
+                </v-card-title>
+                <v-divider />
+                <v-card-text>
+                  <v-textarea v-model="form.notes" :readonly="readOnlyMode" :placeholder="t('contact.form.notesPlaceholder')" rows="5" variant="outlined" density="comfortable" hide-details />
+                </v-card-text>
+              </v-card>
+            </v-col>
+
+            <v-col cols="12" lg="4">
+              <v-card rounded="lg" variant="outlined">
+                <v-card-title class="contact-form__section-title">
+                  <v-icon color="primary" icon="mdi-cloud-sync-outline" />
+                  {{ t('contact.form.syncMetadata') }}
+                </v-card-title>
+                <v-divider />
+                <v-card-text class="d-flex flex-column ga-3">
+                  <div>
+                    <label class="contact-form__label">{{ t('contact.form.statusLabel') }}</label>
+                    <v-select v-model="form.status" :readonly="readOnlyMode" :items="statusItems" variant="outlined" density="comfortable" hide-details />
+                  </div>
+                  <div>
+                    <label class="contact-form__label">{{ t('contact.form.source') }}</label>
+                    <v-select v-model="form.source" :readonly="readOnlyMode" :items="sourceItems" variant="outlined" density="comfortable" hide-details />
+                  </div>
+                  <div>
+                    <label class="contact-form__label">{{ t('contact.form.externalProvider') }}</label>
+                    <v-text-field v-model="form.externalProvider" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
+                  </div>
+                  <div>
+                    <label class="contact-form__label">{{ t('contact.form.externalId') }}</label>
+                    <v-text-field v-model="form.externalId" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
+                  </div>
+                  <div class="contact-form__meta pa-3 rounded-lg">
+                    <span class="text-caption text-medium-emphasis">{{ t('contact.form.lastSync') }}</span>
+                    <div class="text-body-2 font-weight-medium mt-1">{{ formatSyncDate(form.lastSyncedAt) }}</div>
+                  </div>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-tabs-window-item>
+      </v-tabs-window>
+    </div>
 
     <div class="contact-form__actions d-flex align-center justify-end ga-2 mt-5 pa-3">
       <v-btn variant="text" @click="cancel">
@@ -529,6 +531,29 @@ function cancel() {
   margin: 0 auto;
   padding: 4px;
   color: var(--contact-text);
+}
+
+/* Drax delegates scrolling to the form when dialog actions are fixed. */
+.crud-dialog--fixed-actions .contact-form {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.crud-dialog--fixed-actions .contact-form__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  padding: 4px;
+}
+
+.crud-dialog--fixed-actions .contact-form__actions {
+  position: static;
+  flex: 0 0 auto;
 }
 
 .min-width-0 {
