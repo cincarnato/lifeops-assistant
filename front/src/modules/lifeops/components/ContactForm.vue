@@ -169,14 +169,15 @@ function cancel() {
       {{ localError || error }}
     </v-alert>
 
-    <v-card class="contact-form__profile mb-4" rounded="xl" elevation="1">
+    <v-card class="contact-form__profile mb-4" rounded="xl" variant="outlined">
       <v-card-text>
         <v-row align="center">
           <v-col cols="12" md="3" class="d-flex flex-column align-center">
-            <div class="contact-form__avatar-wrap mb-2" @click="choosePhoto">
+            <div class="contact-form__avatar-wrap mb-4">
               <v-avatar size="96" color="primary" variant="tonal">
                 <v-img v-if="form.photoUrl" :src="form.photoUrl" cover />
-                <span v-else class="text-h5 font-weight-bold">{{ initials }}</span>
+                <span v-else-if="namePreview" class="text-h5 font-weight-bold">{{ initials }}</span>
+                <v-icon v-else icon="mdi-account-outline" size="44" />
               </v-avatar>
               <v-btn
                 v-if="!readOnlyMode"
@@ -185,6 +186,9 @@ function cancel() {
                 icon="mdi-camera"
                 size="small"
                 :aria-label="t('contact.form.changePhoto')"
+                :title="t('contact.form.changePhoto')"
+                elevation="0"
+                @click="choosePhoto"
               />
               <input ref="photoInput" class="d-none" type="file" accept="image/png,image/jpeg,image/webp" @change="loadPhoto">
             </div>
@@ -202,15 +206,15 @@ function cancel() {
             <v-row dense>
               <v-col cols="12" sm="6">
                 <label class="contact-form__label">{{ t('contact.form.givenName') }}</label>
-                <v-text-field v-model="form.givenName" :readonly="readOnlyMode" variant="solo-filled" flat hide-details />
+                <v-text-field v-model="form.givenName" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
               </v-col>
               <v-col cols="12" sm="6">
                 <label class="contact-form__label">{{ t('contact.form.familyName') }}</label>
-                <v-text-field v-model="form.familyName" :readonly="readOnlyMode" variant="solo-filled" flat hide-details />
+                <v-text-field v-model="form.familyName" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
               </v-col>
               <v-col cols="12">
                 <label class="contact-form__label">{{ t('contact.form.nickname') }}</label>
-                <v-text-field v-model="form.nickname" :readonly="readOnlyMode" variant="solo-filled" flat hide-details />
+                <v-text-field v-model="form.nickname" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
               </v-col>
             </v-row>
           </v-col>
@@ -224,7 +228,8 @@ function cancel() {
       color="primary"
       grow
       show-arrows
-      density="compact"
+      height="52"
+      hide-slider
       rounded="lg"
     >
       <v-tab value="general" prepend-icon="mdi-card-account-details-outline">{{ t('contact.form.tabs.general') }}</v-tab>
@@ -239,7 +244,7 @@ function cancel() {
       <v-tabs-window-item value="general">
         <v-row>
           <v-col cols="12" lg="6">
-            <v-card rounded="lg" elevation="1" height="100%">
+            <v-card rounded="lg" variant="outlined" height="100%">
               <v-card-title class="contact-form__section-title">
                 <v-icon color="primary" icon="mdi-phone-outline" />
                 {{ t('contact.form.phones') }}
@@ -258,11 +263,11 @@ function cancel() {
                     :aria-label="t('contact.form.makePrimary')"
                     @click="setPrimary(form.phones, index)"
                   />
-                  <v-text-field v-model="phone.value" :readonly="readOnlyMode" :placeholder="t('contact.form.phonePlaceholder')" variant="plain" hide-details density="compact" />
-                  <v-select v-model="phone.type" :readonly="readOnlyMode" :items="phoneTypes" variant="plain" hide-details density="compact" class="contact-form__type-select" />
+                  <v-text-field v-model="phone.value" :readonly="readOnlyMode" :placeholder="t('contact.form.phonePlaceholder')" variant="outlined" hide-details density="compact" />
+                  <v-select v-model="phone.type" :readonly="readOnlyMode" :items="phoneTypes" variant="outlined" hide-details density="compact" class="contact-form__type-select" />
                   <v-btn v-if="!readOnlyMode" icon="mdi-close" color="secondary" variant="text" size="small" @click="removeItem(form.phones, index)" />
                 </div>
-                <v-btn v-if="!readOnlyMode" prepend-icon="mdi-plus" color="primary" variant="tonal" block @click="addPhone">
+                <v-btn v-if="!readOnlyMode" prepend-icon="mdi-plus" class="contact-form__add" variant="text" block @click="addPhone">
                   {{ t('contact.form.addPhone') }}
                 </v-btn>
                 <div v-if="!form.phones.length && readOnlyMode" class="text-body-2 text-medium-emphasis">{{ t('contact.form.noData') }}</div>
@@ -271,7 +276,7 @@ function cancel() {
           </v-col>
 
           <v-col cols="12" lg="6">
-            <v-card rounded="lg" elevation="1" height="100%">
+            <v-card rounded="lg" variant="outlined" height="100%">
               <v-card-title class="contact-form__section-title">
                 <v-icon color="primary" icon="mdi-email-outline" />
                 {{ t('contact.form.emails') }}
@@ -290,11 +295,11 @@ function cancel() {
                     :aria-label="t('contact.form.makePrimary')"
                     @click="setPrimary(form.emails, index)"
                   />
-                  <v-text-field v-model="email.value" :readonly="readOnlyMode" type="email" :placeholder="t('contact.form.emailPlaceholder')" variant="plain" hide-details density="compact" />
-                  <v-select v-model="email.type" :readonly="readOnlyMode" :items="emailTypes" variant="plain" hide-details density="compact" class="contact-form__type-select" />
+                  <v-text-field v-model="email.value" :readonly="readOnlyMode" type="email" :placeholder="t('contact.form.emailPlaceholder')" variant="outlined" hide-details density="compact" />
+                  <v-select v-model="email.type" :readonly="readOnlyMode" :items="emailTypes" variant="outlined" hide-details density="compact" class="contact-form__type-select" />
                   <v-btn v-if="!readOnlyMode" icon="mdi-close" color="secondary" variant="text" size="small" @click="removeItem(form.emails, index)" />
                 </div>
-                <v-btn v-if="!readOnlyMode" prepend-icon="mdi-plus" color="primary" variant="tonal" block @click="addEmail">
+                <v-btn v-if="!readOnlyMode" prepend-icon="mdi-plus" class="contact-form__add" variant="text" block @click="addEmail">
                   {{ t('contact.form.addEmail') }}
                 </v-btn>
                 <div v-if="!form.emails.length && readOnlyMode" class="text-body-2 text-medium-emphasis">{{ t('contact.form.noData') }}</div>
@@ -303,7 +308,7 @@ function cancel() {
           </v-col>
 
           <v-col cols="12">
-            <v-card rounded="lg" elevation="1">
+            <v-card rounded="lg" variant="outlined">
               <v-card-title class="contact-form__section-title">
                 <v-icon color="primary" icon="mdi-domain" />
                 <div>
@@ -316,19 +321,19 @@ function cancel() {
                 <v-row dense>
                   <v-col cols="12" md="6" lg="3">
                     <label class="contact-form__label">{{ t('contact.form.organizationName') }}</label>
-                    <v-text-field v-model="form.organization.name" :readonly="readOnlyMode" prepend-inner-icon="mdi-office-building-outline" variant="solo-filled" flat hide-details />
+                    <v-text-field v-model="form.organization.name" :readonly="readOnlyMode" prepend-inner-icon="mdi-office-building-outline" variant="outlined" density="comfortable" hide-details />
                   </v-col>
                   <v-col cols="12" md="6" lg="3">
                     <label class="contact-form__label">{{ t('contact.form.title') }}</label>
-                    <v-text-field v-model="form.organization.title" :readonly="readOnlyMode" prepend-inner-icon="mdi-briefcase-outline" variant="solo-filled" flat hide-details />
+                    <v-text-field v-model="form.organization.title" :readonly="readOnlyMode" prepend-inner-icon="mdi-briefcase-outline" variant="outlined" density="comfortable" hide-details />
                   </v-col>
                   <v-col cols="12" md="6" lg="3">
                     <label class="contact-form__label">{{ t('contact.form.department') }}</label>
-                    <v-text-field v-model="form.organization.department" :readonly="readOnlyMode" prepend-inner-icon="mdi-hub-outline" variant="solo-filled" flat hide-details />
+                    <v-text-field v-model="form.organization.department" :readonly="readOnlyMode" prepend-inner-icon="mdi-hub-outline" variant="outlined" density="comfortable" hide-details />
                   </v-col>
                   <v-col cols="12" md="6" lg="3">
                     <label class="contact-form__label">{{ t('contact.form.domain') }}</label>
-                    <v-text-field v-model="form.organization.domain" :readonly="readOnlyMode" prepend-inner-icon="mdi-web" variant="solo-filled" flat hide-details />
+                    <v-text-field v-model="form.organization.domain" :readonly="readOnlyMode" prepend-inner-icon="mdi-web" variant="outlined" density="comfortable" hide-details />
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -338,7 +343,7 @@ function cancel() {
       </v-tabs-window-item>
 
       <v-tabs-window-item value="addresses">
-        <div class="d-flex align-center justify-space-between ga-3 mb-3">
+        <div class="d-flex flex-wrap align-center justify-space-between ga-3 mb-4">
           <div>
             <h3 class="text-h6 font-weight-bold">{{ t('contact.form.addressesTitle') }}</h3>
             <p class="text-body-2 text-medium-emphasis">{{ t('contact.form.addressesHint') }}</p>
@@ -348,7 +353,7 @@ function cancel() {
           </v-btn>
         </div>
 
-        <v-card v-for="(address, index) in form.addresses as IContactAddress[]" :key="index" class="mb-3" rounded="lg" elevation="1">
+        <v-card v-for="(address, index) in form.addresses as IContactAddress[]" :key="index" class="mb-3" rounded="lg" variant="outlined">
           <v-card-title class="contact-form__section-title">
             <v-icon color="primary" icon="mdi-map-marker-outline" />
             {{ address.formattedValue || `${t('contact.form.address')} ${index + 1}` }}
@@ -361,27 +366,27 @@ function cancel() {
             <v-row dense>
               <v-col cols="12" md="8">
                 <label class="contact-form__label">{{ t('contact.form.streetAddress') }}</label>
-                <v-text-field v-model="address.streetAddress" :readonly="readOnlyMode" variant="solo-filled" flat hide-details />
+                <v-text-field v-model="address.streetAddress" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
               </v-col>
               <v-col cols="12" md="4">
                 <label class="contact-form__label">{{ t('contact.form.addressType') }}</label>
-                <v-select v-model="address.type" :readonly="readOnlyMode" :items="addressTypes" variant="solo-filled" flat hide-details />
+                <v-select v-model="address.type" :readonly="readOnlyMode" :items="addressTypes" variant="outlined" density="comfortable" hide-details />
               </v-col>
               <v-col cols="12" sm="6" md="3">
                 <label class="contact-form__label">{{ t('contact.form.city') }}</label>
-                <v-text-field v-model="address.city" :readonly="readOnlyMode" variant="solo-filled" flat hide-details />
+                <v-text-field v-model="address.city" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
               </v-col>
               <v-col cols="12" sm="6" md="3">
                 <label class="contact-form__label">{{ t('contact.form.region') }}</label>
-                <v-text-field v-model="address.region" :readonly="readOnlyMode" variant="solo-filled" flat hide-details />
+                <v-text-field v-model="address.region" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
               </v-col>
               <v-col cols="12" sm="6" md="3">
                 <label class="contact-form__label">{{ t('contact.form.postalCode') }}</label>
-                <v-text-field v-model="address.postalCode" :readonly="readOnlyMode" variant="solo-filled" flat hide-details />
+                <v-text-field v-model="address.postalCode" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
               </v-col>
               <v-col cols="12" sm="6" md="3">
                 <label class="contact-form__label">{{ t('contact.form.country') }}</label>
-                <v-text-field v-model="address.country" :readonly="readOnlyMode" variant="solo-filled" flat hide-details />
+                <v-text-field v-model="address.country" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
               </v-col>
               <v-col cols="12" class="d-flex align-center ga-2">
                 <v-switch
@@ -403,7 +408,7 @@ function cancel() {
       <v-tabs-window-item value="more">
         <v-row>
           <v-col cols="12" lg="8">
-            <v-card class="mb-4" rounded="lg" elevation="1">
+            <v-card class="mb-4" rounded="lg" variant="outlined">
               <v-card-title class="contact-form__section-title">
                 <v-icon color="primary" icon="mdi-cake-variant-outline" />
                 {{ t('contact.form.birthday') }}
@@ -413,21 +418,21 @@ function cancel() {
                 <v-row dense>
                   <v-col cols="4">
                     <label class="contact-form__label">{{ t('contact.form.day') }}</label>
-                    <v-text-field v-model.number="form.birthday.day" :readonly="readOnlyMode" type="number" min="1" max="31" variant="solo-filled" flat hide-details />
+                    <v-text-field v-model.number="form.birthday.day" :readonly="readOnlyMode" type="number" min="1" max="31" variant="outlined" density="comfortable" hide-details />
                   </v-col>
                   <v-col cols="4">
                     <label class="contact-form__label">{{ t('contact.form.monthLabel') }}</label>
-                    <v-select v-model="form.birthday.month" :readonly="readOnlyMode" :items="monthItems" variant="solo-filled" flat hide-details />
+                    <v-select v-model="form.birthday.month" :readonly="readOnlyMode" :items="monthItems" variant="outlined" density="comfortable" hide-details />
                   </v-col>
                   <v-col cols="4">
                     <label class="contact-form__label">{{ t('contact.form.year') }}</label>
-                    <v-text-field v-model.number="form.birthday.year" :readonly="readOnlyMode" type="number" min="1900" :max="new Date().getFullYear()" variant="solo-filled" flat hide-details />
+                    <v-text-field v-model.number="form.birthday.year" :readonly="readOnlyMode" type="number" min="1900" :max="new Date().getFullYear()" variant="outlined" density="comfortable" hide-details />
                   </v-col>
                 </v-row>
               </v-card-text>
             </v-card>
 
-            <v-card class="mb-4" rounded="lg" elevation="1">
+            <v-card class="mb-4" rounded="lg" variant="outlined">
               <v-card-title class="contact-form__section-title">
                 <v-icon color="primary" icon="mdi-tag-multiple-outline" />
                 {{ t('contact.form.tags') }}
@@ -441,27 +446,27 @@ function cancel() {
                   chips
                   closable-chips
                   :placeholder="t('contact.form.tagsPlaceholder')"
-                  variant="solo-filled"
-                  flat
+                  variant="outlined"
+                  density="comfortable"
                   hide-details
                 />
               </v-card-text>
             </v-card>
 
-            <v-card rounded="lg" elevation="1">
+            <v-card rounded="lg" variant="outlined">
               <v-card-title class="contact-form__section-title">
                 <v-icon color="primary" icon="mdi-note-text-outline" />
                 {{ t('contact.form.notes') }}
               </v-card-title>
               <v-divider />
               <v-card-text>
-                <v-textarea v-model="form.notes" :readonly="readOnlyMode" :placeholder="t('contact.form.notesPlaceholder')" rows="5" variant="solo-filled" flat hide-details />
+                <v-textarea v-model="form.notes" :readonly="readOnlyMode" :placeholder="t('contact.form.notesPlaceholder')" rows="5" variant="outlined" density="comfortable" hide-details />
               </v-card-text>
             </v-card>
           </v-col>
 
           <v-col cols="12" lg="4">
-            <v-card rounded="lg" elevation="1">
+            <v-card rounded="lg" variant="outlined">
               <v-card-title class="contact-form__section-title">
                 <v-icon color="primary" icon="mdi-cloud-sync-outline" />
                 {{ t('contact.form.syncMetadata') }}
@@ -470,19 +475,19 @@ function cancel() {
               <v-card-text class="d-flex flex-column ga-3">
                 <div>
                   <label class="contact-form__label">{{ t('contact.form.statusLabel') }}</label>
-                  <v-select v-model="form.status" :readonly="readOnlyMode" :items="statusItems" variant="solo-filled" flat hide-details />
+                  <v-select v-model="form.status" :readonly="readOnlyMode" :items="statusItems" variant="outlined" density="comfortable" hide-details />
                 </div>
                 <div>
                   <label class="contact-form__label">{{ t('contact.form.source') }}</label>
-                  <v-select v-model="form.source" :readonly="readOnlyMode" :items="sourceItems" variant="solo-filled" flat hide-details />
+                  <v-select v-model="form.source" :readonly="readOnlyMode" :items="sourceItems" variant="outlined" density="comfortable" hide-details />
                 </div>
                 <div>
                   <label class="contact-form__label">{{ t('contact.form.externalProvider') }}</label>
-                  <v-text-field v-model="form.externalProvider" :readonly="readOnlyMode" variant="solo-filled" flat hide-details />
+                  <v-text-field v-model="form.externalProvider" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
                 </div>
                 <div>
                   <label class="contact-form__label">{{ t('contact.form.externalId') }}</label>
-                  <v-text-field v-model="form.externalId" :readonly="readOnlyMode" variant="solo-filled" flat hide-details />
+                  <v-text-field v-model="form.externalId" :readonly="readOnlyMode" variant="outlined" density="comfortable" hide-details />
                 </div>
                 <div class="contact-form__meta pa-3 rounded-lg">
                   <span class="text-caption text-medium-emphasis">{{ t('contact.form.lastSync') }}</span>
@@ -517,9 +522,9 @@ function cancel() {
 .contact-form {
   --contact-text: rgb(var(--v-theme-on-surface));
   --contact-text-muted: rgba(var(--v-theme-on-surface), 0.72);
-  --contact-border: rgba(var(--v-theme-on-surface), 0.14);
-  --contact-surface-soft: rgba(var(--v-theme-primary), 0.09);
-  --contact-control-surface: rgba(var(--v-theme-on-surface), 0.065);
+  --contact-border: rgba(var(--v-theme-on-surface), 0.12);
+  --contact-surface-soft: rgba(var(--v-theme-on-surface), 0.025);
+  --contact-control-surface: rgba(var(--v-theme-on-surface), 0.04);
   max-width: 1360px;
   margin: 0 auto;
   padding: 4px;
@@ -530,30 +535,121 @@ function cancel() {
   min-width: 0;
 }
 
+.contact-form :deep(.v-card--variant-outlined) {
+  border-color: var(--contact-border);
+}
+
+.contact-form :deep(.v-card-text) {
+  padding: 20px;
+}
+
+.contact-form :deep(.v-row--dense) {
+  margin: -6px;
+}
+
+.contact-form :deep(.v-row--dense > .v-col) {
+  padding: 6px;
+}
+
+.contact-form :deep(.v-field) {
+  border-radius: 10px;
+  background: rgb(var(--v-theme-surface));
+  font-size: 0.875rem;
+}
+
+.contact-form :deep(.v-field:not(.v-field--focused) .v-field__outline) {
+  --v-field-border-opacity: 0.16;
+}
+
+.contact-form :deep(.v-field--focused .v-field__outline) {
+  color: rgb(var(--v-theme-primary));
+}
+
+.contact-form :deep(.v-field__prepend-inner > .v-icon) {
+  font-size: 20px;
+  opacity: 0.5;
+}
+
+.contact-form :deep(.v-btn) {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+
+.contact-form :deep(.v-divider) {
+  opacity: 0.08;
+}
+
+.contact-form__profile :deep(.v-card-text) {
+  padding: 24px;
+}
+
+.contact-form__tabs :deep(.v-tab) {
+  align-self: center;
+  height: 40px;
+  margin-inline: 5px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+
+.contact-form__section-title > .v-icon {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: rgba(var(--v-theme-primary), 0.08);
+  font-size: 20px;
+}
+
+.contact-form__section-title > .text-caption {
+  flex-shrink: 0;
+}
+
+.contact-form__add {
+  min-height: 42px;
+  border: 1px dashed var(--contact-border);
+  border-radius: 10px;
+  color: var(--contact-text-muted);
+}
+
+.contact-form__channel > .v-input {
+  min-width: 0;
+}
+
+.contact-form__actions > .v-btn {
+  min-height: 42px;
+  border-radius: 10px;
+  padding-inline: 20px;
+}
+
 .contact-form__profile {
   overflow: hidden;
   color: var(--contact-text);
-  background: linear-gradient(135deg, rgb(var(--v-theme-surface)) 65%, rgba(var(--v-theme-primary), 0.08));
+  background: linear-gradient(120deg, rgba(var(--v-theme-primary), 0.045), rgb(var(--v-theme-surface)) 55%);
   border: 1px solid var(--contact-border);
 }
 
 .contact-form__avatar-wrap {
   position: relative;
-  cursor: pointer;
+  padding: 6px;
+  border: 1px solid rgba(var(--v-theme-primary), 0.18);
+  border-radius: 50%;
+  background: rgb(var(--v-theme-surface));
 }
 
 .contact-form__camera {
   position: absolute;
-  right: -2px;
-  bottom: 0;
+  right: 0;
+  bottom: 2px;
+  border: 3px solid rgb(var(--v-theme-surface));
 }
 
 .contact-form__label {
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 7px;
   color: var(--contact-text-muted);
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: 0.01em;
 }
 
@@ -561,7 +657,7 @@ function cancel() {
 .contact-form__tabs {
   border: 1px solid var(--contact-border);
   border-radius: 12px;
-  padding: 4px;
+  padding: 0;
   color: var(--contact-text);
   background: var(--contact-control-surface);
 }
@@ -572,7 +668,9 @@ function cancel() {
 }
 
 .contact-form__tabs :deep(.v-tab--selected) {
-  color: rgb(var(--v-theme-primary)) !important;
+  color: var(--contact-text) !important;
+  background: rgb(var(--v-theme-surface));
+  box-shadow: 0 1px 4px rgba(var(--v-theme-on-surface), 0.1);
 }
 
 .contact-form__tabs :deep(.v-chip) {
@@ -583,8 +681,11 @@ function cancel() {
 .contact-form__section-title {
   display: flex;
   align-items: center;
-  gap: 8px;
-  min-height: 58px;
+  gap: 12px;
+  min-height: 68px;
+  padding: 16px 20px;
+  white-space: normal;
+  overflow-wrap: anywhere;
   color: var(--contact-text);
   font-size: 1rem;
   font-weight: 700;
@@ -593,7 +694,7 @@ function cancel() {
 .contact-form__channel,
 .contact-form__meta {
   min-height: 52px;
-  border: 1px solid rgba(var(--v-theme-primary), 0.12);
+  border: 1px solid var(--contact-border);
   border-radius: 9px;
   color: var(--contact-text);
   background: var(--contact-surface-soft);
@@ -608,7 +709,7 @@ function cancel() {
 .contact-form__actions {
   position: sticky;
   z-index: 5;
-  bottom: -24px;
+  bottom: 0;
   margin-inline: -4px;
   border-top: 1px solid var(--contact-border);
   color: var(--contact-text);
@@ -616,13 +717,31 @@ function cancel() {
   backdrop-filter: blur(12px);
 }
 
+/* Channels can be narrow inside dialogs even on a wide viewport. */
+.contact-form__channel {
+  container-type: inline-size;
+  flex-wrap: wrap;
+}
+
+@container (max-width: 420px) {
+  .contact-form__channel > .v-text-field:not(.contact-form__type-select) {
+    flex-basis: calc(100% - 56px);
+  }
+
+  .contact-form__channel > .contact-form__type-select {
+    margin-left: 40px;
+    flex: 1 1 auto;
+    max-width: none;
+  }
+}
+
 @media (max-width: 600px) {
   .contact-form {
     padding: 0;
   }
 
-  .contact-form__heading {
-    display: none !important;
+  .contact-form__heading h2 {
+    font-size: 1.25rem !important;
   }
 
   .contact-form__profile :deep(.v-card-text) {
@@ -644,10 +763,11 @@ function cancel() {
   .contact-form__channel .contact-form__type-select {
     grid-column: 2;
     grid-row: 1;
-    max-width: 110px;
+    margin-left: 0;
+    max-width: none;
   }
 
-  .contact-form__channel :deep(.v-text-field) {
+  .contact-form__channel > .v-text-field:not(.contact-form__type-select) {
     grid-column: 2;
     grid-row: 2;
   }
@@ -663,7 +783,11 @@ function cancel() {
   }
 
   .contact-form__actions {
-    bottom: -24px;
+    flex-wrap: wrap;
+  }
+
+  .contact-form__actions > .v-btn {
+    flex: 1 1 auto;
   }
 }
 </style>
