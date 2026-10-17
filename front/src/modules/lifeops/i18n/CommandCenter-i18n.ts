@@ -2,6 +2,10 @@ const messages = {
   es: {
     commandCenter: {
       title: 'Centro de comando', timezone: 'Hora de Buenos Aires', refresh: 'Actualizar', retry: 'Reintentar',
+      design: {
+        eyebrow: 'Tu día, en perspectiva', overview: 'Panorama general', focus: 'En foco',
+        workspace: 'Espacio de trabajo', workspaceHint: 'Todo conectado, en un solo lugar.', quickCreate: 'Crear rápidamente',
+      },
       newTask: 'Nueva tarea', newMemory: 'Nueva memoria', add: 'Agregar', search: 'Buscar en esta pestaña',
       open: 'Abrir', edit: 'Editar', delete: 'Eliminar', close: 'Cerrar', actions: 'Acciones',
       activate: 'Activar', pause: 'Pausar', active: 'Activa', paused: 'Pausada',
@@ -66,6 +70,10 @@ const messages = {
   en: {
     commandCenter: {
       title: 'Command center', timezone: 'Buenos Aires time', refresh: 'Refresh', retry: 'Retry',
+      design: {
+        eyebrow: 'Your day, in perspective', overview: 'Overview', focus: 'In focus',
+        workspace: 'Workspace', workspaceHint: 'Everything connected, in one place.', quickCreate: 'Quick create',
+      },
       newTask: 'New task', newMemory: 'New memory', add: 'Add', search: 'Search this tab',
       open: 'Open', edit: 'Edit', delete: 'Delete', close: 'Close', actions: 'Actions',
       activate: 'Activate', pause: 'Pause', active: 'Active', paused: 'Paused',

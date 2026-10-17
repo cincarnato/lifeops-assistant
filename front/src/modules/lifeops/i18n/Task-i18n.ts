@@ -12,6 +12,26 @@ const messages = {
         invalidDelegate: 'Choose an active delegate belonging to you.'
       },
       crud: 'Manage Task',
+      form: {
+        operation: {create: 'New task', edit: 'Edit task', view: 'Task details', delete: 'Delete task'},
+        focusHint: 'Define what matters. Organize the details at your own pace.',
+        context: 'Project & goals',
+        create: 'Create task', save: 'Save changes',
+        deleteWarning: 'This task will be deleted. Review the details before confirming.',
+        validationError: 'Review the highlighted fields before saving.',
+        tabs: {detail: 'Details', classification: 'Classification', schedule: 'Schedule', execution: 'Execution', integrations: 'Integrations'},
+        sections: {description: 'Description', notes: 'Notes', classification: 'Context & labels', evaluation: 'Priority & scores', planning: 'Plan your time', tracking: 'Activity', delegation: 'Delegation', instruction: 'Instructions', integrations: 'Connected services'},
+        hints: {
+          description: 'What needs to be done and what does success look like?',
+          classification: 'Give this task a place in your system.',
+          evaluation: 'Optional signals to help you decide what comes first.',
+          planning: 'Separate when you plan to work from the deadline.',
+          tracking: 'Dates recorded throughout the task lifecycle.',
+          delegation: 'Decide whether someone else can take this on.',
+          instruction: 'Link a guide or procedure for this task.',
+          integrations: 'Optional identifiers linking this task to other tools.',
+        },
+      },
       importance: {
         HIGH: {title: 'Must do (High)', description: 'Very important. Serious consequences if I do not do it.'},
         MEDIUM: {title: 'Should do (Medium)', description: 'Important. Minor consequences if I do not do it.'},
@@ -107,6 +127,26 @@ const messages = {
         invalidDelegate: 'Elegí una persona activa que te pertenezca.'
       },
       crud: 'Gestionar tarea',
+      form: {
+        operation: {create: 'Nueva tarea', edit: 'Editar tarea', view: 'Detalle de la tarea', delete: 'Eliminar tarea'},
+        focusHint: 'Definí lo importante. Organizá los detalles a tu ritmo.',
+        context: 'Proyecto y objetivos',
+        create: 'Crear tarea', save: 'Guardar cambios',
+        deleteWarning: 'Se eliminará esta tarea. Revisá los datos antes de confirmar.',
+        validationError: 'Revisá los campos señalados antes de guardar.',
+        tabs: {detail: 'Detalle', classification: 'Clasificación', schedule: 'Programación', execution: 'Ejecución', integrations: 'Integraciones'},
+        sections: {description: 'Descripción', notes: 'Notas', classification: 'Contexto y etiquetas', evaluation: 'Prioridad y valoración', planning: 'Planificá tu tiempo', tracking: 'Actividad', delegation: 'Delegación', instruction: 'Instrucciones', integrations: 'Servicios conectados'},
+        hints: {
+          description: '¿Qué hay que hacer y cuál es el resultado esperado?',
+          classification: 'Ubicá esta tarea dentro de tu sistema.',
+          evaluation: 'Señales opcionales para decidir qué hacer primero.',
+          planning: 'Separá cuándo vas a trabajar de la fecha límite.',
+          tracking: 'Fechas registradas a lo largo de la vida de la tarea.',
+          delegation: 'Decidí si otra persona puede hacerse cargo.',
+          instruction: 'Vinculá una guía o procedimiento para esta tarea.',
+          integrations: 'Identificadores opcionales para vincular otras herramientas.',
+        },
+      },
       importance: {
         HIGH: {title: 'Debo hacer (Alta)', description: 'Muy importante. Consecuencias graves si no la realizo.'},
         MEDIUM: {title: 'Debería hacer (Media)', description: 'Importante. Consecuencias menores si no la realizo.'},

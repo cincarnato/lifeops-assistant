@@ -4,20 +4,13 @@ import {ref} from 'vue'
 import TaskCrud from '../../cruds/TaskCrud'
 import {Crud, useCrud} from "@drax/crud-vue";
 import {formatDate} from "@drax/common-front"
-import SourceCombobox from '../../comboboxes/SourceCombobox.vue'
-import TaskTypeCombobox from '../../comboboxes/TaskTypeCombobox.vue'
-import TaskStatusCombobox from '../../comboboxes/TaskStatusCombobox.vue'
-import PriorityCombobox from '../../comboboxes/PriorityCombobox.vue'
+import TaskForm from "../TaskForm.vue"
 import TaskView from "@/modules/lifeops/components/TaskView.vue";
-import LifeAreaCombobox from "@/modules/lifeops/comboboxes/LifeAreaCombobox.vue";
 import TaskProvider from "@/modules/lifeops/providers/TaskProvider";
 import type {ITask} from "@/modules/lifeops/interfaces/ITask";
-import TaskNotes from '../TaskNotes.vue'
-import TaskImportanceSelect from '../../comboboxes/TaskImportanceSelect.vue'
 import {useTaskImportance} from '../../composables/useTaskImportance'
-import TaskDelegableSwitch from '../TaskDelegableSwitch.vue'
-import DelegateCombobox from '../../comboboxes/DelegateCombobox.vue'
 
+const emit = defineEmits(['created', 'updated', 'deleted', 'viewed', 'canceled'])
 const {operation} = useCrud(TaskCrud.instance)
 const {importanceOption} = useTaskImportance()
 
@@ -66,43 +59,15 @@ async function triageTask(item: any) {
 </script>
 
 <template>
-  <crud :entity="TaskCrud.instance">
-    <template #field.delegable="{form}">
-      <task-delegable-switch
-          v-model="form.delegable"
-          v-model:delegate="form.delegate"
-          :readonly="operation === 'view' || operation === 'delete'"
-      />
-    </template>
-    <template #field.delegate="{form}">
-      <delegate-combobox
-          v-if="form.delegable"
-          v-model="form.delegate"
-          :readonly="operation === 'view' || operation === 'delete'"
-      />
+  <crud :entity="TaskCrud.instance"
+        @created="item => emit('created', item)" @updated="item => emit('updated', item)"
+        @deleted="emit('deleted')" @viewed="emit('viewed')" @canceled="emit('canceled')">
+    <template #form="{form}">
+      <task-view v-if="operation === 'view'" :item="form" />
+      <task-form v-else @created="item => emit('created', item)" @updated="item => emit('updated', item)"
+                 @deleted="emit('deleted')" @viewed="emit('viewed')" @canceled="emit('canceled')" />
     </template>
     <template #item.delegate="{value}">{{ value?.contact?.displayName }}</template>
-
-
-    <template v-if="operation === 'view'" v-slot:form="{form}">
-      <task-view :item="form"></task-view>
-    </template>
-
-    <template #field.notes="{modelValue, setValue}">
-      <task-notes
-          :model-value="modelValue"
-          :readonly="operation === 'view' || operation === 'delete'"
-          @update:model-value="setValue"
-      />
-    </template>
-
-    <template #field.importance="{modelValue, setValue}">
-      <task-importance-select
-          :model-value="modelValue"
-          :readonly="operation === 'view' || operation === 'delete'"
-          @update:model-value="setValue"
-      />
-    </template>
 
     <template #item.importance="{value}">
       <v-chip v-if="value" :color="importanceOption(value)?.color" size="small">
@@ -110,54 +75,6 @@ async function triageTask(item: any) {
       </v-chip>
     </template>
 
-    <template v-slot:field.type="{field, form}">
-      <task-type-combobox
-          v-model="form.type"
-          :name="field.name"
-          :label="field.label"
-          item-title="name"
-          item-value="name"
-      />
-    </template>
-    <template v-slot:field.status="{field, form}">
-      <task-status-combobox
-          v-model="form.status"
-          :name="field.name"
-          :label="field.label"
-          item-title="name"
-          item-value="name"
-      />
-    </template>
-
-    <template v-slot:field.lifeArea="{field, form}">
-      <life-area-combobox
-        v-model="form.lifeArea"
-        :name="field.name"
-        :label="field.label"
-        item-title="name"
-        item-value="name"
-      />
-    </template>
-
-    <template v-slot:field.source="{field, form}">
-      <source-combobox
-        v-model="form.source"
-        :name="field.name"
-        :label="field.label"
-        item-title="name"
-        item-value="name"
-      />
-    </template>
-
-    <template v-slot:field.priority="{field, form}">
-      <priority-combobox
-          v-model="form.priority"
-          :name="field.name"
-          :label="field.label"
-          item-title="name"
-          item-value="name"
-      />
-    </template>
     <template v-slot:item.source="{value}">{{value}}</template>
     <template v-slot:item.type="{value}">{{value}}</template>
     <template v-slot:item.status="{value}">{{value}}</template>

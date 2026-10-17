@@ -24,6 +24,12 @@ const paused = ref(false)
 const hovered = ref(false)
 const focused = ref(false)
 const mounted = ref(false)
+const reducedMotion = ref(false)
+let motionPreference: MediaQueryList | undefined
+function updateMotionPreference() {
+  reducedMotion.value = motionPreference?.matches ?? false
+  if (reducedMotion.value) paused.value = true
+}
 const perPage = computed(() => xs.value ? 1 : sm.value ? 2 : md.value ? 3 : lg.value ? 4 : 6)
 const pages = computed(() => {
   const result: Metric[][] = []
@@ -71,14 +77,22 @@ watch(() => pages.value.length, count => {
   page.value = Math.min(page.value, Math.max(0, count - 1))
   startRotation()
 })
-onMounted(() => { mounted.value = true })
-onBeforeUnmount(stopRotation)
+onMounted(() => {
+  motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)')
+  updateMotionPreference()
+  motionPreference.addEventListener('change', updateMotionPreference)
+  mounted.value = true
+})
+onBeforeUnmount(() => {
+  stopRotation()
+  motionPreference?.removeEventListener('change', updateMotionPreference)
+})
 </script>
 
 <template>
   <section
     v-if="metrics.length"
-    class="d-flex align-center ga-1 mb-2"
+    class="metrics-section mb-3"
     role="region"
     :aria-label="t('commandCenter.metricCarousel.label')"
     :aria-roledescription="t('commandCenter.metricCarousel.description')"
@@ -87,31 +101,55 @@ onBeforeUnmount(stopRotation)
     @focusin="focused = true"
     @focusout="onFocusOut"
   >
-    <v-btn
-      icon="mdi-chevron-left" size="x-small" variant="text"
-      :disabled="pages.length < 2"
-      :aria-label="t('commandCenter.metricCarousel.previous')"
-      :title="t('commandCenter.metricCarousel.previous')"
-      @click="move(-1)"
-    />
-    <v-window v-model="page" class="metrics-window flex-grow-1" :aria-live="rotating ? 'off' : 'polite'">
+    <div class="d-flex align-center justify-space-between ga-3 mb-2">
+      <h2 class="metrics-heading text-caption font-weight-bold">{{ t('commandCenter.design.overview') }}</h2>
+      <div class="metrics-controls d-flex align-center ga-1">
+        <span class="metrics-page text-caption mr-1" :aria-label="t('commandCenter.metricCarousel.page', {current: page + 1, total: pages.length})">{{ page + 1 }} / {{ pages.length }}</span>
+        <v-btn
+          :icon="paused ? 'mdi-play' : 'mdi-pause'" size="x-small" variant="text"
+          :disabled="pages.length < 2" :aria-pressed="paused"
+          :aria-label="t(paused ? 'commandCenter.metricCarousel.resume' : 'commandCenter.metricCarousel.pause')"
+          :title="t(paused ? 'commandCenter.metricCarousel.resume' : 'commandCenter.metricCarousel.pause')"
+          @click="paused = !paused"
+        />
+        <v-btn
+          icon="mdi-chevron-left" size="x-small" variant="text"
+          :disabled="pages.length < 2"
+          :aria-label="t('commandCenter.metricCarousel.previous')"
+          :title="t('commandCenter.metricCarousel.previous')"
+          @click="move(-1)"
+        />
+        <v-btn
+          icon="mdi-chevron-right" size="x-small" variant="text"
+          :disabled="pages.length < 2"
+          :aria-label="t('commandCenter.metricCarousel.next')"
+          :title="t('commandCenter.metricCarousel.next')"
+          @click="move(1)"
+        />
+      </div>
+    </div>
+    <v-window v-model="page" class="metrics-window" :aria-live="rotating ? 'off' : 'polite'">
       <v-window-item
         v-for="(group, index) in pages" :key="index" :value="index"
+        :transition="reducedMotion ? false : undefined" :reverse-transition="reducedMotion ? false : undefined"
         role="group" :aria-label="t('commandCenter.metricCarousel.page', {current: index + 1, total: pages.length})"
       >
         <v-row dense class="flex-nowrap ma-0">
           <v-col v-for="metric in group" :key="`${metric.tab}-${metric.preset}`" :cols="12 / perPage">
-            <v-card variant="flat" border height="80" class="d-flex align-center">
+            <v-card variant="flat" class="metric-card d-flex align-center" rounded="lg">
               <v-btn
-                variant="text" height="100%" class="metrics-navigation flex-grow-1 px-2 text-none"
+                variant="text" height="100%" class="metrics-navigation flex-grow-1 pa-3 text-none"
                 :aria-label="`${t(`commandCenter.metrics.${metric.tab}_${metric.preset}`)}: ${metric.loading ? t('commandCenter.loading') : totalLabel(metric)}`"
                 @click="$emit('navigate', metric)"
               >
-                <v-icon :icon="metric.icon" :color="metric.color" size="22" class="mr-2 flex-shrink-0" />
+
                 <div class="metrics-text flex-grow-1 text-start">
-                  <div class="metrics-title text-caption text-medium-emphasis text-wrap">{{ t(`commandCenter.metrics.${metric.tab}_${metric.preset}`) }}</div>
+                  <div class="d-flex align-start ga-2 mb-1">
+                    <div class="metrics-title text-caption text-wrap flex-grow-1">{{ t(`commandCenter.metrics.${metric.tab}_${metric.preset}`) }}</div>
+                    <v-icon :icon="metric.icon" :color="metric.color" size="18" class="metric-icon flex-shrink-0" />
+                  </div>
                   <v-progress-linear v-if="metric.loading" indeterminate :color="metric.color" class="my-2" />
-                  <div v-else class="text-h6 font-weight-bold text-truncate">{{ totalLabel(metric) }}</div>
+                  <div v-else class="metric-value font-weight-bold">{{ totalLabel(metric) }}</div>
                 </div>
                 <v-tooltip activator="parent" location="bottom">{{ t(`commandCenter.metrics.${metric.tab}_${metric.preset}`) }} · {{ t(`commandCenter.metricHints.${metric.tab}_${metric.preset}`) }}</v-tooltip>
               </v-btn>
@@ -125,20 +163,7 @@ onBeforeUnmount(stopRotation)
         </v-row>
       </v-window-item>
     </v-window>
-    <v-btn
-      icon="mdi-chevron-right" size="x-small" variant="text"
-      :disabled="pages.length < 2"
-      :aria-label="t('commandCenter.metricCarousel.next')"
-      :title="t('commandCenter.metricCarousel.next')"
-      @click="move(1)"
-    />
-    <v-btn
-      :icon="paused ? 'mdi-play' : 'mdi-pause'" size="x-small" variant="text"
-      :disabled="pages.length < 2" :aria-pressed="paused"
-      :aria-label="t(paused ? 'commandCenter.metricCarousel.resume' : 'commandCenter.metricCarousel.pause')"
-      :title="t(paused ? 'commandCenter.metricCarousel.resume' : 'commandCenter.metricCarousel.pause')"
-      @click="paused = !paused"
-    />
+
   </section>
 </template>
 
@@ -149,11 +174,61 @@ onBeforeUnmount(stopRotation)
   min-width: 0;
 }
 
+.metrics-heading,
+.metrics-controls,
 .metrics-title {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
+  color: var(--cc-muted, rgba(var(--v-theme-on-surface), 0.65));
+}
+
+.metrics-heading {
+  letter-spacing: 0.06em;
+}
+
+.metrics-controls {
+  flex-shrink: 0;
+  border: 1px solid var(--cc-border, rgba(var(--v-theme-on-surface), 0.12));
+  border-radius: 10px;
+  padding: 2px 6px;
+}
+
+.metric-card {
+  height: 100%;
+  min-height: 98px;
+  border: 1px solid var(--cc-border, rgba(var(--v-theme-on-surface), 0.12));
+  background: var(--cc-soft, rgba(var(--v-theme-on-surface), 0.035));
+}
+
+.metrics-navigation {
+  border-radius: inherit;
+  letter-spacing: normal;
+}
+
+.metrics-title {
+  min-height: 2.5rem;
+  line-height: 1.25rem;
+  overflow-wrap: anywhere;
+}
+
+.metric-icon {
+  opacity: 0.7;
+}
+
+.metric-value {
+  font-size: clamp(1.25rem, 2vw, 1.6rem);
+  line-height: 1.2;
+  letter-spacing: -0.04em;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.metric-value,
+.metrics-page {
+  font-variant-numeric: tabular-nums;
+}
+
+.metrics-navigation:focus-visible {
+  outline: 2px solid rgb(var(--v-theme-primary));
+  outline-offset: -3px;
 }
 
 .metrics-navigation :deep(.v-btn__content) {
