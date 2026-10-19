@@ -5,11 +5,17 @@ import { useShoppingList } from '../composables/useShoppingList'
 import type { IShoppingItem } from '../interfaces/IShoppingItem'
 
 const { t, d } = useI18n()
-const { can, items, purchased, loading, saving, error, total, name, quantity,
-  editing, hasMore, load, edit, resetForm, save, toggle, remove } = useShoppingList()
+const { can, items, purchased, loading, saving, error, total, name, quantity, purchaseLocation,
+  editing, hasMore, load, edit, resetForm, save, toggle, remove, purgePurchased } = useShoppingList()
 const busy = computed(() => loading.value || saving.value)
 const formElement = ref<HTMLElement | null>(null)
 const deleting = ref<IShoppingItem | null>(null)
+const purging = ref(false)
+
+async function confirmPurge() {
+  await purgePurchased()
+  purging.value = false
+}
 
 async function startEdit(item: IShoppingItem) {
   edit(item)
@@ -53,6 +59,8 @@ function dateLabel(item: IShoppingItem) {
             <div v-if="editing" class="text-subtitle-2 mb-2">{{ t('shoppingitem.edit') }}</div>
             <v-text-field v-model="name" :label="t('shoppingitem.field.name')" variant="outlined"
                           hide-details class="mb-3" autocomplete="off" :disabled="busy" />
+            <v-text-field v-model="purchaseLocation" :label="t('shoppingitem.field.purchaseLocation')"
+                          variant="outlined" hide-details class="mb-3" :disabled="busy" />
             <v-row dense align="center">
               <v-col cols="7" sm="8">
                 <v-text-field v-model="quantity" :label="t('shoppingitem.field.quantity')"
@@ -76,6 +84,11 @@ function dateLabel(item: IShoppingItem) {
           <v-btn :value="false">{{ t('shoppingitem.pending') }}</v-btn>
           <v-btn :value="true">{{ t('shoppingitem.purchased') }}</v-btn>
         </v-btn-toggle>
+        <v-btn v-if="purchased && can('delete')" color="error" variant="text"
+               prepend-icon="mdi-delete-sweep-outline" class="mb-4"
+               :disabled="busy || !total" @click="purging = true">
+          {{ t('shoppingitem.purgePurchased') }}
+        </v-btn>
         <div class="text-body-2 text-medium-emphasis mb-2">{{ t('shoppingitem.count', total) }}</div>
         <v-progress-linear v-if="loading" indeterminate color="primary" class="mb-2" />
 
@@ -94,6 +107,9 @@ function dateLabel(item: IShoppingItem) {
                   {{ item.name }}
                 </div>
                 <div v-if="item.quantity" class="text-body-2 text-break">{{ item.quantity }}</div>
+                <div v-if="item.purchaseLocation" class="text-body-2 text-break">
+                  <v-icon icon="mdi-map-marker-outline" size="small" /> {{ item.purchaseLocation }}
+                </div>
                 <div class="text-caption text-medium-emphasis">{{ dateLabel(item) }}</div>
                 <template #append>
                   <v-btn v-if="can('update')" icon="mdi-pencil-outline" variant="text" size="small"
@@ -114,6 +130,18 @@ function dateLabel(item: IShoppingItem) {
         </v-btn>
       </v-col>
     </v-row>
+
+    <v-dialog v-model="purging" max-width="400" :persistent="saving">
+      <v-card :title="t('shoppingitem.purgePurchased')" :text="t('shoppingitem.purgeConfirm')">
+        <v-card-actions>
+          <v-spacer />
+          <v-btn :disabled="saving" @click="purging = false">{{ t('shoppingitem.cancel') }}</v-btn>
+          <v-btn color="error" :loading="saving" :disabled="busy" @click="confirmPurge">
+            {{ t('shoppingitem.purgePurchased') }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <v-dialog :model-value="!!deleting" max-width="400" :persistent="saving" @update:model-value="deleting = null">
       <v-card :title="t('shoppingitem.delete')" :text="t('shoppingitem.deleteConfirm', { name: deleting?.name })">

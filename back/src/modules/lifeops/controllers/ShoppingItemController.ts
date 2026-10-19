@@ -6,6 +6,15 @@ import type {IShoppingItem, IShoppingItemBase} from "../interfaces/IShoppingItem
 
 class ShoppingItemController extends AbstractFastifyController<IShoppingItem, IShoppingItemBase, IShoppingItemBase>   {
 
+    async purgePurchased(request, reply) {
+        try {
+            request.rbac.assertOrPermissions([ShoppingItemPermissions.Delete, ShoppingItemPermissions.Manage]);
+            return await ShoppingItemServiceFactory.instance.purgePurchased(request.rbac.userId);
+        } catch (error) {
+            this.handleError(error, reply);
+        }
+    }
+
     constructor() {
         super(ShoppingItemServiceFactory.instance, ShoppingItemPermissions)
         this.tenantField = "tenant";

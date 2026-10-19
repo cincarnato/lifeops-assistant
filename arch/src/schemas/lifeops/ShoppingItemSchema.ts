@@ -9,6 +9,7 @@ const entitySchema: IEntitySchema = {
     schema: {
         name: { type: "string", required: true, search: true, header: true },
         quantity: { type: "string", default: null, header: true },
+        purchaseLocation: { type: "string", header: true },
         purchased: { type: "boolean", default: false, header: true },
         purchasedAt: { type: "date", default: null, header: true },
         user: { type: "ref", ref: "User", refDisplay: "username", required: true },

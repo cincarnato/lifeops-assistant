@@ -1,7 +1,8 @@
 
 import ShoppingItemController from "../controllers/ShoppingItemController.js";
 import {CrudSchemaBuilder} from "@drax/crud-back";
-import {ShoppingItemSchema, ShoppingItemBaseSchema} from '../schemas/ShoppingItemSchema.js'
+import { z } from 'zod';
+import {ShoppingItemSchema, ShoppingItemBaseSchema, ShoppingItemPurgeResultSchema} from '../schemas/ShoppingItemSchema.js'
 
 async function ShoppingItemFastifyRoutes(fastify, options) {
 
@@ -25,6 +26,11 @@ async function ShoppingItemFastifyRoutes(fastify, options) {
     fastify.put('/api/shopping-items/:id', {schema: schemas.updateSchema}, (req,rep) =>controller.update(req,rep))
 
     fastify.patch('/api/shopping-items/:id', {schema: schemas.updatePartialSchema}, (req,rep) =>controller.updatePartial(req,rep))
+
+    fastify.delete('/api/shopping-items/purchased', { schema: {
+        tags: ['ShoppingItem'],
+        response: { 200: z.toJSONSchema(ShoppingItemPurgeResultSchema, { target: 'openapi-3.0' }) }
+    } }, (req, rep) => controller.purgePurchased(req, rep));
 
     fastify.delete('/api/shopping-items/:id', {schema: schemas.deleteSchema}, (req,rep) =>controller.delete(req,rep))
 

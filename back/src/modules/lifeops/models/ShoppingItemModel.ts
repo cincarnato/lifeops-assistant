@@ -8,6 +8,7 @@ import type {IShoppingItem} from '../interfaces/IShoppingItem'
 const ShoppingItemSchema = new mongoose.Schema<IShoppingItem>({
             name: {type: String, required: true, trim: true},
             quantity: {type: String, default: null},
+            purchaseLocation: {type: String},
             purchased: {type: Boolean, default: false},
             purchasedAt: {type: Date, default: null},
             user: {type: mongoose.Schema.Types.ObjectId, ref: 'User',  required: true, index: false, unique: false }

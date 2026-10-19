@@ -6,6 +6,11 @@ import {SqliteTableField} from "@drax/common-back";
 
 class ShoppingItemSqliteRepository extends AbstractSqliteRepository<IShoppingItem, IShoppingItemBase, IShoppingItemBase> implements IShoppingItemRepository {
 
+    async deletePurchasedByUser(userId: string): Promise<number> {
+        return this.db.prepare(`DELETE FROM ${this.tableName} WHERE user = ? AND purchased = ?`)
+            .run(userId, 1).changes;
+    }
+
     protected db: any;
     protected tableName: string = 'ShoppingItem';
     protected dataBaseFile: string;
@@ -22,6 +27,7 @@ class ShoppingItemSqliteRepository extends AbstractSqliteRepository<IShoppingIte
         {name: "updatedAt", type: "TEXT", unique: undefined, primary: false},
         {name: "name", type: "TEXT", unique: undefined, primary: false},
 {name: "quantity", type: "TEXT", unique: undefined, primary: false},
+{name: "purchaseLocation", type: "TEXT", unique: undefined, primary: false},
 {name: "purchased", type: "TEXT", unique: undefined, primary: false},
 {name: "purchasedAt", type: "TEXT", unique: undefined, primary: false},
 {name: "user", type: "TEXT", unique: undefined, primary: false}

@@ -17,6 +17,7 @@ export function useShoppingList() {
   const page = ref(1)
   const name = ref('')
   const quantity = ref('')
+  const purchaseLocation = ref('')
   const editing = ref<IShoppingItem | null>(null)
   const hasMore = computed(() => items.value.length < total.value)
 
@@ -46,12 +47,14 @@ export function useShoppingList() {
     editing.value = null
     name.value = ''
     quantity.value = ''
+    purchaseLocation.value = ''
   }
 
   function edit(item: IShoppingItem) {
     editing.value = item
     name.value = item.name
     quantity.value = item.quantity ?? ''
+    purchaseLocation.value = item.purchaseLocation ?? ''
   }
 
   async function mutate(action: () => Promise<unknown>) {
@@ -71,7 +74,10 @@ export function useShoppingList() {
   async function save() {
     if (!name.value.trim()) return
     await mutate(async () => {
-      const data = { name: name.value.trim(), quantity: quantity.value.trim() || null }
+      const data = {
+        name: name.value.trim(), quantity: quantity.value.trim() || null,
+        purchaseLocation: purchaseLocation.value.trim() || null,
+      }
       if (editing.value) {
         await provider.updatePartial(editing.value._id, data)
       } else {
@@ -92,9 +98,16 @@ export function useShoppingList() {
     })
   }
 
+  async function purgePurchased() {
+    await mutate(async () => {
+      await provider.purgePurchased()
+      if (editing.value?.purchased) resetForm()
+    })
+  }
+
   watch(purchased, () => { items.value = []; total.value = 0; void load() })
   onMounted(() => load())
 
-  return { can, items, purchased, loading, saving, error, total, name, quantity,
-    editing, hasMore, load, edit, resetForm, save, toggle, remove }
+  return { can, items, purchased, loading, saving, error, total, name, quantity, purchaseLocation,
+    editing, hasMore, load, edit, resetForm, save, toggle, remove, purgePurchased }
 }

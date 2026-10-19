@@ -46,6 +46,7 @@ class ShoppingItemCrud extends EntityCrud implements IEntityCrud {
     return [
         {title: 'name',key:'name', align: 'start'},
 {title: 'quantity',key:'quantity', align: 'start'},
+{title: 'purchaseLocation',key:'purchaseLocation', align: 'start'},
 {title: 'purchased',key:'purchased', align: 'start'},
 {title: 'purchasedAt',key:'purchasedAt', align: 'start'},
 {title: 'createdAt',key:'createdAt', align: 'start'}
@@ -87,6 +88,7 @@ class ShoppingItemCrud extends EntityCrud implements IEntityCrud {
     return [
         {name:'name',type:'string',label:'name',default:''},
 {name:'quantity',type:'string',label:'quantity',default:null},
+{name:'purchaseLocation',type:'string',label:'purchaseLocation',default:null},
 {name:'purchased',type:'boolean',label:'purchased',default:false}
     ]
   }

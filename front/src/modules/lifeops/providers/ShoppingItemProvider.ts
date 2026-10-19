@@ -10,6 +10,10 @@ class ShoppingItemProvider extends AbstractCrudRestProvider<IShoppingItem, IShop
    super('/api/shopping-items')
   }
 
+  async purgePurchased(): Promise<{ deletedCount: number }> {
+    return await this.httpClient.delete(this.basePath + '/purchased') as { deletedCount: number }
+  }
+
   static get instance() {
     if(!ShoppingItemProvider.singleton){
       ShoppingItemProvider.singleton = new ShoppingItemProvider()
