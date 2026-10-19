@@ -3,8 +3,7 @@ import {computed, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import type {IDayPlan, IDayPlanBase} from "../interfaces/IDayPlan";
 import DayPlanProvider from "../providers/DayPlanProvider";
-import TaskProvider from "../providers/TaskProvider";
-import TaskCombobox from "../comboboxes/TaskCombobox.vue";
+import TaskPlanningBoard from "./TaskPlanningBoard.vue";
 
 type DayPlanForm = IDayPlanBase & Partial<IDayPlan>
 type Decision = "PENDIENTE" | "COMPROMETIDO" | "DESEABLE" | "DESCARTADO"
@@ -17,7 +16,6 @@ const props = defineProps<{
 }>()
 
 const {t, te, locale} = useI18n()
-const additionalTask = ref<string | null>(null)
 const saveError = ref("")
 
 const decisionOptions = computed<Array<{ title: string; value: Decision; color: string; icon: string }>>(() => [
@@ -28,29 +26,6 @@ const decisionOptions = computed<Array<{ title: string; value: Decision; color: 
 
 const isDecisionReadonly = computed(() => ["view", "delete"].includes(props.operation || ""))
 
-
-const totalItems = computed(() =>
-  (props.item.events?.length || 0) +
-  (props.item.tasks?.length || 0) +
-  (props.item.habits?.length || 0) +
-  (props.item.suggestions?.length || 0)
-)
-
-const committedItems = computed(() => {
-  const decisions = [
-    ...(props.item.events || []),
-    ...(props.item.tasks || []),
-    ...(props.item.habits || []),
-    ...(props.item.suggestions || [])
-  ]
-
-  return decisions.filter(item => item.decision === "COMPROMETIDO").length
-})
-
-const performance = computed(() => {
-  if (!totalItems.value) return 0
-  return Math.round((committedItems.value / totalItems.value) * 100)
-})
 
 const contextItems = computed(() => {
   const items = new Map<string, ContextItem>()
@@ -91,15 +66,6 @@ function setDecision(target: DecisionTarget, value: unknown) {
   if (value !== "COMPROMETIDO" && "priority" in target) target.priority = null
 }
 
-function setPriority(target: DecisionTarget, priority: "A1" | "A2" | "A3" | null) {
-  if (isDecisionReadonly.value) return
-  props.item.tasks?.forEach(task => {
-    if (priority && task !== target && task.priority === priority) task.priority = null
-  })
-  target.priority = priority
-  if (priority) target.decision = "COMPROMETIDO"
-}
-
 watch(() => props.item, async (item, _, onCleanup) => {
   let active = true
   onCleanup(() => { active = false })
@@ -126,19 +92,6 @@ watch(() => props.item, async (item, _, onCleanup) => {
     }
   } catch { if (active) saveError.value = t("dayplan.ui.loadError") }
 }, {immediate: true})
-
-async function addTask(id: string | null) {
-  if (!id || isDecisionReadonly.value) return
-  const item = props.item
-  try {
-    const task = await TaskProvider.instance.findById(id)
-    if (item !== props.item) return
-    if (!item.tasks?.some(entry => (entry.task?._id || entry.task) === id)) {
-      (item.tasks ||= []).push({task, decision: "DESEABLE", priority: null})
-    }
-    additionalTask.value = null
-  } catch { saveError.value = t("dayplan.ui.loadError") }
-}
 
 function formatDate(value?: Date | string | null) {
   if (!value) return "-"
@@ -228,14 +181,6 @@ function getNumber(value: unknown) {
   return typeof value === "number" ? value : undefined
 }
 
-function getPriorityColor(priority?: string) {
-  const value = priority?.toLowerCase()
-  if (value === "alta" || value === "high") return "error"
-  if (value === "media" || value === "medium") return "warning"
-  if (value === "baja" || value === "low") return "grey"
-  return "secondary"
-}
-
 function addContextItem(items: Map<string, ContextItem>, value: unknown, type: string) {
   if (!isRecord(value)) return
 
@@ -260,39 +205,12 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
       <div class="min-w-0">
         <h1 class="day-plan__title text-h4 text-md-h3 font-weight-bold mb-2">{{ formatDate(item.date) }}</h1>
         <div class="d-flex flex-wrap align-center ga-2">
-          <v-chip size="small" color="primary" variant="flat" prepend-icon="mdi-progress-check">
-            {{ item.status || "-" }}
-          </v-chip>
           <v-chip size="small" color="secondary" variant="tonal" prepend-icon="mdi-account-outline">
             {{ getRefText(item.user) }}
           </v-chip>
-          <span class="text-body-2 text-medium-emphasis">
-            {{ label("dayplan.ui.performance", "Rendimiento actual") }} {{ performance }}%
-          </span>
         </div>
       </div>
-
-      <div class="d-flex ga-3">
-        <v-card variant="outlined" rounded="lg" class="px-4 py-2">
-          <div class="text-caption text-medium-emphasis">{{ label("dayplan.ui.totalItems", "Items") }}</div>
-          <div class="text-h6 font-weight-bold">{{ totalItems }}</div>
-        </v-card>
-        <v-card variant="outlined" rounded="lg" class="px-4 py-2">
-          <div class="text-caption text-medium-emphasis">{{ label("dayplan.ui.committedItems", "Comprometidos") }}</div>
-          <div class="text-h6 font-weight-bold">{{ committedItems }}</div>
-        </v-card>
-      </div>
     </div>
-
-    <v-alert
-      v-if="!totalItems"
-      class="mb-4"
-      type="info"
-      variant="tonal"
-      density="comfortable"
-    >
-      {{ label("dayplan.ui.empty", "No hay items planificados para este dia.") }}
-    </v-alert>
 
     <v-alert
       v-if="saveError"
@@ -387,93 +305,9 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
 
       <v-col cols="12" lg="6">
         <div class="d-flex flex-column ga-4">
-          <v-card class="day-plan__panel" variant="outlined" rounded="lg">
-            <v-card-title class="d-flex align-center ga-2 text-subtitle-1 font-weight-bold">
-              <v-icon icon="mdi-checkbox-marked-circle-outline" color="primary"/>
-              {{ label("dayplan.field.tasks", "Tareas pendientes") }}
-              <v-spacer/>
-              <span class="text-caption text-primary font-weight-bold">{{ item.tasks?.length || 0 }}</span>
-            </v-card-title>
-
-            <v-card-text>
-              <v-alert class="mb-3" type="info" variant="tonal">{{ t('dayplan.ui.prioritiesHint') }}</v-alert>
-              <TaskCombobox v-if="!isDecisionReadonly" v-model="additionalTask" :label="t('dayplan.ui.addTask')" @update:model-value="addTask" />
-              <v-list v-if="item.tasks?.length" class="py-0" density="compact">
-                <v-list-item
-                  v-for="(taskItem, index) in item.tasks"
-                  :key="taskItem.task?._id || index"
-                  class="day-plan__list-item px-2 py-3 mb-2 rounded"
-                  :class="taskItem.priority === 'A1' ? 'bg-error border-lg' : taskItem.priority ? 'bg-primary-lighten-5 border-md' : ''"
-                >
-                  <template #prepend>
-                    <v-icon :color="decisionMeta(taskItem.decision).color" :icon="decisionMeta(taskItem.decision).icon"/>
-                  </template>
-
-                  <v-chip v-if="taskItem.priority" :color="taskItem.priority === 'A1' ? 'warning' : 'primary'" variant="flat" class="mb-2">{{ taskItem.priority }} {{ taskItem.priority === 'A1' ? t('dayplan.ui.nonNegotiable') : '' }}</v-chip>
-                  <v-list-item-title class="font-weight-bold text-wrap">
-                    {{ getRefText(taskItem.task, ["title", "name"]) }}
-                  </v-list-item-title>
-
-                  <v-list-item-subtitle class="text-wrap">
-                    <span v-if="taskItem.task?.project">{{ getRefText(taskItem.task.project, ["name"]) }}</span>
-                    <span v-if="taskItem.task?.valueScore" class="ml-2">
-                      <v-icon icon="mdi-lightning-bolt-outline" size="14"/>
-                      {{ taskItem.task.valueScore }}/10 {{ t("dayplan.ui.value") }}
-                    </span>
-                    <span v-if="taskItem.task?.effortScore" class="ml-2">
-                      <v-icon icon="mdi-weight-lifter" size="14"/>
-                      {{ taskItem.task.effortScore }}/10 {{ t("dayplan.ui.effort") }}
-                    </span>
-                  </v-list-item-subtitle>
-
-                  <v-select :model-value="taskItem.priority || null" :items="['A1', 'A2', 'A3']" :label="t('dayplan.field.priority')" clearable hide-details density="compact" :readonly="isDecisionReadonly" class="mt-3" @update:model-value="value => setPriority(taskItem, value)" />
-                  <template #append>
-                    <div class="d-flex align-center ga-2">
-                      <v-chip
-                        v-if="taskItem.task?.priority"
-                        :color="getPriorityColor(taskItem.task.priority)"
-                        size="x-small"
-                        variant="tonal"
-                      >
-                        {{ taskItem.task.priority }}
-                      </v-chip>
-                      <v-btn-toggle
-                        :model-value="taskItem.decision"
-                        class="day-plan__decision-toggle"
-                        density="compact"
-                        divided
-                        variant="outlined"
-                        :disabled="isDecisionReadonly"
-                        @update:model-value="value => setDecision(taskItem, value)"
-                      >
-                        <v-tooltip
-                          v-for="option in decisionOptions"
-                          :key="option.value"
-                          :text="option.title"
-                          location="top"
-                        >
-                          <template #activator="{ props }">
-                            <v-btn
-                              v-bind="props"
-                              :value="option.value"
-                              :color="taskItem.decision === option.value ? option.color : undefined"
-                              icon
-                            >
-                              <v-icon :icon="option.icon" size="18"/>
-                            </v-btn>
-                          </template>
-                        </v-tooltip>
-                      </v-btn-toggle>
-                    </div>
-                  </template>
-                </v-list-item>
-              </v-list>
-
-              <v-alert v-else variant="tonal" color="grey" density="compact">
-                {{ label("dayplan.ui.noTasks", "Sin tareas.") }}
-              </v-alert>
-            </v-card-text>
-          </v-card>
+          <TaskPlanningBoard :tasks="item.tasks || []" :readonly="isDecisionReadonly">
+            <template #proposal-actions><slot name="proposal-actions" /></template>
+          </TaskPlanningBoard>
 
           <v-card class="day-plan__panel" variant="outlined" rounded="lg">
             <v-card-title class="d-flex align-center ga-2 text-subtitle-1 font-weight-bold">

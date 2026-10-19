@@ -12,6 +12,7 @@ import type{
   IEntityCrudRules
 } from "@drax/crud-share";
 import DayPlanProvider from "../providers/DayPlanProvider";
+import type {IDayPlan, IDayPlanBase} from '../interfaces/IDayPlan';
 
 //Import EntityCrud Refs
 import TaskCrud from "./TaskCrud";
@@ -52,8 +53,7 @@ class DayPlanCrud extends EntityCrud implements IEntityCrud {
   get headers(): IEntityCrudHeader[] {
     return [
         {title: 'date',key:'date', align: 'start'},
-{title: 'user',key:'user', align: 'start'},
-{title: 'status',key:'status', align: 'start'}
+{title: 'user',key:'user', align: 'start'}
     ]
   }
   
@@ -74,7 +74,7 @@ class DayPlanCrud extends EntityCrud implements IEntityCrud {
     ]
   }
 
-  get provider(): IDraxCrudProvider<any, any, any>{
+  get provider(): IDraxCrudProvider<IDayPlan, IDayPlanBase, IDayPlanBase>{
     return DayPlanProvider.instance
   }
   
@@ -90,8 +90,8 @@ class DayPlanCrud extends EntityCrud implements IEntityCrud {
 
   get rules():IEntityCrudRules{
     return {
-      date: [(v: any) => !!v || 'validation.required'],
-status: [(v: any) => !!v || 'validation.required'],
+      date: [(v: unknown) => !!v || 'validation.required'],
+
 events: [],
 tasks: [],
 habits: [],
@@ -103,7 +103,7 @@ suggestions: []
     return [
         {name:'date',type:'date',label:'date',default:null},
 {name:'user',type:'ref',label:'user',default:null,ref: 'User',refDisplay: 'username', readonly: true},
-{name:'status',type:'enum',label:'status',default:'BORRADOR',enum: ['BORRADOR', 'VISTO', 'CONFIRMADO', 'CERRADO']},
+
 {name:'events',type:'array.object',label:'events',default:[],objectFields: [{name:'googleEventId',type:'string',label:'googleEventId',default:''},
 {name:'title',type:'string',label:'title',default:''},
 {name:'description',type:'longString',label:'description',default:''},

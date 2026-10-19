@@ -1,4 +1,5 @@
 import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi} from "vitest"
+import {AiProviderFactory} from '@drax/ai-back'
 import {mongoose} from "@drax/common-back"
 import TestSetup from "../../../setup/TestSetup"
 import DayPlanRoutes from "../../../../src/modules/lifeops/routes/DayPlanRoutes"
@@ -44,7 +45,7 @@ describe("DayPlan endpoints", () => {
         expect(await DayPlanModel.countDocuments()).toBe(2)
     })
 
-    it('persists priorities, confirms, and keeps status untouched in a tasks-only PATCH', async () => {
+    it('persists priorities and derives status in a tasks-only PATCH', async () => {
         const {accessToken} = await testSetup.rootUserLogin()
         const headers = {Authorization: `Bearer ${accessToken}`}
         const projectId = new mongoose.Types.ObjectId()
@@ -53,15 +54,40 @@ describe("DayPlan endpoints", () => {
         const plan = await DayPlanModel.create({date: new Date('2030-01-02'), user: testSetup.rootUser._id, status: 'VISTO'})
         const url = `/api/day-plans/${plan._id}`
         const invalid = await testSetup.fastifyInstance.inject({method: 'PATCH', url, headers, payload: {status: 'CONFIRMADO'}})
-        expect(invalid.statusCode).toBe(422)
+        expect(invalid.statusCode).toBe(200)
+                expect(invalid.json().status).toBe('BORRADOR')
         const ranked = tasks.map((task, index) => ({task: String(task._id), priority: `A${index + 1}`}))
         const patched = await testSetup.fastifyInstance.inject({method: 'PATCH', url, headers, payload: {tasks: ranked}})
         expect(patched.statusCode).toBe(200)
-        expect(patched.json().status).toBe('VISTO')
+        expect(patched.json().status).toBe('CONFIRMADO')
         expect(patched.json().tasks[0]).toMatchObject({priority: 'A1', task: {title: 'One', project: {name: 'Project title'}}})
         const confirmed = await testSetup.fastifyInstance.inject({method: 'PATCH', url, headers, payload: {status: 'CONFIRMADO'}})
         expect(confirmed.statusCode).toBe(200)
         expect((await DayPlanModel.findById(plan._id))?.status).toBe('CONFIRMADO')
+    })
+
+    it('selects real tasks through proposals, preserves choices and enforces access', async () => {
+        const {accessToken} = await testSetup.rootUserLogin()
+        const headers = {Authorization: `Bearer ${accessToken}`}
+        const tasks = await TaskModel.create(['Chosen', 'Pending', 'New'].map(title => ({title, user: testSetup.rootUser._id})))
+        const plan = await DayPlanModel.create({date: new Date('2030-01-02'), user: testSetup.rootUser._id,
+            status: 'BORRADOR', tasks: [{task: tasks[0]._id, priority: 'A1'}, {task: tasks[1]._id, decision: 'PENDIENTE'}]})
+        const prompt = vi.fn().mockResolvedValue({output: {taskIds: [String(tasks[2]._id)]}})
+        vi.spyOn(AiProviderFactory, 'instance').mockReturnValue({prompt} as any)
+        const url = `/api/day-plans/${plan._id}/proposals`
+        const response = await testSetup.fastifyInstance.inject({method: 'POST', url, headers, payload: {mode: 'other'}})
+        expect(response.statusCode).toBe(200)
+        expect(response.json().tasks.map(item => item.task.title)).toEqual(['Chosen', 'New'])
+        expect(response.json().tasks[0].priority).toBe('A1')
+        expect((await DayPlanModel.findById(plan._id))?.tasks).toHaveLength(2)
+        expect(prompt).toHaveBeenCalledOnce()
+        expect((await testSetup.fastifyInstance.inject({method: 'POST', url, headers, payload: {mode: 'invalid'}})).statusCode).toBe(422)
+        expect((await testSetup.fastifyInstance.inject({method: 'POST', url, payload: {mode: 'more'}})).statusCode).toBe(401)
+        const basic = await testSetup.basicUserLogin()
+        expect((await testSetup.fastifyInstance.inject({method: 'POST', url, headers: {Authorization: `Bearer ${basic.accessToken}`}, payload: {mode: 'more'}})).statusCode).toBe(403)
+        const foreign = await DayPlanModel.create({date: new Date('2030-01-02'), user: testSetup.basicUser._id, status: 'BORRADOR'})
+        expect((await testSetup.fastifyInstance.inject({method: 'POST', url: `/api/day-plans/${foreign._id}/proposals`, headers, payload: {mode: 'more'}})).statusCode).toBe(404)
+        expect(prompt).toHaveBeenCalledOnce()
     })
 
     it('schedules a task through the real TaskService without resetting unrelated fields', async () => {

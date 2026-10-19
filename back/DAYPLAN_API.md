@@ -17,6 +17,7 @@ La fecha de reserva es independiente de `plan.date`: se puede reservar hoy una t
 | Método y ruta | Entrada | Respuesta 200 | Permisos |
 | --- | --- | --- | --- |
 | `GET /api/day-plans/planning?date=YYYY-MM-DD` | Query `date` | `DayPlan` del usuario o `null` | `dayplan:view` |
+| `POST /api/day-plans/:id/proposals` | `{ "mode": "more" }` o `{ "mode": "other" }` | `DayPlan` actualizado con tareas pobladas | `dayplan:update` + ownership |
 | `POST /api/day-plans/generate` | `{ "date": "2030-01-02" }` | `DayPlan` existente intacto o nuevo | `dayplan:create` |
 | `GET /api/day-plans/available-slots?date=YYYY-MM-DD&utcOffsetMinutes=-330` | Query `date`, `utcOffsetMinutes` opcional | `{ "slots": [{ "startAt": "2030-01-02T04:30:00.000Z", "endAt": "2030-01-02T05:30:00.000Z" }] }` | `dayplan:view` |
 | `POST /api/day-plans/:id/schedule-task` | `{ "taskId": "<ObjectId>", "startAt": "2030-01-03T04:30:00Z", "utcOffsetMinutes": -330 }` | **DayPlan actualizado**, con tareas pobladas; también en reintentos | `dayplan:update` y `task:update` |
@@ -28,9 +29,10 @@ Se conserva `POST /api/day-plans/generate/today`, con la misma protección contr
 `tasks[].priority` es opcional y admite `null`, `A1`, `A2` o `A3`. No cambia `Task.priority`.
 
 - No se permiten tareas repetidas ni prioridades no nulas repetidas.
-- Para confirmar mediante `PATCH /api/day-plans/:id` con `{ "status": "CONFIRMADO" }`, el plan resultante debe tener exactamente una tarea A1, una A2 y una A3. Ninguna de ellas puede estar `DESCARTADO`.
-- La regla también se mantiene al editar planes `CONFIRMADO` o `CERRADO`.
-- Un PATCH puede enviar simultáneamente `status` y `tasks`; un PATCH que sólo cambia `status` valida las tareas persistidas.
+- El estado se deriva en create, PUT y PATCH: tres ranks distintos A1/A2/A3 → `CONFIRMADO`; menos de tres → `BORRADOR`. Ningún rank puede estar `DESCARTADO`.
+- Quitar un rank de un confirmado está permitido y lo devuelve a `BORRADOR`.
+- `status` se acepta por compatibilidad, pero no controla el resultado. `VISTO` y `CERRADO` legados no bloquean edición: cualquier escritura normaliza su estado según ranks. Las lecturas y los no-op conservan el estado almacenado; no hay migración masiva.
+- Un PATCH sólo de estado usa las tareas persistidas, no agrega defaults a campos omitidos.
 - Los arrays enviados reemplazan el array completo; los campos omitidos no reciben defaults.
 - Las tareas referenciadas deben pertenecer al dueño del plan.
 - Las respuestas incluyen `tasks[].task.title`, `tasks[].task.project.name`, `importance`, `urgent`, `calendarEventId` y `scheduledDate`.
@@ -48,7 +50,20 @@ Ejemplo de confirmación:
 }
 ```
 
-La selección del job ordena `HIGH > MEDIUM > LOW > sin importance`; dentro de cada nivel, `urgent: true` primero. Conserva el límite existente de hasta cinco tareas propuestas. A1–A3 son elecciones del usuario: el job no las asigna automáticamente ni exige que las tres tareas elegidas tengan `importance: HIGH`.
+### Propuestas de tareas reales por IA
+
+La generación inicial y el endpoint `proposals` usan `AiProviderFactory.instance().prompt` con salida Zod `{taskIds: string[]}`. La IA considera importancia, urgencia, título/descripción, proyecto, fecha y eventos; para nuevas tandas también recibe las tareas actuales del plan. A1–A3 siguen siendo elecciones del usuario: la IA preselecciona propuestas `PENDIENTE`, sin asignar ranks ni crear tareas.
+
+- Se consultan hasta 200 tareas del dueño, sin `completedAt`/`archivedAt`, ordenadas por ID; además se excluyen estados de finalización/cierre/archivo. El límite de candidatos es una ventana, no una búsqueda exhaustiva de todo el backlog.
+- Cada tanda contiene como máximo cinco IDs únicos de esa allowlist. Se excluyen todas las tareas ya presentes, incluidas descartadas. Duplicados de la IA se deduplican; IDs ajenos/inventados, JSON inválido, listas vacías o de más de cinco IDs activan fallback.
+- **Fallback explícito en logs**: ante falla del proveedor o salida inválida, se eligen hasta cinco candidatos por `HIGH > MEDIUM > LOW > sin importance`, urgentes primero dentro del nivel y desempate por ID. No se generan tareas ficticias; la respuesta sigue siendo el plan, sin un campo adicional de diagnóstico.
+- `more`: agrega una tanda a las tareas existentes; no hay tope acumulativo del plan.
+- `other`: reemplaza sólo entradas de la tanda original sin rank y con decisión `PENDIENTE` u omitida. Preserva A1/A2/A3, `DESEABLE`, `COMPROMETIDO`, `DESCARTADO`, y propuestas agregadas concurrentemente. No modifica eventos, hábitos ni sugerencias.
+- Antes de guardar se relee el plan y se revalida que cada nueva tarea siga siendo del usuario y pendiente. Si no queda ninguna nueva, devuelve el plan intacto, sin borrar propuestas anteriores.
+- Las escrituras PUT/PATCH y el merge de propuestas se serializan por plan dentro de la instancia del servicio. La llamada IA queda fuera del bloqueo; el merge usa las decisiones más recientes. Esto evita sobrescribir cambios durante la espera de IA en un proceso; **no es un lock distribuido ni una transacción entre procesos**. Los arrays de PUT/PATCH siguen teniendo semántica de reemplazo explícito.
+- La generación de un plan existente sigue devolviéndolo intacto, sin llamar a IA. Las sugerencias libres preexistentes del job son un campo separado (`suggestions`), no tareas propuestas.
+
+La selección envía el contexto indicado al proveedor IA configurado y consume una llamada adicional en generación inicial o una por tanda con candidatos. Sin candidatos no invoca IA.
 
 ## Google Calendar
 

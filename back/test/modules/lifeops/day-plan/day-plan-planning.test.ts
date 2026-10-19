@@ -1,5 +1,7 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import Fastify from 'fastify';
+import {AiProviderFactory} from '@drax/ai-back';
+import DayPlanJobFactory from '../../../../src/modules/lifeops/factory/services/DayPlanJobFactory.js';
 import DayPlanService from '../../../../src/modules/lifeops/services/DayPlanService.js';
 import DayPlanJob from '../../../../src/modules/lifeops/jobs/DayPlanJob.js';
 import DayPlanServiceFactory from '../../../../src/modules/lifeops/factory/services/DayPlanServiceFactory.js';
@@ -51,7 +53,7 @@ describe('DayPlan planning', () => {
     it('does not inject defaults into PATCH', async () => {
         expect(DayPlanPatchSchema.parse({})).toEqual({});
         await service.updatePartial(planId, {tasks: [{task: ids[0], priority: null}]});
-        expect(repository.updatePartial).toHaveBeenCalledWith(planId, {tasks: [{task: ids[0], priority: null}]});
+        expect(repository.updatePartial).toHaveBeenCalledWith(planId, {tasks: [{task: ids[0], priority: null}], status: 'BORRADOR'});
     });
 
     it('rejects duplicate tasks, duplicate ranks and invalid priority values', () => {
@@ -61,12 +63,12 @@ describe('DayPlan planning', () => {
     });
 
     it('validates confirmation against the persisted tasks for status-only PATCH', async () => {
-        await expect(service.updatePartial(planId, {status: 'CONFIRMADO'})).rejects.toThrow();
+        expect((await service.updatePartial(planId, {status: 'CONFIRMADO'})).status).toBe('BORRADOR');
         plan.tasks = ids.map((task, index) => ({task, priority: ranks[index]}));
         await service.updatePartial(planId, {status: 'CONFIRMADO'});
         expect(repository.updatePartial).toHaveBeenCalledWith(planId, {status: 'CONFIRMADO'});
         plan.status = 'CONFIRMADO';
-        await expect(service.updatePartial(planId, {tasks: [{task: ids[0], priority: 'A1'}]})).rejects.toThrow();
+        expect((await service.updatePartial(planId, {tasks: [{task: ids[0], priority: 'A1'}]})).status).toBe('BORRADOR');
     });
 
     it('rejects foreign task references on mutation', async () => {
@@ -99,12 +101,108 @@ describe('DayPlan planning', () => {
 
     it('ranks HIGH before MEDIUM before LOW, and urgent first within importance', async () => {
         taskService.find = vi.fn(async () => [
-            {_id: ids[0], importance: 'LOW', urgent: true, priority: 'HIGH', valueScore: 999},
-            {_id: ids[1], importance: 'HIGH', urgent: false},
-            {_id: ids[2], importance: 'HIGH', urgent: true},
+            {_id: ids[0], user, importance: 'LOW', urgent: true, priority: 'HIGH', valueScore: 999},
+            {_id: ids[1], user, importance: 'HIGH', urgent: false},
+            {_id: ids[2], user, importance: 'HIGH', urgent: true},
         ]);
         const tasks = await (new DayPlanJob() as any).fetchCandidateTasks(user);
         expect(tasks.map(task => task._id)).toEqual([ids[2], ids[1], ids[0]]);
+    });
+
+    it.each(['more', 'other'] as const)('merges %s against fresh decisions, preserving the rest', async mode => {
+        plan.tasks = [{task: ids[0]}, {task: ids[1]}];
+        plan.events = [{title: 'keep'}];
+        vi.spyOn(DayPlanJobFactory.instance, 'selectTaskProposals').mockImplementation(async () => {
+            plan.tasks[0] = {task: ids[0], priority: 'A1', decision: 'COMPROMETIDO'};
+            plan.habits = [{habit: 'keep'}];
+            return [{_id: ids[2]}] as any;
+        });
+        const result = await service.proposals(user, planId, {mode});
+        expect(result.tasks?.map(item => item.task)).toEqual(mode === 'more' ? ids : [ids[0], ids[2]]);
+        expect(result.tasks?.[0].priority).toBe('A1');
+        expect(result.events).toEqual(plan.events);
+        expect(result.habits).toEqual(plan.habits);
+    });
+
+    it('preserves ranks, desirable, committed and discarded entries on other', async () => {
+        plan.tasks = ids.map((task, index) => ({task, priority: ranks[index]}));
+        plan.tasks.push({task: '666666666666666666666666', decision: 'DESEABLE'},
+            {task: '777777777777777777777777', decision: 'COMPROMETIDO'},
+            {task: '888888888888888888888888', decision: 'DESCARTADO'});
+        vi.spyOn(DayPlanJobFactory.instance, 'selectTaskProposals').mockResolvedValue([{_id: '999999999999999999999999'}] as any);
+        const result = await service.proposals(user, planId, {mode: 'other'});
+        expect(result.tasks?.slice(0, 6)).toEqual(plan.tasks);
+        expect(result.status).toBe('CONFIRMADO');
+    });
+
+    it('does not remove proposals when there are no fresh pending tasks', async () => {
+        vi.spyOn(DayPlanJobFactory.instance, 'selectTaskProposals').mockResolvedValue([{_id: planId}] as any);
+        taskService.findById.mockResolvedValue({_id: planId, user, completedAt: new Date()});
+        expect(await service.proposals(user, planId, {mode: 'other'})).toEqual(plan);
+        expect(repository.updatePartial).not.toHaveBeenCalled();
+        plan.user = 'other';
+        await expect(service.proposals(user, planId, {mode: 'more'})).rejects.toThrow();
+    });
+
+    it('uses AI IDs, deduplicates, filters candidates and falls back on invalid output', async () => {
+        const candidates = ids.map((_id, index) => ({_id, user, importance: index === 0 ? 'HIGH' : 'LOW'}));
+        taskService.find = vi.fn().mockResolvedValue([...candidates,
+            {_id: planId, user: 'foreign'}, {_id: '666666666666666666666666', user, completedAt: new Date()}]);
+        const prompt = vi.fn().mockResolvedValue({output: {taskIds: [ids[2], ids[2]]}});
+        vi.spyOn(AiProviderFactory, 'instance').mockReturnValue({prompt} as any);
+        const job = new DayPlanJob();
+        expect((await job.selectTaskProposals(user, {date: plan.date})).map(t => t._id)).toEqual([ids[2]]);
+        for (const output of [{taskIds: [planId]}, {taskIds: []}, {taskIds: Array(6).fill(ids[0])}, 'bad json']) {
+            prompt.mockResolvedValue({output});
+            expect((await job.selectTaskProposals(user, {date: plan.date})).map(t => t._id)).toEqual(ids);
+        }
+        prompt.mockRejectedValue(new Error('offline'));
+        expect((await job.selectTaskProposals(user, {date: plan.date}, [ids[0]])).map(t => t._id)).toEqual(ids.slice(1));
+    });
+
+    it('uses AI selection during initial generation and retains its pending decisions', async () => {
+        repository.find.mockResolvedValue([]);
+        taskService.find = vi.fn().mockResolvedValue(ids.map(_id => ({_id, user, title: 'Real task'})));
+        const prompt = vi.fn().mockResolvedValue({output: JSON.stringify({taskIds: [ids[1]]})});
+        vi.spyOn(AiProviderFactory, 'instance').mockReturnValue({prompt} as any);
+        const job = new DayPlanJob();
+        vi.spyOn(job as any, 'fetchCalendarEvents').mockResolvedValue([]);
+        vi.spyOn(job as any, 'fetchDueHabits').mockResolvedValue([]);
+        vi.spyOn(job as any, 'fetchGoals').mockResolvedValue([]);
+        vi.spyOn(job as any, 'fetchProjects').mockResolvedValue([]);
+        const result = await job.generateForUser({userId: user, date: plan.date});
+        expect(result.tasks).toEqual([{task: ids[1], decision: 'PENDIENTE'}]);
+        expect(result.status).toBe('BORRADOR');
+        expect(prompt).toHaveBeenCalledOnce();
+    });
+
+    it('validates the proposals contract using Fastify schemas', async () => {
+        const app = Fastify();
+        app.addHook('onRequest', async request => {
+            (request as any).rbac = {userId: user, assertPermission: vi.fn()};
+        });
+        await app.register(DayPlanRoutes);
+        const proposals = vi.spyOn(service, 'proposals').mockResolvedValue({...plan,
+            user: {_id: user, username: 'user'}, tasks: []});
+        try {
+            const url = `/api/day-plans/${planId}/proposals`;
+            expect((await app.inject({method: 'POST', url, payload: {mode: 'other'}})).statusCode).toBe(200);
+            expect(proposals).toHaveBeenCalledWith(user, planId, {mode: 'other'});
+            for (const payload of [{}, {mode: 'invalid'}]) {
+                expect((await app.inject({method: 'POST', url, payload})).statusCode).toBe(400);
+            }
+            expect((await app.inject({method: 'POST', url: '/api/day-plans/invalid/proposals', payload: {mode: 'more'}})).statusCode).toBe(400);
+        } finally { await app.close(); }
+    });
+
+    it('derives state on create and normalizes legacy closed plans on edits', async () => {
+        expect((await service.create({...plan, status: 'CERRADO'})).status).toBe('BORRADOR');
+        plan.tasks = ids.map((task, index) => ({task, priority: ranks[index]}));
+        expect((await service.create({...plan, status: 'BORRADOR'})).status).toBe('CONFIRMADO');
+        plan.status = 'CERRADO';
+        expect((await service.updatePartial(planId, {tasks: []})).status).toBe('BORRADOR');
+        repository.update = vi.fn(async (_id, data) => ({...plan, ...data}));
+        expect((await service.update(planId, {...plan, status: 'BORRADOR'})).status).toBe('CONFIRMADO');
     });
 
     it('offers exact one-hour slots, excludes the past and any overlapping busy interval', async () => {

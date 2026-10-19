@@ -9,7 +9,7 @@ import type {CustomRequest} from "@drax/crud-back/src/controllers/AbstractFastif
 import {BadRequestError, ZodErrorToValidationError} from "@drax/common-back";
 import {z} from 'zod';
 import DayPlanJobFactory from "../factory/services/DayPlanJobFactory.js";
-import {DayPlanPlanningSchema, DayPlanAvailableSlotsSchema, DayPlanScheduleTaskSchema, DayPlanIdSchema} from '../schemas/DayPlanSchema.js';
+import {DayPlanProposalsSchema, DayPlanPlanningSchema, DayPlanAvailableSlotsSchema, DayPlanScheduleTaskSchema, DayPlanIdSchema} from '../schemas/DayPlanSchema.js';
 
 class DayPlanController extends AbstractFastifyController<IDayPlan, IDayPlanBase, IDayPlanBase>   {
 
@@ -51,6 +51,15 @@ class DayPlanController extends AbstractFastifyController<IDayPlan, IDayPlanBase
                 userId: this.userId(request), date: new Date(`${date}T00:00:00.000Z`),
                 ip: request.ip, userAgent: request.headers['user-agent'], tenant: request.rbac?.tenantId ?? null,
             }));
+        } catch (error) { this.handleError(error, reply); }
+    }
+
+    async proposals(request: CustomRequest, reply: FastifyReply) {
+        try {
+            this.assertUpdatePermission(request);
+            const {id} = this.parse(DayPlanIdSchema, request.params);
+            const input = this.parse(DayPlanProposalsSchema, request.body);
+            return reply.send(await DayPlanServiceFactory.instance.proposals(this.userId(request), id, input));
         } catch (error) { this.handleError(error, reply); }
     }
 

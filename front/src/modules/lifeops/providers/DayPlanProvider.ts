@@ -29,6 +29,10 @@ class DayPlanProvider extends AbstractCrudRestProvider<IDayPlan, IDayPlanBase, I
     return await this.httpClient.post(`${this.basePath}/generate`, {date}) as IDayPlan
   }
 
+  async proposals(id: string, mode: 'more' | 'other'): Promise<IDayPlan> {
+    return await this.httpClient.post(`${this.basePath}/${id}/proposals`, {mode}) as IDayPlan
+  }
+
   async availableSlots(date: string): Promise<{slots: Array<{startAt: string; endAt: string}>}> {
     return await this.httpClient.get(`${this.basePath}/available-slots`, {params: {date, utcOffsetMinutes: new Date(`${date}T12:00:00`).getTimezoneOffset()}}) as {slots: Array<{startAt: string; endAt: string}>}
   }
@@ -52,7 +56,7 @@ class DayPlanProvider extends AbstractCrudRestProvider<IDayPlan, IDayPlanBase, I
   private serialize(data: Partial<IDayPlanBase>): Partial<IDayPlanBase> {
     const id = (value: unknown) => value && typeof value === "object" && "_id" in value ? value._id : value
     const result: Partial<IDayPlanBase> = {}
-    for (const key of ['date', 'status', 'events'] as const) {
+    for (const key of ['date', 'events'] as const) {
       if (key in data) Object.assign(result, {[key]: data[key]})
     }
     if (data.tasks) result.tasks = data.tasks.map(entry => ({task: id(entry.task), decision: entry.decision, priority: entry.priority ?? null}))

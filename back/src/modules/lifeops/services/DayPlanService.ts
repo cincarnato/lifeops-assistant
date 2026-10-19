@@ -7,6 +7,8 @@ import {BadRequestError, NotFoundError, ValidationError, ZodErrorToValidationErr
 import {DayPlanPatchSchema, DayPlanPlanningSchema, DayPlanScheduleTaskSchema, DayPlanAvailableSlotsSchema} from '../schemas/DayPlanSchema.js';
 import TaskServiceFactory from '../factory/services/TaskServiceFactory.js';
 import GoogleCalendarServiceFactory from '../../google/factory/GoogleCalendarServiceFactory.js';
+import DayPlanJobFactory from '../factory/services/DayPlanJobFactory.js';
+import {DayPlanProposalsSchema} from '../schemas/DayPlanSchema.js';
 import {createHash} from 'node:crypto';
 
 class DayPlanService extends AbstractService<IDayPlan, IDayPlanBase, IDayPlanBase> {
@@ -33,25 +35,79 @@ class DayPlanService extends AbstractService<IDayPlan, IDayPlanBase, IDayPlanBas
     async create(data: IDayPlanBase): Promise<IDayPlan> {
         const parsed = await this.validateInputCreate(data);
         await this.validatePlan(parsed);
-        return super.create(parsed);
+        return super.create({...parsed, status: this.derivedStatus(parsed)});
     }
 
     async update(id: string, data: IDayPlanBase): Promise<IDayPlan> {
-        const parsed = await this.validateInputUpdate(data);
-        await this.validateChange(id, parsed);
-        return super.update(id, parsed);
+        return this.withPlanLock(id, async () => {
+            const parsed = await this.validateInputUpdate(data);
+            const plan = await this.validateChange(id, parsed);
+            return super.update(id, {...parsed, status: this.derivedStatus(plan)});
+        });
     }
 
     async updatePartial(id: string, data: any): Promise<IDayPlan> {
+        return this.withPlanLock(id, () => this.persistPartial(id, data));
+    }
+
+    private async persistPartial(id: string, data: any): Promise<IDayPlan> {
         const parsed = await this.validateInputUpdatePartial(data);
-        await this.validateChange(id, parsed);
-        return super.updatePartial(id, parsed);
+        const plan = await this.validateChange(id, parsed);
+        return super.updatePartial(id, {...parsed, status: this.derivedStatus(plan)});
+    }
+
+    private derivedStatus(plan: IDayPlanBase): string {
+        return (plan.tasks ?? []).filter(item => item.priority && item.decision !== 'DESCARTADO').length === 3
+            ? 'CONFIRMADO' : 'BORRADOR';
+    }
+
+    private mutations = new Map<string, Promise<unknown>>();
+
+    private async withPlanLock<T>(id: string, action: () => Promise<T>): Promise<T> {
+        const pending = (this.mutations.get(id) ?? Promise.resolve()).catch(() => {}).then(action);
+        this.mutations.set(id, pending);
+        try { return await pending; }
+        finally { if (this.mutations.get(id) === pending) this.mutations.delete(id); }
+    }
+
+    async proposals(userId: string, id: string, input: {mode: 'more' | 'other'}): Promise<IDayPlan> {
+        const {mode} = DayPlanProposalsSchema.parse(input);
+        const original = await this.findById(id);
+        if (!original || this.id(original.user) !== userId) throw new NotFoundError();
+        const job = DayPlanJobFactory.instance;
+        const excluded = (original.tasks ?? []).map(item => this.id(item.task));
+        const selected = await job.selectTaskProposals(userId, {
+            date: original.date, events: original.events, tasks: original.tasks,
+        }, excluded);
+        return this.withPlanLock(id, async () => {
+            // Merge only after the slow AI call, using the latest user decisions.
+            const latest = await this.findById(id);
+            if (!latest || this.id(latest.user) !== userId) throw new NotFoundError();
+            const current = latest.tasks ?? [];
+            const additions: NonNullable<IDayPlanBase['tasks']> = [];
+            for (const candidate of selected) {
+                const taskId = this.id(candidate);
+                if (current.some(item => this.id(item.task) === taskId)) continue;
+                const task = await TaskServiceFactory.instance.findById(taskId);
+                if (task && this.id(task.user) === userId && job.isPendingTask(task)) {
+                    additions.push({task: taskId, decision: 'PENDIENTE'});
+                }
+            }
+            if (!additions.length) return latest;
+            const retained = current.filter(item => mode === 'more' || !excluded.includes(this.id(item.task)) ||
+                item.priority || (item.decision && item.decision !== 'PENDIENTE'));
+            return this.persistPartial(id, {tasks: [
+                ...retained.map(item => ({...item, task: this.id(item.task)})), ...additions,
+            ]});
+        });
     }
 
     private async validateChange(id: string, data: Partial<IDayPlanBase>) {
         const previous = await this.findById(id);
         if (!previous) throw new NotFoundError();
-        await this.validatePlan({...previous, ...data});
+        const plan = {...previous, ...data};
+        await this.validatePlan(plan);
+        return plan;
     }
 
     private async validatePlan(plan: IDayPlanBase) {
@@ -61,9 +117,7 @@ class DayPlanService extends AbstractService<IDayPlan, IDayPlanBase, IDayPlanBas
         if (new Set(ids).size !== ids.length || new Set(priorities).size !== priorities.length) {
             throw new ValidationError([{field: 'tasks', reason: 'dayPlan.tasks.duplicate'}]);
         }
-        if (['CONFIRMADO', 'CERRADO'].includes(plan.status) &&
-            (!['A1', 'A2', 'A3'].every(rank => priorities.includes(rank as any)) ||
-                tasks.some(item => item.priority && item.decision === 'DESCARTADO'))) {
+        if (tasks.some(item => item.priority && item.decision === 'DESCARTADO')) {
             throw new ValidationError([{field: 'tasks', reason: 'dayPlan.priority.threeRequired'}]);
         }
         for (const taskId of ids) {

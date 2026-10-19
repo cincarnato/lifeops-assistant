@@ -28,6 +28,8 @@ const DayPlanScheduleTaskSchema = z.object({
     startAt: z.string().datetime({offset: true}),
     utcOffsetMinutes: DayPlanUtcOffsetSchema,
 });
+export const DayPlanProposalsSchema = z.object({mode: z.enum(['more', 'other'])}).strict();
+
 const DayPlanIdSchema = z.object({id: z.string().regex(/^[a-f\d]{24}$/i)});
 const DayPlanSlotsSchema = z.object({slots: z.array(z.object({
     startAt: z.string().datetime(), endAt: z.string().datetime(),

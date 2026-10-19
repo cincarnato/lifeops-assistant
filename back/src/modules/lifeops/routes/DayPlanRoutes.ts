@@ -1,7 +1,7 @@
 
 import DayPlanController from "../controllers/DayPlanController.js";
 import {CrudSchemaBuilder} from "@drax/crud-back";
-import {DayPlanSchema, DayPlanBaseSchema, DayPlanPatchSchema, DayPlanPlanningSchema,
+import {DayPlanProposalsSchema, DayPlanSchema, DayPlanBaseSchema, DayPlanPatchSchema, DayPlanPlanningSchema,
     DayPlanScheduleTaskSchema, DayPlanAvailableSlotsSchema, DayPlanIdSchema, DayPlanSlotsSchema} from '../schemas/DayPlanSchema.js'
 
 import {z} from 'zod';
@@ -24,6 +24,10 @@ async function DayPlanFastifyRoutes(fastify, options) {
         tags: ['DayPlan'], querystring: jsonSchema(DayPlanAvailableSlotsSchema),
         response: {200: jsonSchema(DayPlanSlotsSchema)},
     }}, (req, rep) => controller.availableSlots(req, rep));
+    fastify.post('/api/day-plans/:id/proposals', {schema: {
+        tags: ['DayPlan'], params: jsonSchema(DayPlanIdSchema), body: jsonSchema(DayPlanProposalsSchema),
+        response: schemas.findByIdSchema.response,
+    }}, (req, rep) => controller.proposals(req, rep));
     fastify.post('/api/day-plans/:id/schedule-task', {schema: {
         tags: ['DayPlan'], params: jsonSchema(DayPlanIdSchema), body: jsonSchema(DayPlanScheduleTaskSchema),
         response: {200: jsonSchema(DayPlanSchema)},

@@ -25,6 +25,7 @@ const {operation} = useCrud(DayPlanCrud.instance)
         @update:model-value="setValue" />
     </template>
     <template #field.tasks="{form}"><DayPlan :item="form" :operation="operation || undefined" /></template>
+    <template #field.status />
     <template #field.events />
     <template #field.habits />
     <template #field.suggestions />
