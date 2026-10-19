@@ -304,7 +304,7 @@ class DayPlanJob {
             "El title debe estar en español y ser una accion breve, concreta y ejecutable en el dia.",
             "Usa goal y project solo con ids existentes. Si no corresponde, usa null.",
             "No repitas tareas o habitos ya seleccionados en el input.",
-            "Genera entre 3 y 5 sugerencias si hay contexto suficiente.",
+            "Genera 3 sugerencias si hay contexto suficiente.",
             "",
             "[OBJETIVOS]",
             JSON.stringify(goals.map(goal => ({
