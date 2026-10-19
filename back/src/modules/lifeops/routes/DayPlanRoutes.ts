@@ -1,12 +1,33 @@
 
 import DayPlanController from "../controllers/DayPlanController.js";
 import {CrudSchemaBuilder} from "@drax/crud-back";
-import {DayPlanSchema, DayPlanBaseSchema} from '../schemas/DayPlanSchema.js'
+import {DayPlanSchema, DayPlanBaseSchema, DayPlanPatchSchema, DayPlanPlanningSchema,
+    DayPlanScheduleTaskSchema, DayPlanAvailableSlotsSchema, DayPlanIdSchema, DayPlanSlotsSchema} from '../schemas/DayPlanSchema.js'
+
+import {z} from 'zod';
 
 async function DayPlanFastifyRoutes(fastify, options) {
 
     const controller: DayPlanController = new DayPlanController()
     const schemas = new CrudSchemaBuilder(DayPlanSchema, DayPlanBaseSchema,DayPlanBaseSchema, 'DayPlan', 'openapi-3.0', ['DayPlan']);
+
+    const jsonSchema = (schema: z.ZodType) => z.toJSONSchema(schema, {unrepresentable: 'any', target: 'draft-7'});
+    fastify.get('/api/day-plans/planning', {schema: {
+        tags: ['DayPlan'], querystring: jsonSchema(DayPlanPlanningSchema),
+        response: {200: jsonSchema(DayPlanSchema.nullable())},
+    }}, (req, rep) => controller.planning(req, rep));
+    fastify.post('/api/day-plans/generate', {schema: {
+        tags: ['DayPlan'], body: jsonSchema(DayPlanPlanningSchema),
+        response: {200: jsonSchema(DayPlanSchema)},
+    }}, (req, rep) => controller.generate(req, rep));
+    fastify.get('/api/day-plans/available-slots', {schema: {
+        tags: ['DayPlan'], querystring: jsonSchema(DayPlanAvailableSlotsSchema),
+        response: {200: jsonSchema(DayPlanSlotsSchema)},
+    }}, (req, rep) => controller.availableSlots(req, rep));
+    fastify.post('/api/day-plans/:id/schedule-task', {schema: {
+        tags: ['DayPlan'], params: jsonSchema(DayPlanIdSchema), body: jsonSchema(DayPlanScheduleTaskSchema),
+        response: {200: jsonSchema(DayPlanSchema)},
+    }}, (req, rep) => controller.scheduleTask(req, rep));
 
     fastify.get('/api/day-plans', {schema: schemas.paginateSchema}, (req,rep) => controller.paginate(req,rep))
     
@@ -30,7 +51,7 @@ async function DayPlanFastifyRoutes(fastify, options) {
 
     fastify.put('/api/day-plans/:id', {schema: schemas.updateSchema}, (req,rep) =>controller.update(req,rep))
     
-    fastify.patch('/api/day-plans/:id', {schema: schemas.updateSchema}, (req,rep) =>controller.updatePartial(req,rep))
+    fastify.patch('/api/day-plans/:id', {schema: {...schemas.updatePartialSchema, body: jsonSchema(DayPlanPatchSchema)}},  (req,rep) =>controller.updatePartial(req,rep))
 
     fastify.delete('/api/day-plans/:id', {schema: schemas.deleteSchema}, (req,rep) =>controller.delete(req,rep))
     

@@ -95,6 +95,13 @@ const menu: MenuItem[] = [
         permission: 'habitlog:manage'
       },
       {
+        icon: 'mdi-calendar-check',
+        text: 'dayplan.ui.planning',
+        link: {name: 'DayPlanningPage'},
+        gallery: true,
+        permission: 'dayplan:manage'
+      },
+      {
         icon: 'mdi-calendar-today-outline',
         text: 'dayplan.menu',
         link: {name: "DayPlanCrudPage"},

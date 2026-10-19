@@ -63,6 +63,7 @@ type GoogleCalendarEventsListOptions = {
 }
 
 type GoogleCalendarCreateEventInput = {
+    id?: string;
     calendarId: string;
     summary: string;
     description?: string;

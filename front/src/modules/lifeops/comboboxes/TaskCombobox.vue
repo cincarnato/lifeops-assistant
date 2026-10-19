@@ -14,7 +14,7 @@ const entityName = TaskCrud.instance.name
 const {name, label} = defineProps({
   name: {type: String as PropType<string>, required: false},
   label: {type: String as PropType<string>, required: false},
-  itemTitle: {type: [String], default: 'name'},
+  itemTitle: {type: [String], default: 'title'},
   itemValue: {type: [String], default: '_id'},
   prependIcon: {type: String},
   prependInnerIcon: {type: String},
@@ -52,6 +52,8 @@ const field: IEntityCrudField = {
   <crud-autocomplete
     v-model="valueModel"
     :field="field"
+    :item-title="itemTitle"
+    :item-value="itemValue"
     :entity="TaskCrud.instance"
     :hint="hint"
     :persistent-hint="persistentHint"

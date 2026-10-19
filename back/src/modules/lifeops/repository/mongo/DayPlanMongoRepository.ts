@@ -11,7 +11,10 @@ class DayPlanMongoRepository extends AbstractMongoRepository<IDayPlan, IDayPlanB
         super();
         this._model = DayPlanModel;
         this._searchFields = [];
-        this._populateFields = ['user', 'tasks.task', 'habits.habit', 'suggestions.goal', 'suggestions.project'];
+        this._populateFields = [
+                    ...['user', 'habits.habit', 'suggestions.goal', 'suggestions.project'].map(path => ({path})),
+                    {path: 'tasks.task', populate: {path: 'project'}},
+                ];
         this._lean = true
     }
 

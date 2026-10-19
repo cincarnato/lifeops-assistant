@@ -111,6 +111,7 @@ suggestions: []
 {name:'endAt',type:'date',label:'endAt',default:null},
 {name:'decision',type:'enum',label:'decision',default:'PENDIENTE',enum: ['PENDIENTE', 'COMPROMETIDO', 'DESEABLE', 'DESCARTADO']}]},
 {name:'tasks',type:'array.object',label:'tasks',default:[],objectFields: [{name:'task',type:'ref',label:'task',default:null,ref: 'Task',refDisplay: 'title'},
+{name:'priority',type:'enum',label:'priority',default:null,enum:['A1', 'A2', 'A3']},
 {name:'decision',type:'enum',label:'decision',default:'PENDIENTE',enum: ['PENDIENTE', 'COMPROMETIDO', 'DESEABLE', 'DESCARTADO']}]},
 {name:'habits',type:'array.object',label:'habits',default:[],objectFields: [{name:'habit',type:'ref',label:'habit',default:null,ref: 'Habit',refDisplay: 'name'},
 {name:'decision',type:'enum',label:'decision',default:'PENDIENTE',enum: ['PENDIENTE', 'COMPROMETIDO', 'DESEABLE', 'DESCARTADO']}]},
@@ -182,6 +183,10 @@ suggestions: []
   get importFormats(){
     return ['CSV', 'JSON']
   }
+
+  get formActionsFixed() { return true }
+
+  get dialogMaxWidth() { return "1500px" }
 
   get dialogFullscreen(){
     return false

@@ -58,6 +58,39 @@ class GoogleCalendarService {
         };
     }
 
+    async primaryBusy(userId: string, timeMin: string, timeMax: string): Promise<Array<{start: string; end: string}>> {
+        const connection = await this.resolveConnection(userId);
+        const token = await this.getAccessToken(connection);
+        const result = await this.calendarFetch<any>('https://www.googleapis.com/calendar/v3/freeBusy', token, {
+            method: 'POST',
+            body: JSON.stringify({timeMin, timeMax, items: [{id: 'primary'}]}),
+        });
+        const calendar = result.calendars?.primary;
+        if (!calendar || calendar.errors?.length || !Array.isArray(calendar.busy)) {
+            throw new Error('google.calendar.availability_unavailable');
+        }
+        for (const interval of calendar.busy) {
+            if (!Number.isFinite(Date.parse(interval.start)) || !Number.isFinite(Date.parse(interval.end)) ||
+                Date.parse(interval.end) <= Date.parse(interval.start)) {
+                throw new Error('google.calendar.availability_invalid');
+            }
+        }
+        return calendar.busy;
+    }
+
+    async getPrimaryEvent(userId: string, eventId: string): Promise<GoogleCalendarEvent | null> {
+        const connection = await this.resolveConnection(userId);
+        const token = await this.getAccessToken(connection);
+        try {
+            const event = await this.calendarFetch<any>(
+                `https://www.googleapis.com/calendar/v3/calendars/primary/events/${encodeURIComponent(eventId)}`, token);
+            return this.mapEvent(event, 'primary');
+        } catch (error) {
+            if ((error as any).status === 404) return null;
+            throw error;
+        }
+    }
+
     async createEvent(options: GoogleCalendarCreateEventOptions): Promise<GoogleCalendarEvent> {
         const connection = await this.resolveConnection(options.userId, options.connectionId, true);
         const accessToken = await this.getAccessToken(connection);
@@ -74,6 +107,7 @@ class GoogleCalendarService {
             {
                 method: "POST",
                 body: JSON.stringify({
+                    ...(event.id ? {id: event.id} : {}),
                     summary: event.summary,
                     description: event.description,
                     location: event.location,
@@ -149,7 +183,7 @@ class GoogleCalendarService {
 
         if (!response.ok) {
             const body = await response.text();
-            throw new Error(`google.calendar.request_failed:${response.status}:${body}`);
+            throw Object.assign(new Error(`google.calendar.request_failed:${response.status}:${body}`), {status: response.status});
         }
 
         return await response.json() as T;

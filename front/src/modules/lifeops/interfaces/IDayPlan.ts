@@ -1,5 +1,5 @@
 interface IDayPlanBase {
-  date: Date
+  date: Date | string
   user: any
   status: string
   events?: Array<{
@@ -12,6 +12,7 @@ interface IDayPlanBase {
   }>
   tasks?: Array<{
     task: any
+    priority?: "A1" | "A2" | "A3" | null
     decision?: string
   }>
   habits?: Array<{
@@ -30,7 +31,7 @@ interface IDayPlanBase {
 
 interface IDayPlan {
   _id: string
-  date: Date
+  date: Date | string
   user: any
   status: string
   events?: Array<{
@@ -43,6 +44,7 @@ interface IDayPlan {
   }>
   tasks?: Array<{
     task: any
+    priority?: "A1" | "A2" | "A3" | null
     decision?: string
   }>
   habits?: Array<{

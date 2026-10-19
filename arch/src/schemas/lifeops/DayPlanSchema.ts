@@ -73,6 +73,12 @@ const entitySchema: IEntitySchema = {
             type: "array.object",
             default: [],
             schema: {
+                priority: {
+                    type: "enum",
+                    enum: ["A1", "A2", "A3"],
+                    required: false,
+                    // Nullable in the backend Zod schema; @drax/arch has no nullable field option.
+                },
                 task: {
                     type: "ref",
                     ref: "Task",

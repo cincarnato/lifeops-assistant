@@ -1,33 +1,33 @@
 <script setup lang="ts">
-import {computed, ref} from "vue";
+import {computed, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import type {IDayPlan, IDayPlanBase} from "../interfaces/IDayPlan";
 import DayPlanProvider from "../providers/DayPlanProvider";
+import TaskProvider from "../providers/TaskProvider";
+import TaskCombobox from "../comboboxes/TaskCombobox.vue";
 
 type DayPlanForm = IDayPlanBase & Partial<IDayPlan>
 type Decision = "PENDIENTE" | "COMPROMETIDO" | "DESEABLE" | "DESCARTADO"
-type DecisionTarget = { decision?: string }
+type DecisionTarget = { decision?: string; priority?: "A1" | "A2" | "A3" | null }
 type ContextItem = { key: string; label: string; type: string; progress?: number }
-type DecisionCollection = "events" | "tasks" | "habits" | "suggestions"
 
 const props = defineProps<{
   item: DayPlanForm
   operation?: string
 }>()
 
-const {t, te} = useI18n()
-const dayPlanProvider = DayPlanProvider.instance
-const savingDecisionKeys = ref<Set<string>>(new Set())
+const {t, te, locale} = useI18n()
+const additionalTask = ref<string | null>(null)
 const saveError = ref("")
 
-const decisionOptions: Array<{ title: string; value: Decision; color: string; icon: string }> = [
-  {title: "Comprometido", value: "COMPROMETIDO", color: "success", icon: "mdi-check-circle-outline"},
-  {title: "Deseable", value: "DESEABLE", color: "info", icon: "mdi-star-outline"},
-  {title: "Descartado", value: "DESCARTADO", color: "error", icon: "mdi-close-circle-outline"}
-]
+const decisionOptions = computed<Array<{ title: string; value: Decision; color: string; icon: string }>>(() => [
+  {title: t("dayplan.ui.committed"), value: "COMPROMETIDO", color: "success", icon: "mdi-check-circle-outline"},
+  {title: t("dayplan.ui.desirable"), value: "DESEABLE", color: "info", icon: "mdi-star-outline"},
+  {title: t("dayplan.ui.discarded"), value: "DESCARTADO", color: "error", icon: "mdi-close-circle-outline"}
+])
 
 const isDecisionReadonly = computed(() => ["view", "delete"].includes(props.operation || ""))
-const isEditOperation = computed(() => props.operation === "edit")
+
 
 const totalItems = computed(() =>
   (props.item.events?.length || 0) +
@@ -56,13 +56,13 @@ const contextItems = computed(() => {
   const items = new Map<string, ContextItem>()
 
   props.item.suggestions?.forEach(suggestion => {
-    addContextItem(items, suggestion.goal, "Meta")
-    addContextItem(items, suggestion.project, "Proyecto")
+    addContextItem(items, suggestion.goal, t("dayplan.field.goal"))
+    addContextItem(items, suggestion.project, t("dayplan.field.project"))
   })
 
   props.item.tasks?.forEach(taskItem => {
-    addContextItem(items, taskItem.task?.project, "Proyecto")
-    taskItem.task?.goals?.forEach((goal: unknown) => addContextItem(items, goal, "Meta"))
+    addContextItem(items, taskItem.task?.project, t("dayplan.field.project"))
+    taskItem.task?.goals?.forEach((goal: unknown) => addContextItem(items, goal, t("dayplan.field.goal")))
   })
 
   return Array.from(items.values()).slice(0, 5)
@@ -73,8 +73,8 @@ function label(key: string, fallback: string) {
 }
 
 function decisionMeta(value?: string) {
-  return decisionOptions.find(option => option.value === value) || {
-    title: "Pendiente",
+  return decisionOptions.value.find(option => option.value === value) || {
+    title: t("dayplan.ui.pending"),
     value: "PENDIENTE",
     color: "grey",
     icon: "mdi-clock-outline"
@@ -82,95 +82,62 @@ function decisionMeta(value?: string) {
 }
 
 function isDecision(value: unknown): value is Decision {
-  return decisionOptions.some(option => option.value === value)
+  return decisionOptions.value.some(option => option.value === value)
 }
 
-async function setDecision(target: DecisionTarget, value: unknown, collection?: DecisionCollection, index?: number) {
+function setDecision(target: DecisionTarget, value: unknown) {
   if (!isDecision(value) || isDecisionReadonly.value) return
-  if (target.decision === value) return
-
-  const previousDecision = target.decision
   target.decision = value
+  if (value !== "COMPROMETIDO" && "priority" in target) target.priority = null
+}
 
-  if (!isEditOperation.value || !collection || typeof index !== "number") return
+function setPriority(target: DecisionTarget, priority: "A1" | "A2" | "A3" | null) {
+  if (isDecisionReadonly.value) return
+  props.item.tasks?.forEach(task => {
+    if (priority && task !== target && task.priority === priority) task.priority = null
+  })
+  target.priority = priority
+  if (priority) target.decision = "COMPROMETIDO"
+}
 
-  const id = props.item._id
-  if (!id) return
-
-  const savingKey = decisionSavingKey(collection, index)
-  setDecisionSaving(savingKey, true)
+watch(() => props.item, async (item, _, onCleanup) => {
+  let active = true
+  onCleanup(() => { active = false })
   saveError.value = ""
-
+  if (!item._id || ![
+    ...(item.tasks || []).map(entry => entry.task),
+    ...(item.habits || []).map(entry => entry.habit),
+    ...(item.suggestions || []).flatMap(entry => [entry.goal, entry.project]),
+    item.user
+  ].some(value => typeof value === "string")) return
   try {
-    const updatedItem = await dayPlanProvider.updatePartial(id, {
-      [collection]: serializeDecisionCollection(collection)
-    } as Partial<IDayPlanBase>)
-    Object.assign(props.item, updatedItem)
-  } catch (e: any) {
-    target.decision = previousDecision
-    saveError.value = e?.message || "No se pudo actualizar la decision."
-  } finally {
-    setDecisionSaving(savingKey, false)
-  }
-}
+    const hydrated = await DayPlanProvider.instance.findById(item._id)
+    if (!active) return
+    if (typeof item.user === "string" && hydrated.user?._id === item.user) item.user = hydrated.user
+    for (const collection of ["tasks", "habits", "suggestions"] as const) {
+      const fields = collection === "tasks" ? ["task"] : collection === "habits" ? ["habit"] : ["goal", "project"]
+      item[collection]?.forEach((entry, index: number) => {
+        const references = entry as unknown as Record<string, unknown>
+        for (const field of fields) {
+          const value = (hydrated[collection]?.[index] as unknown as Record<string, unknown>)?.[field]
+          if (typeof references[field] === "string" && isRecord(value) && value._id === references[field]) references[field] = value
+        }
+      })
+    }
+  } catch { if (active) saveError.value = t("dayplan.ui.loadError") }
+}, {immediate: true})
 
-function decisionSavingKey(collection: DecisionCollection, index: number) {
-  return `${collection}-${index}`
-}
-
-function isDecisionSaving(collection: DecisionCollection, index: number) {
-  return savingDecisionKeys.value.has(decisionSavingKey(collection, index))
-}
-
-function setDecisionSaving(key: string, value: boolean) {
-  const next = new Set(savingDecisionKeys.value)
-  if (value) {
-    next.add(key)
-  } else {
-    next.delete(key)
-  }
-  savingDecisionKeys.value = next
-}
-
-function serializeDecisionCollection(collection: DecisionCollection) {
-  if (collection === "events") {
-    return props.item.events?.map(event => ({
-      googleEventId: event.googleEventId,
-      title: event.title,
-      description: event.description,
-      startAt: event.startAt,
-      endAt: event.endAt,
-      decision: event.decision
-    }))
-  }
-
-  if (collection === "tasks") {
-    return props.item.tasks?.map(taskItem => ({
-      task: refId(taskItem.task),
-      decision: taskItem.decision
-    }))
-  }
-
-  if (collection === "habits") {
-    return props.item.habits?.map(habitItem => ({
-      habit: refId(habitItem.habit),
-      decision: habitItem.decision
-    }))
-  }
-
-  return props.item.suggestions?.map(suggestion => ({
-    title: suggestion.title,
-    decision: suggestion.decision,
-    goal: refId(suggestion.goal),
-    project: refId(suggestion.project)
-  }))
-}
-
-function refId(value: unknown) {
-  if (!value) return value
-  if (typeof value === "string") return value
-  if (isRecord(value)) return value._id
-  return value
+async function addTask(id: string | null) {
+  if (!id || isDecisionReadonly.value) return
+  const item = props.item
+  try {
+    const task = await TaskProvider.instance.findById(id)
+    if (item !== props.item) return
+    if (!item.tasks?.some(entry => (entry.task?._id || entry.task) === id)) {
+      (item.tasks ||= []).push({task, decision: "DESEABLE", priority: null})
+    }
+    additionalTask.value = null
+  } catch { saveError.value = t("dayplan.ui.loadError") }
 }
 
 function formatDate(value?: Date | string | null) {
@@ -179,7 +146,8 @@ function formatDate(value?: Date | string | null) {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return "-"
 
-  return new Intl.DateTimeFormat("es-AR", {
+  return new Intl.DateTimeFormat(locale.value, {
+    timeZone: "UTC",
     weekday: "long",
     day: "2-digit",
     month: "long",
@@ -193,7 +161,7 @@ function formatTime(value?: Date | string | null) {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return ""
 
-  return new Intl.DateTimeFormat("es-AR", {
+  return new Intl.DateTimeFormat(locale.value, {
     hour: "2-digit",
     minute: "2-digit"
   }).format(date)
@@ -205,7 +173,7 @@ function formatDateTime(value?: Date | string | null) {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return "-"
 
-  return new Intl.DateTimeFormat("es-AR", {
+  return new Intl.DateTimeFormat(locale.value, {
     day: "2-digit",
     month: "short",
     hour: "2-digit",
@@ -384,8 +352,8 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
                       density="compact"
                       divided
                       variant="outlined"
-                      :disabled="isDecisionReadonly || isDecisionSaving('events', index)"
-                      @update:model-value="value => setDecision(event, value, 'events', index)"
+                      :disabled="isDecisionReadonly"
+                      @update:model-value="value => setDecision(event, value)"
                     >
                       <v-tooltip
                         v-for="option in decisionOptions"
@@ -398,7 +366,6 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
                             v-bind="props"
                             :value="option.value"
                             :color="event.decision === option.value ? option.color : undefined"
-                            :loading="isDecisionSaving('events', index) && event.decision === option.value"
                             icon
                           >
                             <v-icon :icon="option.icon" size="18"/>
@@ -429,17 +396,21 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
             </v-card-title>
 
             <v-card-text>
+              <v-alert class="mb-3" type="info" variant="tonal">{{ t('dayplan.ui.prioritiesHint') }}</v-alert>
+              <TaskCombobox v-if="!isDecisionReadonly" v-model="additionalTask" :label="t('dayplan.ui.addTask')" @update:model-value="addTask" />
               <v-list v-if="item.tasks?.length" class="py-0" density="compact">
                 <v-list-item
                   v-for="(taskItem, index) in item.tasks"
                   :key="taskItem.task?._id || index"
-                  class="day-plan__list-item px-0 py-3"
+                  class="day-plan__list-item px-2 py-3 mb-2 rounded"
+                  :class="taskItem.priority === 'A1' ? 'bg-error border-lg' : taskItem.priority ? 'bg-primary-lighten-5 border-md' : ''"
                 >
                   <template #prepend>
                     <v-icon :color="decisionMeta(taskItem.decision).color" :icon="decisionMeta(taskItem.decision).icon"/>
                   </template>
 
-                  <v-list-item-title class="font-weight-medium text-wrap">
+                  <v-chip v-if="taskItem.priority" :color="taskItem.priority === 'A1' ? 'warning' : 'primary'" variant="flat" class="mb-2">{{ taskItem.priority }} {{ taskItem.priority === 'A1' ? t('dayplan.ui.nonNegotiable') : '' }}</v-chip>
+                  <v-list-item-title class="font-weight-bold text-wrap">
                     {{ getRefText(taskItem.task, ["title", "name"]) }}
                   </v-list-item-title>
 
@@ -447,14 +418,15 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
                     <span v-if="taskItem.task?.project">{{ getRefText(taskItem.task.project, ["name"]) }}</span>
                     <span v-if="taskItem.task?.valueScore" class="ml-2">
                       <v-icon icon="mdi-lightning-bolt-outline" size="14"/>
-                      {{ taskItem.task.valueScore }}/10 valor
+                      {{ taskItem.task.valueScore }}/10 {{ t("dayplan.ui.value") }}
                     </span>
                     <span v-if="taskItem.task?.effortScore" class="ml-2">
                       <v-icon icon="mdi-weight-lifter" size="14"/>
-                      {{ taskItem.task.effortScore }}/10 esfuerzo
+                      {{ taskItem.task.effortScore }}/10 {{ t("dayplan.ui.effort") }}
                     </span>
                   </v-list-item-subtitle>
 
+                  <v-select :model-value="taskItem.priority || null" :items="['A1', 'A2', 'A3']" :label="t('dayplan.field.priority')" clearable hide-details density="compact" :readonly="isDecisionReadonly" class="mt-3" @update:model-value="value => setPriority(taskItem, value)" />
                   <template #append>
                     <div class="d-flex align-center ga-2">
                       <v-chip
@@ -471,8 +443,8 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
                         density="compact"
                         divided
                         variant="outlined"
-                        :disabled="isDecisionReadonly || isDecisionSaving('tasks', index)"
-                        @update:model-value="value => setDecision(taskItem, value, 'tasks', index)"
+                        :disabled="isDecisionReadonly"
+                        @update:model-value="value => setDecision(taskItem, value)"
                       >
                         <v-tooltip
                           v-for="option in decisionOptions"
@@ -485,7 +457,6 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
                               v-bind="props"
                               :value="option.value"
                               :color="taskItem.decision === option.value ? option.color : undefined"
-                              :loading="isDecisionSaving('tasks', index) && taskItem.decision === option.value"
                               icon
                             >
                               <v-icon :icon="option.icon" size="18"/>
@@ -550,8 +521,8 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
                         density="compact"
                         divided
                         variant="outlined"
-                        :disabled="isDecisionReadonly || isDecisionSaving('habits', index)"
-                        @update:model-value="value => setDecision(habitItem, value, 'habits', index)"
+                        :disabled="isDecisionReadonly"
+                        @update:model-value="value => setDecision(habitItem, value)"
                       >
                         <v-tooltip
                           v-for="option in decisionOptions"
@@ -564,7 +535,6 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
                               v-bind="props"
                               :value="option.value"
                               :color="habitItem.decision === option.value ? option.color : undefined"
-                              :loading="isDecisionSaving('habits', index) && habitItem.decision === option.value"
                               icon
                             >
                               <v-icon :icon="option.icon" size="18"/>
@@ -616,8 +586,8 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
                       density="compact"
                       divided
                       variant="outlined"
-                      :disabled="isDecisionReadonly || isDecisionSaving('suggestions', index)"
-                      @update:model-value="value => setDecision(suggestion, value, 'suggestions', index)"
+                      :disabled="isDecisionReadonly"
+                      @update:model-value="value => setDecision(suggestion, value)"
                     >
                       <v-tooltip
                         v-for="option in decisionOptions"
@@ -630,7 +600,6 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
                             v-bind="props"
                             :value="option.value"
                             :color="suggestion.decision === option.value ? option.color : undefined"
-                            :loading="isDecisionSaving('suggestions', index) && suggestion.decision === option.value"
                             icon
                           >
                             <v-icon :icon="option.icon" size="18"/>

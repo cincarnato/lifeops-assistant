@@ -13,6 +13,7 @@ interface IDayPlanBase {
     }>
     tasks?: Array<{
     task: any
+    priority?: 'A1' | 'A2' | 'A3' | null
     decision?: string
     }>
     habits?: Array<{
@@ -44,6 +45,7 @@ interface IDayPlan {
     }>
     tasks?: Array<{
     task: any
+    priority?: 'A1' | 'A2' | 'A3' | null
     decision?: string
     }>
     habits?: Array<{

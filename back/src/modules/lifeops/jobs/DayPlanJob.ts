@@ -55,6 +55,8 @@ class DayPlanJob {
     async generateForUser(options: DayPlanGenerateForUserOptions): Promise<IDayPlan> {
         const date = this.startOfDay(options.date ?? new Date());
         const userId = options.userId;
+        const existing = await this.findExistingPlan(userId, date);
+        if (existing) return existing;
 
         const [events, tasks, habits, goals, projects] = await Promise.all([
             this.fetchCalendarEvents(userId, date),
@@ -104,13 +106,14 @@ class DayPlanJob {
             })),
         };
 
-        const existing = await this.findExistingPlan(userId, date);
-
-        if (existing) {
-            return await DayPlanServiceFactory.instance.updatePartial(this.stringifyId(existing), payload as any);
+        try {
+            return await DayPlanServiceFactory.instance.create(payload);
+        } catch (error) {
+            // A concurrent generator may have inserted the unique user/date first.
+            const concurrent = await this.findExistingPlan(userId, date);
+            if (concurrent) return concurrent;
+            throw error;
         }
-
-        return await DayPlanServiceFactory.instance.create(payload);
     }
 
     async generateForAllUsers(options: DayPlanGenerateForAllUsersOptions = {}): Promise<DayPlanGenerateForAllUsersResult[]> {
@@ -249,7 +252,8 @@ class DayPlanJob {
                     selectedTasks: context.tasks.map(task => ({
                         id: this.stringifyId(task),
                         title: task.title,
-                        priority: task.priority,
+                        importance: task.importance,
+                                            urgent: task.urgent,
                         valueScore: task.valueScore,
                     })),
                     selectedHabits: context.habits.map(habit => ({
@@ -337,31 +341,10 @@ class DayPlanJob {
     }
 
     private scoreTask(task: ITask): number {
-        const priorityScore = this.priorityScore(task.priority);
-        const valueScore = Number(task.valueScore ?? 0);
-        const urgentScore = task.urgent ? 10 : 0;
-        const dueDateScore = task.dueDate ? Math.max(0, 10 - Math.ceil((new Date(task.dueDate).getTime() - Date.now()) / 86_400_000)) : 0;
-
-        return priorityScore * 4 + valueScore * 3 + urgentScore * 2 + dueDateScore;
+        const importance = {HIGH: 3, MEDIUM: 2, LOW: 1}[task.importance ?? ''] ?? 0;
+        return importance * 2 + (task.urgent ? 1 : 0);
     }
 
-    private priorityScore(priority?: string): number {
-        const value = String(priority ?? "").toLocaleLowerCase("es");
-
-        if (["alta", "high", "urgent", "urgente", "critica", "crítica"].some(token => value.includes(token))) {
-            return 10;
-        }
-
-        if (["media", "medium"].some(token => value.includes(token))) {
-            return 6;
-        }
-
-        if (["baja", "low"].some(token => value.includes(token))) {
-            return 2;
-        }
-
-        return 4;
-    }
 
     private isHabitDue(habit: IHabit, date: Date): boolean {
         const type = habit.frequency?.type ?? "daily";
@@ -372,11 +355,11 @@ class DayPlanJob {
         }
 
         if (type === "weekly") {
-            return createdAt.getDay() === date.getDay();
+            return createdAt.getUTCDay() === date.getUTCDay();
         }
 
         if (type === "monthly") {
-            return createdAt.getDate() === date.getDate();
+            return createdAt.getUTCDate() === date.getUTCDate();
         }
 
         return true;
@@ -396,7 +379,7 @@ class DayPlanJob {
         }
 
         if (value?.date) {
-            return new Date(`${value.date}T00:00:00`);
+            return new Date(`${value.date}T00:00:00Z`);
         }
 
         return fallbackDate;
@@ -424,18 +407,18 @@ class DayPlanJob {
     }
 
     private startOfDay(date: Date): Date {
-        return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+        return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
     }
 
     private endOfDay(date: Date): Date {
-        return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
+        return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 23, 59, 59, 999));
     }
 
     private formatDate(date: Date): string {
         return [
-            date.getFullYear(),
-            String(date.getMonth() + 1).padStart(2, "0"),
-            String(date.getDate()).padStart(2, "0"),
+            date.getUTCFullYear(),
+            String(date.getUTCMonth() + 1).padStart(2, "0"),
+            String(date.getUTCDate()).padStart(2, "0"),
         ].join("-");
     }
 

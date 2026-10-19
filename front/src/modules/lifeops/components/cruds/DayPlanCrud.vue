@@ -1,49 +1,34 @@
-
 <script setup lang="ts">
 import DayPlanCrud from '../../cruds/DayPlanCrud'
-import {Crud} from "@drax/crud-vue";
-import {useCrud} from "@drax/crud-vue";
-import CrudForm from "@drax/crud-vue/src/components/CrudForm.vue";
-import {formatDate} from "@drax/common-front"
-import {ref} from "vue";
-import DayPlanProvider from "../../providers/DayPlanProvider";
-import DayPlan from "../DayPlan.vue";
-
-
-const {doPaginate} = useCrud(DayPlanCrud.instance)
-const generating = ref(false)
-
-async function generateToday() {
-  generating.value = true
-  try {
-    await DayPlanProvider.instance.generateToday()
-    await doPaginate()
-  } finally {
-    generating.value = false
-  }
+import {Crud, useCrud} from '@drax/crud-vue'
+import {useI18n} from 'vue-i18n'
+import DayPlan from '../DayPlan.vue'
+const {t, locale} = useI18n()
+function civilDate(value?: Date | string | null) {
+  if (!value) return ''
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? '' : date.toISOString().slice(0, 10)
 }
+function formatDate(value?: Date | string | null) {
+  const date = civilDate(value)
+  return date ? new Intl.DateTimeFormat(locale.value, {timeZone: 'UTC', dateStyle: 'short'}).format(new Date(date)) : '-'
+}
+const {operation} = useCrud(DayPlanCrud.instance)
 </script>
 
 <template>
-  <crud :entity="DayPlanCrud.instance">
-    <template v-slot:form="{operation, form}">
-          <day-plan :item="form" :operation="operation"/>
+  <Crud :entity="DayPlanCrud.instance">
+    <template #field.date="{modelValue, setValue}">
+      <v-text-field :model-value="civilDate(modelValue)" type="date" :label="t('dayplan.field.date')"
+        :readonly="operation === 'view' || operation === 'delete'"
+        :rules="[value => !!value || t('validation.required')]"
+        @update:model-value="setValue" />
     </template>
-
-    <template v-slot:toolbar-left>
-      <v-btn
-        icon="mdi-calendar-sync-outline"
-        variant="text"
-        :loading="generating"
-        :disabled="generating"
-        @click="generateToday"
-      />
-    </template>
-    <template v-slot:item.date="{value}">{{formatDate(value)}}</template>
-    <template v-slot:item.user="{value}">{{value?.username}}</template>
-  </crud>
+    <template #field.tasks="{form}"><DayPlan :item="form" :operation="operation || undefined" /></template>
+    <template #field.events />
+    <template #field.habits />
+    <template #field.suggestions />
+    <template #item.date="{value}">{{ formatDate(value) }}</template>
+    <template #item.user="{value}">{{ value?.username }}</template>
+  </Crud>
 </template>
-
-<style scoped>
-
-</style>

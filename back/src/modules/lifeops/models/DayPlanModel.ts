@@ -29,6 +29,7 @@ const DayPlanSchema = new mongoose.Schema<IDayPlan>({
         }
     }],
     tasks: [{
+        priority: {type: String, enum: ['A1', 'A2', 'A3', null], required: false},
         task: {type: mongoose.Schema.Types.ObjectId, ref: 'Task', required: true, index: true, unique: false},
         decision: {
             type: String,
