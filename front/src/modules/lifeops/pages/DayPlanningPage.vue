@@ -94,8 +94,8 @@ function proposals(mode: 'more' | 'other') {
   if (busy.value || !plan.value) return
   return run(async () => { accept(await provider.proposals(plan.value!._id, mode)) })
 }
-function openSchedule() {
-  return run(async () => { scheduleOpen.value = true })
+function openSchedule(selectedTaskId?: string) {
+  return run(async () => { taskId.value = selectedTaskId || null; reservationDate.value = date.value; scheduleOpen.value = true })
 }
 async function loadSlots() {
   const request = ++slotRequest
@@ -120,8 +120,38 @@ function schedule() {
   return run(async () => {
     accept(await provider.scheduleTask(id, task, start))
     scheduleOpen.value = false
+    void loadContext()
   })
 }
+const previousTaskIds = ref<string[]>([])
+const capacity = ref<number | null>(null)
+const capacityBusy = ref(false)
+const capacityError = ref('')
+const previousError = ref('')
+let contextRequest = 0
+async function loadContext() {
+  const request = ++contextRequest
+  const selectedDate = date.value
+  capacity.value = null
+  capacityBusy.value = true
+  capacityError.value = ''
+  previousError.value = ''
+  previousTaskIds.value = []
+  await Promise.all([
+    provider.availableSlots(selectedDate).then(result => {
+      if (request === contextRequest) capacity.value = result.slots.length
+    }).catch(() => { if (request === contextRequest) capacityError.value = t('dayplan.ui.capacityError') })
+      .finally(() => { if (request === contextRequest) capacityBusy.value = false }),
+    provider.planning(localDate(-1, new Date(`${selectedDate}T12:00:00`))).then(previous => {
+      if (request !== contextRequest) return
+      previousTaskIds.value = (previous?.tasks || [])
+        .filter(entry => (entry.priority || entry.decision === 'COMPROMETIDO' || entry.decision === 'DESEABLE') && entry.decision !== 'DESCARTADO' && typeof entry.task === 'object' && entry.task && !entry.task.completedAt && !entry.task.status?.completesTask)
+        .map(entry => entry.task._id)
+    }).catch(() => { if (request === contextRequest) previousError.value = t('dayplan.ui.previousError') })
+  ])
+}
+watch(date, loadContext, {immediate: true})
+onBeforeUnmount(() => { contextRequest++ })
 void load()
 </script>
 
@@ -145,12 +175,19 @@ void load()
       <v-btn variant="text" :disabled="busy" @click="retry">{{ t('dayplan.ui.retry') }}</v-btn>
     </v-alert>
     <v-progress-linear v-if="busy" indeterminate class="my-4" />
+    <v-card variant="tonal" class="pa-4 my-4" role="status">
+      <p v-if="capacityBusy">{{ t('dayplan.ui.capacityLoading') }}</p>
+      <p v-else-if="capacityError">{{ capacityError }} <v-btn variant="text" @click="loadContext">{{ t('dayplan.ui.retry') }}</v-btn></p>
+      <p v-else-if="capacity !== null">{{ t('dayplan.ui.capacity', {count: capacity, hours: capacity}) }}</p>
+      <p class="text-caption text-medium-emphasis">{{ t('dayplan.ui.capacityHint') }}</p>
+    </v-card>
+    <p v-if="previousError" class="text-caption text-medium-emphasis">{{ previousError }}</p>
     <template v-if="plan">
       <div class="d-flex flex-wrap ga-2 my-4">
-        <v-btn prepend-icon="mdi-calendar-plus" :disabled="busy" @click="openSchedule">{{ t('dayplan.ui.schedule') }}</v-btn>
+        <v-btn prepend-icon="mdi-calendar-plus" :disabled="busy" @click="openSchedule()">{{ t('dayplan.ui.schedule') }}</v-btn>
         <span role="status" class="text-caption align-self-center">{{ t(busy ? 'dayplan.ui.saving' : dirty ? 'dayplan.ui.unsaved' : 'dayplan.ui.saved') }}</span>
       </div>
-      <DayPlan :item="plan" :operation="busy ? 'view' : 'edit'">
+      <DayPlan :item="plan" :operation="busy ? 'view' : 'edit'" :previous-task-ids="previousTaskIds" @schedule="openSchedule">
         <template #proposal-actions>
           <div class="d-flex flex-wrap ga-2 my-3">
             <v-btn :disabled="busy" variant="tonal" @click="proposals('more')">{{ t('dayplan.ui.moreProposals') }}</v-btn>

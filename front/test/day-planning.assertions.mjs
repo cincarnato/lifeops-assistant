@@ -213,3 +213,14 @@ await loader.loadSlots()
 assert.equal(loader.slotsBusy.value, false)
 assert.equal(loader.slots.value.length, 0)
 console.log('Day planning assertions passed (proposals, priorities, serialization, queue, retries, stale responses, offsets and dates).')
+
+assert.match(board, /task.decision !== 'DESCARTADO'/)
+assert.match(board, /entry.decision = 'DESCARTADO'/)
+assert.match(board, /emit\('schedule', slot.entry.task/)
+assert.match(page, /taskId.value = selectedTaskId \|\| null/)
+assert.match(page, /capacity.value = null/)
+assert.match(page, /result.slots.length/)
+assert.match(page, /entry.task.status\?\.completesTask/)
+for (const key of ['reserveHour', 'notToday', 'restoreTask', 'hiddenTasks', 'previousPending', 'capacity', 'capacityHint', 'taskFacts']) {
+  for (const language of ['es', 'en']) assert.ok(messages[language].dayplan.ui[key])
+}

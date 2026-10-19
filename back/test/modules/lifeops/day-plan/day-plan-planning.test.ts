@@ -160,6 +160,55 @@ describe('DayPlan planning', () => {
         expect((await job.selectTaskProposals(user, {date: plan.date}, [ids[0]])).map(t => t._id)).toEqual(ids.slice(1));
     });
 
+    it('offers only owned unfinished previous-calendar-day selections, deduplicated and without ranks', async () => {
+        const previous = {...plan, date: new Date('2030-01-01T00:00:00Z'), tasks: [
+            {task: ids[0], priority: 'A1'}, {task: ids[0], decision: 'DESEABLE'},
+            {task: ids[1], priority: 'A2'}, {task: ids[2], decision: 'DESEABLE'},
+            {task: planId, decision: 'DESCARTADO'}, {task: '666666666666666666666666'},
+        ]};
+        repository.find.mockResolvedValue([previous]);
+        taskService.find = vi.fn().mockResolvedValue([]);
+        taskService.findById.mockImplementation(async id => ({_id: id,
+            user: id === ids[2] ? 'foreign' : user,
+            completedAt: id === ids[1] ? new Date() : null}));
+        const job = new DayPlanJob();
+        expect((await job.selectTaskProposals(user, {date: plan.date})).map(t => t._id)).toEqual([ids[0]]);
+        expect(taskService.findById).not.toHaveBeenCalledWith(planId);
+        expect(repository.find.mock.calls[0][0].filters).toContainEqual({
+            field: 'date', operator: 'gte', value: previous.date,
+        });
+        expect(await job.selectTaskProposals(user, {date: plan.date}, [ids[0]])).toEqual([]);
+        previous.date = new Date('2029-12-31T00:00:00Z');
+        expect(await job.selectTaskProposals(user, {date: plan.date})).toEqual([]);
+    });
+
+    it('generates previous month selections as pending proposals, never automatic ranks', async () => {
+        const target = new Date('2030-02-01T00:00:00Z');
+        repository.find.mockResolvedValueOnce([]).mockResolvedValue([{
+            ...plan, date: new Date('2030-01-31T00:00:00Z'),
+            tasks: [{task: ids[0], priority: 'A3', decision: 'COMPROMETIDO'}],
+        }]);
+        taskService.find = vi.fn().mockResolvedValue([]);
+        const job = new DayPlanJob();
+        for (const method of ['fetchCalendarEvents', 'fetchDueHabits', 'fetchGoals', 'fetchProjects', 'generateSuggestions']) {
+            vi.spyOn(job as any, method).mockResolvedValue([]);
+        }
+        const result = await job.generateForUser({userId: user, date: target});
+        expect(result.tasks).toEqual([{task: ids[0], decision: 'PENDIENTE'}]);
+        expect(result.status).toBe('BORRADOR');
+    });
+
+    it.each(['more', 'other'] as const)('keeps today-only exclusions on %s without mutating Task', async mode => {
+        plan.tasks = [{task: ids[0], decision: 'DESCARTADO'}];
+        const select = vi.spyOn(DayPlanJobFactory.instance, 'selectTaskProposals')
+            .mockResolvedValue([{_id: ids[0]}, {_id: ids[1]}] as any);
+        const result = await service.proposals(user, planId, {mode});
+        expect(select.mock.calls[0][2]).toEqual([ids[0]]);
+        expect(result.tasks).toEqual([{task: ids[0], decision: 'DESCARTADO'},
+            {task: ids[1], decision: 'PENDIENTE'}]);
+        expect(taskService.updatePartial).not.toHaveBeenCalled();
+    });
+
     it('uses AI selection during initial generation and retains its pending decisions', async () => {
         repository.find.mockResolvedValue([]);
         taskService.find = vi.fn().mockResolvedValue(ids.map(_id => ({_id, user, title: 'Real task'})));

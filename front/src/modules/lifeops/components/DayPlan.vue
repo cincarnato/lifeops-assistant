@@ -12,8 +12,11 @@ type ContextItem = { key: string; label: string; type: string; progress?: number
 
 const props = defineProps<{
   item: DayPlanForm
+  previousTaskIds?: string[]
   operation?: string
 }>()
+
+const emit = defineEmits<{schedule: [taskId: string]}>()
 
 const {t, te, locale} = useI18n()
 const saveError = ref("")
@@ -305,7 +308,7 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
 
       <v-col cols="12" lg="6">
         <div class="d-flex flex-column ga-4">
-          <TaskPlanningBoard :tasks="item.tasks || []" :readonly="isDecisionReadonly">
+          <TaskPlanningBoard :tasks="item.tasks || []" :readonly="isDecisionReadonly" :previous-task-ids="previousTaskIds" @schedule="emit('schedule', $event)">
             <template #proposal-actions><slot name="proposal-actions" /></template>
           </TaskPlanningBoard>
 

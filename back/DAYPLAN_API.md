@@ -55,7 +55,7 @@ Ejemplo de confirmación:
 La generación inicial y el endpoint `proposals` usan `AiProviderFactory.instance().prompt` con salida Zod `{taskIds: string[]}`. La IA considera importancia, urgencia, título/descripción, proyecto, fecha y eventos; para nuevas tandas también recibe las tareas actuales del plan. A1–A3 siguen siendo elecciones del usuario: la IA preselecciona propuestas `PENDIENTE`, sin asignar ranks ni crear tareas.
 
 - Se consultan hasta 200 tareas del dueño, sin `completedAt`/`archivedAt`, ordenadas por ID; además se excluyen estados de finalización/cierre/archivo. El límite de candidatos es una ventana, no una búsqueda exhaustiva de todo el backlog.
-- Cada tanda contiene como máximo cinco IDs únicos de esa allowlist. Se excluyen todas las tareas ya presentes, incluidas descartadas. Duplicados de la IA se deduplican; IDs ajenos/inventados, JSON inválido, listas vacías o de más de cinco IDs activan fallback.
+- Cada tanda IA contiene como máximo cinco IDs únicos de esa allowlist (más los pendientes seleccionados del día anterior descritos abajo). Se excluyen todas las tareas ya presentes, incluidas descartadas. Duplicados de la IA se deduplican; IDs ajenos/inventados, JSON inválido, listas vacías o de más de cinco IDs activan fallback.
 - **Fallback explícito en logs**: ante falla del proveedor o salida inválida, se eligen hasta cinco candidatos por `HIGH > MEDIUM > LOW > sin importance`, urgentes primero dentro del nivel y desempate por ID. No se generan tareas ficticias; la respuesta sigue siendo el plan, sin un campo adicional de diagnóstico.
 - `more`: agrega una tanda a las tareas existentes; no hay tope acumulativo del plan.
 - `other`: reemplaza sólo entradas de la tanda original sin rank y con decisión `PENDIENTE` u omitida. Preserva A1/A2/A3, `DESEABLE`, `COMPROMETIDO`, `DESCARTADO`, y propuestas agregadas concurrentemente. No modifica eventos, hábitos ni sugerencias.
@@ -64,6 +64,14 @@ La generación inicial y el endpoint `proposals` usan `AiProviderFactory.instanc
 - La generación de un plan existente sigue devolviéndolo intacto, sin llamar a IA. Las sugerencias libres preexistentes del job son un campo separado (`suggestions`), no tareas propuestas.
 
 La selección envía el contexto indicado al proveedor IA configurado y consume una llamada adicional en generación inicial o una por tanda con candidatos. Sin candidatos no invoca IA.
+
+### Motivos, «Hoy no» y pendientes anteriores: contrato para UI
+
+- `tasks[].task` expone `importance`, `urgent`, **`dueDate` (fecha nullable/opcional)** y `project: {_id, name}`. La UI puede derivar motivos verificables (importancia, urgencia, vencimiento respecto de la fecha del plan y proyecto). No se agrega ni persiste `reason`: estos datos no son una explicación generada por IA. `dueDate` también se incluye entre los datos de candidatos enviados al proveedor.
+- «Hoy no» usa el PUT/PATCH existente: conservar la entrada con `decision: "DESCARTADO"` y quitar su rank (`priority: null`). No eliminar la entrada: es la exclusión del plan actual. No se modifica Task, su estado global ni otros planes. `more/other` preservan esa entrada y no vuelven a proponer su ID, incluso si cambió durante la llamada IA. Los arrays del PATCH reemplazan el array completo: enviar también las demás entradas que deban conservarse.
+- Generación inicial y `more/other` consultan el plan del **día calendario UTC inmediatamente anterior** a `plan.date`, incluidos cambios de mes/año, no el último plan disponible. Se recuperan tareas con A1/A2/A3 o `DESEABLE`, nunca entradas `DESCARTADO`, ni propuestas no seleccionadas ni `COMPROMETIDO` sin rank. Se relee cada Task para verificar ownership y que siga sin terminar/archivar; se deduplican IDs y se excluyen todas las entradas del plan actual.
+- Estos pendientes se añaden como propuestas `PENDIENTE`, sin priority, independientemente de la selección IA/fallback y fuera del límite de cinco candidatos nuevos. No se heredan ranks ni se confirma automáticamente el plan. No se añade metadata `carryOver`: la UI los trata como propuestas normales. Un plan ya existente no se altera al llamar `generate`; usar `proposals` para obtener nuevas propuestas.
+- Capacidad: reutilizar `GET /api/day-plans/available-slots`. La UI puede sumar `(endAt - startAt) / 60000` para obtener minutos disponibles (`slots.length * 60` con los slots horarios actuales). No hay endpoint ni campo agregado. Es disponibilidad consultada, no una reserva ni una garantía frente a cambios concurrentes; errores de Google no equivalen a capacidad cero.
 
 ## Google Calendar
 

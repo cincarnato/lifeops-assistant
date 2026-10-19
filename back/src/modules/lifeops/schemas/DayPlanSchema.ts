@@ -80,6 +80,7 @@ const DayPlanSchema = DayPlanBaseSchema
                   description: z.string().nullish(),
                   importance: z.enum(['HIGH', 'MEDIUM', 'LOW']).nullish(),
                   urgent: z.boolean().optional(),
+                  dueDate: z.coerce.date().nullish(),
                   calendarEventId: z.string().optional(),
                   scheduledDate: z.coerce.date().nullish(),
                   project: z.object({_id: z.coerce.string(), name: z.string()}).nullish()
