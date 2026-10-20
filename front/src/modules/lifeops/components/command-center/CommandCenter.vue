@@ -166,7 +166,7 @@ onMounted(async () => {
 }
 
 .cc-page-heading h1 {
-  font-size: clamp(1.65rem, 2.6vw, 2.2rem);
+  font-size: clamp(1.4rem, 2.2vw, 1.8rem);
   font-weight: 650;
   line-height: 1.15;
   letter-spacing: -0.045em;
