@@ -9,7 +9,7 @@ const CustomRoute = [
     name: 'CommandCenterPage',
     path: '/command-center',
     component: CommandCenterPage,
-    meta: {auth: true, layout: 'base'}
+    meta: {auth: true, layout: 'bottom'}
   },
   {
     name: 'TaskDashboardPage',

@@ -7,7 +7,7 @@ const DayPlanCrudRoute = [
     name: 'DayPlanningPage',
     path: '/day-planning',
     component: () => import('../pages/DayPlanningPage.vue'),
-    meta: {auth: true, permission: 'dayplan:manage'}
+    meta: {auth: true, permission: 'dayplan:manage', layout: 'bottom'}
   },
   {
     name: 'DayPlanCrudPage',

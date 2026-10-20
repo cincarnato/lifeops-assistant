@@ -8,6 +8,7 @@ const KanbanTaskRoute = [
     meta: {
       auth: true,
       permission: 'task:view',
+      layout: 'bottom',
     }
   },
 ]
