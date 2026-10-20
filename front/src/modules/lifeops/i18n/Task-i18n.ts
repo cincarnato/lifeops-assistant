@@ -105,6 +105,8 @@ const messages = {
         newStatus: 'New Status',
         user: 'User',
         archivedAt: 'Archived At',
+        createdAt: 'Created At',
+        updatedAt: 'Updated At',
       },
     },
     permission: {
@@ -220,6 +222,8 @@ const messages = {
         newStatus: 'Nuevo estado',
         user: 'Usuario',
         archivedAt: 'Archivada el',
+        createdAt: 'Creada el',
+        updatedAt: 'Actualizada el',
       },
     },
     permission: {

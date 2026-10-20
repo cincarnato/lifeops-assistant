@@ -234,6 +234,64 @@ assert.match(page, /taskId.value = selectedTaskId \|\| null/)
 assert.match(page, /capacity.value = null/)
 assert.match(page, /result.slots.length/)
 assert.match(page, /entry.task.status\?\.completesTask/)
-for (const key of ['reserveHour', 'notToday', 'restoreTask', 'hiddenTasks', 'previousPending', 'capacity', 'capacityHint', 'taskFacts']) {
+for (const key of ['reserveHour', 'notToday', 'restoreTask', 'hiddenTasks', 'previousPending', 'capacity', 'capacityHint', 'taskFacts', 'editTask', 'loadingTask', 'taskEditError', 'taskProperties', 'propertiesHint', 'defaultProperties', 'allProperties', 'closeProperties', 'propertyYes', 'propertyNo', 'propertyCount']) {
   for (const language of ['es', 'en']) assert.ok(messages[language].dayplan.ui[key])
 }
+
+assert.match(component, /PlanningTaskPropertySelector v-model="visibleProperties"/)
+assert.equal((component.match(/:visible-properties="visibleProperties"/g) || []).length, 2, 'Both task columns share the same property selection')
+assert.equal((component.match(/@edit-task="openTaskEditor"/g) || []).length, 2)
+assert.equal((board.match(/@click="emit\('edit-task'/g) || []).length, 4, 'Priority, desirable, proposed and discarded tasks can be edited')
+assert.doesNotMatch(board, /explanation\(entry.task\)|entry.task.project.name/, 'Unselected properties must not leak through hardcoded metadata')
+assert.match(component, /hasPermission\(taskCrud.permissions.update\).*hasPermission\(taskCrud.permissions.manage\)/)
+assert.match(component, /<TaskForm @updated="onTaskUpdated" @canceled="cancelTask"/)
+const editorSource = component.slice(component.indexOf('async function openTaskEditor('), component.indexOf('watch(taskEditContext'))
+const editor = {
+  isDecisionReadonly: {value: false}, canEditTask: {value: true}, taskEditBusy: {value: false}, taskEditError: {value: ''},
+  taskEditContext: {value: 'plan:2026-10-19'}, taskDialog: {value: false},
+  props: {item: {tasks: [{task: {_id: 'one', title: 'Old'}, priority: 'A1', decision: 'COMPROMETIDO'}, {task: 'two', decision: 'DESEABLE'}]}},
+  TaskProvider: {instance: {findById: async id => ({_id: id, title: 'Fresh'})}},
+  editTask: task => { editor.openedTask = task; editor.taskDialog.value = true },
+  cancelTask: () => { editor.taskDialog.value = false }, t: key => key, Error
+}
+runInNewContext('let taskEditRequest = 0; let editingTaskId = null; let editingContext = "";\n' + ts.transpileModule(editorSource, {}).outputText, editor)
+await editor.openTaskEditor('one')
+assert.equal(editor.openedTask.title, 'Fresh', 'Edit loads a full fresh task, not a partial planning reference')
+assert.equal(editor.props.item.tasks[0].task.title, 'Old', 'Opening the editor leaves the plan untouched')
+assert.equal(editor.taskEditBusy.value, false)
+await editor.onTaskUpdated({_id: 'one', title: 'Edited', importance: 'HIGH'})
+assert.equal(editor.props.item.tasks[0].task.title, 'Edited')
+assert.equal(editor.props.item.tasks[0].priority, 'A1', 'Task edits preserve daily priority')
+assert.equal(editor.props.item.tasks[0].decision, 'COMPROMETIDO', 'Task edits preserve daily decisions')
+assert.equal(editor.props.item.tasks[1].task, 'two', 'Unrelated tasks stay untouched')
+assert.equal(editor.taskDialog.value, false)
+await editor.openTaskEditor('two')
+await editor.onTaskUpdated({_id: 'two', title: 'Desirable edited'})
+assert.equal(editor.props.item.tasks[1].task.title, 'Desirable edited', 'String references can also be replaced')
+assert.equal(editor.props.item.tasks[1].decision, 'DESEABLE')
+for (const guard of ['isDecisionReadonly', 'taskEditBusy']) {
+  editor.openedTask = null
+  editor[guard].value = true
+  await editor.openTaskEditor('one')
+  assert.equal(editor.openedTask, null, `${guard} blocks editing`)
+  editor[guard].value = false
+}
+editor.canEditTask.value = false
+editor.openedTask = null
+await editor.openTaskEditor('one')
+assert.equal(editor.openedTask, null, 'Missing task permission blocks editing')
+editor.canEditTask.value = true
+editor.TaskProvider.instance.findById = async () => { throw new Error('Task unavailable') }
+await editor.openTaskEditor('one')
+assert.equal(editor.taskEditError.value, 'Task unavailable')
+assert.equal(editor.taskEditBusy.value, false, 'Failed fetch permits retry')
+let resolveEditor
+editor.TaskProvider.instance.findById = () => new Promise(resolve => { resolveEditor = resolve })
+const staleEditor = editor.openTaskEditor('one')
+editor.taskEditContext.value = 'plan:2026-10-20'
+resolveEditor({_id: 'one', title: 'Stale'})
+await staleEditor
+assert.equal(editor.openedTask, null, 'A stale fetch must not open on a different date')
+await editor.onTaskUpdated({_id: 'one', title: 'Stale update'})
+assert.equal(editor.props.item.tasks[0].task.title, 'Edited', 'Stale updates never modify another plan')
+console.log('Planning task editing assertions passed (fresh data, permissions, guards, reference replacement, preserved decisions, errors and stale responses).')

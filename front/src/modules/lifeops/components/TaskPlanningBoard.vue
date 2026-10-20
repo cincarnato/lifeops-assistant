@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {computed} from 'vue'
 import {useI18n} from 'vue-i18n'
+import PlanningTaskProperties from './PlanningTaskProperties.vue'
 import type {IDayPlanBase} from '../interfaces/IDayPlan'
 import {assignTask, prioritySlots} from './taskPlanning'
 const props = defineProps<{
@@ -8,18 +9,12 @@ const props = defineProps<{
   readonly?: boolean
   previousTaskIds?: string[]
   section?: 'planned' | 'proposals'
+  visibleProperties?: string[]
+  canEditTask?: boolean
+  taskEditBusy?: boolean
 }>()
-const emit = defineEmits<{schedule: [taskId: string]}>()
-const {t, locale} = useI18n()
-function explanation(task: Record<string, unknown>) {
-  const facts: string[] = []
-  if (['HIGH', 'MEDIUM', 'LOW'].includes(String(task?.importance))) facts.push(t('dayplan.ui.importanceFact', {value: t(`task.importance.${task.importance}.title`)}))
-  if (typeof task?.urgent === 'boolean') facts.push(t(task.urgent ? 'dayplan.ui.urgentFact' : 'dayplan.ui.notUrgentFact'))
-  if (task?.dueDate && !Number.isNaN(new Date(String(task.dueDate)).getTime())) facts.push(t('dayplan.ui.dueFact', {date: new Date(String(task.dueDate)).toLocaleDateString(locale.value, {timeZone: 'UTC'})}))
-  const project = task?.project as {name?: string} | undefined
-  if (project?.name) facts.push(t('dayplan.ui.projectFact', {name: project.name}))
-  return t('dayplan.ui.taskFacts', {facts: facts.join(' · ') || t('dayplan.ui.noTaskFacts')})
-}
+const emit = defineEmits<{schedule: [taskId: string]; 'edit-task': [taskId: string]}>()
+const {t} = useI18n()
 function discard(entry: NonNullable<IDayPlanBase['tasks']>[number]) {
   if (props.readonly) return
   entry.priority = null
@@ -55,11 +50,12 @@ function assign(entry: NonNullable<IDayPlanBase['tasks']>[number], target: 'A1' 
               <v-chip size="small" color="primary">{{ slot.priority }}</v-chip>
               <span v-if="slot.priority === 'A1'" class="text-caption">{{ t('dayplan.ui.nonNegotiable') }}</span>
               <v-spacer />
+              <v-btn v-if="slot.entry && canEditTask" icon="mdi-pencil-outline" size="x-small" variant="text" :title="t('task.form.operation.edit')" :aria-label="t('dayplan.ui.editTask', {title: slot.entry.task?.title || slot.entry.task})" :disabled="readonly || taskEditBusy" @click="emit('edit-task', slot.entry.task?._id || slot.entry.task)" />
               <v-btn v-if="slot.entry" size="x-small" density="compact" variant="text" prepend-icon="mdi-calendar-plus" :disabled="readonly" @click="emit('schedule', slot.entry.task?._id || slot.entry.task)">{{ t('dayplan.ui.reserveHour') }}</v-btn>
               <v-btn v-if="slot.entry" size="small" density="compact" variant="text" :disabled="readonly" @click="assign(slot.entry, null)">{{ t('dayplan.ui.removeAssignment') }}</v-btn>
             </div>
             <p class="mt-1 text-body-2 font-weight-medium">{{ slot.entry ? (slot.entry.task?.title || slot.entry.task) : t('dayplan.ui.emptyPriority') }}</p>
-            <p v-if="slot.entry?.task?.project?.name" class="text-caption text-medium-emphasis mt-1">{{ slot.entry.task.project.name }}</p>
+            <PlanningTaskProperties v-if="slot.entry" :task="slot.entry.task" :visible-properties="visibleProperties ?? []" class="mt-2" />
           </v-card>
         </v-col>
       </v-row>
@@ -79,8 +75,11 @@ function assign(entry: NonNullable<IDayPlanBase['tasks']>[number], target: 'A1' 
       <v-card-text class="pa-4 d-flex flex-column ga-3">
         <p v-if="!desirables.length" class="task-board__empty text-body-2 text-medium-emphasis">{{ t('dayplan.ui.noDesirables') }}</p>
         <v-card v-for="(entry, index) in desirables" :key="entry.task?._id || index" variant="outlined" rounded="lg" class="task-board__task pa-3">
-          <p class="text-body-2 font-weight-medium mb-2">{{ entry.task?.title || entry.task }}</p>
-          <p v-if="entry.task?.project?.name" class="text-caption text-medium-emphasis mb-2">{{ entry.task.project.name }}</p>
+          <div class="d-flex align-start ga-2 mb-2">
+            <p class="text-body-2 font-weight-medium flex-grow-1">{{ entry.task?.title || entry.task }}</p>
+            <v-btn v-if="canEditTask" icon="mdi-pencil-outline" size="x-small" variant="text" :title="t('task.form.operation.edit')" :aria-label="t('dayplan.ui.editTask', {title: entry.task?.title || entry.task})" :disabled="readonly || taskEditBusy" @click="emit('edit-task', entry.task?._id || entry.task)" />
+          </div>
+          <PlanningTaskProperties :task="entry.task" :visible-properties="visibleProperties ?? []" class="mb-3" />
           <div class="d-flex flex-wrap ga-2">
             <v-btn v-for="priority in prioritySlots" :key="priority" size="small" variant="tonal" color="primary" :disabled="readonly" @click="assign(entry, priority)">{{ priority }}</v-btn>
             <v-btn size="small" variant="text" :disabled="readonly" @click="assign(entry, null)">{{ t('dayplan.ui.removeAssignment') }}</v-btn>
@@ -104,9 +103,11 @@ function assign(entry: NonNullable<IDayPlanBase['tasks']>[number], target: 'A1' 
       <v-alert v-if="!proposals.length" variant="tonal" class="my-3">{{ t('dayplan.ui.noProposals') }}</v-alert>
       <v-card v-for="(entry, index) in proposals" :key="entry.task?._id || index" variant="outlined" rounded="lg" class="task-board__task pa-3 mt-3">
         <v-chip v-if="previousTaskIds?.includes(entry.task?._id || entry.task)" size="small" density="compact" variant="tonal" class="mb-2">{{ t('dayplan.ui.previousPending') }}</v-chip>
-        <p class="text-body-2 font-weight-medium mb-2">{{ entry.task?.title || entry.task }}</p>
-        <p v-if="entry.task?.project?.name" class="text-caption text-medium-emphasis mb-2">{{ entry.task.project.name }}</p>
-        <p class="text-caption text-medium-emphasis mb-2">{{ explanation(entry.task) }}</p>
+        <div class="d-flex align-start ga-2 mb-2">
+          <p class="text-body-2 font-weight-medium flex-grow-1">{{ entry.task?.title || entry.task }}</p>
+          <v-btn v-if="canEditTask" icon="mdi-pencil-outline" size="x-small" variant="text" :title="t('task.form.operation.edit')" :aria-label="t('dayplan.ui.editTask', {title: entry.task?.title || entry.task})" :disabled="readonly || taskEditBusy" @click="emit('edit-task', entry.task?._id || entry.task)" />
+        </div>
+        <PlanningTaskProperties :task="entry.task" :visible-properties="visibleProperties ?? []" class="mb-3" />
         <div class="d-flex flex-wrap ga-2">
           <v-btn v-for="priority in prioritySlots" :key="priority" size="small" density="compact" variant="tonal" :disabled="readonly" @click="assign(entry, priority)">{{ priority }}</v-btn>
           <v-btn size="small" density="compact" variant="text" :disabled="readonly" @click="assign(entry, 'DESEABLE')">{{ t('dayplan.ui.desirable') }}</v-btn>
@@ -118,7 +119,11 @@ function assign(entry: NonNullable<IDayPlanBase['tasks']>[number], target: 'A1' 
         <v-expansion-panel :title="t('dayplan.ui.hiddenTasks', {count: discarded.length})">
           <v-expansion-panel-text>
             <div v-for="(entry, index) in discarded" :key="entry.task?._id || index" class="d-flex flex-wrap align-center ga-2 my-2">
-              <span>{{ entry.task?.title || entry.task }}</span><v-spacer />
+              <div class="flex-grow-1">
+                <span>{{ entry.task?.title || entry.task }}</span>
+                <PlanningTaskProperties :task="entry.task" :visible-properties="visibleProperties ?? []" class="mt-2" />
+              </div>
+              <v-btn v-if="canEditTask" icon="mdi-pencil-outline" size="x-small" variant="text" :title="t('task.form.operation.edit')" :aria-label="t('dayplan.ui.editTask', {title: entry.task?.title || entry.task})" :disabled="readonly || taskEditBusy" @click="emit('edit-task', entry.task?._id || entry.task)" />
               <v-btn size="small" density="compact" variant="text" :disabled="readonly" @click="assign(entry, null)">{{ t('dayplan.ui.restoreTask') }}</v-btn>
             </div>
           </v-expansion-panel-text>

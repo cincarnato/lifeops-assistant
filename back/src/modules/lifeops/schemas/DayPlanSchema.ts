@@ -1,5 +1,14 @@
 
 import { z } from 'zod';
+import {TaskSchema} from './TaskSchema.js';
+
+const DayPlanTaskSchema = TaskSchema.omit({
+    instruction: true, delegate: true, delegable: true, taskSchedule: true, scheduledFor: true,
+}).partial().extend({
+    _id: TaskSchema.shape._id,
+    title: TaskSchema.shape.title.nullish(),
+    description: TaskSchema.shape.description.nullish(),
+});
 
 const DayPlanPrioritySchema = z.enum(['A1', 'A2', 'A3']).nullable().optional();
 
@@ -74,17 +83,7 @@ const DayPlanSchema = DayPlanBaseSchema
       tasks: z.array(
           z.object({
               priority: DayPlanPrioritySchema,
-              task: z.object({
-                  _id: z.coerce.string(),
-                  title: z.string().nullish(),
-                  description: z.string().nullish(),
-                  importance: z.enum(['HIGH', 'MEDIUM', 'LOW']).nullish(),
-                  urgent: z.boolean().optional(),
-                  dueDate: z.coerce.date().nullish(),
-                  calendarEventId: z.string().optional(),
-                  scheduledDate: z.coerce.date().nullish(),
-                  project: z.object({_id: z.coerce.string(), name: z.string()}).nullish()
-              }),
+              task: DayPlanTaskSchema,
               decision: z.enum(['PENDIENTE', 'COMPROMETIDO', 'DESEABLE', 'DESCARTADO']).optional()
           })
       ).optional(),

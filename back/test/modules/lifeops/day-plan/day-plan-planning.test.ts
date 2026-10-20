@@ -9,6 +9,7 @@ import TaskServiceFactory from '../../../../src/modules/lifeops/factory/services
 import GoogleCalendarServiceFactory from '../../../../src/modules/google/factory/GoogleCalendarServiceFactory.js';
 import GoogleCalendarService from '../../../../src/modules/google/services/GoogleCalendarService.js';
 import DayPlanRoutes from '../../../../src/modules/lifeops/routes/DayPlanRoutes.js';
+import DayPlanMongoRepository from '../../../../src/modules/lifeops/repository/mongo/DayPlanMongoRepository.js';
 import {DayPlanBaseSchema, DayPlanPatchSchema, DayPlanSchema, DayPlanTasksSchema, DayPlanAvailableSlotsSchema, DayPlanScheduleTaskSchema} from '../../../../src/modules/lifeops/schemas/DayPlanSchema.js';
 
 const user = '111111111111111111111111';
@@ -49,6 +50,13 @@ describe('DayPlan planning', () => {
         vi.spyOn(GoogleCalendarServiceFactory, 'instance', 'get').mockReturnValue(calendar);
     });
     afterEach(() => { vi.restoreAllMocks(); vi.useRealTimers(); });
+
+    it('populates task context so card properties display names instead of IDs', () => {
+        const repository = new DayPlanMongoRepository();
+        expect((repository as any)._populateFields).toContainEqual({
+            path: 'tasks.task', populate: [{path: 'project'}, {path: 'goals'}, {path: 'user'}],
+        });
+    });
 
     it('does not inject defaults into PATCH', async () => {
         expect(DayPlanPatchSchema.parse({})).toEqual({});
@@ -376,6 +384,23 @@ describe('DayPlan planning', () => {
         expect(output.tasks?.[0].task.title).toBe('Task');
     });
 
+    it('retains all selectable card properties using the task output schema', () => {
+        const task = {
+            _id: ids[0], title: 'Task', description: 'Details', priority: 'HIGH', importance: 'HIGH',
+            status: 'TODO', urgent: false, source: 'manual', type: 'Work', lifeArea: 'Career',
+            project: {_id: ids[1], name: 'Project'}, goals: [{_id: ids[2], name: 'Goal'}],
+            user: {_id: user, username: 'user'}, tags: ['planning'],
+            valueScore: 0, motivationScore: 5, effortScore: 3,
+            dueDate: new Date(startAt), scheduledDate: new Date(startAt), completedAt: null,
+            createdAt: new Date(startAt), updatedAt: new Date(startAt), archivedAt: null,
+            redmineIssueId: '123', emailMessageId: 'message', calendarEventId: 'event',
+            notes: [{note: 'A note'}], statusHistory: [{newStatus: 'TODO'}],
+        };
+        const output = DayPlanSchema.parse({...plan, user: {_id: user, username: 'user'}, tasks: [{task, priority: 'A1'}]});
+        expect(output.tasks?.[0].task).toMatchObject(task);
+        expect(output.tasks?.[0].priority).toBe('A1');
+    });
+
     it('registers routes with real Fastify validation and enforces permissions', async () => {
         const app = Fastify();
         const assertPermission = vi.fn();
@@ -390,6 +415,13 @@ describe('DayPlan planning', () => {
             expect(result.json()).toBeNull();
             expect(assertPermission).toHaveBeenCalledWith('dayplan:view');
             expect((await app.inject('/api/day-plans/planning?date=invalid')).statusCode).toBe(400);
+            const cardTask = {_id: ids[0], title: 'Card', status: 'TODO', priority: 'HIGH', urgent: false, valueScore: 0,
+                goals: [{_id: ids[1], name: 'Goal'}], user: {_id: user, username: 'user'}, notes: [{note: 'Note'}]};
+            repository.find.mockResolvedValue([{...plan, user: {_id: user, username: 'user'}, tasks: [{task: cardTask, priority: 'A1'}]}]);
+            const populated = await app.inject(`/api/day-plans/planning?date=${date}`);
+            expect(populated.statusCode).toBe(200);
+            expect(populated.json().tasks[0].task).toMatchObject(cardTask);
+            expect(populated.json().tasks[0].priority).toBe('A1');
             const slots = await app.inject(`/api/day-plans/available-slots?date=${date}`);
             expect(slots.statusCode).toBe(200);
             expect(slots.json().slots).toHaveLength(24);
