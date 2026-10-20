@@ -30,7 +30,7 @@ const messages = {
         jobs_active: 'Jobs agentes activos', jobs_failed: 'Jobs agentes con error', serviceTransactions_pending: 'Transacciones pendientes',
         tasks_pending: 'Tareas pendientes', tasks_in_progress: 'Tareas en progreso', tasks_completed_today: 'Tareas completadas hoy',
         tasks_due_soon: 'Tareas próximas a vencer', tasks_completed_month: 'Tareas completadas mes actual',
-        serviceTransactions_paid_month: 'Transacciones completadas mes actual', serviceTransactions_income_month: 'Monto ingresos mes actual', serviceTransactions_expense_month: 'Monto egresos mes actual',
+        serviceTransactions_paid_month: 'Transacciones completadas mes', serviceTransactions_income_month: 'Monto ingresos mes actual', serviceTransactions_expense_month: 'Monto egresos mes actual',
         jobs_executed: 'Jobs agentes ejecutados', schedules_generated: 'Tareas programadas generadas', goals_total: 'Objetivos',
         businessPartners_total: 'Socios comerciales', services_total: 'Servicios', projects_total: 'Proyectos', memories_total: 'Memorias',
       },
