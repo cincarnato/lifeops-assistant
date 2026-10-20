@@ -85,7 +85,7 @@ export function centerFilters(tab: CenterTab, preset = '', context?: CenterConte
   if (context) filters.push({field: context.field, operator: 'eq', value: context.id})
   if (tab === 'tasks' && preset) {
     const completed = ['completed_today', 'completed_month'].includes(preset)
-    if (!completed && preset !== 'generated') filters.push({field: 'completedAt', operator: 'empty', value: ''}, {field: 'archivedAt', operator: 'empty', value: ''})
+    if (!completed && !['generated', 'total'].includes(preset)) filters.push({field: 'completedAt', operator: 'empty', value: ''}, {field: 'archivedAt', operator: 'empty', value: ''})
     const {start, end} = dayBounds()
     if (completed) {
       const bounds = preset === 'completed_today' ? {start, end} : monthBounds()
@@ -135,6 +135,7 @@ export const centerMetrics: {tab: CenterTab; preset: string; icon: string; color
   {tab: 'projects', preset: 'total', icon: 'mdi-briefcase-outline', color: 'primary'},
   {tab: 'businessPartners', preset: 'total', icon: 'mdi-domain', color: 'info'},
   {tab: 'services', preset: 'total', icon: 'mdi-handshake-outline', color: 'success'},
+  {tab: 'tasks', preset: 'total', icon: 'mdi-format-list-checks', color: 'primary'},
   {tab: 'memories', preset: 'total', icon: 'mdi-brain', color: 'info'},
   {tab: 'serviceTransactions', preset: 'pending', icon: 'mdi-cash-clock', color: 'warning'},
   {tab: 'serviceTransactions', preset: 'paid_month', icon: 'mdi-cash-check', color: 'success'},

@@ -28,7 +28,7 @@ const messages = {
       metrics: {
         tasks_overdue: 'Tareas vencidas', tasks_today: 'Tareas para hoy', tasks_urgent: 'Tareas urgentes', schedules_active: 'Tareas programadas activas',
         jobs_active: 'Jobs agentes activos', jobs_failed: 'Jobs agentes con error', serviceTransactions_pending: 'Transacciones pendientes',
-        tasks_pending: 'Tareas pendientes', tasks_in_progress: 'Tareas en progreso', tasks_completed_today: 'Tareas completadas hoy',
+        tasks_total: 'Total de tareas', tasks_pending: 'Tareas pendientes', tasks_in_progress: 'Tareas en progreso', tasks_completed_today: 'Tareas completadas hoy',
         tasks_due_soon: 'Tareas próximas a vencer', tasks_completed_month: 'Tareas completadas mes actual',
         serviceTransactions_paid_month: 'Transacciones completadas mes', serviceTransactions_income_month: 'Monto ingresos mes actual', serviceTransactions_expense_month: 'Monto egresos mes actual',
         jobs_executed: 'Jobs agentes ejecutados', schedules_generated: 'Tareas programadas generadas', goals_total: 'Objetivos',
@@ -40,6 +40,7 @@ const messages = {
         tasks_urgent: 'Pendientes marcadas como urgentes.', schedules_active: 'Reglas activas de generación de tareas.',
         jobs_active: 'Configuraciones activas; no implica que se estén ejecutando.', jobs_failed: 'Jobs cuyo último resultado es failed o timeout.',
         serviceTransactions_pending: 'Todas las transacciones pendientes de pago, de todos los períodos, incluidos servicios inactivos.',
+        tasks_total: 'Todas las tareas, incluidas las completadas y archivadas.',
         tasks_pending: 'Tareas cuyo status almacenado es Pendiente, nombre del estado seed.',
         tasks_in_progress: 'Tareas cuyo status almacenado es En progreso, nombre del estado seed.',
         tasks_completed_today: 'Tareas con completedAt dentro de hoy, en Buenos Aires.',
@@ -96,7 +97,7 @@ const messages = {
       metrics: {
         tasks_overdue: 'Overdue tasks', tasks_today: 'Tasks for today', tasks_urgent: 'Urgent tasks', schedules_active: 'Active scheduled tasks',
         jobs_active: 'Active agent jobs', jobs_failed: 'Agent jobs with errors', serviceTransactions_pending: 'Pending transactions',
-        tasks_pending: 'Pending tasks', tasks_in_progress: 'Tasks in progress', tasks_completed_today: 'Tasks completed today',
+        tasks_total: 'Total tasks', tasks_pending: 'Pending tasks', tasks_in_progress: 'Tasks in progress', tasks_completed_today: 'Tasks completed today',
         tasks_due_soon: 'Tasks due soon', tasks_completed_month: 'Tasks completed this month',
         serviceTransactions_paid_month: 'Transactions completed this month', serviceTransactions_income_month: 'Income amount this month', serviceTransactions_expense_month: 'Expense amount this month',
         jobs_executed: 'Executed agent jobs', schedules_generated: 'Generated scheduled tasks', goals_total: 'Goals',
@@ -108,6 +109,7 @@ const messages = {
         tasks_urgent: 'Pending tasks marked as urgent.', schedules_active: 'Active task generation rules.',
         jobs_active: 'Active configurations; this does not mean they are running.', jobs_failed: 'Jobs whose last result is failed or timeout.',
         serviceTransactions_pending: 'All pending transactions across all periods, including inactive services.',
+        tasks_total: 'All tasks, including completed and archived tasks.',
         tasks_pending: 'Tasks whose stored status is Pendiente, the seeded status name.',
         tasks_in_progress: 'Tasks whose stored status is En progreso, the seeded status name.',
         tasks_completed_today: 'Tasks with completedAt within today in Buenos Aires.',
