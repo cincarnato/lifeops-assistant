@@ -198,6 +198,8 @@ onBeforeUnmount(() => {
 }
 
 .metrics-navigation {
+  grid-template-columns: max-content minmax(0, 1fr) max-content;
+  justify-content: stretch;
   border-radius: inherit;
   letter-spacing: normal;
 }
