@@ -30,6 +30,13 @@ const BusinessPartnerBaseSchema = z.object({
 const BusinessPartnerSchema = BusinessPartnerBaseSchema
     .extend({
         _id: z.coerce.string(),
+        // Output-only defaults cover legacy lean documents without injecting values into PATCH inputs.
+        bankCbu: BusinessPartnerBaseSchema.shape.bankCbu.default(''),
+        bankAlias: BusinessPartnerBaseSchema.shape.bankAlias.default(''),
+        bankAccount: BusinessPartnerBaseSchema.shape.bankAccount.default(''),
+        bankName: BusinessPartnerBaseSchema.shape.bankName.default(''),
+        paymentReceiptEmail: BusinessPartnerBaseSchema.shape.paymentReceiptEmail.default(''),
+        paymentReceiptUrl: BusinessPartnerBaseSchema.shape.paymentReceiptUrl.default(''),
         mainContact: z.object({_id: z.coerce.string(), displayName: z.string()}).nullable().optional(),
         user: z.object({_id: z.coerce.string(), username: z.string()})
     })

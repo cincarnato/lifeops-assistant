@@ -121,10 +121,11 @@ describe("Project and BusinessPartner entity contracts", () => {
             const output = {...input, _id: "partner-id", user: {_id: input.user, username: "User"}}
 
             for (const [schema, data] of [[BusinessPartnerBaseSchema, input], [BusinessPartnerSchema, output]] as const) {
-                expect(schema.parse(data)).not.toHaveProperty(field)
                 expect(schema.safeParse({...data, [field]: 123}).success).toBe(false)
             }
-            expect(new BusinessPartnerModel(input).toObject()).not.toHaveProperty(field)
+            expect(BusinessPartnerBaseSchema.parse(input)).not.toHaveProperty(field)
+            expect(BusinessPartnerSchema.parse(output)).toHaveProperty(field, '')
+            expect(new BusinessPartnerModel(input).toObject()).toHaveProperty(field, '')
             expect(BusinessPartnerBaseSchema.partial().parse({name: "Renamed"})).not.toHaveProperty(field)
             expect(BusinessPartnerBaseSchema.partial().parse({[field]: ""})).toHaveProperty(field, "")
         }
