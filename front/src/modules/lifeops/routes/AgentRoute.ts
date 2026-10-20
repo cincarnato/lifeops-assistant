@@ -1,5 +1,6 @@
 
 import AgentPage from "../pages/AgentPage.vue";
+import AgentExpressPage from "../pages/AgentExpressPage.vue";
 import AgentCinePage from "../pages/AgentCinePage.vue";
 
 
@@ -8,6 +9,16 @@ const AgentRoute = [
     name: 'AgentPage',
     path: '/agent',
     component: AgentPage,
+    meta: {
+      auth: true,
+      permission: 'agent:session',
+      layout: 'base'
+    }
+  },
+  {
+    name: 'AgentExpressPage',
+    path: '/agent-express',
+    component: AgentExpressPage,
     meta: {
       auth: true,
       permission: 'agent:session',

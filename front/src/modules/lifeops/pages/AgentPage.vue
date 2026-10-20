@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import {DraxAgentExpress} from "@drax/ai-vue"
+import {DraxAgent} from "@drax/ai-vue"
 </script>
 
 <template>
-  <DraxAgentExpress />
+  <DraxAgent />
 </template>
 
 <style scoped>

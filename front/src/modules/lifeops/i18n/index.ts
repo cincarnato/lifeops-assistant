@@ -18,6 +18,7 @@ import InstructionMessages from "./Instruction-i18n"
 import PriorityMessages from "./Priority-i18n"
 import ContactTypeMessages from "./ContactType-i18n"
 
+import AgentMessages from './Agent-i18n'
 import AgentJobMessages from "./AgentJob-i18n"
 import AgentJobExecutionMessages from "./AgentJobExecution-i18n"
 import MemoryMessages from "./Memory-i18n"
@@ -46,6 +47,7 @@ const messages = merge.all([
     InstructionMessages,
     PriorityMessages,
     ContactTypeMessages,
+    AgentMessages,
     AgentJobMessages,
     AgentJobExecutionMessages,
     MemoryMessages,

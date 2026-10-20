@@ -123,8 +123,15 @@ const menu: MenuItem[] = [
     children: [
       {
         icon: 'mdi-robot',
-        text: 'Agent',
+        text: 'agentPages.standard',
         link: {name: "AgentPage"},
+        gallery: true,
+        permission: 'agent:session'
+      },
+      {
+        icon: 'mdi-robot',
+        text: 'agentPages.express',
+        link: {name: "AgentExpressPage"},
         gallery: true,
         permission: 'agent:session'
       },
