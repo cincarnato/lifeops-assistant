@@ -25,6 +25,7 @@ const messages = {
       presets: {today: 'Hoy', overdue: 'Vencidas', urgent: 'Urgentes', unassigned: 'Sin proyecto', active: 'Activas', failed: 'Con error', services_active: 'Activos', services_inactive: 'Inactivos', pending: 'Pendientes', paid: 'Pagadas'},
       metricSummary: {
         label: 'Métricas del centro de comando', hide: 'Ocultar métricas', show: 'Mostrar métricas',
+        previous: 'Ver métricas anteriores', next: 'Ver más métricas',
       },
       metrics: {
         tasks_overdue: 'Tareas vencidas', tasks_today: 'Tareas para hoy', tasks_urgent: 'Tareas urgentes', schedules_active: 'Tareas programadas activas',
@@ -95,6 +96,7 @@ const messages = {
       presets: {today: 'Today', overdue: 'Overdue', urgent: 'Urgent', unassigned: 'No project', active: 'Active', failed: 'Failed', services_active: 'Active', services_inactive: 'Inactive', pending: 'Pending', paid: 'Paid'},
       metricSummary: {
         label: 'Command center metrics', hide: 'Hide metrics', show: 'Show metrics',
+        previous: 'Show previous metrics', next: 'Show more metrics',
       },
       metrics: {
         tasks_overdue: 'Overdue tasks', tasks_today: 'Tasks for today', tasks_urgent: 'Urgent tasks', schedules_active: 'Active scheduled tasks',

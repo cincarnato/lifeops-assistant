@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import {computed} from 'vue'
+import {computed, ref} from 'vue'
 import {useI18n} from 'vue-i18n'
+import {VSlideGroup} from 'vuetify/components'
 import type {CenterDestination, CenterTab} from './commandCenter'
 
 interface Metric {
@@ -17,6 +18,7 @@ interface Metric {
 defineProps<{metrics: Metric[]}>()
 defineEmits<{navigate: [destination: CenterDestination]; retry: []}>()
 const {t, locale} = useI18n()
+const slider = ref<InstanceType<typeof VSlideGroup>>()
 const countFormatter = computed(() => new Intl.NumberFormat(locale.value))
 const amountFormatter = computed(() => new Intl.NumberFormat(locale.value, {minimumFractionDigits: 2, maximumFractionDigits: 2}))
 
@@ -27,8 +29,14 @@ function totalLabel(metric: Metric) {
 </script>
 
 <template>
-  <section v-if="metrics.length" id="command-center-metrics" class="metrics-strip my-1" tabindex="0" :aria-label="t('commandCenter.metricSummary.label')">
-    <div class="d-flex flex-nowrap ga-1">
+  <section v-if="metrics.length" id="command-center-metrics" class="my-1" :aria-label="t('commandCenter.metricSummary.label')">
+    <v-slide-group ref="slider" show-arrows class="metrics-strip">
+      <template #prev>
+        <v-btn icon="mdi-chevron-left" size="x-small" variant="text" :disabled="!slider?.hasPrev" :aria-label="t('commandCenter.metricSummary.previous')" :title="t('commandCenter.metricSummary.previous')" @click.stop="slider?.scrollTo('prev')" />
+      </template>
+      <template #next>
+        <v-btn icon="mdi-chevron-right" size="x-small" variant="text" :disabled="!slider?.hasNext" :aria-label="t('commandCenter.metricSummary.next')" :title="t('commandCenter.metricSummary.next')" @click.stop="slider?.scrollTo('next')" />
+      </template>
       <div v-for="metric in metrics" :key="`${metric.tab}-${metric.preset}`" class="d-flex align-center flex-shrink-0 ga-1">
         <v-chip
           variant="outlined" size="small" rounded="sm" class="metric-chip px-2"
@@ -49,16 +57,22 @@ function totalLabel(metric: Metric) {
           :title="t('commandCenter.retry')" @click="$emit('retry')"
         />
       </div>
-    </div>
+    </v-slide-group>
   </section>
 </template>
 
 <style scoped>
 .metrics-strip {
   min-width: 0;
-  overflow-x: auto;
-  scrollbar-width: thin;
+}
+.metrics-strip :deep(.v-slide-group__content) {
+  gap: 4px;
   padding: 2px;
+}
+.metrics-strip :deep(.v-slide-group__prev),
+.metrics-strip :deep(.v-slide-group__next) {
+  flex: 0 0 28px;
+  min-width: 28px;
 }
 .metric-chip {
   height: 26px;
