@@ -124,7 +124,6 @@ onMounted(async () => {
   --cc-muted: rgba(var(--v-theme-on-surface), 0.64);
   --cc-soft: rgba(var(--v-theme-on-surface), 0.025);
   container-type: inline-size;
-  max-width: 1680px;
   padding: 20px 32px 32px;
   color: rgb(var(--v-theme-on-surface));
 }
