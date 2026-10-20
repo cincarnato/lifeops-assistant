@@ -14,6 +14,7 @@ const props = defineProps<{
   item: DayPlanForm
   previousTaskIds?: string[]
   operation?: string
+  compact?: boolean
 }>()
 
 const emit = defineEmits<{schedule: [taskId: string]}>()
@@ -203,8 +204,8 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
 </script>
 
 <template>
-  <v-sheet class="day-plan pa-4 pa-md-6" color="background">
-    <div class="d-flex flex-column flex-md-row align-md-end justify-space-between ga-4 mb-6">
+  <v-sheet class="day-plan" :class="compact ? 'day-plan--compact pa-0' : 'pa-4 pa-md-6'" color="background">
+    <div v-if="!compact" class="d-flex flex-column flex-md-row align-md-end justify-space-between ga-4 mb-6">
       <div class="min-w-0">
         <h1 class="day-plan__title text-h4 text-md-h3 font-weight-bold mb-2">{{ formatDate(item.date) }}</h1>
         <div class="d-flex flex-wrap align-center ga-2">
@@ -608,4 +609,11 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
     width: 32px;
   }
 }
+</style>
+
+<style scoped>
+.day-plan--compact :deep(.v-card-title) { padding: 8px 12px; font-size: 0.875rem !important; }
+.day-plan--compact :deep(.v-card-text) { padding: 8px 12px; }
+.day-plan--compact :deep(.v-card-title .v-icon) { font-size: 18px; }
+.day-plan--compact :deep(.text-subtitle-1) { font-size: 0.875rem !important; }
 </style>

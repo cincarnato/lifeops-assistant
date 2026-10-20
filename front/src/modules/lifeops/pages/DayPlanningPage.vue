@@ -156,42 +156,41 @@ void load()
 </script>
 
 <template>
-  <v-container fluid>
-    <h1 class="text-h4 mb-4">{{ t('dayplan.ui.planning') }}</h1>
-    <v-row align="center">
-      <v-col cols="12" md="6" class="d-flex align-center ga-2">
+  <v-container fluid class="pa-2 pa-md-3">
+    <v-defaults-provider :defaults="{VBtn: {size: 'small', variant: 'text', density: 'compact'}, VTextField: {density: 'compact', variant: 'outlined'}}">
+    <div class="planning-toolbar d-flex flex-wrap align-center ga-1 mb-2" role="toolbar" :aria-label="t('dayplan.ui.planning')">
+      <h1 class="text-body-2 font-weight-bold mr-2">{{ t('dayplan.ui.planning') }}</h1>
+      <div class="d-flex align-center ga-1">
         <v-btn icon="mdi-chevron-left" :aria-label="t('dayplan.ui.previous')" :disabled="busy" @click="move(-1)" />
-        <v-text-field :model-value="date" type="date" :label="t('dayplan.field.date')" hide-details :disabled="busy" @update:model-value="changeDate" />
+        <v-text-field class="planning-date" :model-value="date" type="date" :aria-label="t('dayplan.field.date')" hide-details :disabled="busy" @update:model-value="changeDate" />
         <v-btn icon="mdi-chevron-right" :aria-label="t('dayplan.ui.next')" :disabled="busy" @click="move(1)" />
-      </v-col>
-      <v-col cols="12" md="6" class="d-flex flex-wrap ga-2">
-        <v-btn :disabled="busy" @click="changeDate(localDate())">{{ t('dayplan.ui.today') }}</v-btn>
-        <v-btn :disabled="busy" @click="changeDate(localDate(1))">{{ t('dayplan.ui.tomorrow') }}</v-btn>
-        <v-btn :disabled="busy" icon="mdi-refresh" :aria-label="t('dayplan.ui.reload')" @click="changeDate(date)" />
-      </v-col>
-    </v-row>
+      </div>
+      <v-btn :disabled="busy" @click="changeDate(localDate())">{{ t('dayplan.ui.today') }}</v-btn>
+      <v-btn :disabled="busy" @click="changeDate(localDate(1))">{{ t('dayplan.ui.tomorrow') }}</v-btn>
+      <v-btn :disabled="busy" icon="mdi-refresh" :aria-label="t('dayplan.ui.reload')" @click="changeDate(date); loadContext()" />
+      <v-spacer />
+      <v-tooltip :text="capacityError || t('dayplan.ui.capacityHint')">
+        <template #activator="{props}">
+          <v-btn v-bind="props" prepend-icon="mdi-clock-outline" :loading="capacityBusy" :aria-label="capacityError || t('dayplan.ui.capacityHint')" @click="loadContext">
+            {{ capacityError ? t('dayplan.ui.retry') : capacity !== null ? t('dayplan.ui.capacity', {count: capacity, hours: capacity}) : '—' }}
+          </v-btn>
+        </template>
+      </v-tooltip>
+      <v-icon v-if="plan" :icon="error ? 'mdi-alert-circle-outline' : busy || dirty ? 'mdi-cloud-sync-outline' : 'mdi-cloud-check-outline'" size="18" class="text-medium-emphasis" role="status" :aria-label="t(busy ? 'dayplan.ui.saving' : dirty ? 'dayplan.ui.unsaved' : 'dayplan.ui.saved')" :title="t(busy ? 'dayplan.ui.saving' : dirty ? 'dayplan.ui.unsaved' : 'dayplan.ui.saved')" />
+    </div>
+    </v-defaults-provider>
     <v-alert v-if="error" type="error" class="my-4">
       {{ error }}
       <v-btn variant="text" :disabled="busy" @click="retry">{{ t('dayplan.ui.retry') }}</v-btn>
     </v-alert>
-    <v-progress-linear v-if="busy" indeterminate class="my-4" />
-    <v-card variant="tonal" class="pa-4 my-4" role="status">
-      <p v-if="capacityBusy">{{ t('dayplan.ui.capacityLoading') }}</p>
-      <p v-else-if="capacityError">{{ capacityError }} <v-btn variant="text" @click="loadContext">{{ t('dayplan.ui.retry') }}</v-btn></p>
-      <p v-else-if="capacity !== null">{{ t('dayplan.ui.capacity', {count: capacity, hours: capacity}) }}</p>
-      <p class="text-caption text-medium-emphasis">{{ t('dayplan.ui.capacityHint') }}</p>
-    </v-card>
+    <v-progress-linear :active="busy" indeterminate height="2" />
     <p v-if="previousError" class="text-caption text-medium-emphasis">{{ previousError }}</p>
     <template v-if="plan">
-      <div class="d-flex flex-wrap ga-2 my-4">
-        <v-btn prepend-icon="mdi-calendar-plus" :disabled="busy" @click="openSchedule()">{{ t('dayplan.ui.schedule') }}</v-btn>
-        <span role="status" class="text-caption align-self-center">{{ t(busy ? 'dayplan.ui.saving' : dirty ? 'dayplan.ui.unsaved' : 'dayplan.ui.saved') }}</span>
-      </div>
-      <DayPlan :item="plan" :operation="busy ? 'view' : 'edit'" :previous-task-ids="previousTaskIds" @schedule="openSchedule">
+      <DayPlan compact :item="plan" :operation="busy ? 'view' : 'edit'" :previous-task-ids="previousTaskIds" @schedule="openSchedule">
         <template #proposal-actions>
-          <div class="d-flex flex-wrap ga-2 my-3">
-            <v-btn :disabled="busy" variant="tonal" @click="proposals('more')">{{ t('dayplan.ui.moreProposals') }}</v-btn>
-            <v-btn :disabled="busy" variant="text" @click="proposals('other')">{{ t('dayplan.ui.otherProposals') }}</v-btn>
+          <div class="d-flex flex-wrap ga-1 my-1">
+            <v-btn size="small" density="compact" :disabled="busy" variant="tonal" @click="proposals('more')">{{ t('dayplan.ui.moreProposals') }}</v-btn>
+            <v-btn size="small" density="compact" :disabled="busy" variant="text" @click="proposals('other')">{{ t('dayplan.ui.otherProposals') }}</v-btn>
           </div>
         </template>
       </DayPlan>
@@ -226,3 +225,10 @@ void load()
     </v-dialog>
   </v-container>
 </template>
+
+<style scoped>
+.planning-toolbar { min-height: 40px; }
+.planning-date { flex: 0 0 154px; width: 154px; }
+.planning-date :deep(input) { font-size: 0.8125rem; min-height: 34px; }
+.planning-date :deep(.v-field__input) { padding-top: 4px; padding-bottom: 4px; min-height: 34px; }
+</style>
