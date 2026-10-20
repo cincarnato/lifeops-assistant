@@ -8,6 +8,7 @@ const messages = {
       tabs: {
         BASIC: 'Basic',
         FACTURACION: 'Billing',
+        PAYMENTS: 'Payments',
       },
       field: {
         name: 'Name',
@@ -17,6 +18,12 @@ const messages = {
         taxIdNumber: 'Tax ID Number',
         taxAddress: 'Tax Address',
         taxEmail: 'Billing Email',
+        bankCbu: 'CBU',
+        bankAlias: 'Bank Alias',
+        bankAccount: 'Bank Account',
+        bankName: 'Bank',
+        paymentReceiptEmail: 'Payment Receipt Email',
+        paymentReceiptUrl: 'Payment Receipt Upload Link',
         description: 'Description',
         roles: 'Roles',
         priority: 'Priority',
@@ -49,6 +56,7 @@ const messages = {
       tabs: {
         BASIC: 'Básico',
         FACTURACION: 'Facturación',
+        PAYMENTS: 'Pagos',
       },
       field: {
         name: 'Nombre',
@@ -58,6 +66,12 @@ const messages = {
         taxIdNumber: 'Número de identificación fiscal',
         taxAddress: 'Domicilio fiscal',
         taxEmail: 'Email de facturación',
+        bankCbu: 'CBU',
+        bankAlias: 'Alias bancario',
+        bankAccount: 'Cuenta bancaria',
+        bankName: 'Banco',
+        paymentReceiptEmail: 'Email para enviar el comprobante de pago',
+        paymentReceiptUrl: 'Enlace para adjuntar el comprobante de pago',
         description: 'Descripción',
         roles: 'Roles',
         priority: 'Prioridad',

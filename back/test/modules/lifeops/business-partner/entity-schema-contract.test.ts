@@ -95,6 +95,41 @@ describe("Project and BusinessPartner entity contracts", () => {
         }
     })
 
+    it("preserves provider payment details in inputs, outputs and Mongo documents", () => {
+        const paymentDetails = {
+            bankCbu: "0000003100012345678901",
+            bankAlias: "provider.bank.alias",
+            bankAccount: "001-000123/4",
+            bankName: "Example Bank",
+            paymentReceiptEmail: "payments@example.com",
+            paymentReceiptUrl: "https://example.com/receipts"
+        }
+        const input = {name: "Provider", roles: ["provider"], user: "507f1f77bcf86cd799439011", ...paymentDetails}
+        const output = {...input, _id: "partner-id", user: {_id: input.user, username: "User"}}
+
+        expect(BusinessPartnerBaseSchema.parse(input)).toMatchObject(paymentDetails)
+        expect(BusinessPartnerSchema.parse(output)).toMatchObject(paymentDetails)
+        const partner = new BusinessPartnerModel(input)
+        expect(partner.validateSync()).toBeUndefined()
+        expect(partner.toObject()).toMatchObject(paymentDetails)
+    })
+
+    it.each(['bankCbu', 'bankAlias', 'bankAccount', 'bankName', 'paymentReceiptEmail', 'paymentReceiptUrl'] as const)(
+        "keeps %s optional, string-valued and absent from unrelated partial updates",
+        field => {
+            const input = {name: "Partner", user: "user-id"}
+            const output = {...input, _id: "partner-id", user: {_id: input.user, username: "User"}}
+
+            for (const [schema, data] of [[BusinessPartnerBaseSchema, input], [BusinessPartnerSchema, output]] as const) {
+                expect(schema.parse(data)).not.toHaveProperty(field)
+                expect(schema.safeParse({...data, [field]: 123}).success).toBe(false)
+            }
+            expect(new BusinessPartnerModel(input).toObject()).not.toHaveProperty(field)
+            expect(BusinessPartnerBaseSchema.partial().parse({name: "Renamed"})).not.toHaveProperty(field)
+            expect(BusinessPartnerBaseSchema.partial().parse({[field]: ""})).toHaveProperty(field, "")
+        }
+    )
+
     it("matches the new contracts in Mongo models", () => {
         for (const field of removedProjectFields) {
             expect(ProjectModel.schema.path(field)).toBeUndefined()

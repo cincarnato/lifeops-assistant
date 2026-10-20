@@ -7,6 +7,12 @@ interface IBusinessPartnerBase {
     taxIdNumber?: string
     taxAddress?: string
     taxEmail?: string
+    bankCbu?: string
+    bankAlias?: string
+    bankAccount?: string
+    bankName?: string
+    paymentReceiptEmail?: string
+    paymentReceiptUrl?: string
     description?: string
     roles: Array<'client' | 'provider'>
     priority?: string
@@ -30,6 +36,12 @@ interface IBusinessPartner {
     taxIdNumber?: string
     taxAddress?: string
     taxEmail?: string
+    bankCbu?: string
+    bankAlias?: string
+    bankAccount?: string
+    bankName?: string
+    paymentReceiptEmail?: string
+    paymentReceiptUrl?: string
     description?: string
     roles: Array<'client' | 'provider'>
     priority?: string

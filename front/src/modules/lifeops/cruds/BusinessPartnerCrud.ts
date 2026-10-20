@@ -105,7 +105,13 @@ class BusinessPartnerCrud extends EntityCrud implements IEntityCrud {
       {name: 'taxIdType', type: 'string', label: 'taxIdType', default: '', groupTab: 'FACTURACION', cols: 12, md: 6, lg: 6},
       {name: 'taxIdNumber', type: 'string', label: 'taxIdNumber', default: '', groupTab: 'FACTURACION', cols: 12, md: 6, lg: 6},
       {name: 'taxEmail', type: 'string', label: 'taxEmail', default: '', groupTab: 'FACTURACION', cols: 12, md: 12, lg: 12},
-      {name: 'taxAddress', type: 'longString', label: 'taxAddress', default: '', rows: 2, groupTab: 'FACTURACION', cols: 12, md: 12, lg: 12}
+      {name: 'taxAddress', type: 'longString', label: 'taxAddress', default: '', rows: 2, groupTab: 'FACTURACION', cols: 12, md: 12, lg: 12},
+            {name: 'bankCbu', type: 'string', label: 'bankCbu', default: '', groupTab: 'PAYMENTS', cols: 12, md: 6, lg: 6},
+            {name: 'bankAlias', type: 'string', label: 'bankAlias', default: '', groupTab: 'PAYMENTS', cols: 12, md: 6, lg: 6},
+            {name: 'bankAccount', type: 'string', label: 'bankAccount', default: '', groupTab: 'PAYMENTS', cols: 12, md: 6, lg: 6},
+            {name: 'bankName', type: 'string', label: 'bankName', default: '', groupTab: 'PAYMENTS', cols: 12, md: 6, lg: 6},
+            {name: 'paymentReceiptEmail', type: 'string', label: 'paymentReceiptEmail', default: '', groupTab: 'PAYMENTS', cols: 12, md: 12, lg: 12},
+            {name: 'paymentReceiptUrl', type: 'string', label: 'paymentReceiptUrl', default: '', groupTab: 'PAYMENTS', cols: 12, md: 12, lg: 12}
 // {name:'user',type:'ref',label:'user',default:null,ref: 'User',refDisplay: 'username'},
     ]
   }
@@ -165,7 +171,7 @@ class BusinessPartnerCrud extends EntityCrud implements IEntityCrud {
   }
 
   get tabs() {
-    return ['BASIC', 'FACTURACION']
+    return ['BASIC', 'FACTURACION', 'PAYMENTS']
   }
 
   get menus() {

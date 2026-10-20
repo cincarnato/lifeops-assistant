@@ -38,6 +38,24 @@ const entitySchema: IEntitySchema = {
             type: "string",
             search: true,
         },
+        bankCbu: {
+            type: "string",
+        },
+        bankAlias: {
+            type: "string",
+        },
+        bankAccount: {
+            type: "string",
+        },
+        bankName: {
+            type: "string",
+        },
+        paymentReceiptEmail: {
+            type: "string",
+        },
+        paymentReceiptUrl: {
+            type: "string",
+        },
         description: {
             type: "longString",
             search: true,
