@@ -23,7 +23,7 @@ const tooltip = computed(() => `${t('task.field.description')}: ${props.text}`)
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
   line-clamp: 3;
-  flex: 0 0 100%;
+  flex: 0 0 auto;
   width: 100%;
   min-width: 0;
   max-height: 4.5em;

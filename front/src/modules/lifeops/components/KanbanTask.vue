@@ -2496,6 +2496,7 @@ onBeforeUnmount(() => {
 }
 
 .kanban-card__properties {
+  flex: 0 0 auto;
   align-items: flex-start;
   display: flex;
   flex-wrap: wrap;
