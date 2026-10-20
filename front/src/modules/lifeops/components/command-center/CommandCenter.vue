@@ -159,7 +159,6 @@ onMounted(async () => {
   gap: 24px;
   padding-bottom: 2px;
   margin-bottom: 0;
-  border-bottom: 1px solid var(--cc-border);
 }
 .cc-page-heading {
   min-width: 0;
