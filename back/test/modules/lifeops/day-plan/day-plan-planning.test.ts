@@ -6,6 +6,8 @@ import DayPlanService from '../../../../src/modules/lifeops/services/DayPlanServ
 import DayPlanJob from '../../../../src/modules/lifeops/jobs/DayPlanJob.js';
 import DayPlanServiceFactory from '../../../../src/modules/lifeops/factory/services/DayPlanServiceFactory.js';
 import TaskServiceFactory from '../../../../src/modules/lifeops/factory/services/TaskServiceFactory.js';
+import TaskStatusServiceFactory from '../../../../src/modules/lifeops/factory/services/TaskStatusServiceFactory.js';
+import {TaskStatusBaseSchema} from '../../../../src/modules/lifeops/schemas/TaskStatusSchema.js';
 import GoogleCalendarServiceFactory from '../../../../src/modules/google/factory/GoogleCalendarServiceFactory.js';
 import GoogleCalendarService from '../../../../src/modules/google/services/GoogleCalendarService.js';
 import DayPlanRoutes from '../../../../src/modules/lifeops/routes/DayPlanRoutes.js';
@@ -23,6 +25,7 @@ describe('DayPlan planning', () => {
     let service: DayPlanService;
     let repository: any;
     let taskService: any;
+        let taskStatusService: any;
     let calendar: any;
     let plan: any;
 
@@ -45,7 +48,12 @@ describe('DayPlan planning', () => {
             getPrimaryEvent: vi.fn(async () => null),
             createEvent: vi.fn(async ({event}) => ({...event, status: 'confirmed'})),
         };
-        vi.spyOn(TaskServiceFactory, 'instance', 'get').mockReturnValue(taskService);
+        taskStatusService = {fetchAll: vi.fn(async () => [
+                    {name: 'Pendiente'}, {name: 'Trabajando', startsTask: true},
+                    {name: 'Finalizada', completesTask: true}, {name: 'Guardada', archivesTask: true},
+                ])};
+                vi.spyOn(TaskStatusServiceFactory, 'instance', 'get').mockReturnValue(taskStatusService);
+                vi.spyOn(TaskServiceFactory, 'instance', 'get').mockReturnValue(taskService);
         vi.spyOn(DayPlanServiceFactory, 'instance', 'get').mockReturnValue(service);
         vi.spyOn(GoogleCalendarServiceFactory, 'instance', 'get').mockReturnValue(calendar);
     });
@@ -62,6 +70,55 @@ describe('DayPlan planning', () => {
         expect(DayPlanPatchSchema.parse({})).toEqual({});
         await service.updatePartial(planId, {tasks: [{task: ids[0], priority: null}]});
         expect(repository.updatePartial).toHaveBeenCalledWith(planId, {tasks: [{task: ids[0], priority: null}], status: 'BORRADOR'});
+    });
+
+    it.each(['A1', 'A2', 'A3', 'DESEABLE', 'COMPROMETIDO'])('starts selected %s tasks through their service using the configured status', async selection => {
+        taskService.findById.mockImplementation(async id => ({_id: id, user, status: 'Pendiente'}));
+        const entry = {task: ids[0], ...(selection.startsWith('A') ? {priority: selection} : {decision: selection})};
+        await service.updatePartial(planId, {tasks: [entry, {task: ids[1], decision: 'PENDIENTE'}, {task: ids[2], decision: 'DESCARTADO'}]});
+        expect(taskService.updatePartial).toHaveBeenCalledExactlyOnceWith(ids[0], {status: 'Trabajando'});
+    });
+
+    it.each([
+        {status: 'Trabajando'}, {status: 'Finalizada'}, {status: 'Guardada'},
+        {status: 'Pendiente', completedAt: new Date()}, {status: 'Pendiente', archivedAt: new Date()},
+    ])('does not restart working, completed or archived tasks: %j', async state => {
+        taskService.findById.mockImplementation(async id => ({_id: id, user, ...state}));
+        await service.updatePartial(planId, {tasks: [{task: ids[0], priority: 'A1'}]});
+        expect(taskService.updatePartial).not.toHaveBeenCalled();
+    });
+
+    it('keeps unselected and status-only updates free from task state changes', async () => {
+        await service.updatePartial(planId, {status: 'VISTO'});
+        await service.updatePartial(planId, {tasks: [{task: ids[0], decision: 'PENDIENTE'}]});
+        expect(taskStatusService.fetchAll).not.toHaveBeenCalled();
+        expect(taskService.updatePartial).not.toHaveBeenCalled();
+    });
+
+    it('preserves task states if no working status is configured', async () => {
+        taskStatusService.fetchAll.mockResolvedValue([{name: 'Pendiente'}]);
+        await service.updatePartial(planId, {tasks: [{task: ids[0], decision: 'DESEABLE'}]});
+        expect(taskService.updatePartial).not.toHaveBeenCalled();
+    });
+
+    it('starts selected tasks on create and full update as well', async () => {
+        repository.update = vi.fn(async (_id, data) => ({...plan, ...data}));
+        const payload = {user, date: plan.date, tasks: [{task: ids[0], priority: 'A1' as const}]};
+        await service.create(payload);
+        await service.update(planId, payload);
+        expect(taskService.updatePartial).toHaveBeenCalledTimes(2);
+        expect(taskService.updatePartial).toHaveBeenCalledWith(ids[0], {status: 'Trabajando'});
+    });
+
+    it('does not persist a selection when starting its task fails', async () => {
+        taskService.updatePartial.mockRejectedValue(new Error('failed task update'));
+        await expect(service.updatePartial(planId, {tasks: [{task: ids[0], priority: 'A1'}]})).rejects.toThrow('failed task update');
+        expect(repository.updatePartial).not.toHaveBeenCalled();
+    });
+
+    it('does not inject startsTask into omitted status inputs', () => {
+        expect(TaskStatusBaseSchema.parse({name: 'Custom'})).not.toHaveProperty('startsTask');
+        expect(TaskStatusBaseSchema.parse({name: 'Custom', startsTask: false}).startsTask).toBe(false);
     });
 
     it('rejects duplicate tasks, duplicate ranks and invalid priority values', () => {

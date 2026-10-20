@@ -168,6 +168,7 @@ try {
 }
 
 const page = read('pages/DayPlanningPage.vue')
+assert.match(page, /const date = ref\(localDate\(\)\)/, 'Planning must initially select today in local time')
 const messages = loadModule('i18n/DayPlan-i18n.ts').default
 for (const key of ['priorities', 'desirablesHint', 'proposalsHint', 'calendarEvents', 'dailyHabits', 'priorityProgress', 'emptyPriority', 'removeAssignment', 'proposals', 'noProposals', 'desirables', 'noDesirables', 'moreProposals', 'otherProposals', 'retry', 'saving', 'saved', 'unsaved']) {
   for (const language of ['es', 'en']) assert.ok(messages[language].dayplan.ui[key], `${language}: ${key}`)

@@ -6,6 +6,7 @@ import type {ZodObject, ZodRawShape} from "zod";
 import {BadRequestError, NotFoundError, ValidationError, ZodErrorToValidationError} from '@drax/common-back';
 import {DayPlanPatchSchema, DayPlanPlanningSchema, DayPlanScheduleTaskSchema, DayPlanAvailableSlotsSchema} from '../schemas/DayPlanSchema.js';
 import TaskServiceFactory from '../factory/services/TaskServiceFactory.js';
+import TaskStatusServiceFactory from '../factory/services/TaskStatusServiceFactory.js';
 import GoogleCalendarServiceFactory from '../../google/factory/GoogleCalendarServiceFactory.js';
 import DayPlanJobFactory from '../factory/services/DayPlanJobFactory.js';
 import {DayPlanProposalsSchema} from '../schemas/DayPlanSchema.js';
@@ -35,6 +36,7 @@ class DayPlanService extends AbstractService<IDayPlan, IDayPlanBase, IDayPlanBas
     async create(data: IDayPlanBase): Promise<IDayPlan> {
         const parsed = await this.validateInputCreate(data);
         await this.validatePlan(parsed);
+        await this.startSelectedTasks(parsed.tasks);
         return super.create({...parsed, status: this.derivedStatus(parsed)});
     }
 
@@ -42,6 +44,7 @@ class DayPlanService extends AbstractService<IDayPlan, IDayPlanBase, IDayPlanBas
         return this.withPlanLock(id, async () => {
             const parsed = await this.validateInputUpdate(data);
             const plan = await this.validateChange(id, parsed);
+            await this.startSelectedTasks(parsed.tasks);
             return super.update(id, {...parsed, status: this.derivedStatus(plan)});
         });
     }
@@ -53,7 +56,26 @@ class DayPlanService extends AbstractService<IDayPlan, IDayPlanBase, IDayPlanBas
     private async persistPartial(id: string, data: any): Promise<IDayPlan> {
         const parsed = await this.validateInputUpdatePartial(data);
         const plan = await this.validateChange(id, parsed);
+        await this.startSelectedTasks(parsed.tasks);
         return super.updatePartial(id, {...parsed, status: this.derivedStatus(plan)});
+    }
+
+    private async startSelectedTasks(tasks: IDayPlanBase['tasks']): Promise<void> {
+        const selected = (tasks ?? []).filter(item => item.decision !== 'DESCARTADO' &&
+            (item.priority || item.decision === 'DESEABLE' || item.decision === 'COMPROMETIDO'));
+        if (!selected.length) return;
+
+        const statuses = await TaskStatusServiceFactory.instance.fetchAll();
+        const workingStatus = statuses.find(status => status.startsTask && !status.completesTask && !status.archivesTask);
+        if (!workingStatus) return;
+
+        const taskService = TaskServiceFactory.instance;
+        for (const entry of selected) {
+            const task = await taskService.findById(this.id(entry.task));
+            const status = statuses.find(status => status.name === task?.status);
+            if (!task || task.completedAt || task.archivedAt || status?.completesTask || status?.archivesTask || status?.startsTask) continue;
+            await taskService.updatePartial(this.id(entry.task), {status: workingStatus.name});
+        }
     }
 
     private derivedStatus(plan: IDayPlanBase): string {

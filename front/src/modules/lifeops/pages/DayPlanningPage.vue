@@ -18,7 +18,7 @@ function localDate(offset = 0, base = new Date()) {
   date.setDate(date.getDate() + offset)
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 }
-const date = ref(localDate(-1))
+const date = ref(localDate())
 const plan = ref<IDayPlan | null>(null)
 const snapshot = ref('null')
 const busy = ref(false)

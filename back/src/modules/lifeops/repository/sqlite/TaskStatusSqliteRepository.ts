@@ -10,7 +10,7 @@ class TaskStatusSqliteRepository extends AbstractSqliteRepository<ITaskStatus, I
     protected tableName: string = 'TaskStatus';
     protected dataBaseFile: string;
     protected searchFields: string[] = ['name', 'description'];
-    protected booleanFields: string[] = ['completesTask', 'archivesTask'];
+    protected booleanFields: string[] = ['startsTask', 'completesTask', 'archivesTask'];
     protected jsonFields: string[] = [];
     protected identifier: string = '_id';
     protected populateFields = [
@@ -21,6 +21,7 @@ class TaskStatusSqliteRepository extends AbstractSqliteRepository<ITaskStatus, I
         {name: "name", type: "TEXT", unique: undefined, primary: false},
 {name: "description", type: "TEXT", unique: undefined, primary: false},
 {name: "color", type: "TEXT", unique: false, primary: false},
+{name: "startsTask", type: "INTEGER", unique: false, primary: false},
 {name: "completesTask", type: "INTEGER", unique: false, primary: false},
 {name: "archivesTask", type: "INTEGER", unique: false, primary: false}
     ]

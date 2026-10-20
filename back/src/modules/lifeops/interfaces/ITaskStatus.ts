@@ -3,6 +3,7 @@ interface ITaskStatusBase {
     name: string
     description?: string
     color?: string
+    startsTask?: boolean
     completesTask?: boolean
     archivesTask?: boolean
     createdAt?: Date
@@ -14,6 +15,7 @@ interface ITaskStatus {
     name: string
     description?: string
     color?: string
+    startsTask?: boolean
     completesTask?: boolean
     archivesTask?: boolean
     createdAt?: Date

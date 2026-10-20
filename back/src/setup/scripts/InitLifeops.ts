@@ -73,14 +73,22 @@ async function InitLifeops() {
         {name: "Sistema", description: "Tarea generada automaticamente por el sistema."}
     ]);
 
-    await seedIfEmpty(TaskStatusServiceFactory.instance, [
+    const taskStatusService = TaskStatusServiceFactory.instance;
+    await seedIfEmpty(taskStatusService, [
         {name: "Pendiente", description: "La tarea aun no fue iniciada.", color: "#64748b"},
-        {name: "En progreso", description: "La tarea esta siendo trabajada.", color: "#3b82f6"},
+        {name: "En progreso", description: "La tarea esta siendo trabajada.", color: "#3b82f6", startsTask: true},
         {name: "En espera", description: "La tarea depende de otra accion o respuesta.", color: "#eab308"},
         {name: "Completada", description: "La tarea fue finalizada.", color: "#22c55e", completesTask: true},
         {name: "Archivada", description: "La tarea fue finalizada.", color: "#8b5cf6", archivesTask: true},
         {name: "Cancelada", description: "La tarea ya no corresponde realizarla.", color: "#ef4444"}
     ]);
+
+    const taskStatuses = await taskStatusService.fetchAll();
+    for (const status of taskStatuses) {
+        if (status.name === "En progreso" && status.startsTask === undefined) {
+            await taskStatusService.updatePartial(status._id, {startsTask: true});
+        }
+    }
 
     await seedIfEmpty(TaskTypeServiceFactory.instance, [
         {name: "Desarrollo", description: "Tareas orientadas a crear, modificar o mejorar productos, sistemas, funcionalidades, automatizaciones o soluciones técnicas."},
