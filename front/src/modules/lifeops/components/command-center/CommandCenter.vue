@@ -106,7 +106,7 @@ onMounted(async () => {
         <command-center-attention :memory="memory" :attention="attention" :automation="automation" :visible="visibleTabs" @open="(tab, item) => open(tab, 'view', item)" @another="center.anotherMemory" @retry-task="center.loadAttention" @retry-automation="center.loadAutomation" />
       </aside>
       <div class="cc-workspace-frame">
-        <command-center-workspace v-if="visibleEntities.length" :tab="activeTab" :entities="visibleEntities" :entity="activeEntity" :state="state" :colors="colors" :can-create="can(activeTab, 'create')" :can-update="can(activeTab, 'update')" :can-delete="can(activeTab, 'delete')" :busy-id="busyId" @update:tab="center.selectTab" @load="center.load()" @create="open(activeTab, 'create')" @open="open(activeTab, 'view', $event)" @edit="open(activeTab, 'edit', $event)" @delete="open(activeTab, 'delete', $event)" @toggle="toggle" @navigate="navigate" @open-reference="(tab, id) => open(tab, 'view', undefined, id)" />
+        <command-center-workspace v-if="visibleEntities.length" :tab="activeTab" :entities="visibleEntities" :entity="activeEntity" :state="state" :colors="colors" :can-create="can(activeTab, 'create')" :can-update="can(activeTab, 'update')" :can-delete="can(activeTab, 'delete')" :busy-id="busyId" @update:tab="center.selectTab" @changed="center.changed('tasks')" @load="center.load()" @create="open(activeTab, 'create')" @open="open(activeTab, 'view', $event)" @edit="open(activeTab, 'edit', $event)" @delete="open(activeTab, 'delete', $event)" @toggle="toggle" @navigate="navigate" @open-reference="(tab, id) => open(tab, 'view', undefined, id)" />
         <v-alert v-else type="info" variant="tonal" :text="t('commandCenter.noPermissions')" />
       </div>
     </div>

@@ -72,6 +72,8 @@ type RenderedTaskCardProperty = TaskCardProperty & {
   color?: string
 }
 
+const emit = defineEmits<{changed: []}>();
+
 const taskCrud = TaskCrud.instance;
 const taskProvider = TaskProvider.instance;
 const taskStatusProvider = TaskStatusProvider.instance;
@@ -790,6 +792,7 @@ async function createInlineTask(status: string) {
     const createdTask = await taskProvider.create({title, status} as any);
     tasks.value = [createdTask, ...tasks.value];
     newTaskTitles.value[status] = "";
+    emit('changed');
   } catch (e: any) {
     error.value = e?.message || "No se pudo crear la tarea";
   } finally {
@@ -884,6 +887,7 @@ function replaceTask(updatedTask: ITask) {
   if (index >= 0) {
     tasks.value.splice(index, 1, updatedTask);
   }
+  emit('changed');
 }
 
 function clearTaskDrag() {
@@ -1019,6 +1023,7 @@ function openDelete(task: ITask) {
 async function onFormSaved() {
   dialog.value = false;
   await loadBoard();
+  emit('changed');
 }
 
 async function clearBoardFilters() {
@@ -1036,6 +1041,8 @@ watch(visibleColumns, columns => {
     activeMobileStatus.value = columns[0].key;
   }
 }, {immediate: true});
+
+defineExpose({refresh: loadBoard});
 
 watch(columnWidth, saveColumnWidth);
 

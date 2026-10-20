@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed} from 'vue'
+import {computed, defineAsyncComponent, ref, watch} from 'vue'
 import {useI18n} from 'vue-i18n'
 import {useDisplay} from 'vuetify'
 import CommandCenterCell from './CommandCenterCell.vue'
@@ -10,6 +10,10 @@ import type {CenterDestination, CenterEntity, CenterItem, CenterTab} from './com
 import type {useCommandCenter} from './useCommandCenter'
 import MemoryTypeCombobox from '../../comboboxes/MemoryTypeCombobox.vue'
 import LifeAreaCombobox from '../../comboboxes/LifeAreaCombobox.vue'
+
+const KanbanTask = defineAsyncComponent(() => import('../KanbanTask.vue'))
+const taskView = ref<'list' | 'kanban'>('list')
+const kanban = ref<{refresh: () => Promise<void>}>()
 
 const props = defineProps<{
   entities: CenterEntity[]
@@ -23,7 +27,7 @@ const props = defineProps<{
 }>()
 const tab = defineModel<CenterTab>('tab', {required: true})
 const emit = defineEmits<{
-  load: []; create: []; open: [item: CenterItem]; edit: [item: CenterItem]; delete: [item: CenterItem]
+  load: []; changed: []; create: []; open: [item: CenterItem]; edit: [item: CenterItem]; delete: [item: CenterItem]
   toggle: [item: CenterItem]; navigate: [destination: CenterDestination]; openReference: [tab: CenterTab, id: string]
 }>()
 const {t, te} = useI18n()
@@ -32,6 +36,20 @@ const visible = computed(() => props.entities.map(entity => entity.key))
 const serviceViews = computed(() => props.entities.filter(entity => ['services', 'serviceTransactions'].includes(entity.key)))
 const workspaceTabs = computed(() => centerWorkspaceTabs(props.entities))
 const mainTab = computed(() => ['services', 'serviceTransactions'].includes(tab.value) ? 'services' : tab.value)
+const showKanban = computed(() => props.entity.key === 'tasks' && taskView.value === 'kanban')
+
+watch(() => props.state.items, () => {
+  if (showKanban.value) void kanban.value?.refresh()
+})
+
+// Metric and relation links target the filtered, paginated view.
+watch(() => [props.state.preset, props.state.context], () => {
+  if (props.entity.key === 'tasks') taskView.value = 'list'
+})
+
+watch(taskView, view => {
+  if (view === 'list') emit('load')
+})
 const presets = computed(() => props.entity.key === 'tasks' ? ['today', 'overdue', 'urgent', 'unassigned']
   : props.entity.key === 'services' ? ['active', 'inactive']
   : props.entity.key === 'serviceTransactions' ? ['pending', 'paid']
@@ -87,9 +105,13 @@ function page(value: number) {
         </div>
         <div class="cc-heading flex-grow-1">
           <h2 class="text-h6 font-weight-bold">{{ t(`commandCenter.tabs.${entity.key}`) }}</h2>
-          <p class="cc-muted text-caption" aria-live="polite">{{ t('commandCenter.results', {count: state.total}) }}</p>
+          <p v-if="!showKanban" class="cc-muted text-caption" aria-live="polite">{{ t('commandCenter.results', {count: state.total}) }}</p>
         </div>
-        <div class="d-flex align-center ga-2">
+        <v-btn-toggle v-if="entity.key === 'tasks'" v-model="taskView" mandatory color="primary" variant="outlined" density="compact" :aria-label="t('commandCenter.taskViews.label')">
+          <v-btn value="list" prepend-icon="mdi-format-list-bulleted">{{ t('commandCenter.taskViews.list') }}</v-btn>
+          <v-btn value="kanban" prepend-icon="mdi-view-column-outline">{{ t('commandCenter.taskViews.kanban') }}</v-btn>
+        </v-btn-toggle>
+        <div v-if="!showKanban" class="d-flex align-center ga-2">
           <v-btn v-if="canCreate" class="cc-create text-none" variant="flat" prepend-icon="mdi-plus" @click="$emit('create')">{{ t('commandCenter.add') }}</v-btn>
           <v-btn icon="mdi-refresh" size="small" variant="outlined" class="cc-refresh" :loading="state.loading" :aria-label="t('commandCenter.refresh')" :title="t('commandCenter.refresh')" @click="$emit('load')" />
         </div>
@@ -97,6 +119,8 @@ function page(value: number) {
     <v-tabs v-if="mainTab === 'services'" class="cc-service-nav" :model-value="tab" color="primary" density="compact" show-arrows @update:model-value="tab = $event as CenterTab">
       <v-tab v-for="entry in serviceViews" :key="entry.key" :value="entry.key" class="text-none" :prepend-icon="entry.icon">{{ t(`commandCenter.tabs.${entry.key}`) }}</v-tab>
     </v-tabs>
+    <kanban-task v-if="showKanban" ref="kanban" @changed="$emit('changed')" />
+    <template v-else>
     <div class="cc-filters">
       <v-row dense align="center">
         <v-col cols="12" sm="6" md="5">
@@ -170,6 +194,7 @@ function page(value: number) {
         <span class="text-caption text-medium-emphasis">{{ t('commandCenter.results', {count: state.total}) }}</span>
         <v-pagination v-if="state.total > 10" :model-value="state.page" :length="Math.ceil(state.total / 10)" :total-visible="smAndDown ? 3 : 5" density="compact" size="small" @update:model-value="page" />
       </div>
+    </template>
     </template>
     </section>
   </v-card>
