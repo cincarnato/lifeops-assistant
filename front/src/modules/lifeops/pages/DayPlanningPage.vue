@@ -214,9 +214,9 @@ void load()
     <template v-if="plan">
       <DayPlan compact :item="plan" :operation="busy ? 'view' : 'edit'" :previous-task-ids="previousTaskIds" @schedule="openSchedule">
         <template #proposal-actions>
-          <div class="planning-proposal-actions d-flex flex-column ga-2 w-100 mt-3">
-            <v-btn block size="small" rounded="lg" color="primary" prepend-icon="mdi-plus" :disabled="busy" variant="tonal" @click="proposals('more')">{{ t('dayplan.ui.moreProposals') }}</v-btn>
-            <v-btn block size="small" rounded="lg" color="primary" prepend-icon="mdi-swap-horizontal" :disabled="busy" variant="text" @click="proposals('other')">{{ t('dayplan.ui.otherProposals') }}</v-btn>
+          <div class="planning-proposal-actions d-flex ga-2 w-100 mt-3">
+            <v-btn class="flex-1-1-0" size="small" rounded="lg" color="primary" prepend-icon="mdi-plus" :disabled="busy" variant="tonal" @click="proposals('more')">{{ t('dayplan.ui.moreProposals') }}</v-btn>
+            <v-btn class="flex-1-1-0" size="small" rounded="lg" color="primary" prepend-icon="mdi-swap-horizontal" :disabled="busy" variant="text" @click="proposals('other')">{{ t('dayplan.ui.otherProposals') }}</v-btn>
           </div>
         </template>
       </DayPlan>
@@ -354,6 +354,11 @@ void load()
   white-space: normal;
   overflow-wrap: anywhere;
   min-width: 0;
+}
+
+.planning-proposal-actions :deep(.v-btn) {
+  min-width: 0;
+  padding-inline: 8px;
 }
 
 .planning-proposal-actions {
