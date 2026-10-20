@@ -144,10 +144,10 @@ onBeforeUnmount(() => {
               >
 
                 <div class="metrics-text flex-grow-1 text-start">
-                  <div class="metrics-title text-caption text-wrap">{{ t(`commandCenter.metrics.${metric.tab}_${metric.preset}`) }}</div>
-                  <div class="d-flex align-center ga-2">
-                    <v-progress-linear v-if="metric.loading" indeterminate :color="metric.color" class="my-2 flex-grow-1" />
-                    <div v-else class="metric-value font-weight-bold">{{ totalLabel(metric) }}</div>
+                  <div class="metrics-title text-caption text-wrap text-left">{{ t(`commandCenter.metrics.${metric.tab}_${metric.preset}`) }}</div>
+                  <div class="metric-summary">
+                    <v-progress-linear v-if="metric.loading" indeterminate :color="metric.color" class="metric-loading my-2" />
+                    <div v-else class="metric-value font-weight-bold text-center">{{ totalLabel(metric) }}</div>
                     <v-icon :icon="metric.icon" :color="metric.color" size="18" class="metric-icon flex-shrink-0" />
                   </div>
                 </div>
@@ -207,7 +207,22 @@ onBeforeUnmount(() => {
   overflow-wrap: anywhere;
 }
 
+.metric-summary {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) 18px;
+  align-items: center;
+  gap: 8px;
+}
+
+.metric-value,
+.metric-loading {
+  grid-column: 2;
+  min-width: 0;
+}
+
 .metric-icon {
+  grid-column: 3;
+  justify-self: end;
   opacity: 0.7;
 }
 
