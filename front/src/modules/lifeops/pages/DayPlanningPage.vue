@@ -158,27 +158,18 @@ void load()
 <template>
   <v-container fluid class="planning-page pa-3 pa-md-5">
     <v-card class="planning-header mb-4" variant="flat" rounded="xl">
-      <v-card-text class="pa-4 pa-md-5">
-        <v-row align="center" dense>
-          <v-col cols="12" md="6">
-            <div class="d-flex align-center ga-3">
-              <v-avatar color="primary" variant="tonal" rounded="lg" size="48">
-                <v-icon icon="mdi-calendar-check-outline" size="26" />
-              </v-avatar>
-              <h1 class="text-h6 font-weight-bold">{{ t('dayplan.ui.planning') }}</h1>
-            </div>
-          </v-col>
-          <v-col cols="12" md="6" class="d-flex justify-md-end">
-            <div v-if="plan" class="planning-save-state d-flex align-center ga-2 text-caption" :class="error ? 'text-error' : busy || dirty ? 'text-warning' : 'text-success'" role="status" aria-live="polite">
-              <v-icon :icon="error ? 'mdi-alert-circle-outline' : busy || dirty ? 'mdi-cloud-sync-outline' : 'mdi-cloud-check-outline'" size="18" />
-              <span>{{ t(error ? 'dayplan.ui.saveError' : busy ? 'dayplan.ui.saving' : dirty ? 'dayplan.ui.unsaved' : 'dayplan.ui.saved') }}</span>
-            </div>
-          </v-col>
-        </v-row>
-        <v-divider class="my-4" />
+      <v-card-text class="pa-3">
         <v-defaults-provider :defaults="{VBtn: {size: 'small', variant: 'text', rounded: 'lg'}}">
           <v-row align="center" dense role="group" :aria-label="t('dayplan.ui.planning')">
-            <v-col cols="12" lg="7">
+            <v-col cols="auto">
+              <div class="d-flex align-center ga-2">
+                <v-avatar color="primary" variant="tonal" rounded="lg" size="32">
+                  <v-icon icon="mdi-calendar-check-outline" size="20" />
+                </v-avatar>
+                <h1 class="text-subtitle-1 font-weight-bold">{{ t('dayplan.ui.planning') }}</h1>
+              </div>
+            </v-col>
+            <v-col cols="auto">
               <div class="planning-toolbar d-flex flex-wrap align-center ga-2">
                 <div class="planning-date-nav d-flex align-center ga-1 pa-1 rounded-lg">
                   <v-btn icon="mdi-chevron-left" :aria-label="t('dayplan.ui.previous')" :disabled="busy" @click="move(-1)" />
@@ -192,7 +183,7 @@ void load()
                 </div>
               </div>
             </v-col>
-            <v-col cols="12" lg="5" class="d-flex justify-lg-end">
+            <v-col cols="auto" class="ml-sm-auto">
               <v-tooltip :text="capacityError || t('dayplan.ui.capacityHint')">
                 <template #activator="{props}">
                   <v-btn v-bind="props" class="planning-capacity" :color="capacityError ? 'warning' : 'primary'" variant="tonal" :prepend-icon="capacityError ? 'mdi-clock-alert-outline' : 'mdi-clock-outline'" :loading="capacityBusy" :aria-label="capacityBusy ? t('dayplan.ui.capacityLoading') : capacityError || t('dayplan.ui.capacityHint')" @click="loadContext">
@@ -200,6 +191,12 @@ void load()
                   </v-btn>
                 </template>
               </v-tooltip>
+            </v-col>
+            <v-col v-if="plan" cols="auto">
+              <div class="planning-save-state d-flex align-center ga-1 text-caption" :class="error ? 'text-error' : busy || dirty ? 'text-warning' : 'text-success'" role="status" aria-live="polite">
+                <v-icon :icon="error ? 'mdi-alert-circle-outline' : busy || dirty ? 'mdi-cloud-sync-outline' : 'mdi-cloud-check-outline'" size="18" />
+                <span>{{ t(error ? 'dayplan.ui.saveError' : busy ? 'dayplan.ui.saving' : dirty ? 'dayplan.ui.unsaved' : 'dayplan.ui.saved') }}</span>
+              </div>
             </v-col>
           </v-row>
         </v-defaults-provider>
@@ -291,9 +288,6 @@ void load()
   border: 1px solid var(--planning-border);
 }
 
-.planning-header :deep(.v-divider) {
-  opacity: 0.08;
-}
 
 .planning-header :deep(.v-btn),
 .planning-proposal-actions :deep(.v-btn),
@@ -305,10 +299,7 @@ void load()
 }
 
 .planning-save-state {
-  padding: 8px 12px;
-  border: 1px solid var(--planning-border);
-  border-radius: 12px;
-  background: rgb(var(--v-theme-surface));
+  white-space: nowrap;
 }
 
 .planning-date-nav {
@@ -383,10 +374,6 @@ void load()
 }
 
 @media (max-width: 599px) {
-  .planning-date-nav,
-  .planning-capacity {
-    width: 100%;
-  }
 
   .planning-dialog-actions > .v-btn {
     width: 100%;
