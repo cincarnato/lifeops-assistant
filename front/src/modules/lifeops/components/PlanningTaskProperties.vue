@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {computed} from 'vue'
 import {useI18n} from 'vue-i18n'
+import TaskCardDescription from './TaskCardDescription.vue'
 import {useTaskImportance} from '../composables/useTaskImportance'
 import {formatPlanningTaskProperty, normalizePlanningTaskProperties, planningTaskProperties} from '../composables/usePlanningTaskProperties'
 
@@ -25,11 +26,14 @@ const properties = computed(() => {
     return {...property, value, tooltip: `${label}: ${value}`, color}
   }).filter(property => property.value)
 })
+const description = computed(() => properties.value.find(property => property.key === 'description'))
+const chipProperties = computed(() => properties.value.filter(property => property.key !== 'description'))
 </script>
 
 <template>
   <div v-if="properties.length" class="d-flex flex-wrap ga-1">
-    <v-tooltip v-for="property in properties" :key="property.key" :text="property.tooltip">
+    <TaskCardDescription v-if="description" :text="description.value" />
+    <v-tooltip v-for="property in chipProperties" :key="property.key" :text="property.tooltip">
       <template #activator="{props: activatorProps}">
         <v-chip v-bind="activatorProps" :prepend-icon="property.icon" :color="property.color"
                 :aria-label="property.tooltip" tabindex="0" size="small" variant="tonal"

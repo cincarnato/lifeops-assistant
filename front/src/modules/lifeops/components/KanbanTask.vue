@@ -10,6 +10,7 @@ import TaskStatusProvider from "../providers/TaskStatusProvider";
 import type {ITask} from "../interfaces/ITask";
 import type {ITaskStatus} from "../interfaces/ITaskStatus";
 import TaskForm from "./TaskForm.vue";
+import TaskCardDescription from './TaskCardDescription.vue';
 import ProjectCombobox from "../comboboxes/ProjectCombobox.vue";
 import GoalCombobox from "../comboboxes/GoalCombobox.vue";
 import TaskTypeCombobox from "../comboboxes/TaskTypeCombobox.vue";
@@ -509,7 +510,7 @@ function taskCardPropertyValue(task: ITask, key: TaskCardPropertyKey) {
 function renderedCardProperties(task: ITask) {
   return cardProperties
       .filter(property => visibleCardPropertyKeys.value.has(property.key))
-      .filter(property => property.key !== "priority" && property.key !== "dueDate")
+      .filter(property => property.key !== "priority" && property.key !== "dueDate" && property.key !== "description")
       .map<RenderedTaskCardProperty | null>(property => {
         const value = taskCardPropertyValue(task, property.key);
 
@@ -1349,6 +1350,7 @@ onBeforeUnmount(() => {
               <div class="kanban-title">
                 {{ task.title }}
               </div>
+              <TaskCardDescription v-if="isCardPropertyVisible('description') && task.description?.trim()" :text="task.description.trim()" />
 
               <div v-if="renderedCardProperties(task).length" class="kanban-card__properties">
                 <v-chip
@@ -1594,6 +1596,7 @@ onBeforeUnmount(() => {
                   <div class="kanban-title">
                     {{ task.title }}
                   </div>
+                  <TaskCardDescription v-if="isCardPropertyVisible('description') && task.description?.trim()" :text="task.description.trim()" />
 
                   <div v-if="renderedCardProperties(task).length" class="kanban-card__properties">
                     <template
@@ -2486,6 +2489,10 @@ onBeforeUnmount(() => {
   font-weight: 600;
   line-height: 1.35;
   padding: 8px 0 10px;
+}
+
+.kanban-card__body > :deep(.task-card-description) {
+  margin-bottom: 9px;
 }
 
 .kanban-card__properties {

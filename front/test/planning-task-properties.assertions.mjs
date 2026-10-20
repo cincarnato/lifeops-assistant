@@ -79,7 +79,7 @@ try {
   if (timezone === undefined) delete process.env.TZ
   else process.env.TZ = timezone
 }
-for (const name of ['PlanningTaskProperties', 'PlanningTaskPropertySelector']) {
+for (const name of ['PlanningTaskProperties', 'PlanningTaskPropertySelector', 'TaskCardDescription', 'KanbanTask']) {
   const source = read(`components/${name}.vue`)
   const {descriptor, errors} = parse(source)
   assert.deepEqual(errors, [])
@@ -105,4 +105,18 @@ const display = read('components/PlanningTaskProperties.vue')
 assert.match(display, /tabindex="0"/)
 assert.match(display, /:aria-label="property.tooltip"/)
 assert.match(display, /text-truncate/)
+assert.match(display, /properties.value.find\(property => property.key === 'description'\)/)
+assert.match(display, /properties.value.filter\(property => property.key !== 'description'\)/)
+assert.match(display, /<TaskCardDescription v-if="description" :text="description.value"/)
+assert.match(display, /v-for="property in chipProperties"/)
+const description = read('components/TaskCardDescription.vue')
+assert.doesNotMatch(description, /v-chip|text-truncate/)
+assert.match(description, /text-medium-emphasis/)
+assert.match(description, /-webkit-line-clamp: 3/)
+assert.match(description, /overflow: hidden/)
+assert.match(description, /white-space: pre-line/)
+assert.match(description, /:aria-label="tooltip"/)
+const kanban = read('components/KanbanTask.vue')
+assert.equal((kanban.match(/<TaskCardDescription v-if="isCardPropertyVisible\('description'\) && task.description\?\.trim\(\)"/g) || []).length, 2, 'Mobile and desktop Kanban respect description visibility')
+assert.match(kanban, /property.key !== "description"/, 'Description is not duplicated as a Kanban chip')
 console.log('Planning task properties assertions passed (catalog, persistence, instance isolation, formatting, UTC dates and SFC compilation).')
