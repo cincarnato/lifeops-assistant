@@ -26,7 +26,7 @@ const appName = computed(() => settingStore.getSettingValueByKey('AppName'))
     <v-navigation-drawer v-if="isAuthenticated()" v-model="drawer" temporary>
       <sidebar-menu :menu="menu" />
     </v-navigation-drawer>
-    <identity-profile-drawer v-if="isAuthenticated()" v-model="profileDrawer" />
+    <identity-profile-drawer v-if="isAuthenticated()" v-model="profileDrawer" temporary />
 
     <v-main class="bottom-layout__main">
       <router-view />
