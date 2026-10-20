@@ -3,7 +3,7 @@ import {computed, ref} from 'vue'
 import {useI18n} from 'vue-i18n'
 import {DEFAULT_PLANNING_TASK_PROPERTIES, normalizePlanningTaskProperties, planningTaskProperties} from '../composables/usePlanningTaskProperties'
 
-const props = defineProps<{modelValue: string[]}>()
+const props = defineProps<{modelValue: string[]; iconOnly?: boolean}>()
 const emit = defineEmits<{'update:modelValue': [value: string[]]}>()
 const {t} = useI18n()
 const open = ref(false)
@@ -20,8 +20,10 @@ function toggle(key: string, checked: boolean | null) {
 <template>
   <v-dialog v-model="open" max-width="640" scrollable>
     <template #activator="{props: activatorProps}">
-      <v-btn v-bind="activatorProps" prepend-icon="mdi-tune-variant" variant="text">
-        {{ t('dayplan.ui.taskProperties') }}
+      <v-btn v-bind="activatorProps" :icon="iconOnly" :prepend-icon="iconOnly ? undefined : 'mdi-tune-variant'" :aria-label="t('dayplan.ui.taskProperties')" variant="text">
+        <v-icon v-if="iconOnly" icon="mdi-tune-variant" />
+        <v-tooltip v-if="iconOnly" activator="parent" :text="t('dayplan.ui.taskProperties')" />
+        <template v-if="!iconOnly">{{ t('dayplan.ui.taskProperties') }}</template>
       </v-btn>
     </template>
     <v-card :title="t('dayplan.ui.taskProperties')" rounded="xl">

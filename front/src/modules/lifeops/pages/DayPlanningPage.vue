@@ -3,12 +3,15 @@ import {computed, ref, watch, onBeforeUnmount} from 'vue'
 import {onBeforeRouteLeave} from 'vue-router'
 import {useI18n} from 'vue-i18n'
 import DayPlan from '../components/DayPlan.vue'
+import PlanningTaskPropertySelector from '../components/PlanningTaskPropertySelector.vue'
+import {usePlanningTaskProperties} from '../composables/usePlanningTaskProperties'
 import DayPlanProvider from '../providers/DayPlanProvider'
 import type {IDayPlan} from '../interfaces/IDayPlan'
 
 import {serialQueue, persistLatest} from '../components/planningPersistence'
 
 const {t, locale} = useI18n()
+const {visibleProperties} = usePlanningTaskProperties()
 const provider = DayPlanProvider.instance
 function localDate(offset = 0, base = new Date()) {
   const date = new Date(base)
@@ -193,6 +196,9 @@ void load()
               </v-tooltip>
             </v-col>
             <v-col v-if="plan" cols="auto">
+              <PlanningTaskPropertySelector v-model="visibleProperties" icon-only />
+            </v-col>
+            <v-col v-if="plan" cols="auto">
               <div class="planning-save-state d-flex align-center ga-1 text-caption" :class="error ? 'text-error' : busy || dirty ? 'text-warning' : 'text-success'" role="status" aria-live="polite">
                 <v-icon :icon="error ? 'mdi-alert-circle-outline' : busy || dirty ? 'mdi-cloud-sync-outline' : 'mdi-cloud-check-outline'" size="18" />
                 <span>{{ t(error ? 'dayplan.ui.saveError' : busy ? 'dayplan.ui.saving' : dirty ? 'dayplan.ui.unsaved' : 'dayplan.ui.saved') }}</span>
@@ -209,7 +215,7 @@ void load()
     </v-alert>
     <v-alert v-if="previousError" type="warning" variant="tonal" rounded="lg" density="compact" class="mb-4 text-body-2">{{ previousError }}</v-alert>
     <template v-if="plan">
-      <DayPlan compact :item="plan" :operation="busy ? 'view' : 'edit'" :previous-task-ids="previousTaskIds" @schedule="openSchedule">
+      <DayPlan compact :visible-task-properties="visibleProperties" :item="plan" :operation="busy ? 'view' : 'edit'" :previous-task-ids="previousTaskIds" @schedule="openSchedule">
         <template #proposal-actions>
           <div class="planning-proposal-actions d-flex ga-2 w-100 mt-3">
             <v-btn class="flex-1-1-0" size="small" rounded="lg" color="primary" prepend-icon="mdi-plus" :disabled="busy" variant="tonal" @click="proposals('more')">{{ t('dayplan.ui.moreProposals') }}</v-btn>

@@ -21,6 +21,7 @@ const props = defineProps<{
   previousTaskIds?: string[]
   operation?: string
   compact?: boolean
+  visibleTaskProperties?: string[]
 }>()
 
 const emit = defineEmits<{schedule: [taskId: string]}>()
@@ -260,9 +261,9 @@ function getRefText(value: unknown, fields: string[] = ["title", "name", "userna
       {{ saveError }}
     </v-alert>
 
-    <div class="d-flex flex-wrap justify-end align-center ga-2 mb-3">
+    <div v-if="taskEditBusy || visibleTaskProperties === undefined" class="d-flex flex-wrap justify-end align-center ga-2 mb-3">
       <v-progress-circular v-if="taskEditBusy" indeterminate color="primary" size="18" width="2" :aria-label="t('dayplan.ui.loadingTask')" />
-      <PlanningTaskPropertySelector v-model="visibleProperties" />
+      <PlanningTaskPropertySelector v-if="visibleTaskProperties === undefined" v-model="visibleProperties" />
     </div>
     <v-alert v-if="taskEditError" type="error" variant="tonal" rounded="lg" class="mb-4" closable @click:close="taskEditError = ''">
       {{ taskEditError }}
@@ -424,12 +425,12 @@ function getRefText(value: unknown, fields: string[] = ["title", "name", "userna
       </v-col>
 
       <v-col cols="12" lg="6">
-        <TaskPlanningBoard section="planned" :tasks="item.tasks || []" :readonly="isDecisionReadonly" :visible-properties="visibleProperties" :can-edit-task="canEditTask" :task-edit-busy="taskEditBusy" @edit-task="openTaskEditor" @schedule="emit('schedule', $event)" />
+        <TaskPlanningBoard section="planned" :tasks="item.tasks || []" :readonly="isDecisionReadonly" :visible-properties="visibleTaskProperties ?? visibleProperties" :can-edit-task="canEditTask" :task-edit-busy="taskEditBusy" @edit-task="openTaskEditor" @schedule="emit('schedule', $event)" />
       </v-col>
 
       <v-col cols="12" lg="3">
         <div class="d-flex flex-column ga-4">
-          <TaskPlanningBoard section="proposals" :tasks="item.tasks || []" :readonly="isDecisionReadonly" :previous-task-ids="previousTaskIds" :visible-properties="visibleProperties" :can-edit-task="canEditTask" :task-edit-busy="taskEditBusy" @edit-task="openTaskEditor">
+          <TaskPlanningBoard section="proposals" :tasks="item.tasks || []" :readonly="isDecisionReadonly" :previous-task-ids="previousTaskIds" :visible-properties="visibleTaskProperties ?? visibleProperties" :can-edit-task="canEditTask" :task-edit-busy="taskEditBusy" @edit-task="openTaskEditor">
             <template #proposal-actions><slot name="proposal-actions" /></template>
           </TaskPlanningBoard>
           <v-card class="day-plan__panel day-plan__suggestions" variant="outlined" rounded="xl">
