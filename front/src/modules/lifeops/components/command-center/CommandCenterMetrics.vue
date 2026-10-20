@@ -101,10 +101,10 @@ onBeforeUnmount(() => {
     @focusin="focused = true"
     @focusout="onFocusOut"
   >
-    <div class="d-flex align-center justify-space-between ga-3 mb-2">
-      <h2 class="metrics-heading text-caption font-weight-bold">{{ t('commandCenter.design.overview') }}</h2>
-      <div class="metrics-controls d-flex align-center ga-1">
-        <span class="metrics-page text-caption mr-1" :aria-label="t('commandCenter.metricCarousel.page', {current: page + 1, total: pages.length})">{{ page + 1 }} / {{ pages.length }}</span>
+    <div class="metrics-strip d-flex align-stretch ga-2">
+      <div class="metrics-controls d-flex flex-column align-center justify-center ga-1">
+        <span class="metrics-page text-caption" :aria-label="t('commandCenter.metricCarousel.page', {current: page + 1, total: pages.length})">{{ page + 1 }} / {{ pages.length }}</span>
+        <div class="d-flex align-center">
         <v-btn
           :icon="paused ? 'mdi-play' : 'mdi-pause'" size="x-small" variant="text"
           :disabled="pages.length < 2" :aria-pressed="paused"
@@ -126,9 +126,9 @@ onBeforeUnmount(() => {
           :title="t('commandCenter.metricCarousel.next')"
           @click="move(1)"
         />
+        </div>
       </div>
-    </div>
-    <v-window v-model="page" class="metrics-window" :aria-live="rotating ? 'off' : 'polite'">
+    <v-window v-model="page" class="metrics-window flex-grow-1" :aria-live="rotating ? 'off' : 'polite'">
       <v-window-item
         v-for="(group, index) in pages" :key="index" :value="index"
         :transition="reducedMotion ? false : undefined" :reverse-transition="reducedMotion ? false : undefined"
@@ -138,13 +138,13 @@ onBeforeUnmount(() => {
           <v-col v-for="metric in group" :key="`${metric.tab}-${metric.preset}`" :cols="12 / perPage">
             <v-card variant="flat" class="metric-card d-flex align-center" rounded="lg">
               <v-btn
-                variant="text" height="100%" class="metrics-navigation flex-grow-1 pa-3 text-none"
+                variant="text" height="100%" class="metrics-navigation flex-grow-1 pa-2 text-none"
                 :aria-label="`${t(`commandCenter.metrics.${metric.tab}_${metric.preset}`)}: ${metric.loading ? t('commandCenter.loading') : totalLabel(metric)}`"
                 @click="$emit('navigate', metric)"
               >
 
                 <div class="metrics-text flex-grow-1 text-start">
-                  <div class="d-flex align-start ga-2 mb-1">
+                  <div class="d-flex align-start ga-2">
                     <div class="metrics-title text-caption text-wrap flex-grow-1">{{ t(`commandCenter.metrics.${metric.tab}_${metric.preset}`) }}</div>
                     <v-icon :icon="metric.icon" :color="metric.color" size="18" class="metric-icon flex-shrink-0" />
                   </div>
@@ -163,7 +163,7 @@ onBeforeUnmount(() => {
         </v-row>
       </v-window-item>
     </v-window>
-
+    </div>
   </section>
 </template>
 
@@ -174,26 +174,25 @@ onBeforeUnmount(() => {
   min-width: 0;
 }
 
-.metrics-heading,
 .metrics-controls,
 .metrics-title {
   color: var(--cc-muted, rgba(var(--v-theme-on-surface), 0.65));
 }
 
-.metrics-heading {
-  letter-spacing: 0.06em;
-}
 
 .metrics-controls {
+  order: 1;
   flex-shrink: 0;
+  align-self: stretch;
+  margin-block: 4px;
   border: 1px solid var(--cc-border, rgba(var(--v-theme-on-surface), 0.12));
   border-radius: 10px;
-  padding: 2px 6px;
+  padding: 4px;
 }
 
 .metric-card {
   height: 100%;
-  min-height: 98px;
+  min-height: 68px;
   border: 1px solid var(--cc-border, rgba(var(--v-theme-on-surface), 0.12));
   background: var(--cc-soft, rgba(var(--v-theme-on-surface), 0.035));
 }
@@ -204,8 +203,7 @@ onBeforeUnmount(() => {
 }
 
 .metrics-title {
-  min-height: 2.5rem;
-  line-height: 1.25rem;
+  line-height: 1rem;
   overflow-wrap: anywhere;
 }
 
