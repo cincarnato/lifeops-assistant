@@ -144,12 +144,12 @@ onBeforeUnmount(() => {
               >
 
                 <div class="metrics-text flex-grow-1 text-start">
-                  <div class="d-flex align-start ga-2">
-                    <div class="metrics-title text-caption text-wrap flex-grow-1">{{ t(`commandCenter.metrics.${metric.tab}_${metric.preset}`) }}</div>
+                  <div class="metrics-title text-caption text-wrap">{{ t(`commandCenter.metrics.${metric.tab}_${metric.preset}`) }}</div>
+                  <div class="d-flex align-center ga-2">
+                    <v-progress-linear v-if="metric.loading" indeterminate :color="metric.color" class="my-2 flex-grow-1" />
+                    <div v-else class="metric-value font-weight-bold">{{ totalLabel(metric) }}</div>
                     <v-icon :icon="metric.icon" :color="metric.color" size="18" class="metric-icon flex-shrink-0" />
                   </div>
-                  <v-progress-linear v-if="metric.loading" indeterminate :color="metric.color" class="my-2" />
-                  <div v-else class="metric-value font-weight-bold">{{ totalLabel(metric) }}</div>
                 </div>
                 <v-tooltip activator="parent" location="bottom">{{ t(`commandCenter.metrics.${metric.tab}_${metric.preset}`) }} · {{ t(`commandCenter.metricHints.${metric.tab}_${metric.preset}`) }}</v-tooltip>
               </v-btn>
