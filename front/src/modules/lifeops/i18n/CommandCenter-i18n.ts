@@ -57,7 +57,7 @@ const messages = {
         memories_total: 'Todos los registros de memorias.',
       },
       fields: {
-        title: 'Título', name: 'Nombre', content: 'Contenido', type: 'Tipo', lifeArea: 'Área', tags: 'Etiquetas', source: 'Fuente', createdAt: 'Creada',
+        title: 'Título', name: 'Nombre', content: 'Contenido', type: 'Tipo', lifeArea: 'Área', tags: 'Etiquetas', source: 'Fuente', createdAt: 'Creada', updatedAt: 'Actualizada',
         status: 'Estado', priority: 'Prioridad', project: 'Proyecto', businessPartner: 'Socio comercial', dueDate: 'Vencimiento', scheduledDate: 'Programación',
         targetDate: 'Fecha objetivo', progressPercent: 'Avance declarado', timeHorizon: 'Horizonte', displayName: 'Nombre',
         emails: 'Emails', phones: 'Teléfonos', organization: 'Organización', roles: 'Roles', mainContact: 'Contacto principal',
@@ -125,7 +125,7 @@ const messages = {
         memories_total: 'All memory records.',
       },
       fields: {
-        title: 'Title', name: 'Name', content: 'Content', type: 'Type', lifeArea: 'Area', tags: 'Tags', source: 'Source', createdAt: 'Created',
+        title: 'Title', name: 'Name', content: 'Content', type: 'Type', lifeArea: 'Area', tags: 'Tags', source: 'Source', createdAt: 'Created', updatedAt: 'Updated',
         status: 'Status', priority: 'Priority', project: 'Project', businessPartner: 'Business Partner', dueDate: 'Due date', scheduledDate: 'Scheduled date',
         targetDate: 'Target date', progressPercent: 'Declared progress', timeHorizon: 'Horizon', displayName: 'Name',
         emails: 'Emails', phones: 'Phones', organization: 'Organization', roles: 'Roles', mainContact: 'Main contact',

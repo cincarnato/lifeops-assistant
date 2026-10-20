@@ -134,7 +134,16 @@ function saved(item?: CenterItem) {emit('saved', item)}
         <template v-else-if="operation === 'view' && props.entity.key === 'memories'">
           <h2 class="text-h6 mb-2">{{ item?.title }}</h2>
           <div class="memory-content">{{ item?.content }}</div>
-          <v-chip v-if="item?.type" class="mt-3" size="small">{{ item.type }}</v-chip>
+          <v-row class="mt-3" dense>
+            <v-col v-for="field in entity.fields.filter(field => !['title', 'content'].includes(field.name))" :key="field.name" cols="12" sm="6">
+              <div class="text-caption text-medium-emphasis">{{ field.label }}</div>
+              <command-center-cell :field="field.name" :value="item?.[field.name]" tab="memories" />
+            </v-col>
+            <v-col v-for="field in ['createdAt', 'updatedAt']" :key="field" cols="12" sm="6">
+              <div class="text-caption text-medium-emphasis">{{ t(`commandCenter.fields.${field}`) }}</div>
+              <command-center-cell :field="field" :value="item?.[field]" />
+            </v-col>
+          </v-row>
           <v-btn class="mt-3" variant="text" @click="dialog = false">{{ t('commandCenter.close') }}</v-btn>
         </template>
         <contact-form v-else-if="props.entity.key === 'contacts'" :entity="entity" :item="store.form" :operation="operation" @saved="saved" @canceled="dialog = false" />
