@@ -91,7 +91,7 @@ onMounted(async () => {
       <div class="cc-page-heading">
 
         <h1>{{ t('commandCenter.title') }}</h1>
-        <div class="cc-date d-flex align-center flex-wrap ga-2 mt-2">
+        <div class="cc-date d-flex align-center flex-wrap gx-2 gy-0">
           <span>{{ dateLabel }}</span>
           <span v-if="refreshedAt" class="cc-updated">{{ t('commandCenter.updatedAt', {time: refreshedAt.toLocaleTimeString(locale, {hour: '2-digit', minute: '2-digit'})}) }}</span>
         </div>
@@ -124,7 +124,7 @@ onMounted(async () => {
   --cc-muted: rgba(var(--v-theme-on-surface), 0.64);
   --cc-soft: rgba(var(--v-theme-on-surface), 0.025);
   container-type: inline-size;
-  padding: 20px 32px 32px;
+  padding: 4px 32px 32px;
   color: rgb(var(--v-theme-on-surface));
 }
 .cc-content-layout {
@@ -157,8 +157,8 @@ onMounted(async () => {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding-bottom: 16px;
-  margin-bottom: 16px;
+  padding-bottom: 2px;
+  margin-bottom: 0;
   border-bottom: 1px solid var(--cc-border);
 }
 .cc-page-heading {
@@ -175,7 +175,7 @@ onMounted(async () => {
 .cc-date, .cc-updated {
   color: var(--cc-muted);
   font-size: 0.75rem;
-  line-height: 1.6;
+  line-height: 1.25;
 }
 .cc-updated {
   padding-inline-start: 10px;
@@ -205,14 +205,12 @@ onMounted(async () => {
 }
 @media (max-width: 959px) {
   .cc-page {
-    padding: 20px 16px 28px;
+    padding: 4px 16px 28px;
   }
   .cc-page-header {
     align-items: flex-start;
     flex-direction: column;
-    gap: 16px;
-    margin-bottom: 18px;
-    padding-bottom: 18px;
+    gap: 4px;
   }
   .cc-header-tools {
     width: 100%;
@@ -221,7 +219,7 @@ onMounted(async () => {
 }
 @media (max-width: 599px) {
   .cc-page {
-    padding: 16px 12px 24px;
+    padding: 4px 12px 24px;
   }
 
 }
