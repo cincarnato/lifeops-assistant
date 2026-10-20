@@ -156,70 +156,115 @@ void load()
 </script>
 
 <template>
-  <v-container fluid class="pa-2 pa-md-3">
-    <v-defaults-provider :defaults="{VBtn: {size: 'small', variant: 'text', density: 'compact'}, VTextField: {density: 'compact', variant: 'outlined'}}">
-    <div class="planning-toolbar d-flex flex-wrap align-center ga-1 mb-2" role="toolbar" :aria-label="t('dayplan.ui.planning')">
-      <h1 class="text-body-2 font-weight-bold mr-2">{{ t('dayplan.ui.planning') }}</h1>
-      <div class="d-flex align-center ga-1">
-        <v-btn icon="mdi-chevron-left" :aria-label="t('dayplan.ui.previous')" :disabled="busy" @click="move(-1)" />
-        <v-text-field class="planning-date" :model-value="date" type="date" :aria-label="t('dayplan.field.date')" hide-details :disabled="busy" @update:model-value="changeDate" />
-        <v-btn icon="mdi-chevron-right" :aria-label="t('dayplan.ui.next')" :disabled="busy" @click="move(1)" />
-      </div>
-      <v-btn :disabled="busy" @click="changeDate(localDate())">{{ t('dayplan.ui.today') }}</v-btn>
-      <v-btn :disabled="busy" @click="changeDate(localDate(1))">{{ t('dayplan.ui.tomorrow') }}</v-btn>
-      <v-btn :disabled="busy" icon="mdi-refresh" :aria-label="t('dayplan.ui.reload')" @click="changeDate(date); loadContext()" />
-      <v-spacer />
-      <v-tooltip :text="capacityError || t('dayplan.ui.capacityHint')">
-        <template #activator="{props}">
-          <v-btn v-bind="props" prepend-icon="mdi-clock-outline" :loading="capacityBusy" :aria-label="capacityError || t('dayplan.ui.capacityHint')" @click="loadContext">
-            {{ capacityError ? t('dayplan.ui.retry') : capacity !== null ? t('dayplan.ui.capacity', {count: capacity, hours: capacity}) : '—' }}
-          </v-btn>
-        </template>
-      </v-tooltip>
-      <v-icon v-if="plan" :icon="error ? 'mdi-alert-circle-outline' : busy || dirty ? 'mdi-cloud-sync-outline' : 'mdi-cloud-check-outline'" size="18" class="text-medium-emphasis" role="status" :aria-label="t(busy ? 'dayplan.ui.saving' : dirty ? 'dayplan.ui.unsaved' : 'dayplan.ui.saved')" :title="t(busy ? 'dayplan.ui.saving' : dirty ? 'dayplan.ui.unsaved' : 'dayplan.ui.saved')" />
-    </div>
-    </v-defaults-provider>
-    <v-alert v-if="error" type="error" class="my-4">
+  <v-container fluid class="planning-page pa-3 pa-md-5">
+    <v-card class="planning-header mb-4" variant="flat" rounded="xl">
+      <v-card-text class="pa-4 pa-md-5">
+        <v-row align="center" dense>
+          <v-col cols="12" md="6">
+            <div class="d-flex align-center ga-3">
+              <v-avatar color="primary" variant="tonal" rounded="lg" size="48">
+                <v-icon icon="mdi-calendar-check-outline" size="26" />
+              </v-avatar>
+              <h1 class="text-h6 font-weight-bold">{{ t('dayplan.ui.planning') }}</h1>
+            </div>
+          </v-col>
+          <v-col cols="12" md="6" class="d-flex justify-md-end">
+            <div v-if="plan" class="planning-save-state d-flex align-center ga-2 text-caption" :class="error ? 'text-error' : busy || dirty ? 'text-warning' : 'text-success'" role="status" aria-live="polite">
+              <v-icon :icon="error ? 'mdi-alert-circle-outline' : busy || dirty ? 'mdi-cloud-sync-outline' : 'mdi-cloud-check-outline'" size="18" />
+              <span>{{ t(error ? 'dayplan.ui.saveError' : busy ? 'dayplan.ui.saving' : dirty ? 'dayplan.ui.unsaved' : 'dayplan.ui.saved') }}</span>
+            </div>
+          </v-col>
+        </v-row>
+        <v-divider class="my-4" />
+        <v-defaults-provider :defaults="{VBtn: {size: 'small', variant: 'text', rounded: 'lg'}}">
+          <v-row align="center" dense role="group" :aria-label="t('dayplan.ui.planning')">
+            <v-col cols="12" lg="7">
+              <div class="planning-toolbar d-flex flex-wrap align-center ga-2">
+                <div class="planning-date-nav d-flex align-center ga-1 pa-1 rounded-lg">
+                  <v-btn icon="mdi-chevron-left" :aria-label="t('dayplan.ui.previous')" :disabled="busy" @click="move(-1)" />
+                  <v-text-field class="planning-date" :model-value="date" type="date" :label="t('dayplan.field.date')" density="compact" variant="outlined" hide-details :disabled="busy" @update:model-value="changeDate" />
+                  <v-btn icon="mdi-chevron-right" :aria-label="t('dayplan.ui.next')" :disabled="busy" @click="move(1)" />
+                </div>
+                <div class="d-flex align-center ga-1">
+                  <v-btn color="primary" :variant="date === localDate() ? 'tonal' : 'text'" :aria-pressed="date === localDate()" :disabled="busy" @click="changeDate(localDate())">{{ t('dayplan.ui.today') }}</v-btn>
+                  <v-btn color="primary" :variant="date === localDate(1) ? 'tonal' : 'text'" :aria-pressed="date === localDate(1)" :disabled="busy" @click="changeDate(localDate(1))">{{ t('dayplan.ui.tomorrow') }}</v-btn>
+                  <v-btn :disabled="busy" icon="mdi-refresh" :aria-label="t('dayplan.ui.reload')" :title="t('dayplan.ui.reload')" @click="changeDate(date); loadContext()" />
+                </div>
+              </div>
+            </v-col>
+            <v-col cols="12" lg="5" class="d-flex justify-lg-end">
+              <v-tooltip :text="capacityError || t('dayplan.ui.capacityHint')">
+                <template #activator="{props}">
+                  <v-btn v-bind="props" class="planning-capacity" :color="capacityError ? 'warning' : 'primary'" variant="tonal" :prepend-icon="capacityError ? 'mdi-clock-alert-outline' : 'mdi-clock-outline'" :loading="capacityBusy" :aria-label="capacityBusy ? t('dayplan.ui.capacityLoading') : capacityError || t('dayplan.ui.capacityHint')" @click="loadContext">
+                    {{ capacityError ? t('dayplan.ui.retry') : capacity !== null ? t('dayplan.ui.capacity', {count: capacity, hours: capacity}) : t('dayplan.ui.capacityLoading') }}
+                  </v-btn>
+                </template>
+              </v-tooltip>
+            </v-col>
+          </v-row>
+        </v-defaults-provider>
+      </v-card-text>
+      <v-progress-linear :active="busy" indeterminate color="primary" height="3" />
+    </v-card>
+    <v-alert v-if="error" type="error" variant="tonal" rounded="lg" class="mb-4">
       {{ error }}
-      <v-btn variant="text" :disabled="busy" @click="retry">{{ t('dayplan.ui.retry') }}</v-btn>
+      <v-btn variant="text" rounded="lg" :disabled="busy" @click="retry">{{ t('dayplan.ui.retry') }}</v-btn>
     </v-alert>
-    <v-progress-linear :active="busy" indeterminate height="2" />
-    <p v-if="previousError" class="text-caption text-medium-emphasis">{{ previousError }}</p>
+    <v-alert v-if="previousError" type="warning" variant="tonal" rounded="lg" density="compact" class="mb-4 text-body-2">{{ previousError }}</v-alert>
     <template v-if="plan">
       <DayPlan compact :item="plan" :operation="busy ? 'view' : 'edit'" :previous-task-ids="previousTaskIds" @schedule="openSchedule">
         <template #proposal-actions>
-          <div class="d-flex flex-wrap ga-1 my-1">
-            <v-btn size="small" density="compact" :disabled="busy" variant="tonal" @click="proposals('more')">{{ t('dayplan.ui.moreProposals') }}</v-btn>
-            <v-btn size="small" density="compact" :disabled="busy" variant="text" @click="proposals('other')">{{ t('dayplan.ui.otherProposals') }}</v-btn>
+          <div class="planning-proposal-actions d-flex flex-column ga-2 w-100 mt-3">
+            <v-btn block size="small" rounded="lg" color="primary" prepend-icon="mdi-plus" :disabled="busy" variant="tonal" @click="proposals('more')">{{ t('dayplan.ui.moreProposals') }}</v-btn>
+            <v-btn block size="small" rounded="lg" color="primary" prepend-icon="mdi-swap-horizontal" :disabled="busy" variant="text" @click="proposals('other')">{{ t('dayplan.ui.otherProposals') }}</v-btn>
           </div>
         </template>
       </DayPlan>
     </template>
-    <v-card v-else-if="!busy && !error" class="pa-6 mt-4" variant="outlined">
-      <p class="mb-4">{{ t('dayplan.ui.noPlan') }}</p>
-      <v-btn color="primary" @click="generate">{{ t('dayplan.ui.generate') }}</v-btn>
+    <v-card v-else-if="!busy && !error" class="planning-empty pa-6 pa-sm-10 text-center" variant="flat" rounded="xl">
+      <v-avatar color="primary" variant="tonal" rounded="xl" size="72" class="mb-5">
+        <v-icon icon="mdi-calendar-plus" size="36" />
+      </v-avatar>
+      <h2 class="text-h6 font-weight-bold mb-2">{{ t('dayplan.ui.noPlan') }}</h2>
+      <p class="planning-empty-hint text-body-2 text-medium-emphasis mx-auto mb-6">{{ t('dayplan.ui.prioritiesHint') }}</p>
+      <v-btn class="planning-generate" color="primary" variant="flat" rounded="lg" prepend-icon="mdi-plus" @click="generate">{{ t('dayplan.ui.generate') }}</v-btn>
     </v-card>
-    <v-dialog v-model="scheduleOpen" max-width="600" :persistent="busy">
-      <v-card :title="t('dayplan.ui.schedule')">
-        <v-card-text>
-          <v-alert v-if="error" type="error" class="mb-4">
+    <v-dialog v-model="scheduleOpen" max-width="600" scrollable :persistent="busy" aria-labelledby="planning-schedule-title">
+      <v-card class="planning-dialog" rounded="xl">
+        <v-card-title class="planning-dialog-header d-flex align-center ga-3 pa-4 pa-sm-5">
+          <v-avatar color="primary" variant="tonal" rounded="lg" size="44">
+            <v-icon icon="mdi-calendar-clock" />
+          </v-avatar>
+          <h2 id="planning-schedule-title" class="text-h6 font-weight-bold">{{ t('dayplan.ui.schedule') }}</h2>
+        </v-card-title>
+        <v-card-text class="pa-4 pa-sm-5">
+          <v-alert v-if="error" type="error" variant="tonal" rounded="lg" class="mb-4">
             {{ error }}
             <v-btn variant="text" :disabled="busy" @click="retry">{{ t('dayplan.ui.retry') }}</v-btn>
           </v-alert>
-          <v-alert v-if="slotsError" type="error" class="mb-4">
+          <v-alert v-if="slotsError" type="error" variant="tonal" rounded="lg" class="mb-4">
             {{ slotsError }}
             <v-btn variant="text" :disabled="busy || slotsBusy" @click="loadSlots">{{ t('dayplan.ui.retry') }}</v-btn>
           </v-alert>
-          <v-alert type="info" variant="tonal" class="mb-4">{{ t('dayplan.ui.reservationHint') }}</v-alert>
-          <v-select v-model="taskId" :items="taskOptions" :label="t('dayplan.field.task')" :disabled="busy" />
-          <v-text-field v-model="reservationDate" type="date" :label="t('dayplan.ui.reservationDate')" :disabled="busy" />
-          <v-select v-model="startAt" :items="slotOptions" :label="t('dayplan.ui.slot')" :loading="slotsBusy" :disabled="busy || slotsBusy" />
-          <p v-if="!slotsBusy && !slotsError && !slots.length">{{ t('dayplan.ui.noSlots') }}</p>
+          <v-alert type="info" variant="tonal" rounded="lg" class="mb-5 text-body-2">{{ t('dayplan.ui.reservationHint') }}</v-alert>
+          <v-defaults-provider :defaults="{VSelect: {variant: 'outlined', density: 'comfortable', hideDetails: 'auto'}, VTextField: {variant: 'outlined', density: 'comfortable', hideDetails: 'auto'}}">
+            <v-row>
+              <v-col cols="12">
+                <v-select v-model="taskId" :items="taskOptions" :label="t('dayplan.field.task')" prepend-inner-icon="mdi-checkbox-marked-circle-outline" :disabled="busy" />
+              </v-col>
+              <v-col cols="12">
+                <v-text-field v-model="reservationDate" type="date" :label="t('dayplan.ui.reservationDate')" prepend-inner-icon="mdi-calendar-outline" :disabled="busy" />
+              </v-col>
+              <v-col cols="12">
+                <v-select v-model="startAt" :items="slotOptions" :label="t('dayplan.ui.slot')" prepend-inner-icon="mdi-clock-outline" :loading="slotsBusy" :disabled="busy || slotsBusy" />
+              </v-col>
+            </v-row>
+          </v-defaults-provider>
+          <v-alert v-if="!slotsBusy && !slotsError && !slots.length" type="info" variant="tonal" rounded="lg" density="compact" class="mt-4 text-body-2" role="status">{{ t('dayplan.ui.noSlots') }}</v-alert>
         </v-card-text>
-        <v-card-actions>
-          <v-btn :disabled="busy" @click="scheduleOpen = false">{{ t('dayplan.ui.cancel') }}</v-btn>
-          <v-spacer />
-          <v-btn color="primary" :disabled="busy || slotsBusy || !taskId || !startAt" :loading="busy" @click="schedule">{{ t('dayplan.ui.createEvent') }}</v-btn>
+        <v-card-actions class="planning-dialog-actions d-flex flex-wrap justify-end ga-2 pa-4 pa-sm-5">
+          <v-btn rounded="lg" :disabled="busy" @click="scheduleOpen = false">{{ t('dayplan.ui.cancel') }}</v-btn>
+          <v-btn class="planning-schedule-submit" color="primary" variant="flat" rounded="lg" prepend-icon="mdi-calendar-plus" :disabled="busy || slotsBusy || !taskId || !startAt" :loading="busy" @click="schedule">{{ t('dayplan.ui.createEvent') }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -227,8 +272,120 @@ void load()
 </template>
 
 <style scoped>
-.planning-toolbar { min-height: 40px; }
-.planning-date { flex: 0 0 154px; width: 154px; }
-.planning-date :deep(input) { font-size: 0.8125rem; min-height: 34px; }
-.planning-date :deep(.v-field__input) { padding-top: 4px; padding-bottom: 4px; min-height: 34px; }
+.planning-page,
+.planning-dialog {
+  --planning-border: rgba(var(--v-theme-on-surface), 0.12);
+  --planning-control-surface: rgba(var(--v-theme-on-surface), 0.025);
+  color: rgb(var(--v-theme-on-surface));
+}
+
+.planning-header,
+.planning-empty,
+.planning-dialog-header {
+  background: linear-gradient(120deg, rgba(var(--v-theme-primary), 0.045), rgb(var(--v-theme-surface)) 60%), rgb(var(--v-theme-surface));
+}
+
+.planning-header,
+.planning-empty,
+.planning-dialog {
+  border: 1px solid var(--planning-border);
+}
+
+.planning-header :deep(.v-divider) {
+  opacity: 0.08;
+}
+
+.planning-header :deep(.v-btn),
+.planning-proposal-actions :deep(.v-btn),
+.planning-generate,
+.planning-dialog :deep(.v-btn) {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+
+.planning-save-state {
+  padding: 8px 12px;
+  border: 1px solid var(--planning-border);
+  border-radius: 12px;
+  background: rgb(var(--v-theme-surface));
+}
+
+.planning-date-nav {
+  max-width: 100%;
+  border: 1px solid var(--planning-border);
+  background: var(--planning-control-surface);
+}
+
+.planning-date {
+  flex: 1 1 164px;
+  min-width: 0;
+  width: 164px;
+}
+
+.planning-date :deep(.v-field),
+.planning-dialog :deep(.v-field) {
+  border-radius: 10px;
+  background: rgb(var(--v-theme-surface));
+  font-size: 0.875rem;
+}
+
+.planning-date :deep(.v-field:not(.v-field--focused) .v-field__outline),
+.planning-dialog :deep(.v-field:not(.v-field--focused) .v-field__outline) {
+  --v-field-border-opacity: 0.16;
+}
+
+.planning-date :deep(input) {
+  min-width: 0;
+}
+
+.planning-capacity,
+.planning-proposal-actions :deep(.v-btn),
+.planning-schedule-submit {
+  height: auto;
+  min-height: 36px;
+  max-width: 100%;
+  padding-block: 8px;
+}
+
+.planning-capacity :deep(.v-btn__content),
+.planning-proposal-actions :deep(.v-btn__content),
+.planning-schedule-submit :deep(.v-btn__content) {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.planning-proposal-actions {
+  min-width: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--planning-border);
+}
+
+.planning-empty-hint {
+  max-width: 480px;
+  line-height: 1.7;
+}
+
+.planning-dialog-header {
+  white-space: normal;
+  border-bottom: 1px solid var(--planning-border);
+}
+
+.planning-dialog-actions {
+  border-top: 1px solid var(--planning-border);
+  background: var(--planning-control-surface);
+}
+
+@media (max-width: 599px) {
+  .planning-date-nav,
+  .planning-capacity {
+    width: 100%;
+  }
+
+  .planning-dialog-actions > .v-btn {
+    width: 100%;
+    margin-inline: 0;
+  }
+}
 </style>

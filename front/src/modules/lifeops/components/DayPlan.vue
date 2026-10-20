@@ -8,7 +8,6 @@ import TaskPlanningBoard from "./TaskPlanningBoard.vue";
 type DayPlanForm = IDayPlanBase & Partial<IDayPlan>
 type Decision = "PENDIENTE" | "COMPROMETIDO" | "DESEABLE" | "DESCARTADO"
 type DecisionTarget = { decision?: string; priority?: "A1" | "A2" | "A3" | null }
-type ContextItem = { key: string; label: string; type: string; progress?: number }
 
 const props = defineProps<{
   item: DayPlanForm
@@ -29,23 +28,6 @@ const decisionOptions = computed<Array<{ title: string; value: Decision; color: 
 ])
 
 const isDecisionReadonly = computed(() => ["view", "delete"].includes(props.operation || ""))
-
-
-const contextItems = computed(() => {
-  const items = new Map<string, ContextItem>()
-
-  props.item.suggestions?.forEach(suggestion => {
-    addContextItem(items, suggestion.goal, t("dayplan.field.goal"))
-    addContextItem(items, suggestion.project, t("dayplan.field.project"))
-  })
-
-  props.item.tasks?.forEach(taskItem => {
-    addContextItem(items, taskItem.task?.project, t("dayplan.field.project"))
-    taskItem.task?.goals?.forEach((goal: unknown) => addContextItem(items, goal, t("dayplan.field.goal")))
-  })
-
-  return Array.from(items.values()).slice(0, 5)
-})
 
 function label(key: string, fallback: string) {
   return te(key) ? t(key) : fallback
@@ -180,27 +162,6 @@ function getRefText(value: unknown, fields: string[] = ["title", "name", "userna
 
   return typeof value._id === "string" ? value._id : "-"
 }
-
-function getNumber(value: unknown) {
-  return typeof value === "number" ? value : undefined
-}
-
-function addContextItem(items: Map<string, ContextItem>, value: unknown, type: string) {
-  if (!isRecord(value)) return
-
-  const label = getRefText(value, ["name", "title"])
-  if (label === "-") return
-
-  const key = `${type}-${String(value._id || label)}`
-  if (items.has(key)) return
-
-  items.set(key, {
-    key,
-    label,
-    type,
-    progress: getNumber(value.progressPercent)
-  })
-}
 </script>
 
 <template>
@@ -226,12 +187,13 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
       {{ saveError }}
     </v-alert>
 
-    <v-row class="align-start" dense>
+    <v-row class="align-start">
       <v-col cols="12" lg="3">
-        <v-card class="day-plan__panel" variant="outlined" rounded="lg">
+        <div class="d-flex flex-column ga-4">
+        <v-card class="day-plan__panel" variant="outlined" rounded="xl">
           <v-card-title class="d-flex align-center ga-2 text-subtitle-1 font-weight-bold">
             <v-icon icon="mdi-calendar-clock" color="primary"/>
-            {{ label("dayplan.field.events", "Cronograma") }}
+            {{ t('dayplan.ui.calendarEvents') }}
             <v-spacer/>
             <span class="text-caption text-medium-emphasis">{{ item.events?.length || 0 }}</span>
           </v-card-title>
@@ -253,7 +215,7 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
                 <div
                   :class="[
                     'day-plan__timeline-content',
-                    event.decision === 'COMPROMETIDO' ? 'bg-primary-lighten-5 border-s-primary' : ''
+                    event.decision === 'COMPROMETIDO' ? 'day-plan__item--committed' : ''
                   ]"
                 >
                   <div class="text-caption text-primary font-weight-bold">
@@ -264,7 +226,7 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
                     {{ event.description }}
                   </p>
 
-                  <div class="d-flex align-center justify-space-between ga-2">
+                  <div class="d-flex flex-wrap align-center justify-space-between ga-2">
                     <v-chip :color="decisionMeta(event.decision).color" size="x-small" variant="tonal">
                       {{ decisionMeta(event.decision).title }}
                     </v-chip>
@@ -305,28 +267,15 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
             </v-alert>
           </v-card-text>
         </v-card>
-      </v-col>
 
-      <v-col cols="12" lg="6">
-        <div class="d-flex flex-column ga-4">
-          <TaskPlanningBoard :tasks="item.tasks || []" :readonly="isDecisionReadonly" :previous-task-ids="previousTaskIds" @schedule="emit('schedule', $event)">
-            <template #proposal-actions><slot name="proposal-actions" /></template>
-          </TaskPlanningBoard>
-
-          <v-card class="day-plan__panel" variant="outlined" rounded="lg">
+          <v-card class="day-plan__panel" variant="outlined" rounded="xl">
             <v-card-title class="d-flex align-center ga-2 text-subtitle-1 font-weight-bold">
               <v-icon icon="mdi-repeat" color="primary"/>
-              {{ label("dayplan.field.habits", "Habitos diarios") }}
+              {{ t('dayplan.ui.dailyHabits') }}
               <v-spacer/>
-              <div class="d-flex ga-1">
-                <v-icon
-                  v-for="index in Math.max(item.habits?.length || 0, 1)"
-                  :key="index"
-                  icon="mdi-circle"
-                  size="10"
-                  :color="index <= (item.habits?.filter(habit => habit.decision === 'COMPROMETIDO').length || 0) ? 'primary' : 'grey-lighten-1'"
-                />
-              </div>
+              <v-chip size="small" color="primary" variant="tonal">
+                {{ item.habits?.filter(habit => habit.decision === 'COMPROMETIDO').length || 0 }}/{{ item.habits?.length || 0 }}
+              </v-chip>
             </v-card-title>
 
             <v-card-text>
@@ -335,18 +284,17 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
                   v-for="(habitItem, index) in item.habits"
                   :key="habitItem.habit?._id || index"
                   cols="12"
-                  md="6"
                 >
                   <v-card
-                    class="pa-3"
-                    :color="habitItem.decision === 'COMPROMETIDO' ? 'primary-lighten-5' : undefined"
+                    class="day-plan__habit pa-3"
+                    :class="{'day-plan__item--committed': habitItem.decision === 'COMPROMETIDO'}"
                     variant="outlined"
                     rounded="lg"
                   >
-                    <div class="d-flex align-center ga-3">
+                    <div class="d-flex flex-wrap align-center ga-3">
                       <v-icon icon="mdi-autorenew" color="secondary"/>
                       <div class="flex-grow-1 min-w-0">
-                        <div class="text-body-2 font-weight-medium text-truncate">
+                        <div class="text-body-2 font-weight-medium">
                           {{ getRefText(habitItem.habit, ["name", "title"]) }}
                         </div>
                         <div v-if="habitItem.habit?.frequency?.type" class="text-caption text-medium-emphasis">
@@ -393,11 +341,18 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
         </div>
       </v-col>
 
+      <v-col cols="12" lg="6">
+        <TaskPlanningBoard section="planned" :tasks="item.tasks || []" :readonly="isDecisionReadonly" @schedule="emit('schedule', $event)" />
+      </v-col>
+
       <v-col cols="12" lg="3">
         <div class="d-flex flex-column ga-4">
-          <v-card class="day-plan__suggestions" color="primary" rounded="lg">
+          <TaskPlanningBoard section="proposals" :tasks="item.tasks || []" :readonly="isDecisionReadonly" :previous-task-ids="previousTaskIds">
+            <template #proposal-actions><slot name="proposal-actions" /></template>
+          </TaskPlanningBoard>
+          <v-card class="day-plan__panel day-plan__suggestions" variant="outlined" rounded="xl">
             <v-card-title class="d-flex align-center ga-2 text-subtitle-1 font-weight-bold">
-              <v-icon icon="mdi-lightbulb-outline"/>
+              <v-icon icon="mdi-lightbulb-outline" color="warning"/>
               {{ label("dayplan.field.suggestions", "Sugerencias") }}
             </v-card-title>
 
@@ -414,13 +369,13 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
                     <span v-if="suggestion.project"> · {{ getRefText(suggestion.project, ["name"]) }}</span>
                   </div>
 
-                  <div class="d-flex align-center justify-space-between ga-2 mt-3">
+                  <div class="d-flex flex-wrap align-center justify-space-between ga-2 mt-3">
                     <v-chip :color="decisionMeta(suggestion.decision).color" size="x-small" variant="flat">
                       {{ decisionMeta(suggestion.decision).title }}
                     </v-chip>
                     <v-btn-toggle
                       :model-value="suggestion.decision"
-                      class="day-plan__decision-toggle day-plan__decision-toggle--on-primary"
+                      class="day-plan__decision-toggle"
                       density="compact"
                       divided
                       variant="outlined"
@@ -449,42 +404,8 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
                 </div>
               </div>
 
-              <v-alert v-else variant="tonal" color="white" density="compact">
-                {{ label("dayplan.ui.noSuggestions", "Sin sugerencias.") }}
-              </v-alert>
-            </v-card-text>
-          </v-card>
-
-          <v-card class="day-plan__panel" variant="outlined" rounded="lg">
-            <v-card-title class="d-flex align-center ga-2 text-subtitle-1 font-weight-bold">
-              <v-icon icon="mdi-target" color="primary"/>
-              {{ label("dayplan.ui.goalContext", "Contexto de metas") }}
-            </v-card-title>
-
-            <v-card-text>
-              <div v-if="contextItems.length" class="d-flex flex-column ga-4">
-                <div v-for="context in contextItems" :key="context.key">
-                  <div class="d-flex justify-space-between align-center mb-1">
-                    <div class="text-caption font-weight-bold text-truncate">
-                      {{ context.type }}: {{ context.label }}
-                    </div>
-                    <span v-if="typeof context.progress === 'number'" class="text-caption text-medium-emphasis">
-                      {{ context.progress }}%
-                    </span>
-                  </div>
-                  <v-progress-linear
-                    v-if="typeof context.progress === 'number'"
-                    :model-value="context.progress"
-                    color="primary"
-                    bg-color="surface-variant"
-                    height="6"
-                    rounded
-                  />
-                </div>
-              </div>
-
               <v-alert v-else variant="tonal" color="grey" density="compact">
-                {{ label("dayplan.ui.noContext", "Sin contexto asociado.") }}
+                {{ label("dayplan.ui.noSuggestions", "Sin sugerencias.") }}
               </v-alert>
             </v-card-text>
           </v-card>
@@ -504,7 +425,45 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
 
 <style scoped>
 .day-plan {
+  --plan-border: rgba(var(--v-theme-on-surface), 0.12);
   min-height: 100%;
+}
+
+.min-w-0 { min-width: 0; }
+
+.day-plan :deep(.v-btn) {
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.day-plan__panel > .v-card-title {
+  min-height: 68px;
+  padding: 16px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid var(--plan-border);
+}
+
+.day-plan__panel > .v-card-title > .v-icon {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: rgba(var(--v-theme-primary), 0.08);
+  font-size: 20px;
+}
+
+.day-plan__panel > .v-card-text { padding: 16px; }
+
+.day-plan__habit {
+  border-color: var(--plan-border);
+  background: rgba(var(--v-theme-on-surface), 0.025);
+  overflow-wrap: anywhere;
+}
+
+.day-plan__item--committed {
+  background: rgba(var(--v-theme-primary), 0.06);
+  border-color: rgba(var(--v-theme-primary), 0.25);
 }
 
 .day-plan__title {
@@ -513,6 +472,7 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
 
 .day-plan__panel {
   background: rgb(var(--v-theme-surface));
+  border-color: var(--plan-border);
 }
 
 .day-plan__timeline {
@@ -526,7 +486,7 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
   background: rgba(var(--v-border-color), var(--v-border-opacity));
   bottom: 0;
   content: "";
-  left: 11px;
+  left: 5px;
   position: absolute;
   top: 0;
   width: 2px;
@@ -534,7 +494,7 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
 
 .day-plan__timeline-item {
   min-width: 0;
-  padding-left: 36px;
+  padding-left: 20px;
   position: relative;
 }
 
@@ -542,11 +502,11 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
   background: rgb(var(--v-theme-surface));
   border: 2px solid rgba(var(--v-border-color), var(--v-border-opacity));
   border-radius: 999px;
-  height: 22px;
+  height: 12px;
   left: 1px;
   position: absolute;
-  top: 2px;
-  width: 22px;
+  top: 14px;
+  width: 12px;
   z-index: 1;
 }
 
@@ -556,27 +516,25 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
 }
 
 .day-plan__timeline-content {
-  border-left: 4px solid transparent;
-  border-radius: 8px;
+  border: 1px solid var(--plan-border);
+  border-radius: 12px;
   min-width: 0;
-  padding: 8px 10px;
+  padding: 12px;
+  overflow-wrap: anywhere;
 }
 
-.day-plan__list-item {
-  border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+.day-plan__suggestions > .v-card-title {
+  background: rgba(var(--v-theme-warning), 0.045);
 }
 
-.day-plan__list-item:last-child {
-  border-bottom: 0;
-}
-
-.day-plan__suggestions {
-  box-shadow: 0 10px 28px rgba(var(--v-theme-primary), .18);
+.day-plan__suggestions > .v-card-title > .v-icon {
+  background: rgba(var(--v-theme-warning), 0.1);
 }
 
 .day-plan__suggestion-item {
-  border-bottom: 1px solid rgba(255, 255, 255, .24);
-  padding-bottom: 12px;
+  border-bottom: 1px solid var(--plan-border);
+  padding-bottom: 16px;
+  overflow-wrap: anywhere;
 }
 
 .day-plan__suggestion-item:last-child {
@@ -595,25 +553,12 @@ function addContextItem(items: Map<string, ContextItem>, value: unknown, type: s
   width: 34px;
 }
 
-.day-plan__decision-toggle--on-primary :deep(.v-btn) {
-  color: rgb(var(--v-theme-on-primary));
-}
 
 @media (max-width: 700px) {
-  .day-plan {
-    padding: 16px !important;
-  }
 
   .day-plan__decision-toggle :deep(.v-btn) {
     min-width: 32px;
     width: 32px;
   }
 }
-</style>
-
-<style scoped>
-.day-plan--compact :deep(.v-card-title) { padding: 8px 12px; font-size: 0.875rem !important; }
-.day-plan--compact :deep(.v-card-text) { padding: 8px 12px; }
-.day-plan--compact :deep(.v-card-title .v-icon) { font-size: 18px; }
-.day-plan--compact :deep(.text-subtitle-1) { font-size: 0.875rem !important; }
 </style>

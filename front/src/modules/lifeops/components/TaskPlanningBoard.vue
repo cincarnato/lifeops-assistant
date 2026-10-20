@@ -3,7 +3,12 @@ import {computed} from 'vue'
 import {useI18n} from 'vue-i18n'
 import type {IDayPlanBase} from '../interfaces/IDayPlan'
 import {assignTask, prioritySlots} from './taskPlanning'
-const props = defineProps<{tasks: NonNullable<IDayPlanBase['tasks']>; readonly?: boolean; previousTaskIds?: string[]}>()
+const props = defineProps<{
+  tasks: NonNullable<IDayPlanBase['tasks']>
+  readonly?: boolean
+  previousTaskIds?: string[]
+  section?: 'planned' | 'proposals'
+}>()
 const emit = defineEmits<{schedule: [taskId: string]}>()
 const {t, locale} = useI18n()
 function explanation(task: Record<string, unknown>) {
@@ -31,14 +36,22 @@ function assign(entry: NonNullable<IDayPlanBase['tasks']>[number], target: 'A1' 
 </script>
 
 <template>
-  <v-card variant="outlined" rounded="lg">
-    <v-card-text class="pa-3">
-      <h2 class="text-body-2 font-weight-bold">{{ t('dayplan.ui.priorityProgress', {count}) }}</h2>
-      <v-progress-linear :model-value="count / 3 * 100" color="primary" rounded height="2" class="my-2" />
+  <div class="task-board d-flex flex-column ga-4">
+    <v-card v-if="section !== 'proposals'" class="task-board__group task-board__group--priority" variant="outlined" rounded="xl">
+      <v-card-title class="task-board__heading">
+        <v-avatar color="primary" variant="tonal" rounded="lg" size="36"><v-icon icon="mdi-flag-checkered" size="20" /></v-avatar>
+        <div class="flex-grow-1">
+          <h2 class="text-subtitle-1 font-weight-bold">{{ t('dayplan.ui.priorities') }}</h2>
+          <p class="text-caption text-medium-emphasis">{{ t('dayplan.ui.priorityProgress', {count}) }}</p>
+        </div>
+        <v-progress-circular :model-value="count / 3 * 100" color="primary" size="32" width="3" :aria-label="t('dayplan.ui.priorityProgress', {count})" />
+      </v-card-title>
+      <v-divider />
+      <v-card-text class="pa-4">
       <v-row dense>
         <v-col v-for="slot in slots" :key="slot.priority" cols="12">
-          <v-card :variant="slot.priority === 'A1' ? 'tonal' : 'outlined'" :color="slot.priority === 'A1' ? 'primary' : undefined" class="pa-2" rounded="lg">
-            <div class="d-flex align-center ga-2">
+          <v-card variant="outlined" class="task-board__task pa-3" :class="{'task-board__task--focus': slot.priority === 'A1', 'task-board__task--empty': !slot.entry}" rounded="lg">
+            <div class="d-flex flex-wrap align-center ga-2">
               <v-chip size="small" color="primary">{{ slot.priority }}</v-chip>
               <span v-if="slot.priority === 'A1'" class="text-caption">{{ t('dayplan.ui.nonNegotiable') }}</span>
               <v-spacer />
@@ -50,12 +63,48 @@ function assign(entry: NonNullable<IDayPlanBase['tasks']>[number], target: 'A1' 
           </v-card>
         </v-col>
       </v-row>
-      <h3 class="text-body-2 font-weight-bold mt-3 mb-1">{{ t('dayplan.ui.proposals') }}</h3>
+      </v-card-text>
+    </v-card>
+
+    <v-card v-if="section !== 'proposals'" class="task-board__group task-board__group--desirable" variant="outlined" rounded="xl">
+      <v-card-title class="task-board__heading">
+        <v-avatar color="info" variant="tonal" rounded="lg" size="36"><v-icon icon="mdi-star-outline" size="20" /></v-avatar>
+        <div class="flex-grow-1">
+          <h2 class="text-subtitle-1 font-weight-bold">{{ t('dayplan.ui.desirables') }}</h2>
+          <p class="text-caption text-medium-emphasis">{{ t('dayplan.ui.desirablesHint') }}</p>
+        </div>
+        <v-chip color="info" size="small" variant="tonal">{{ desirables.length }}</v-chip>
+      </v-card-title>
+      <v-divider />
+      <v-card-text class="pa-4 d-flex flex-column ga-3">
+        <p v-if="!desirables.length" class="task-board__empty text-body-2 text-medium-emphasis">{{ t('dayplan.ui.noDesirables') }}</p>
+        <v-card v-for="(entry, index) in desirables" :key="entry.task?._id || index" variant="outlined" rounded="lg" class="task-board__task pa-3">
+          <p class="text-body-2 font-weight-medium mb-2">{{ entry.task?.title || entry.task }}</p>
+          <p v-if="entry.task?.project?.name" class="text-caption text-medium-emphasis mb-2">{{ entry.task.project.name }}</p>
+          <div class="d-flex flex-wrap ga-2">
+            <v-btn v-for="priority in prioritySlots" :key="priority" size="small" variant="tonal" color="primary" :disabled="readonly" @click="assign(entry, priority)">{{ priority }}</v-btn>
+            <v-btn size="small" variant="text" :disabled="readonly" @click="assign(entry, null)">{{ t('dayplan.ui.removeAssignment') }}</v-btn>
+          </div>
+        </v-card>
+      </v-card-text>
+    </v-card>
+
+    <v-card v-if="section !== 'planned'" class="task-board__group task-board__group--proposals" variant="outlined" rounded="xl">
+      <v-card-title class="task-board__heading">
+        <v-avatar color="secondary" variant="tonal" rounded="lg" size="36"><v-icon icon="mdi-tray-arrow-down" size="20" /></v-avatar>
+        <div class="flex-grow-1">
+          <h2 class="text-subtitle-1 font-weight-bold">{{ t('dayplan.ui.proposals') }}</h2>
+          <p class="text-caption text-medium-emphasis">{{ t('dayplan.ui.proposalsHint') }}</p>
+        </div>
+        <v-chip color="secondary" size="small" variant="tonal">{{ proposals.length }}</v-chip>
+      </v-card-title>
+      <v-divider />
+      <v-card-text class="pa-4">
       <slot name="proposal-actions" />
       <v-alert v-if="!proposals.length" variant="tonal" class="my-3">{{ t('dayplan.ui.noProposals') }}</v-alert>
-      <v-card v-for="(entry, index) in proposals" :key="entry.task?._id || index" variant="outlined" class="pa-2 my-2">
+      <v-card v-for="(entry, index) in proposals" :key="entry.task?._id || index" variant="outlined" rounded="lg" class="task-board__task pa-3 mt-3">
         <v-chip v-if="previousTaskIds?.includes(entry.task?._id || entry.task)" size="small" density="compact" variant="tonal" class="mb-2">{{ t('dayplan.ui.previousPending') }}</v-chip>
-        <p class="font-weight-medium mb-2">{{ entry.task?.title || entry.task }}</p>
+        <p class="text-body-2 font-weight-medium mb-2">{{ entry.task?.title || entry.task }}</p>
         <p v-if="entry.task?.project?.name" class="text-caption text-medium-emphasis mb-2">{{ entry.task.project.name }}</p>
         <p class="text-caption text-medium-emphasis mb-2">{{ explanation(entry.task) }}</p>
         <div class="d-flex flex-wrap ga-2">
@@ -64,26 +113,58 @@ function assign(entry: NonNullable<IDayPlanBase['tasks']>[number], target: 'A1' 
           <v-btn size="small" density="compact" variant="text" :disabled="readonly" @click="discard(entry)">{{ t('dayplan.ui.notToday') }}</v-btn>
         </div>
       </v-card>
-      <h3 class="text-body-2 font-weight-bold mt-3 mb-1">{{ t('dayplan.ui.desirables') }}</h3>
-      <p v-if="!desirables.length" class="text-medium-emphasis">{{ t('dayplan.ui.noDesirables') }}</p>
-      <v-card v-for="(entry, index) in desirables" :key="entry.task?._id || index" variant="tonal" class="pa-2 my-2">
-        <p class="mb-2">{{ entry.task?.title || entry.task }}</p>
-        <p v-if="entry.task?.project?.name" class="text-caption text-medium-emphasis mb-2">{{ entry.task.project.name }}</p>
-        <div class="d-flex flex-wrap ga-2">
-          <v-btn v-for="priority in prioritySlots" :key="priority" size="small" density="compact" variant="text" :disabled="readonly" @click="assign(entry, priority)">{{ priority }}</v-btn>
-          <v-btn size="small" density="compact" variant="text" :disabled="readonly" @click="assign(entry, null)">{{ t('dayplan.ui.removeAssignment') }}</v-btn>
-        </div>
-      </v-card>
+
       <v-expansion-panels v-if="discarded.length" variant="accordion" class="mt-4">
         <v-expansion-panel :title="t('dayplan.ui.hiddenTasks', {count: discarded.length})">
           <v-expansion-panel-text>
-            <div v-for="(entry, index) in discarded" :key="entry.task?._id || index" class="d-flex align-center ga-2 my-2">
+            <div v-for="(entry, index) in discarded" :key="entry.task?._id || index" class="d-flex flex-wrap align-center ga-2 my-2">
               <span>{{ entry.task?.title || entry.task }}</span><v-spacer />
               <v-btn size="small" density="compact" variant="text" :disabled="readonly" @click="assign(entry, null)">{{ t('dayplan.ui.restoreTask') }}</v-btn>
             </div>
           </v-expansion-panel-text>
         </v-expansion-panel>
       </v-expansion-panels>
-    </v-card-text>
-  </v-card>
+      </v-card-text>
+    </v-card>
+  </div>
 </template>
+
+<style scoped>
+.task-board__group {
+  --task-accent: var(--v-theme-primary);
+  border-color: rgba(var(--v-theme-on-surface), 0.12);
+  border-top: 3px solid rgba(var(--task-accent), 0.7);
+  background: rgb(var(--v-theme-surface));
+}
+.task-board__group--desirable { --task-accent: var(--v-theme-info); }
+.task-board__group--proposals { --task-accent: var(--v-theme-secondary); }
+.task-board__heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  background: linear-gradient(120deg, rgba(var(--task-accent), 0.07), transparent);
+}
+.task-board__heading h2 { line-height: 1.4; }
+.task-board__heading p { margin-top: 2px; line-height: 1.5; }
+.task-board__task {
+  border-color: rgba(var(--v-theme-on-surface), 0.1);
+  background: rgba(var(--v-theme-on-surface), 0.025);
+  overflow-wrap: anywhere;
+}
+.task-board__task--focus {
+  border-color: rgba(var(--v-theme-primary), 0.28);
+  background: rgba(var(--v-theme-primary), 0.05);
+}
+.task-board__task--empty { border-style: dashed; }
+.task-board__empty {
+  padding: 16px;
+  border: 1px dashed rgba(var(--v-theme-info), 0.25);
+  border-radius: 12px;
+  background: rgba(var(--v-theme-info), 0.035);
+}
+.task-board :deep(.v-btn) { text-transform: none; letter-spacing: 0; border-radius: 8px; }
+.task-board :deep(.v-divider) { opacity: 0.08; }
+</style>

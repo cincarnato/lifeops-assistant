@@ -82,7 +82,20 @@ assert.doesNotMatch(board, /v-select|Combobox|bg-error/)
 assert.match(board, /v-for="slot in slots"/)
 assert.match(board, /:disabled="readonly"/)
 assert.match(component, /TaskPlanningBoard/)
-assert.doesNotMatch(component, /performance|totalItems|item.status/)
+assert.doesNotMatch(component, /performance|totalItems|item.status|contextItems|goalContext/)
+const columns = component.slice(component.indexOf('<template>')).split(/<v-col cols="12" lg="[36]">/).slice(1)
+assert.equal(columns.length, 3, 'Planning keeps three desktop columns')
+assert.ok(columns[0].indexOf('dayplan.ui.calendarEvents') < columns[0].indexOf('dayplan.ui.dailyHabits'), 'Habits follow calendar events')
+assert.match(columns[0], /dayplan.ui.dailyHabits/)
+assert.doesNotMatch(columns[0], /TaskPlanningBoard/)
+assert.match(columns[1], /TaskPlanningBoard section="planned"/)
+assert.doesNotMatch(columns[1], /section="proposals"|dayplan.field.suggestions/)
+assert.match(columns[2], /TaskPlanningBoard section="proposals"/)
+assert.ok(columns[2].indexOf('section="proposals"') < columns[2].indexOf('dayplan.field.suggestions'), 'Proposals precede suggestions')
+assert.match(columns[2], /#proposal-actions/)
+assert.match(board, /v-if="section !== 'proposals'" class="task-board__group task-board__group--priority"/)
+assert.match(board, /v-if="section !== 'proposals'" class="task-board__group task-board__group--desirable"/)
+assert.match(board, /v-if="section !== 'planned'" class="task-board__group task-board__group--proposals"/)
 for (const mode of ['more', 'other']) {
   await provider.proposals('plan', mode)
   assert.equal(calls.at(-1).method, 'post')
@@ -156,7 +169,7 @@ try {
 
 const page = read('pages/DayPlanningPage.vue')
 const messages = loadModule('i18n/DayPlan-i18n.ts').default
-for (const key of ['priorityProgress', 'emptyPriority', 'removeAssignment', 'proposals', 'noProposals', 'desirables', 'noDesirables', 'moreProposals', 'otherProposals', 'retry', 'saving', 'saved', 'unsaved']) {
+for (const key of ['priorities', 'desirablesHint', 'proposalsHint', 'calendarEvents', 'dailyHabits', 'priorityProgress', 'emptyPriority', 'removeAssignment', 'proposals', 'noProposals', 'desirables', 'noDesirables', 'moreProposals', 'otherProposals', 'retry', 'saving', 'saved', 'unsaved']) {
   for (const language of ['es', 'en']) assert.ok(messages[language].dayplan.ui[key], `${language}: ${key}`)
 }
 assert.doesNotMatch(page, /plan.status|discardAllowed|@click="cancel"/)

@@ -46,6 +46,11 @@ const messages = {
            dueFact: 'Due: {date}',
            projectFact: 'Project: {name}',
 
+           calendarEvents: "Calendar events",
+           dailyHabits: "Daily habits",
+           priorities: "Priority tasks",
+           desirablesHint: "If there is time left",
+           proposalsHint: "Choose what to add to your day",
            priorityProgress: "Priorities {count}/3",
            emptyPriority: "Unassigned — choose a proposal",
            removeAssignment: "Remove",
@@ -155,6 +160,11 @@ const messages = {
            dueFact: 'Vence: {date}',
            projectFact: 'Proyecto: {name}',
 
+           calendarEvents: "Eventos de calendario",
+           dailyHabits: "Hábitos diarios",
+           priorities: "Tareas prioritarias",
+           desirablesHint: "Si queda tiempo disponible",
+           proposalsHint: "Elige qué sumar a tu día",
            priorityProgress: "Prioridades {count}/3",
            emptyPriority: "Sin asignar — elige una propuesta",
            removeAssignment: "Quitar",
