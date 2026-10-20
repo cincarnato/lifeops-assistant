@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {useI18n} from 'vue-i18n'
-import {ref} from 'vue'
 import type {CenterItem, CenterTab} from './commandCenter'
 import {displayValue, valueAt} from './commandCenter'
 
@@ -12,7 +11,7 @@ defineProps<{
 }>()
 defineEmits<{open: [tab: CenterTab, item: CenterItem]; another: []; retryTask: []; retryAutomation: []}>()
 const {t, locale} = useI18n()
-const expanded = ref(false)
+
 function date(value: unknown) {
   if (!value) return '—'
   const parsed = new Date(String(value))
@@ -21,8 +20,7 @@ function date(value: unknown) {
 </script>
 
 <template>
-  <v-btn v-if="visible.some(tab => ['memories', 'tasks', 'schedules', 'jobs'].includes(tab))" block variant="tonal" class="attention-toggle text-none" :append-icon="expanded ? 'mdi-chevron-up' : 'mdi-chevron-down'" :aria-expanded="expanded" aria-controls="command-center-attention" @click="expanded = !expanded">{{ t('commandCenter.attentionCards') }}</v-btn>
-  <section id="command-center-attention" class="attention-panel" :class="{'attention-panel--expanded': expanded}" :aria-label="t('commandCenter.attentionCards')">
+  <section id="command-center-attention" :aria-label="t('commandCenter.attentionCards')">
     <h2 v-if="visible.some(tab => ['memories', 'tasks', 'schedules', 'jobs'].includes(tab))" class="attention-heading text-caption font-weight-bold mb-3">{{ t('commandCenter.design.focus') }}</h2>
     <v-row dense>
       <v-col v-if="visible.includes('tasks')" cols="12">
@@ -79,22 +77,6 @@ function date(value: unknown) {
 </template>
 
 <style scoped>
-.attention-panel {
-  display: none;
-}
-.attention-panel--expanded {
-  display: block;
-  margin-top: 12px;
-}
-@container (min-width: 1200px) {
-  .attention-toggle {
-    display: none;
-  }
-  .attention-panel {
-    display: block;
-    margin-top: 0;
-  }
-}
 .attention-card :deep(.v-card-text) {
   padding: 14px !important;
 }

@@ -4,6 +4,7 @@ const messages = {
       title: 'Centro de comando', timezone: 'Hora de Buenos Aires', refresh: 'Actualizar', retry: 'Reintentar',
       design: {
         eyebrow: 'Tu día, en perspectiva', overview: 'Panorama general', focus: 'En foco',
+        hideFocus: 'Ocultar En foco', showFocus: 'Mostrar En foco',
         workspace: 'Espacio de trabajo', workspaceHint: 'Todo conectado, en un solo lugar.', quickCreate: 'Crear rápidamente',
       },
       taskViews: {label: 'Vista de tareas', list: 'Lista', kanban: 'Kanban'},
@@ -74,6 +75,7 @@ const messages = {
       title: 'Command center', timezone: 'Buenos Aires time', refresh: 'Refresh', retry: 'Retry',
       design: {
         eyebrow: 'Your day, in perspective', overview: 'Overview', focus: 'In focus',
+        hideFocus: 'Hide In focus', showFocus: 'Show In focus',
         workspace: 'Workspace', workspaceHint: 'Everything connected, in one place.', quickCreate: 'Quick create',
       },
       taskViews: {label: 'Task view', list: 'List', kanban: 'Kanban'},

@@ -18,6 +18,8 @@ const {hasPermission} = useAuth()
 const center = useCommandCenter()
 const {visibleEntities, activeTab, activeEntity, state, can, metrics, memory, attention, automation, refreshing, refreshedAt} = center
 const visibleTabs = computed(() => visibleEntities.value.map(entity => entity.key))
+const hasFocus = computed(() => visibleTabs.value.some(tab => ['tasks', 'memories', 'schedules', 'jobs'].includes(tab)))
+const focusExpanded = ref(true)
 const dialog = shallowRef<{entity: CenterEntity; operation: 'create' | 'view' | 'edit' | 'delete'; item?: CenterItem; key: number}>()
 const colors = ref<Record<string, Record<string, string>>>({})
 const busyId = ref<string>()
@@ -95,14 +97,15 @@ onMounted(async () => {
         </div>
       </div>
       <div class="cc-header-tools">
+        <v-btn v-if="hasFocus" variant="text" :prepend-icon="focusExpanded ? 'mdi-dock-right' : 'mdi-dock-window'" size="small" :aria-expanded="focusExpanded" aria-controls="command-center-focus" @click="focusExpanded = !focusExpanded">{{ t(focusExpanded ? 'commandCenter.design.hideFocus' : 'commandCenter.design.showFocus') }}</v-btn>
         <v-btn variant="text" prepend-icon="mdi-refresh" size="small" :loading="refreshing" @click="center.refresh">{{ t('commandCenter.refresh') }}</v-btn>
         <command-center-actions :entities="center.entities.filter(entity => can(entity.key, 'create'))" @create="open($event, 'create')" />
       </div>
     </header>
     <command-center-metrics :metrics="metrics.filter(center.canMetric)" @navigate="navigate" @retry="center.loadMetrics" />
     <v-progress-linear v-if="opening" indeterminate color="primary" class="mb-2" :aria-label="t('commandCenter.loading')" />
-    <div class="cc-content-layout" :class="{'cc-content-layout--with-focus': visibleTabs.some(tab => ['tasks', 'memories', 'schedules', 'jobs'].includes(tab))}">
-      <aside v-if="visibleTabs.some(tab => ['tasks', 'memories', 'schedules', 'jobs'].includes(tab))" class="cc-focus-panel" :aria-label="t('commandCenter.design.focus')">
+    <div class="cc-content-layout" :class="{'cc-content-layout--with-focus': hasFocus && focusExpanded}">
+      <aside v-if="hasFocus" v-show="focusExpanded" id="command-center-focus" class="cc-focus-panel" :aria-label="t('commandCenter.design.focus')">
         <command-center-attention :memory="memory" :attention="attention" :automation="automation" :visible="visibleTabs" @open="(tab, item) => open(tab, 'view', item)" @another="center.anotherMemory" @retry-task="center.loadAttention" @retry-automation="center.loadAutomation" />
       </aside>
       <div class="cc-workspace-frame">
