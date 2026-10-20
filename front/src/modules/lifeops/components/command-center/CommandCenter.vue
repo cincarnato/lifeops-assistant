@@ -87,18 +87,15 @@ onMounted(async () => {
   <v-container fluid class="cc-page">
     <header class="cc-page-header">
       <div class="cc-page-heading">
-        <p class="cc-eyebrow">{{ t('commandCenter.design.eyebrow') }}</p>
+
         <h1>{{ t('commandCenter.title') }}</h1>
         <div class="cc-date d-flex align-center flex-wrap ga-2 mt-2">
           <span>{{ dateLabel }}</span>
-          <span class="cc-timezone">{{ t('commandCenter.timezone') }}</span>
+          <span v-if="refreshedAt" class="cc-updated">{{ t('commandCenter.updatedAt', {time: refreshedAt.toLocaleTimeString(locale, {hour: '2-digit', minute: '2-digit'})}) }}</span>
         </div>
       </div>
       <div class="cc-header-tools">
-        <div class="d-flex align-center flex-wrap justify-end ga-2">
-          <span v-if="refreshedAt" class="cc-updated">{{ t('commandCenter.updatedAt', {time: refreshedAt.toLocaleTimeString(locale, {hour: '2-digit', minute: '2-digit'})}) }}</span>
-          <v-btn variant="text" prepend-icon="mdi-refresh" size="small" :loading="refreshing" @click="center.refresh">{{ t('commandCenter.refresh') }}</v-btn>
-        </div>
+        <v-btn variant="text" prepend-icon="mdi-refresh" size="small" :loading="refreshing" @click="center.refresh">{{ t('commandCenter.refresh') }}</v-btn>
         <command-center-actions :entities="center.entities.filter(entity => can(entity.key, 'create'))" @create="open($event, 'create')" />
       </div>
     </header>
@@ -165,13 +162,7 @@ onMounted(async () => {
 .cc-page-heading {
   min-width: 0;
 }
-.cc-eyebrow {
-  margin-bottom: 8px;
-  color: var(--cc-muted);
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-}
+
 .cc-page-heading h1 {
   font-size: clamp(1.65rem, 2.6vw, 2.2rem);
   font-weight: 650;
@@ -184,15 +175,15 @@ onMounted(async () => {
   font-size: 0.75rem;
   line-height: 1.6;
 }
-.cc-timezone {
+.cc-updated {
   padding-inline-start: 10px;
   border-inline-start: 1px solid var(--cc-border);
 }
 .cc-header-tools {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
   flex-shrink: 0;
 }
 .cc-page :deep(.v-btn) {
@@ -223,20 +214,13 @@ onMounted(async () => {
   }
   .cc-header-tools {
     width: 100%;
-    flex-direction: row-reverse;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
+    justify-content: flex-start;
   }
 }
 @media (max-width: 599px) {
   .cc-page {
     padding: 16px 12px 24px;
   }
-  .cc-header-tools {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 8px;
-  }
+
 }
 </style>
