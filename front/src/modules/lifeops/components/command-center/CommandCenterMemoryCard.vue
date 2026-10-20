@@ -69,7 +69,7 @@ const {t} = useI18n()
 .memory-content {
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 5;
   overflow: hidden;
   overflow-wrap: anywhere;
   white-space: pre-line;
