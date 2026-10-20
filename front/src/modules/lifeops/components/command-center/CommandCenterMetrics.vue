@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, ref} from 'vue'
+import {computed} from 'vue'
 import {useI18n} from 'vue-i18n'
 import type {CenterDestination, CenterTab} from './commandCenter'
 
@@ -17,7 +17,6 @@ interface Metric {
 defineProps<{metrics: Metric[]}>()
 defineEmits<{navigate: [destination: CenterDestination]; retry: []}>()
 const {t, locale} = useI18n()
-const expanded = ref(true)
 const countFormatter = computed(() => new Intl.NumberFormat(locale.value))
 const amountFormatter = computed(() => new Intl.NumberFormat(locale.value, {minimumFractionDigits: 2, maximumFractionDigits: 2}))
 
@@ -28,17 +27,9 @@ function totalLabel(metric: Metric) {
 </script>
 
 <template>
-  <section v-if="metrics.length" class="d-flex align-start ga-1 my-1" :aria-label="t('commandCenter.metricSummary.label')">
-    <v-btn
-      :icon="expanded ? 'mdi-chart-box-minus-outline' : 'mdi-chart-box-outline'"
-      size="x-small" variant="text" class="flex-shrink-0"
-      :aria-label="t(expanded ? 'commandCenter.metricSummary.hide' : 'commandCenter.metricSummary.show')"
-      :title="t(expanded ? 'commandCenter.metricSummary.hide' : 'commandCenter.metricSummary.show')"
-      :aria-expanded="expanded" aria-controls="command-center-metrics"
-      @click="expanded = !expanded"
-    />
-    <div v-show="expanded" id="command-center-metrics" class="metrics-list d-flex flex-wrap ga-1">
-      <div v-for="metric in metrics" :key="`${metric.tab}-${metric.preset}`" class="metrics-entry d-flex align-center ga-1">
+  <section v-if="metrics.length" id="command-center-metrics" class="metrics-strip my-1" tabindex="0" :aria-label="t('commandCenter.metricSummary.label')">
+    <div class="d-flex flex-nowrap ga-1">
+      <div v-for="metric in metrics" :key="`${metric.tab}-${metric.preset}`" class="d-flex align-center flex-shrink-0 ga-1">
         <v-chip
           variant="outlined" size="small" rounded="sm" class="metric-chip px-2"
           :aria-label="`${t(`commandCenter.metrics.${metric.tab}_${metric.preset}`)}: ${metric.loading ? t('commandCenter.loading') : metric.error ? t('commandCenter.loadError') : totalLabel(metric)}`"
@@ -63,26 +54,22 @@ function totalLabel(metric: Metric) {
 </template>
 
 <style scoped>
-.metrics-list {
+.metrics-strip {
   min-width: 0;
-}
-.metrics-entry {
-  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  padding: 2px;
 }
 .metric-chip {
-  max-width: 100%;
-  height: auto;
-  min-height: 26px;
+  height: 26px;
   border-color: var(--cc-border, rgba(var(--v-theme-on-surface), 0.12));
 }
 .metric-chip :deep(.v-chip__content) {
   min-width: 0;
-  white-space: normal;
-  padding-block: 2px;
+  white-space: nowrap;
 }
 .metric-label {
   color: var(--cc-muted, rgba(var(--v-theme-on-surface), 0.65));
-  overflow-wrap: anywhere;
 }
 .metric-value {
   font-variant-numeric: tabular-nums;

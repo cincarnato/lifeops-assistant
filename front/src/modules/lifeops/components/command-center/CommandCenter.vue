@@ -20,6 +20,8 @@ const {visibleEntities, activeTab, activeEntity, state, can, metrics, memory, at
 const visibleTabs = computed(() => visibleEntities.value.map(entity => entity.key))
 const hasFocus = computed(() => visibleTabs.value.some(tab => ['tasks', 'memories', 'schedules', 'jobs'].includes(tab)))
 const focusExpanded = ref(true)
+const metricsExpanded = ref(true)
+const visibleMetrics = computed(() => metrics.filter(center.canMetric))
 const dialog = shallowRef<{entity: CenterEntity; operation: 'create' | 'view' | 'edit' | 'delete'; item?: CenterItem; key: number}>()
 const colors = ref<Record<string, Record<string, string>>>({})
 const busyId = ref<string>()
@@ -97,12 +99,13 @@ onMounted(async () => {
         </div>
       </div>
       <div class="cc-header-tools">
+        <v-btn v-if="visibleMetrics.length" variant="text" prepend-icon="mdi-chart-box-outline" size="small" :aria-expanded="metricsExpanded" aria-controls="command-center-metrics" @click="metricsExpanded = !metricsExpanded">{{ t(metricsExpanded ? 'commandCenter.metricSummary.hide' : 'commandCenter.metricSummary.show') }}</v-btn>
         <v-btn v-if="hasFocus" variant="text" :prepend-icon="focusExpanded ? 'mdi-dock-right' : 'mdi-dock-window'" size="small" :aria-expanded="focusExpanded" aria-controls="command-center-focus" @click="focusExpanded = !focusExpanded">{{ t(focusExpanded ? 'commandCenter.design.hideFocus' : 'commandCenter.design.showFocus') }}</v-btn>
         <v-btn variant="text" prepend-icon="mdi-refresh" size="small" :loading="refreshing" @click="center.refresh">{{ t('commandCenter.refresh') }}</v-btn>
         <command-center-actions :entities="center.entities.filter(entity => can(entity.key, 'create'))" @create="open($event, 'create')" />
       </div>
     </header>
-    <command-center-metrics :metrics="metrics.filter(center.canMetric)" @navigate="navigate" @retry="center.loadMetrics" />
+    <command-center-metrics v-show="metricsExpanded" :metrics="visibleMetrics" @navigate="navigate" @retry="center.loadMetrics" />
     <v-progress-linear v-if="opening" indeterminate color="primary" class="mb-2" :aria-label="t('commandCenter.loading')" />
     <div class="cc-content-layout" :class="{'cc-content-layout--with-focus': hasFocus && focusExpanded}">
       <aside v-if="hasFocus" v-show="focusExpanded" id="command-center-focus" class="cc-focus-panel" :aria-label="t('commandCenter.design.focus')">
