@@ -23,9 +23,8 @@ const messages = {
       executionsPending: 'Esta vista muestra la configuración y el último estado del job. Las ejecuciones quedan pendientes de un contrato con aislamiento por propietario.',
       tabs: {tasks: 'Tareas', schedules: 'Programadas', jobs: 'Jobs IA', projects: 'Proyectos', goals: 'Objetivos', contacts: 'Contactos', businessPartners: 'Socios comerciales', memories: 'Memorias', services: 'Servicios', serviceTransactions: 'Transacciones'},
       presets: {today: 'Hoy', overdue: 'Vencidas', urgent: 'Urgentes', unassigned: 'Sin proyecto', active: 'Activas', failed: 'Con error', services_active: 'Activos', services_inactive: 'Inactivos', pending: 'Pendientes', paid: 'Pagadas'},
-      metricCarousel: {
-        label: 'Métricas del centro de comando', description: 'Carrusel', previous: 'Métricas anteriores', next: 'Métricas siguientes',
-        pause: 'Pausar rotación automática', resume: 'Reanudar rotación automática', page: 'Página {current} de {total}',
+      metricSummary: {
+        label: 'Métricas del centro de comando', hide: 'Ocultar métricas', show: 'Mostrar métricas',
       },
       metrics: {
         tasks_overdue: 'Tareas vencidas', tasks_today: 'Tareas para hoy', tasks_urgent: 'Tareas urgentes', schedules_active: 'Tareas programadas activas',
@@ -94,9 +93,8 @@ const messages = {
       executionsPending: 'This view shows job configuration and its last status. Execution history requires a contract that isolates records by job owner.',
       tabs: {tasks: 'Tasks', schedules: 'Scheduled', jobs: 'AI jobs', projects: 'Projects', goals: 'Goals', contacts: 'Contacts', businessPartners: 'Business Partners', memories: 'Memories', services: 'Services', serviceTransactions: 'Transactions'},
       presets: {today: 'Today', overdue: 'Overdue', urgent: 'Urgent', unassigned: 'No project', active: 'Active', failed: 'Failed', services_active: 'Active', services_inactive: 'Inactive', pending: 'Pending', paid: 'Paid'},
-      metricCarousel: {
-        label: 'Command center metrics', description: 'Carousel', previous: 'Previous metrics', next: 'Next metrics',
-        pause: 'Pause automatic rotation', resume: 'Resume automatic rotation', page: 'Page {current} of {total}',
+      metricSummary: {
+        label: 'Command center metrics', hide: 'Hide metrics', show: 'Show metrics',
       },
       metrics: {
         tasks_overdue: 'Overdue tasks', tasks_today: 'Tasks for today', tasks_urgent: 'Urgent tasks', schedules_active: 'Active scheduled tasks',
