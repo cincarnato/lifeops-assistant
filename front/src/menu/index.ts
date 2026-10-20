@@ -2,13 +2,6 @@ import type {MenuItem} from '../types/menu'
 
 const menu: MenuItem[] = [
   {
-    icon: 'mdi-view-dashboard-outline',
-    text: 'commandCenter.title',
-    link: {name: 'CommandCenterPage'},
-    gallery: true,
-    auth: true
-  },
-  {
     icon: 'mdi-home',
     text: 'home',
     link: {name: "Home"},
@@ -16,11 +9,32 @@ const menu: MenuItem[] = [
     auth: false
   },
   {
-    icon: 'mdi-shield-account-outline',
-    text: 'Privacidad y cuenta',
-    link: {name: "AccountPrivacy"},
-    gallery: false,
+    icon: 'mdi-view-dashboard-outline',
+    text: 'commandCenter.title',
+    link: {name: 'CommandCenterPage'},
+    gallery: true,
     auth: true
+  },
+  {
+    icon: 'mdi-calendar-check',
+    text: 'dayplan.ui.planning',
+    link: {name: 'DayPlanningPage'},
+    gallery: true,
+    permission: 'dayplan:manage'
+  },
+  {
+    icon: 'mdi-view-dashboard-outline',
+    text: 'Kanban Tareas',
+    link: {name: "KanbanTaskPage"},
+    gallery: true,
+    permission: 'task:manage'
+  },
+  {
+    icon: 'mdi-robot',
+    text: 'agentPages.standard',
+    link: {name: "AgentPage"},
+    gallery: true,
+    permission: 'agent:session'
   },
 
   {
@@ -59,13 +73,7 @@ const menu: MenuItem[] = [
         gallery: true,
         permission: 'instruction:manage'
       },
-      {
-        icon: 'mdi-view-dashboard-outline',
-        text: 'Kanban Tareas',
-        link: {name: "KanbanTaskPage"},
-        gallery: true,
-        permission: 'task:manage'
-      },
+
       {
         icon: 'mdi-view-dashboard',
         text: 'Dashboard Tareas',
@@ -94,13 +102,7 @@ const menu: MenuItem[] = [
         gallery: true,
         permission: 'habitlog:manage'
       },
-      {
-        icon: 'mdi-calendar-check',
-        text: 'dayplan.ui.planning',
-        link: {name: 'DayPlanningPage'},
-        gallery: true,
-        permission: 'dayplan:manage'
-      },
+
       {
         icon: 'mdi-calendar-today-outline',
         text: 'dayplan.menu',
@@ -532,9 +534,17 @@ const menu: MenuItem[] = [
         gallery: true,
         auth: true
       },
-
+      {
+        icon: 'mdi-shield-account-outline',
+        text: 'Privacidad y cuenta',
+        link: {name: "AccountPrivacy"},
+        gallery: false,
+        auth: true
+      },
     ]
-  }
+  },
+
+
 ]
 
 export default menu

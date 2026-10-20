@@ -30,7 +30,7 @@ const messages = {
       metrics: {
         tasks_overdue: 'Tareas vencidas', tasks_today: 'Tareas para hoy', tasks_urgent: 'Tareas urgentes', schedules_active: 'Tareas programadas activas',
         jobs_active: 'Jobs agentes activos', jobs_failed: 'Jobs agentes con error', serviceTransactions_pending: 'Transacciones pendientes',
-        tasks_total: 'Total de tareas', tasks_pending: 'Tareas pendientes', tasks_in_progress: 'Tareas en progreso', tasks_completed_today: 'Tareas completadas hoy',
+        tasks_total: 'Tareas', tasks_pending: 'Tareas pendientes', tasks_in_progress: 'Tareas en progreso', tasks_completed_today: 'Tareas completadas hoy',
         tasks_due_soon: 'Tareas próximas a vencer', tasks_completed_month: 'Tareas completadas mes actual',
         serviceTransactions_paid_month: 'Transacciones completadas mes', serviceTransactions_income_month: 'Monto ingresos mes actual', serviceTransactions_expense_month: 'Monto egresos mes actual',
         jobs_executed: 'Jobs agentes ejecutados', schedules_generated: 'Tareas programadas generadas', goals_total: 'Objetivos',
@@ -101,7 +101,7 @@ const messages = {
       metrics: {
         tasks_overdue: 'Overdue tasks', tasks_today: 'Tasks for today', tasks_urgent: 'Urgent tasks', schedules_active: 'Active scheduled tasks',
         jobs_active: 'Active agent jobs', jobs_failed: 'Agent jobs with errors', serviceTransactions_pending: 'Pending transactions',
-        tasks_total: 'Total tasks', tasks_pending: 'Pending tasks', tasks_in_progress: 'Tasks in progress', tasks_completed_today: 'Tasks completed today',
+        tasks_total: 'Tasks', tasks_pending: 'Pending tasks', tasks_in_progress: 'Tasks in progress', tasks_completed_today: 'Tasks completed today',
         tasks_due_soon: 'Tasks due soon', tasks_completed_month: 'Tasks completed this month',
         serviceTransactions_paid_month: 'Transactions completed this month', serviceTransactions_income_month: 'Income amount this month', serviceTransactions_expense_month: 'Expense amount this month',
         jobs_executed: 'Executed agent jobs', schedules_generated: 'Generated scheduled tasks', goals_total: 'Goals',
