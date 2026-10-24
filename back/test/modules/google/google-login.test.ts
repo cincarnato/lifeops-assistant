@@ -1,6 +1,8 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {CommonConfig, DraxConfig} from '@drax/common-back';
-import {IdentityConfig, RoleServiceFactory, TenantServiceFactory, UserServiceFactory} from '@drax/identity-back';
+import {AuthUtils, IdentityConfig, jwtMiddleware, RoleServiceFactory, TenantServiceFactory, UserServiceFactory} from '@drax/identity-back';
+import Fastify from 'fastify';
+import GoogleFastifyRoutes from '../../../src/modules/google/routes/GoogleRoutes.js';
 import GoogleController from '../../../src/modules/google/controllers/GoogleController.js';
 
 const {validateToken} = vi.hoisted(() => ({validateToken: vi.fn()}));
@@ -94,6 +96,60 @@ describe('Google login tenant registration', () => {
         expect(reply.code).toHaveBeenCalledWith(500);
     });
 
+
+    it.each(['/api/google/login', '/api/google/login?source=google'])(
+        'ignores an expired Drax JWT on %s but still validates Google credentials', async url => {
+            DraxConfig.set(IdentityConfig.RegistrationTenantEnabled, false);
+            const verifyJwt = vi.spyOn(AuthUtils, 'verifyToken').mockImplementation(() => {
+                throw Object.assign(new Error('jwt expired'), {name: 'TokenExpiredError'});
+            });
+            const app = Fastify();
+            app.addHook('onRequest', jwtMiddleware);
+            app.register(GoogleFastifyRoutes);
+            try {
+                const response = await app.inject({
+                    method: 'POST', url, headers: {authorization: 'Bearer expired-token'},
+                    payload: {credential: 'google-token'},
+                });
+                expect(response.statusCode).toBe(200);
+                expect(response.json()).toEqual(tokens);
+                expect(verifyJwt).not.toHaveBeenCalled();
+                expect(validateToken).toHaveBeenCalledWith('google-token');
+
+                authByEmail.mockClear();
+                validateToken.mockRejectedValueOnce(new Error('Invalid Google credential'));
+                const rejected = await app.inject({
+                    method: 'POST', url, headers: {authorization: 'Bearer expired-token'},
+                    payload: {credential: 'invalid-google-token'},
+                });
+                expect(rejected.statusCode).toBeGreaterThanOrEqual(400);
+                expect(validateToken).toHaveBeenLastCalledWith('invalid-google-token');
+                expect(authByEmail).not.toHaveBeenCalled();
+            } finally {
+                await app.close();
+            }
+        },
+    );
+
+    it('continues validating Drax JWTs on Google connection routes', async () => {
+        const verifyJwt = vi.spyOn(AuthUtils, 'verifyToken').mockImplementation(() => {
+            throw Object.assign(new Error('jwt expired'), {name: 'TokenExpiredError'});
+        });
+        const app = Fastify();
+        app.addHook('onRequest', jwtMiddleware);
+        app.register(GoogleFastifyRoutes);
+        try {
+            const response = await app.inject({
+                method: 'GET', url: '/api/google/connections/me',
+                headers: {authorization: 'Bearer expired-token'},
+            });
+            expect(response.statusCode).toBe(498);
+            expect(verifyJwt).toHaveBeenCalledWith('expired-token');
+            expect(authByEmail).not.toHaveBeenCalled();
+        } finally {
+            await app.close();
+        }
+    });
 
     it('does not create a tenant or authenticate for an invalid Google credential', async () => {
         validateToken.mockRejectedValueOnce(new Error('Invalid Google credential'));
