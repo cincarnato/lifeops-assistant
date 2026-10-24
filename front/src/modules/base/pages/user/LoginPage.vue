@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import {IdentityLogin} from "@drax/identity-vue";
+import {IdentityLogin, isRememberMeEnabled, useAuth, useAuthStore} from "@drax/identity-vue";
 import {useDisplay, useTheme} from 'vuetify'
 import {useRouter} from "vue-router";
 import GoogleLogin from "@/modules/google/components/GoogleLogin.vue";
@@ -8,7 +8,13 @@ import logoLifeops from '@/assets/jarvops_120.png'
 
 
 const router = useRouter()
+const authStore = useAuthStore()
+const {tokenIsValid, logout} = useAuth()
 
+// Preserve remembered sessions that can still recover after a temporary refresh failure.
+if (authStore.accessToken && !tokenIsValid() && !(isRememberMeEnabled() && authStore.refreshToken)) {
+  void logout()
+}
 
 
 function onLoginSuccess(){
