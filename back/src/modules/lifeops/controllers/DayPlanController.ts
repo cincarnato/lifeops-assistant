@@ -18,9 +18,9 @@ class DayPlanController extends AbstractFastifyController<IDayPlan, IDayPlanBase
         this.tenantField = "tenant";
         this.userField = "user";
         
-        this.tenantFilter = false;
-        this.tenantSetter = false;
-        this.tenantAssert = false;
+        this.tenantFilter = true;
+        this.tenantSetter = true;
+        this.tenantAssert = true;
         
         this.userFilter = true;
         this.userSetter = true;
@@ -31,7 +31,7 @@ class DayPlanController extends AbstractFastifyController<IDayPlan, IDayPlanBase
         try {
             this.assertReadPermission(request);
             const {date} = this.parse(DayPlanPlanningSchema, request.query);
-            return reply.send(await DayPlanServiceFactory.instance.planning(this.userId(request), date));
+            return reply.send(await DayPlanServiceFactory.instance.planning(this.userId(request), date, request.rbac.tenantId));
         } catch (error) { this.handleError(error, reply); }
     }
 
@@ -59,7 +59,7 @@ class DayPlanController extends AbstractFastifyController<IDayPlan, IDayPlanBase
             this.assertUpdatePermission(request);
             const {id} = this.parse(DayPlanIdSchema, request.params);
             const input = this.parse(DayPlanProposalsSchema, request.body);
-            return reply.send(await DayPlanServiceFactory.instance.proposals(this.userId(request), id, input));
+            return reply.send(await DayPlanServiceFactory.instance.proposals(this.userId(request), id, input, request.rbac.tenantId));
         } catch (error) { this.handleError(error, reply); }
     }
 
@@ -69,7 +69,7 @@ class DayPlanController extends AbstractFastifyController<IDayPlan, IDayPlanBase
             request.rbac.assertPermission(TaskPermissions.Update);
             const {id} = this.parse(DayPlanIdSchema, request.params);
             const input = this.parse(DayPlanScheduleTaskSchema, request.body);
-            return reply.send(await DayPlanServiceFactory.instance.scheduleTask(this.userId(request), id, input));
+            return reply.send(await DayPlanServiceFactory.instance.scheduleTask(this.userId(request), id, input, request.rbac.tenantId));
         } catch (error) { this.handleError(error, reply); }
     }
 

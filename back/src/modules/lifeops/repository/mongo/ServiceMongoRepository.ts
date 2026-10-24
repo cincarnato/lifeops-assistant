@@ -12,7 +12,7 @@ class ServiceMongoRepository extends AbstractMongoRepository<IService, IServiceB
         super();
         this._model = ServiceModel;
         this._searchFields = ['name'];
-        this._populateFields = ['businessPartner'];
+        this._populateFields = ['tenant', 'businessPartner'];
         this._lean = true;
     }
 

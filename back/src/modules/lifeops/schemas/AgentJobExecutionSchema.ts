@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 
 const AgentJobExecutionBaseSchema = z.object({
+    tenant: z.string().nullable().optional(),
       jobId: z.coerce.string().min(1,'validation.required'),
     status: z.enum(['pending', 'running', 'success', 'failed', 'timeout']),
     trigger: z.enum(['scheduled', 'manual', 'retry']).default('scheduled'),
@@ -42,6 +43,7 @@ z.object({    name: z.string().min(1,'validation.required'),
 const AgentJobExecutionSchema = AgentJobExecutionBaseSchema
     .extend({
       _id: z.coerce.string(),
+        tenant: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
        jobId: z.object({_id: z.coerce.string(), name: z.string()})
     })
 

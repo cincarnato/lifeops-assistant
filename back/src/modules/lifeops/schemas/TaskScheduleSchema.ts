@@ -27,6 +27,7 @@ const optionalNullableDateSchema = z.preprocess(value => {
 }, z.coerce.date().nullable().optional());
 
 const TaskScheduleRawSchema = z.object({
+    tenant: z.string().nullable().optional(),
     name: z.string().trim().min(1, 'validation.required'),
     active: z.boolean().optional().default(true),
     task: z.object({
@@ -118,6 +119,7 @@ const TaskScheduleBaseSchema = TaskScheduleRawSchema;
 const TaskScheduleSchema = TaskScheduleRawSchema
     .extend({
         _id: z.coerce.string(),
+        tenant: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
         user: z.object({_id: z.coerce.string(), username: z.string()}),
         task: z.object({
             title: z.string().trim().min(1, 'validation.required'),

@@ -11,7 +11,7 @@ class AgentJobMongoRepository extends AbstractMongoRepository<IAgentJob, IAgentJ
         super();
         this._model = AgentJobModel;
         this._searchFields = ['name', 'description'];
-        this._populateFields = ['createdBy'];
+        this._populateFields = ['tenant', 'createdBy'];
         this._lean = true
     }
 

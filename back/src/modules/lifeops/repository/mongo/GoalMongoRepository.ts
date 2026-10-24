@@ -11,7 +11,7 @@ class GoalMongoRepository extends AbstractMongoRepository<IGoal, IGoalBase, IGoa
         super();
         this._model = GoalModel;
         this._searchFields = ['name', 'description', 'lifeArea'];
-        this._populateFields = ['user'];
+        this._populateFields = ['tenant', 'user'];
         this._lean = true
     }
 

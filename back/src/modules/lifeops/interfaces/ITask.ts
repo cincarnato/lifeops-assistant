@@ -16,6 +16,7 @@ interface ITaskNote {
 }
 
 interface ITaskBase {
+    tenant?: any
     instruction?: string | null
     title: string
     description?: string
@@ -51,6 +52,7 @@ interface ITaskBase {
 }
 
 interface ITask {
+    tenant?: any
     instruction?: import('./IInstruction').IInstruction | null
     _id: string
     title: string

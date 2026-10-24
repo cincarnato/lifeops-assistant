@@ -15,6 +15,7 @@ import DayPlanMongoRepository from '../../../../src/modules/lifeops/repository/m
 import {DayPlanBaseSchema, DayPlanPatchSchema, DayPlanSchema, DayPlanTasksSchema, DayPlanAvailableSlotsSchema, DayPlanScheduleTaskSchema} from '../../../../src/modules/lifeops/schemas/DayPlanSchema.js';
 
 const user = '111111111111111111111111';
+const tenant = 'aaaaaaaaaaaaaaaaaaaaaaaa';
 const ids = ['222222222222222222222222', '333333333333333333333333', '444444444444444444444444'];
 const planId = '555555555555555555555555';
 const date = '2030-01-02';
@@ -62,7 +63,7 @@ describe('DayPlan planning', () => {
     it('populates task context so card properties display names instead of IDs', () => {
         const repository = new DayPlanMongoRepository();
         expect((repository as any)._populateFields).toContainEqual({
-            path: 'tasks.task', populate: [{path: 'project'}, {path: 'goals'}, {path: 'user'}],
+            path: 'tasks.task', populate: [{path: 'tenant'}, {path: 'project'}, {path: 'goals'}, {path: 'user'}],
         });
     });
 
@@ -293,7 +294,7 @@ describe('DayPlan planning', () => {
     it('validates the proposals contract using Fastify schemas', async () => {
         const app = Fastify();
         app.addHook('onRequest', async request => {
-            (request as any).rbac = {userId: user, assertPermission: vi.fn()};
+            (request as any).rbac = {userId: user, tenantId: tenant, assertPermission: vi.fn()};
         });
         await app.register(DayPlanRoutes);
         const proposals = vi.spyOn(service, 'proposals').mockResolvedValue({...plan,
@@ -301,7 +302,7 @@ describe('DayPlan planning', () => {
         try {
             const url = `/api/day-plans/${planId}/proposals`;
             expect((await app.inject({method: 'POST', url, payload: {mode: 'other'}})).statusCode).toBe(200);
-            expect(proposals).toHaveBeenCalledWith(user, planId, {mode: 'other'});
+            expect(proposals).toHaveBeenCalledWith(user, planId, {mode: 'other'}, tenant);
             for (const payload of [{}, {mode: 'invalid'}]) {
                 expect((await app.inject({method: 'POST', url, payload})).statusCode).toBe(400);
             }

@@ -11,7 +11,7 @@ class ServiceTransactionMongoRepository extends AbstractMongoRepository<IService
         super();
         this._model = ServiceTransactionModel;
         this._searchFields = [];
-        this._populateFields = [{ path: 'service', populate: { path: 'businessPartner' } }] as any;
+        this._populateFields = [{path: 'tenant'}, { path: 'service', populate: [{path: 'businessPartner'}, {path: 'tenant'}] }] as any;
         this._lean = true;
     }
 
@@ -37,7 +37,11 @@ class ServiceTransactionMongoRepository extends AbstractMongoRepository<IService
             const status = data.status ?? current?.status ?? 'PENDING';
             const paidAt = status === 'PENDING' ? null
                 : current?.status === 'PAID' ? current.paidAt : new Date();
-            const payload = { ...data, service: serviceId, period,
+            const tenant = data.tenant !== undefined ? data.tenant : current?.tenant ?? service.tenant?._id ?? null;
+            if (String(tenant ?? '') !== String(service.tenant?._id ?? '')) {
+                throw new BadRequestError('Service tenant mismatch');
+            }
+            const payload = { ...data, tenant, service: serviceId, period,
                 amount: data.amount ?? current?.amount ?? service.amount, status, paidAt };
             if (id) {
                 await ServiceTransactionModel.findByIdAndUpdate(id, { $set: payload }, { runValidators: true });

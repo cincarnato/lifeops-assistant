@@ -6,6 +6,7 @@ import mongoosePaginate from 'mongoose-paginate-v2'
 import type {IHabitLog} from '../interfaces/IHabitLog'
 
 const HabitLogSchema = new mongoose.Schema<IHabitLog>({
+    tenant: {type: mongoose.Schema.Types.ObjectId, ref: 'Tenant', required: false, index: true},
             habit: {type: mongoose.Schema.Types.ObjectId, ref: 'Habit',  required: true, index: true, unique: false },
             date: {type: Date,   required: true, index: true, unique: false },
             task: {type: mongoose.Schema.Types.ObjectId, ref: 'Task',  required: false, index: true, unique: false }

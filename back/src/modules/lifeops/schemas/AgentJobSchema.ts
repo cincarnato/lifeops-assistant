@@ -2,6 +2,7 @@ import {z} from 'zod';
 
 
 const AgentJobBaseSchema = z.object({
+    tenant: z.string().nullable().optional(),
     name: z.string().trim().min(1, 'validation.required').max(120),
     description: z.string().trim().max(500).optional(),
     active: z.boolean().optional().default(true),
@@ -37,6 +38,7 @@ const AgentJobBaseSchema = z.object({
 const AgentJobSchema = AgentJobBaseSchema
     .extend({
         _id: z.coerce.string(),
+        tenant: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
         createdBy: z.object({_id: z.coerce.string(), username: z.string()}).nullable().optional(),
         createdAt: z.coerce.date().nullable().optional(),
         updatedAt: z.coerce.date().nullable().optional(),

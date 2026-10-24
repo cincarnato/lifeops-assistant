@@ -109,13 +109,15 @@ class TaskTriageService {
                 limit: 1000,
                 orderBy: "name",
                 order: "asc",
-                filters: [{field: "user", operator: "eq", value: userId}]
+                filters: [{field: "user", operator: "eq", value: userId},
+                    ...(this.resolveId(task.tenant) ? [{field: "tenant", operator: "eq", value: this.resolveId(task.tenant)}] : [])]
             }) : Promise.resolve([]),
             userId ? ProjectServiceFactory.instance.find({
                 limit: 1000,
                 orderBy: "name",
                 order: "asc",
-                filters: [{field: "user", operator: "eq", value: userId}]
+                filters: [{field: "user", operator: "eq", value: userId},
+                    ...(this.resolveId(task.tenant) ? [{field: "tenant", operator: "eq", value: this.resolveId(task.tenant)}] : [])]
             }) : Promise.resolve([])
         ]);
 

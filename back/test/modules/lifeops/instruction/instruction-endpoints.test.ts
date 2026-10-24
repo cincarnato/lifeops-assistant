@@ -126,7 +126,10 @@ describe('Instruction library and task instructions', () => {
             method: 'PATCH', url: `/api/tasks/${taskId}`, headers, payload: {instruction: instruction._id}
         })
         expect(associated.statusCode).toBe(200)
-        expect(associated.json().instruction).toMatchObject(instruction)
+        expect(associated.json().instruction).toMatchObject({
+            _id: instruction._id, title: instruction.title, content: instruction.content
+        })
+        expect(associated.json().instruction).not.toHaveProperty('tenant')
         const preserved = await testSetup.fastifyInstance.inject({
             method: 'PATCH', url: `/api/tasks/${taskId}`, headers, payload: {title: 'Pagar hoy'}
         })

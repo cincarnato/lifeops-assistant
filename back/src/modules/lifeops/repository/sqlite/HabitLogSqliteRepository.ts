@@ -14,11 +14,13 @@ class HabitLogSqliteRepository extends AbstractSqliteRepository<IHabitLog, IHabi
     protected jsonFields: string[] = [];
     protected identifier: string = '_id';
     protected populateFields = [
+        {field: 'tenant', table: 'tenants', identifier: '_id'},
         { field: 'habit', table: 'habit', identifier: '_id' },
 { field: 'task', table: 'task', identifier: '_id' }
     ]
     protected verbose: boolean = false;
     protected tableFields: SqliteTableField[] = [
+        {name: 'tenant', type: 'TEXT', primary: false, unique: false},
         {name: "habit", type: "TEXT", unique: undefined, primary: false},
 {name: "date", type: "TEXT", unique: undefined, primary: false},
 {name: "task", type: "TEXT", unique: undefined, primary: false}

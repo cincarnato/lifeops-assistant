@@ -9,7 +9,7 @@ class ShoppingItemController extends AbstractFastifyController<IShoppingItem, IS
     async purgePurchased(request, reply) {
         try {
             request.rbac.assertOrPermissions([ShoppingItemPermissions.Delete, ShoppingItemPermissions.Manage]);
-            return await ShoppingItemServiceFactory.instance.purgePurchased(request.rbac.userId);
+            return await ShoppingItemServiceFactory.instance.purgePurchased(request.rbac.userId, request.rbac.tenantId);
         } catch (error) {
             this.handleError(error, reply);
         }
@@ -20,9 +20,9 @@ class ShoppingItemController extends AbstractFastifyController<IShoppingItem, IS
         this.tenantField = "tenant";
         this.userField = "user";
 
-        this.tenantFilter = false;
-        this.tenantSetter = false;
-        this.tenantAssert = false;
+        this.tenantFilter = true;
+        this.tenantSetter = true;
+        this.tenantAssert = true;
 
         this.userFilter = true;
         this.userSetter = true;

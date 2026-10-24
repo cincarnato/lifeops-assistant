@@ -1,5 +1,6 @@
 
 interface IBusinessPartnerBase {
+    tenant?: any
     name: string
     legalName?: string
     taxCondition?: string
@@ -28,6 +29,7 @@ interface IBusinessPartnerBase {
 }
 
 interface IBusinessPartner {
+    tenant?: any
     _id: string
     name: string
     legalName?: string

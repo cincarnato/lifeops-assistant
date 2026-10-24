@@ -4,6 +4,7 @@ import type {ProjectBaseSchema} from '../schemas/ProjectSchema.js'
 type ProjectImportance = z.infer<typeof ProjectBaseSchema.shape.importance>
 
 interface IProjectBase {
+    tenant?: any
     name: string
     description?: string
     priority?: string
@@ -20,6 +21,7 @@ interface IProjectBase {
 }
 
 interface IProject {
+    tenant?: any
     _id: string
     name: string
     description?: string

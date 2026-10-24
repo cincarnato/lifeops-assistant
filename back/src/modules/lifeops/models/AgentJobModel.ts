@@ -5,6 +5,7 @@ import mongoosePaginate from 'mongoose-paginate-v2'
 import type {IAgentJob} from '../interfaces/IAgentJob'
 
 const AgentJobSchema = new mongoose.Schema<IAgentJob>({
+    tenant: {type: mongoose.Schema.Types.ObjectId, ref: 'Tenant', required: false, index: true},
     name: {type: String, trim: true, maxlength: 120, required: true, index: true, unique: false},
     description: {type: String, trim: true, maxlength: 500, required: false, index: false, unique: false},
     active: {type: Boolean, default: true, required: false, index: true, unique: false},

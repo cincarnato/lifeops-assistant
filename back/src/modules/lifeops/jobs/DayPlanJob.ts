@@ -55,18 +55,18 @@ class DayPlanJob {
     async generateForUser(options: DayPlanGenerateForUserOptions): Promise<IDayPlan> {
         const date = this.startOfDay(options.date ?? new Date());
         const userId = options.userId;
-        const existing = await this.findExistingPlan(userId, date);
+        const existing = await this.findExistingPlan(userId, date, options.tenant);
         if (existing) return existing;
 
         const [events, habits, goals, projects] = await Promise.all([
             this.fetchCalendarEvents(userId, date),
 
-            this.fetchDueHabits(userId, date),
-            this.fetchGoals(userId),
-            this.fetchProjects(userId),
+            this.fetchDueHabits(userId, date, options.tenant),
+            this.fetchGoals(userId, options.tenant),
+            this.fetchProjects(userId, options.tenant),
         ]);
 
-        const tasks = await this.selectTaskProposals(userId, {date, events});
+        const tasks = await this.selectTaskProposals(userId, {date, events, tenant: options.tenant});
         const suggestions = await this.generateSuggestions({
             userId,
             date,
@@ -82,6 +82,7 @@ class DayPlanJob {
         const payload: IDayPlanBase = {
             date,
             user: userId,
+            tenant: options.tenant,
             status: "BORRADOR",
             events: events.map(event => ({
                 googleEventId: event.id,
@@ -111,7 +112,7 @@ class DayPlanJob {
             return await DayPlanServiceFactory.instance.create(payload);
         } catch (error) {
             // A concurrent generator may have inserted the unique user/date first.
-            const concurrent = await this.findExistingPlan(userId, date);
+            const concurrent = await this.findExistingPlan(userId, date, options.tenant);
             if (concurrent) return concurrent;
             throw error;
         }
@@ -134,6 +135,7 @@ class DayPlanJob {
                 const dayPlan = await this.generateForUser({
                     userId,
                     date: options.date,
+                    tenant: user.tenant ? this.stringifyId(user.tenant) : null,
                 });
                 results.push({userId, dayPlan});
             } catch (error) {
@@ -150,10 +152,10 @@ class DayPlanJob {
         return results;
     }
 
-    private async findExistingPlan(userId: string, date: Date): Promise<IDayPlan | null> {
+    private async findExistingPlan(userId: string, date: Date, tenant?: string | null): Promise<IDayPlan | null> {
         const plans = await DayPlanServiceFactory.instance.find({
             limit: 1,
-            filters: this.buildDayFilters(userId, date),
+            filters: this.buildDayFilters(userId, date, tenant),
         });
 
         return plans[0] ?? null;
@@ -181,10 +183,10 @@ class DayPlanJob {
         }
     }
 
-    async selectTaskProposals(userId: string, context: {date: Date; events?: unknown; tasks?: unknown}, excluded: string[] = []): Promise<ITask[]> {
-        const carryOver = await this.previousDayProposals(userId, context.date, excluded);
+    async selectTaskProposals(userId: string, context: {date: Date; events?: unknown; tasks?: unknown; tenant?: string | null}, excluded: string[] = []): Promise<ITask[]> {
+        const carryOver = await this.previousDayProposals(userId, context.date, excluded, context.tenant);
         const excludedIds = new Set([...excluded, ...carryOver.map(task => this.stringifyId(task))]);
-        const candidates = (await this.fetchCandidateTasks(userId)).filter(task => !excludedIds.has(this.stringifyId(task)));
+        const candidates = (await this.fetchCandidateTasks(userId, context.tenant)).filter(task => !excludedIds.has(this.stringifyId(task)));
         if (!candidates.length) return carryOver;
         const schema = z.object({taskIds: z.array(z.string()).min(1).max(5)});
         try {
@@ -194,7 +196,7 @@ class DayPlanJob {
                     id: this.stringifyId(task), title: task.title, description: task.description,
                     importance: task.importance, urgent: task.urgent, dueDate: task.dueDate, project: task.project,
                 }))}),
-                zodSchema: schema, operationTitle: 'day-plan-task-proposals', operationGroup: 'lifeops', user: userId,
+                zodSchema: schema, operationTitle: 'day-plan-task-proposals', operationGroup: 'lifeops', user: userId, tenant: context.tenant,
             });
             const {taskIds} = schema.parse(this.parsePromptOutput(response.output));
             const allowlist = new Map(candidates.map(task => [this.stringifyId(task), task]));
@@ -206,11 +208,11 @@ class DayPlanJob {
         }
     }
 
-    private async previousDayProposals(userId: string, date: Date, excluded: string[]): Promise<ITask[]> {
+    private async previousDayProposals(userId: string, date: Date, excluded: string[], tenant?: string | null): Promise<ITask[]> {
         // Plan dates represent calendar days in UTC, not elapsed local 24-hour periods.
         const previousDate = this.startOfDay(new Date(date));
         previousDate.setUTCDate(previousDate.getUTCDate() - 1);
-        const previous = await this.findExistingPlan(userId, previousDate);
+        const previous = await this.findExistingPlan(userId, previousDate, tenant);
         if (!previous || this.stringifyId(previous.user) !== userId ||
             this.startOfDay(new Date(previous.date)).getTime() !== previousDate.getTime()) return [];
         const seen = new Set(excluded);
@@ -221,31 +223,31 @@ class DayPlanJob {
             if (seen.has(id)) continue;
             seen.add(id);
             const task = await TaskServiceFactory.instance.findById(id);
-            if (task && this.stringifyId(task.user) === userId && this.isPendingTask(task)) tasks.push(task);
+            if (task && this.stringifyId(task.user) === userId && (!tenant || this.stringifyId(task.tenant) === tenant) && this.isPendingTask(task)) tasks.push(task);
         }
         return tasks;
     }
 
-    private async fetchCandidateTasks(userId: string): Promise<ITask[]> {
+    private async fetchCandidateTasks(userId: string, tenant?: string | null): Promise<ITask[]> {
         const tasks = await TaskServiceFactory.instance.find({
             limit: 200,
             orderBy: '_id', order: 'asc',
-            filters: [{field: "user", operator: "eq", value: userId},
+            filters: [...this.ownerFilters(userId, tenant),
                 {field: 'completedAt', operator: 'empty', value: ''},
                 {field: 'archivedAt', operator: 'empty', value: ''}],
         });
 
-        return tasks.filter(task => this.stringifyId(task.user) === userId && this.isPendingTask(task))
+        return tasks.filter(task => this.stringifyId(task.user) === userId && (!tenant || this.stringifyId(task.tenant) === tenant) && this.isPendingTask(task))
             .sort((a, b) => this.scoreTask(b) - this.scoreTask(a) || this.stringifyId(a).localeCompare(this.stringifyId(b)));
     }
 
-    private async fetchDueHabits(userId: string, date: Date): Promise<IHabit[]> {
+    private async fetchDueHabits(userId: string, date: Date, tenant?: string | null): Promise<IHabit[]> {
         const habits = await HabitServiceFactory.instance.find({
             limit: 500,
             orderBy: "name",
             order: "asc",
             filters: [
-                {field: "user", operator: "eq", value: userId},
+                ...this.ownerFilters(userId, tenant),
                 {field: "active", operator: "eq", value: true},
             ],
         });
@@ -253,23 +255,23 @@ class DayPlanJob {
         return habits.filter(habit => this.isHabitDue(habit, date));
     }
 
-    private async fetchGoals(userId: string): Promise<IGoal[]> {
+    private async fetchGoals(userId: string, tenant?: string | null): Promise<IGoal[]> {
         const goals = await GoalServiceFactory.instance.find({
             limit: 100,
             orderBy: "name",
             order: "asc",
-            filters: [{field: "user", operator: "eq", value: userId}],
+            filters: [...this.ownerFilters(userId, tenant)],
         });
 
         return goals.filter(goal => !goal.completedAt && !goal.archivedAt);
     }
 
-    private async fetchProjects(userId: string): Promise<IProject[]> {
+    private async fetchProjects(userId: string, tenant?: string | null): Promise<IProject[]> {
         const projects = await ProjectServiceFactory.instance.find({
             limit: 100,
             orderBy: "name",
             order: "asc",
-            filters: [{field: "user", operator: "eq", value: userId}],
+            filters: [...this.ownerFilters(userId, tenant)],
         });
 
         return projects.filter(project => !project.archivedAt);
@@ -411,9 +413,14 @@ class DayPlanJob {
         return true;
     }
 
-    private buildDayFilters(userId: string, date: Date): IDraxFieldFilter[] {
+    private ownerFilters(userId: string, tenant?: string | null): IDraxFieldFilter[] {
+        return [{field: 'user', operator: 'eq', value: userId},
+            ...(tenant ? [{field: 'tenant', operator: 'eq', value: tenant}] : [])];
+    }
+
+    private buildDayFilters(userId: string, date: Date, tenant?: string | null): IDraxFieldFilter[] {
         return [
-            {field: "user", operator: "eq", value: userId},
+            ...this.ownerFilters(userId, tenant),
             {field: "date", operator: "gte", value: this.startOfDay(date)},
             {field: "date", operator: "lte", value: this.endOfDay(date)},
         ];

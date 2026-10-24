@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 
 const ShoppingItemBaseSchema = z.object({
+    tenant: z.string().nullable().optional(),
     name: z.string().trim().min(1,'validation.required'),
     quantity: z.string().trim().nullable().optional(),
     purchaseLocation: z.string().trim().nullable().optional(),
@@ -14,6 +15,7 @@ const ShoppingItemBaseSchema = z.object({
 const ShoppingItemSchema = ShoppingItemBaseSchema
     .extend({
       _id: z.coerce.string(),
+        tenant: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
       quantity: z.string().nullable(),
       purchased: z.boolean(),
       purchasedAt: z.coerce.date().nullable(),

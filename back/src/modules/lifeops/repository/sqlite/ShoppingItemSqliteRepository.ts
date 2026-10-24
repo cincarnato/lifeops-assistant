@@ -6,9 +6,11 @@ import {SqliteTableField} from "@drax/common-back";
 
 class ShoppingItemSqliteRepository extends AbstractSqliteRepository<IShoppingItem, IShoppingItemBase, IShoppingItemBase> implements IShoppingItemRepository {
 
-    async deletePurchasedByUser(userId: string): Promise<number> {
-        return this.db.prepare(`DELETE FROM ${this.tableName} WHERE user = ? AND purchased = ?`)
-            .run(userId, 1).changes;
+    async deletePurchasedByUser(userId: string, tenant?: string | null): Promise<number> {
+        const query = `DELETE FROM ${this.tableName} WHERE user = ? AND purchased = ?`;
+        return tenant
+            ? this.db.prepare(query + ' AND tenant = ?').run(userId, 1, tenant).changes
+            : this.db.prepare(query).run(userId, 1).changes;
     }
 
     protected db: any;
@@ -19,10 +21,12 @@ class ShoppingItemSqliteRepository extends AbstractSqliteRepository<IShoppingIte
     protected jsonFields: string[] = [];
     protected identifier: string = '_id';
     protected populateFields = [
+        {field: 'tenant', table: 'tenants', identifier: '_id'},
         { field: 'user', table: 'user', identifier: '_id' }
     ]
     protected verbose: boolean = false;
     protected tableFields: SqliteTableField[] = [
+        {name: 'tenant', type: 'TEXT', primary: false, unique: false},
         {name: "createdAt", type: "TEXT", unique: undefined, primary: false},
         {name: "updatedAt", type: "TEXT", unique: undefined, primary: false},
         {name: "name", type: "TEXT", unique: undefined, primary: false},

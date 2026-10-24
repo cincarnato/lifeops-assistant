@@ -14,10 +14,12 @@ class DayPlanSqliteRepository extends AbstractSqliteRepository<IDayPlan, IDayPla
     protected jsonFields: string[] = ['events', 'tasks', 'habits', 'suggestions'];
     protected identifier: string = '_id';
     protected populateFields = [
+        {field: 'tenant', table: 'tenants', identifier: '_id'},
         { field: 'user', table: 'user', identifier: '_id' },
     ]
     protected verbose: boolean = false;
     protected tableFields: SqliteTableField[] = [
+        {name: 'tenant', type: 'TEXT', primary: false, unique: false},
         {name: "date", type: "TEXT", unique: undefined, primary: false},
 {name: "user", type: "TEXT", unique: undefined, primary: false},
 {name: "status", type: "TEXT", unique: undefined, primary: false},

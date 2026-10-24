@@ -1,3 +1,4 @@
+import {UserServiceFactory} from "@drax/identity-back";
 import GoogleConnectionServiceFactory from "../factory/services/GoogleConnectionServiceFactory.js";
 import ContactServiceFactory from "../../lifeops/factory/services/ContactServiceFactory.js";
 import type {IGoogleConnection} from "../interfaces/IGoogleConnection";
@@ -234,6 +235,12 @@ class GoogleContactsService {
     async syncContacts(options: GoogleContactsSyncOptions): Promise<GoogleContactsSyncResult> {
         const limit = Math.min(Math.max(Number(options.limit) || 100, 1), 1000);
         const updateExisting = options.updateExisting !== false;
+        const user = await UserServiceFactory().findById(options.userId);
+        const tenant = typeof user?.tenant === "string" ? user.tenant : user?.tenant?._id?.toString();
+        if (!tenant) {
+            throw new Error("google.contacts.tenant.required");
+        }
+
         const connection = await this.resolveConnection(options.userId, options.connectionId, false);
         const googleContacts = await this.fetchContactsForSync({
             userId: options.userId,
@@ -242,7 +249,10 @@ class GoogleContactsService {
         });
         const contactService = ContactServiceFactory.instance;
         const existingContacts = await contactService.find({
-            filters: [{field: "user", operator: "eq", value: options.userId}],
+            filters: [
+                {field: "user", operator: "eq", value: options.userId},
+                {field: "tenant", operator: "eq", value: tenant},
+            ],
             limit: 0,
         });
         const indexes = this.buildContactIndexes(existingContacts);
@@ -256,7 +266,7 @@ class GoogleContactsService {
         };
 
         for (const googleContact of googleContacts) {
-            const mapped = this.mapGoogleContactToLifeOpsContact(googleContact, options.userId);
+            const mapped = this.mapGoogleContactToLifeOpsContact(googleContact, options.userId, tenant);
             if (!mapped) {
                 result.skipped += 1;
                 result.items.push(this.buildSyncItem(googleContact, "skipped", undefined, "google.contacts.empty"));
@@ -423,7 +433,7 @@ class GoogleContactsService {
             .find(Boolean);
     }
 
-    private mapGoogleContactToLifeOpsContact(contact: GoogleContact, userId: string): IContactBase | null {
+    private mapGoogleContactToLifeOpsContact(contact: GoogleContact, userId: string, tenant: string): IContactBase | null {
         const primaryName = contact.names?.find(name => name.primary) || contact.names?.[0] || {};
         const organization = contact.organizations?.find(item => item.current) || contact.organizations?.[0] || {};
         const emails = this.mapContactEmails(contact.emailAddresses);
@@ -460,6 +470,7 @@ class GoogleContactsService {
             notes: contact.biographies?.join("\n") || "",
             lastSyncedAt: new Date(),
             user: userId,
+            tenant,
         };
     }
 

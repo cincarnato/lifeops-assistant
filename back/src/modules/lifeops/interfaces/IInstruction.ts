@@ -1,5 +1,6 @@
 
 interface IInstructionBase {
+    tenant?: any
     title: string
     content: string
     createdAt?: Date
@@ -7,6 +8,7 @@ interface IInstructionBase {
 }
 
 interface IInstruction {
+    tenant?: any
     _id: string
     title: string
     content: string

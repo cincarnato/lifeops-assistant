@@ -238,6 +238,7 @@ class TaskScheduleService extends AbstractService<ITaskSchedule, ITaskScheduleBa
             tags: [...(task.tags ?? [])],
             dueDate,
             user: this.stringifyId(schedule.user),
+            tenant: this.stringifyOptionalId(schedule.tenant),
             taskSchedule: this.stringifyId(schedule),
             scheduledFor
         }

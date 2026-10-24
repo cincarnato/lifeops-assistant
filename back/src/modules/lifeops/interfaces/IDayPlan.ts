@@ -1,5 +1,6 @@
 
 interface IDayPlanBase {
+    tenant?: any
     date: Date
     user: any
     status: string
@@ -31,6 +32,7 @@ interface IDayPlanBase {
 }
 
 interface IDayPlan {
+    tenant?: any
     _id: string
     date: Date
     user: any

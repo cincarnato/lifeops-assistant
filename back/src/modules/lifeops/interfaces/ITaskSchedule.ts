@@ -53,6 +53,7 @@ interface ITaskScheduleRuntime {
 }
 
 interface ITaskScheduleBase {
+    tenant?: any
     name: string
     active?: boolean
     task: ITaskScheduleTaskTemplate
@@ -67,6 +68,7 @@ interface ITaskScheduleBase {
 }
 
 interface ITaskSchedule {
+    tenant?: any
     _id: string
     name: string
     active?: boolean

@@ -44,6 +44,7 @@ const ContactBirthdaySchema = new mongoose.Schema({
 }, {_id: false});
 
 const ContactSchema = new mongoose.Schema<IContact>({
+    tenant: {type: mongoose.Schema.Types.ObjectId, ref: 'Tenant', required: false, index: true},
     source: {type: String, required: true, enum: ['manual', 'google', 'imported', 'api'], default: 'manual', index: true},
     externalProvider: {type: String, required: false, enum: ['google'], index: true},
     externalId: {type: String, required: false, index: true},

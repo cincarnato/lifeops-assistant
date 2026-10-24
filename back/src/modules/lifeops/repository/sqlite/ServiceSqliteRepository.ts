@@ -1,5 +1,6 @@
 import { AbstractSqliteRepository } from '@drax/crud-back';
 import { NotFoundError } from '@drax/common-back';
+import type { IDraxFindOptions } from '@drax/crud-share';
 import type { SqliteTableField } from '@drax/common-back';
 import type { IServiceRepository } from '../../interfaces/IServiceRepository.js';
 import type { IService, IServiceBase } from '../../interfaces/IService.js';
@@ -11,8 +12,12 @@ class ServiceSqliteRepository extends AbstractSqliteRepository<IService, IServic
     protected booleanFields = ['active'];
     protected jsonFields: string[] = [];
     protected identifier = '_id';
-    protected populateFields = [{ field: 'businessPartner', table: 'BusinessPartner', identifier: '_id' }];
+    protected populateFields = [
+        {field: 'tenant', table: 'tenants', identifier: '_id'},
+        { field: 'businessPartner', table: 'BusinessPartner', identifier: '_id' }
+    ];
     protected tableFields: SqliteTableField[] = [
+        {name: 'tenant', type: 'TEXT', primary: false, unique: false},
         { name: 'name', type: 'TEXT', primary: false, unique: false },
         { name: 'businessPartner', type: 'TEXT', primary: false, unique: false },
         { name: 'type', type: 'TEXT', primary: false, unique: false },
@@ -21,11 +26,15 @@ class ServiceSqliteRepository extends AbstractSqliteRepository<IService, IServic
         { name: 'active', type: 'INTEGER', primary: false, unique: false }
     ];
 
-    readForSqliteTransaction(id: string, db: any): Pick<IService, 'active' | 'frequency' | 'amount'> {
-        const service = db.prepare('SELECT active, frequency, amount FROM Service WHERE _id = ?').get(id);
+    readForSqliteTransaction(id: string, db: any): Pick<IService, 'active' | 'frequency' | 'amount' | 'tenant'> {
+        const service = db.prepare('SELECT active, frequency, amount, tenant FROM Service WHERE _id = ?').get(id);
         if (!service) throw new NotFoundError('Service not found');
         service.active = service.active === 1 || service.active === 'true';
         return service;
+    }
+
+    async find({limit = 0, ...options}: IDraxFindOptions = {}): Promise<IService[]> {
+        return super.find({...options, limit: limit > 0 ? limit : -1});
     }
 
     async decorate(item: any) {

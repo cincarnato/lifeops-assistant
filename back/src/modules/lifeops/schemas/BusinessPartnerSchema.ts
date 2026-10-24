@@ -2,6 +2,7 @@ import {z} from 'zod';
 
 
 const BusinessPartnerBaseSchema = z.object({
+    tenant: z.string().nullable().optional(),
     name: z.string().min(1, 'validation.required'),
     legalName: z.string().optional().default(""),
     taxCondition: z.string().optional().default(""),
@@ -30,6 +31,7 @@ const BusinessPartnerBaseSchema = z.object({
 const BusinessPartnerSchema = BusinessPartnerBaseSchema
     .extend({
         _id: z.coerce.string(),
+        tenant: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
         // Output-only defaults cover legacy lean documents without injecting values into PATCH inputs.
         bankCbu: BusinessPartnerBaseSchema.shape.bankCbu.default(''),
         bankAlias: BusinessPartnerBaseSchema.shape.bankAlias.default(''),

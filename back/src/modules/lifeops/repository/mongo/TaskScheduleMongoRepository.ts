@@ -11,7 +11,10 @@ class TaskScheduleMongoRepository extends AbstractMongoRepository<ITaskSchedule,
         super();
         this._model = TaskScheduleModel;
         this._searchFields = ['name'];
-        this._populateFields = ['task.goals', 'task.project', 'task.instruction', 'user', 'runtime.lastTaskId'];
+        this._populateFields = [
+            ...['tenant', 'task.goals', 'task.project', 'user', 'runtime.lastTaskId'].map(path => ({path})),
+            {path: 'task.instruction', populate: {path: 'tenant'}}
+        ];
         this._lean = true
     }
 

@@ -6,6 +6,7 @@ import mongoosePaginate from 'mongoose-paginate-v2'
 import type {IPurpose} from '../interfaces/IPurpose'
 
 const PurposeSchema = new mongoose.Schema<IPurpose>({
+    tenant: {type: mongoose.Schema.Types.ObjectId, ref: 'Tenant', required: false, index: true},
             title: {type: String,   required: true, index: true, unique: false },
             statement: {type: String,   required: true, index: false, unique: false },
             isPrimary: {type: Boolean,   required: false, index: true, unique: false },

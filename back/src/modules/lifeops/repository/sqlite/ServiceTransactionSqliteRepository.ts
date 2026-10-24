@@ -13,8 +13,12 @@ class ServiceTransactionSqliteRepository extends AbstractSqliteRepository<IServi
     protected booleanFields: string[] = [];
     protected jsonFields: string[] = [];
     protected identifier = '_id';
-    protected populateFields = [{ field: 'service', table: 'Service', identifier: '_id' }];
+    protected populateFields = [
+        {field: 'tenant', table: 'tenants', identifier: '_id'},
+        { field: 'service', table: 'Service', identifier: '_id' }
+    ];
     protected tableFields: SqliteTableField[] = [
+        {name: 'tenant', type: 'TEXT', primary: false, unique: false},
         { name: 'service', type: 'TEXT', primary: false, unique: false },
         { name: 'period', type: 'TEXT', primary: false, unique: false },
         { name: 'amount', type: 'NUMERIC', primary: false, unique: false },
@@ -71,12 +75,14 @@ class ServiceTransactionSqliteRepository extends AbstractSqliteRepository<IServi
             }
             const status = data.status ?? current?.status ?? 'PENDING';
             const paidAt = status === 'PENDING' ? null : current?.status === 'PAID' ? current.paidAt : new Date().toISOString();
-            const payload = { _id: id ?? randomUUID(), service: serviceId, period,
+            const tenant = data.tenant !== undefined ? data.tenant : current?.tenant ?? service.tenant ?? null;
+            if (String(tenant ?? '') !== String(service.tenant ?? '')) throw new BadRequestError('Service tenant mismatch');
+            const payload = { _id: id ?? randomUUID(), tenant, service: serviceId, period,
                 amount: data.amount ?? current?.amount ?? service.amount, status, paidAt };
             if (id) {
-                this.db.prepare('UPDATE ServiceTransaction SET service = @service, period = @period, amount = @amount, status = @status, paidAt = @paidAt WHERE _id = @_id').run(payload);
+                this.db.prepare('UPDATE ServiceTransaction SET tenant = @tenant, service = @service, period = @period, amount = @amount, status = @status, paidAt = @paidAt WHERE _id = @_id').run(payload);
             } else {
-                this.db.prepare('INSERT INTO ServiceTransaction (_id, service, period, amount, status, paidAt) VALUES (@_id, @service, @period, @amount, @status, @paidAt)').run(payload);
+                this.db.prepare('INSERT INTO ServiceTransaction (_id, tenant, service, period, amount, status, paidAt) VALUES (@_id, @tenant, @service, @period, @amount, @status, @paidAt)').run(payload);
             }
             return payload._id;
         }).immediate();

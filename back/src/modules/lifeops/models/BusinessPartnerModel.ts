@@ -6,6 +6,7 @@ import mongoosePaginate from 'mongoose-paginate-v2'
 import type {IBusinessPartner} from '../interfaces/IBusinessPartner'
 
 const BusinessPartnerSchema = new mongoose.Schema<IBusinessPartner>({
+    tenant: {type: mongoose.Schema.Types.ObjectId, ref: 'Tenant', required: false, index: true},
             name: {type: String,   required: true, index: true, unique: false },
             legalName: {type: String,   required: false, index: false, unique: false },
             taxCondition: {type: String,   required: false, index: false, unique: false },

@@ -9,7 +9,7 @@ class ServiceTransactionController extends AbstractFastifyController<IServiceTra
     async generate(request, reply) {
         try {
             this.assertCreatePermission(request);
-            return await ServiceTransactionServiceFactory.instance.generate(request.params.period);
+            return await ServiceTransactionServiceFactory.instance.generate(request.params.period, request.rbac.tenantId);
         } catch (error) {
             this.handleError(error, reply);
         }
@@ -18,7 +18,7 @@ class ServiceTransactionController extends AbstractFastifyController<IServiceTra
     async monthly(request, reply) {
         try {
             this.assertReadPermission(request);
-            return await ServiceTransactionServiceFactory.instance.monthly(request.params.period);
+            return await ServiceTransactionServiceFactory.instance.monthly(request.params.period, request.rbac.tenantId);
         } catch (error) {
             this.handleError(error, reply);
         }
@@ -42,9 +42,9 @@ class ServiceTransactionController extends AbstractFastifyController<IServiceTra
         this.tenantField = "tenant";
         this.userField = "user";
 
-        this.tenantFilter = false;
-        this.tenantSetter = false;
-        this.tenantAssert = false;
+        this.tenantFilter = true;
+        this.tenantSetter = true;
+        this.tenantAssert = true;
 
         this.userFilter = false;
         this.userSetter = false;

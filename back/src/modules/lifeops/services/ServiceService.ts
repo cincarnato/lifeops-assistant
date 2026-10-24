@@ -34,7 +34,7 @@ class ServiceService extends AbstractService<IService, IServiceBase, IServiceBas
         return parsed.data as IServiceBase;
     }
 
-    readForSqliteTransaction(id: string, db: any): Pick<IService, 'active' | 'frequency' | 'amount'> {
+    readForSqliteTransaction(id: string, db: any): Pick<IService, 'active' | 'frequency' | 'amount' | 'tenant'> {
         if (!this.repository.readForSqliteTransaction) throw new Error('SQLite transaction reads require SQLite');
         return this.repository.readForSqliteTransaction(id, db);
     }

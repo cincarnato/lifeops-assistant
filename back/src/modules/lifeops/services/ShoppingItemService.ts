@@ -22,8 +22,8 @@ class ShoppingItemService extends AbstractService<IShoppingItem, IShoppingItemBa
 
     }
 
-    async purgePurchased(userId: string): Promise<{ deletedCount: number }> {
-        return { deletedCount: await (this._repository as IShoppingItemRepository).deletePurchasedByUser(userId) };
+    async purgePurchased(userId: string, tenant?: string | null): Promise<{ deletedCount: number }> {
+        return { deletedCount: await (this._repository as IShoppingItemRepository).deletePurchasedByUser(userId, tenant) };
     }
 
     override async validateInputUpdatePartial(data: IShoppingItemBase): Promise<IShoppingItemBase> {

@@ -10,7 +10,7 @@ class DelegateMongoRepository extends AbstractMongoRepository<IDelegate, IDelega
         super();
         this._model = DelegateModel;
         this._searchFields = ['description'];
-        this._populateFields = ['contact', 'user'];
+        this._populateFields = ['tenant', 'contact', 'user'];
         this._lean = true
     }
 

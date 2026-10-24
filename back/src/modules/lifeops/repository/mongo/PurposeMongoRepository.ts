@@ -11,7 +11,7 @@ class PurposeMongoRepository extends AbstractMongoRepository<IPurpose, IPurposeB
         super();
         this._model = PurposeModel;
         this._searchFields = ['title', 'statement'];
-        this._populateFields = ['user'];
+        this._populateFields = ['tenant', 'user'];
         this._lean = true
     }
 

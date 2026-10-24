@@ -7,8 +7,8 @@ import type {IShoppingItem, IShoppingItemBase} from "../../interfaces/IShoppingI
 
 class ShoppingItemMongoRepository extends AbstractMongoRepository<IShoppingItem, IShoppingItemBase, IShoppingItemBase> implements IShoppingItemRepository {
 
-    async deletePurchasedByUser(userId: string): Promise<number> {
-        const result = await this._model.deleteMany({ user: userId, purchased: true });
+    async deletePurchasedByUser(userId: string, tenant?: string | null): Promise<number> {
+        const result = await this._model.deleteMany({ user: userId, purchased: true, ...(tenant ? {tenant} : {}) });
         return result.deletedCount;
     }
 
@@ -16,7 +16,7 @@ class ShoppingItemMongoRepository extends AbstractMongoRepository<IShoppingItem,
         super();
         this._model = ShoppingItemModel;
         this._searchFields = ['name'];
-        this._populateFields = ['user'];
+        this._populateFields = ['tenant', 'user'];
         this._lean = true
     }
 

@@ -6,6 +6,7 @@ import mongoosePaginate from 'mongoose-paginate-v2'
 import type {IMemory} from '../interfaces/IMemory'
 
 const MemorySchema = new mongoose.Schema<IMemory>({
+    tenant: {type: mongoose.Schema.Types.ObjectId, ref: 'Tenant', required: false, index: true},
             title: {type: String,   required: true, index: true, unique: false },
             content: {type: String,   required: true, index: false, unique: false },
             type: {type: String,   required: true, index: true, unique: false },

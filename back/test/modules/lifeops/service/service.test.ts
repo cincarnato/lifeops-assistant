@@ -7,6 +7,7 @@ import Fastify from 'fastify';
 import RunServiceTransactionJob, {currentServicePeriod} from '../../../../src/jobs/RunServiceTransactionJob.js';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { mongoose, ForbiddenError, UnauthorizedError } from '@drax/common-back';
+import { TenantModel } from '@drax/identity-back';
 import ServiceSqliteRepository from '../../../../src/modules/lifeops/repository/sqlite/ServiceSqliteRepository.js';
 import ServiceTransactionSqliteRepository from '../../../../src/modules/lifeops/repository/sqlite/ServiceTransactionSqliteRepository.js';
 import ServiceMongoRepository from '../../../../src/modules/lifeops/repository/mongo/ServiceMongoRepository.js';
@@ -50,7 +51,7 @@ for (const engine of ['SQLite', 'MongoDB'] as const) {
                 await mongoose.connect(mongoServer.getUri());
                 serviceRepository = new ServiceMongoRepository();
                 transactionRepository = new ServiceTransactionMongoRepository();
-                await Promise.all([ServiceModel.init(), ServiceTransactionModel.init()]);
+                await Promise.all([TenantModel.init(), ServiceModel.init(), ServiceTransactionModel.init()]);
                 await mongoose.connection.collection('BusinessPartner').insertOne({ _id: new mongoose.Types.ObjectId(partnerId), name: 'Partner' });
             }
             services = new ServiceService(serviceRepository);
@@ -93,7 +94,10 @@ for (const engine of ['SQLite', 'MongoDB'] as const) {
             assert.equal(transaction.amount, 100);
             assert.equal(transaction.status, 'PENDING');
             assert.equal(transaction.paidAt, null);
-            assert.deepEqual(transaction.service, service);
+            // Lean populated reads omit optional fields that create output may expose as undefined.
+            assert.deepEqual(transaction.service, Object.fromEntries(
+                Object.entries(service).filter(([, value]) => value !== undefined)
+            ));
             await assert.rejects(createService({ amount: -1 }));
             await assert.rejects(createService({ businessPartner: '507f1f77bcf86cd799439012' }));
             await assert.rejects(transactions.create({ service: service._id, period: '2026-13' }));

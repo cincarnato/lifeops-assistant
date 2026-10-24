@@ -14,11 +14,13 @@ class BusinessPartnerSqliteRepository extends AbstractSqliteRepository<IBusiness
     protected jsonFields: string[] = ['roles', 'aliases', 'tags'];
     protected identifier: string = '_id';
     protected populateFields = [
+        {field: 'tenant', table: 'tenants', identifier: '_id'},
         { field: 'mainContact', table: 'mainContact', identifier: '_id' },
 { field: 'user', table: 'user', identifier: '_id' }
     ]
     protected verbose: boolean = false;
     protected tableFields: SqliteTableField[] = [
+        {name: 'tenant', type: 'TEXT', primary: false, unique: false},
         {name: "name", type: "TEXT", unique: undefined, primary: false},
 {name: "legalName", type: "TEXT", unique: undefined, primary: false},
 {name: "taxCondition", type: "TEXT", unique: undefined, primary: false},

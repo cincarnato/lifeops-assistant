@@ -1,10 +1,12 @@
 import {CreateOrUpdateRole} from "@drax/identity-back";
-import operatorRole from "./data/roles/operator-role.js";
-//import supervisorRole from "./data/roles/supervisor-role.js";
+import colaboradorRole from "./data/roles/colaborador-role.js";
+import principalRole from "./data/roles/principal-role.js";
 
 async function CreateSystemRoles(){
-    await CreateOrUpdateRole(operatorRole)
-    //await CreateOrUpdateRole(supervisorRole)
+    // Drax resolves child role names to IDs and mutates the supplied array.
+    for (const role of [colaboradorRole, principalRole]) {
+        await CreateOrUpdateRole({...role, permissions: [...role.permissions], childRoles: [...role.childRoles]})
+    }
 }
 
 export default CreateSystemRoles

@@ -1,5 +1,6 @@
 
 interface IMemoryBase {
+    tenant?: any
     title: string
     content: string
     type: string
@@ -13,6 +14,7 @@ interface IMemoryBase {
 }
 
 interface IMemory {
+    tenant?: any
     _id: string
     title: string
     content: string

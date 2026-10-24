@@ -1,6 +1,7 @@
 import { AbstractService } from '@drax/crud-back';
 import { NotFoundError, ZodErrorToValidationError } from '@drax/common-back';
 
+import type { IDraxFieldFilter } from '@drax/crud-share';
 import type { ZodObject, ZodRawShape } from 'zod';
 import type { IServiceTransactionRepository } from '../interfaces/IServiceTransactionRepository.js';
 import type { IServiceTransaction, IServiceTransactionBase } from '../interfaces/IServiceTransaction.js';
@@ -42,9 +43,9 @@ class ServiceTransactionService extends AbstractService<IServiceTransaction, ISe
         return parsed.data.period;
     }
 
-    async generate(period: string): Promise<IServiceTransaction[]> {
+    async generate(period: string, tenant?: string | null): Promise<IServiceTransaction[]> {
         period = this.validatePeriod(period);
-        const services = await ServiceServiceFactory.instance.fetchAll();
+        const services = await ServiceServiceFactory.instance.find({limit: 0, filters: this.tenantFilters(tenant)});
         const transactions: IServiceTransaction[] = [];
         for (const service of services) {
             if (!ServiceService.isDue(service, period)) continue;
@@ -54,9 +55,9 @@ class ServiceTransactionService extends AbstractService<IServiceTransaction, ISe
         return transactions;
     }
 
-    async monthly(period: string) {
+    async monthly(period: string, tenant?: string | null) {
         period = this.validatePeriod(period);
-        const transactions = await this.findBy('period', period, 0);
+        const transactions = await this.findBy('period', period, 0, this.tenantFilters(tenant));
         const summary = { expectedIncome: 0, collectedIncome: 0, pendingIncome: 0,
             expectedExpenses: 0, paidExpenses: 0, pendingExpenses: 0, transactions };
         for (const transaction of transactions) {
@@ -70,6 +71,10 @@ class ServiceTransactionService extends AbstractService<IServiceTransaction, ISe
             }
         }
         return summary;
+    }
+
+    private tenantFilters(tenant?: string | null): IDraxFieldFilter[] {
+        return tenant ? [{field: 'tenant', operator: 'eq', value: tenant}] : [];
     }
 
     async assertNoDuplicatePeriods(service: string): Promise<void> {

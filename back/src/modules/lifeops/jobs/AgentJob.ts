@@ -216,6 +216,7 @@ class AgentJob {
         try {
             const execution = await this.executionService.create({
                 jobId: this.stringifyId(job),
+                tenant: this.stringifyRelationId(job.tenant) || options.tenantId || null,
                 status: "running",
                 trigger: options.trigger ?? "manual",
                 scheduledFor: options.scheduledFor,
@@ -274,7 +275,7 @@ class AgentJob {
         return await this.withTimeout(agent.sendMessage({
             sessionId: `agent-job-${this.stringifyId(job)}-${this.stringifyId(execution)}`,
             userId: options.userId ?? this.stringifyRelationId(job.createdBy),
-            tenantId: options.tenantId ?? null,
+            tenantId: this.stringifyRelationId(job.tenant) || options.tenantId || null,
             message: this.buildJobMessage(job, execution, options),
             ip: options.ip,
             userAgent: options.userAgent,

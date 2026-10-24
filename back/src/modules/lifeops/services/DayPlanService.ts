@@ -92,26 +92,26 @@ class DayPlanService extends AbstractService<IDayPlan, IDayPlanBase, IDayPlanBas
         finally { if (this.mutations.get(id) === pending) this.mutations.delete(id); }
     }
 
-    async proposals(userId: string, id: string, input: {mode: 'more' | 'other'}): Promise<IDayPlan> {
+    async proposals(userId: string, id: string, input: {mode: 'more' | 'other'}, tenant?: string | null): Promise<IDayPlan> {
         const {mode} = DayPlanProposalsSchema.parse(input);
         const original = await this.findById(id);
-        if (!original || this.id(original.user) !== userId) throw new NotFoundError();
+        if (!original || this.id(original.user) !== userId || (tenant && this.id(original.tenant) !== tenant)) throw new NotFoundError();
         const job = DayPlanJobFactory.instance;
         const excluded = (original.tasks ?? []).map(item => this.id(item.task));
         const selected = await job.selectTaskProposals(userId, {
-            date: original.date, events: original.events, tasks: original.tasks,
+            date: original.date, events: original.events, tasks: original.tasks, tenant: this.tenantId(original.tenant),
         }, excluded);
         return this.withPlanLock(id, async () => {
             // Merge only after the slow AI call, using the latest user decisions.
             const latest = await this.findById(id);
-            if (!latest || this.id(latest.user) !== userId) throw new NotFoundError();
+            if (!latest || this.id(latest.user) !== userId || (tenant && this.id(latest.tenant) !== tenant)) throw new NotFoundError();
             const current = latest.tasks ?? [];
             const additions: NonNullable<IDayPlanBase['tasks']> = [];
             for (const candidate of selected) {
                 const taskId = this.id(candidate);
                 if (current.some(item => this.id(item.task) === taskId)) continue;
                 const task = await TaskServiceFactory.instance.findById(taskId);
-                if (task && this.id(task.user) === userId && job.isPendingTask(task)) {
+                if (task && this.id(task.user) === userId && this.tenantId(task.tenant) === this.tenantId(original.tenant) && job.isPendingTask(task)) {
                     additions.push({task: taskId, decision: 'PENDIENTE'});
                 }
             }
@@ -144,17 +144,18 @@ class DayPlanService extends AbstractService<IDayPlan, IDayPlanBase, IDayPlanBas
         }
         for (const taskId of ids) {
             const task = await TaskServiceFactory.instance.findById(taskId);
-            if (!task || this.id(task.user) !== this.id(plan.user)) {
+            if (!task || this.id(task.user) !== this.id(plan.user) || this.tenantId(task.tenant) !== this.tenantId(plan.tenant)) {
                 throw new ValidationError([{field: 'tasks', reason: 'dayPlan.task.invalidOwner'}]);
             }
         }
     }
 
-    async planning(userId: string, date: string): Promise<IDayPlan | null> {
+    async planning(userId: string, date: string, tenant?: string | null): Promise<IDayPlan | null> {
         DayPlanPlanningSchema.parse({date});
         const start = new Date(`${date}T00:00:00.000Z`);
         const plans = await this.find({limit: 1, filters: [
             {field: 'user', operator: 'eq', value: userId},
+            ...(tenant ? [{field: 'tenant', operator: 'eq', value: tenant}] : []),
             {field: 'date', operator: 'gte', value: start},
             {field: 'date', operator: 'lt', value: new Date(start.getTime() + 86400000)},
         ]});
@@ -179,23 +180,23 @@ class DayPlanService extends AbstractService<IDayPlan, IDayPlanBase, IDayPlanBas
 
     private scheduling = new Map<string, Promise<unknown>>();
 
-    async scheduleTask(userId: string, planId: string, input: {taskId: string; startAt: string; utcOffsetMinutes?: number}) {
+    async scheduleTask(userId: string, planId: string, input: {taskId: string; startAt: string; utcOffsetMinutes?: number}, tenant?: string | null) {
         // Serialize fresh availability checks for this user's requests in this process.
         const previous = this.scheduling.get(userId) ?? Promise.resolve();
-        const pending = previous.catch(() => {}).then(() => this.scheduleTaskUnlocked(userId, planId, input));
+        const pending = previous.catch(() => {}).then(() => this.scheduleTaskUnlocked(userId, planId, input, tenant));
         this.scheduling.set(userId, pending);
         try { return await pending; }
         finally { if (this.scheduling.get(userId) === pending) this.scheduling.delete(userId); }
     }
 
-    private async scheduleTaskUnlocked(userId: string, planId: string, input: {taskId: string; startAt: string; utcOffsetMinutes?: number}) {
+    private async scheduleTaskUnlocked(userId: string, planId: string, input: {taskId: string; startAt: string; utcOffsetMinutes?: number}, tenant?: string | null) {
         const {taskId, startAt, utcOffsetMinutes} = DayPlanScheduleTaskSchema.parse(input);
         const plan = await this.findById(planId);
-        if (!plan || this.id(plan.user) !== userId) throw new NotFoundError();
+        if (!plan || this.id(plan.user) !== userId || (tenant && this.id(plan.tenant) !== tenant)) throw new NotFoundError();
         if (!plan.tasks?.some(item => this.id(item.task) === taskId)) throw new BadRequestError('dayPlan.task.notInPlan');
         const taskService = TaskServiceFactory.instance;
         const task = await taskService.findById(taskId);
-        if (!task || this.id(task.user) !== userId) throw new NotFoundError();
+        if (!task || this.id(task.user) !== userId || this.tenantId(task.tenant) !== this.tenantId(plan.tenant)) throw new NotFoundError();
         const start = new Date(startAt);
         // Browser offset is UTC minus local time; plan.date is independent of the booking day.
         const localStart = new Date(start.getTime() - utcOffsetMinutes * 60000);
@@ -234,6 +235,8 @@ class DayPlanService extends AbstractService<IDayPlan, IDayPlanBase, IDayPlanBas
         await taskService.updatePartial(taskId, {calendarEventId: event.id, scheduledDate: start});
         return this.findById(planId);
     }
+
+    private tenantId(value: any): string | null { return value ? this.id(value) : null; }
 
     private id(value: any): string { return String(value?._id ?? value); }
 

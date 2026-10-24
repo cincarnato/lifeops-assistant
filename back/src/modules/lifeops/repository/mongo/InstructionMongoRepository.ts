@@ -11,7 +11,7 @@ class InstructionMongoRepository extends AbstractMongoRepository<IInstruction, I
         super();
         this._model = InstructionModel;
         this._searchFields = ['title'];
-        this._populateFields = [];
+        this._populateFields = ['tenant'];
         this._lean = true
     }
 

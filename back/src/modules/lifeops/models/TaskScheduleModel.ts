@@ -6,6 +6,7 @@ import mongoosePaginate from 'mongoose-paginate-v2'
 import type {ITaskSchedule} from '../interfaces/ITaskSchedule'
 
 const TaskScheduleSchema = new mongoose.Schema<ITaskSchedule>({
+    tenant: {type: mongoose.Schema.Types.ObjectId, ref: 'Tenant', required: false, index: true},
             name: {type: String,   required: true, index: true, unique: false },
             active: {type: Boolean, default: true,  required: false, index: true, unique: false },
             task: {

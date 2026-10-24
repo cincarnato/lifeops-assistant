@@ -14,10 +14,12 @@ class ContactSqliteRepository extends AbstractSqliteRepository<IContact, IContac
 protected jsonFields: string[] = ['externalRaw', 'emails', 'phones', 'organization', 'addresses', 'birthday', 'tags'];
     protected identifier: string = '_id';
     protected populateFields = [
+        {field: 'tenant', table: 'tenants', identifier: '_id'},
         { field: 'user', table: 'user', identifier: '_id' }
     ]
     protected verbose: boolean = false;
     protected tableFields: SqliteTableField[] = [
+        {name: 'tenant', type: 'TEXT', primary: false, unique: false},
         {name: "source", type: "TEXT", unique: undefined, primary: false},
 {name: "externalProvider", type: "TEXT", unique: undefined, primary: false},
 {name: "externalId", type: "TEXT", unique: undefined, primary: false},

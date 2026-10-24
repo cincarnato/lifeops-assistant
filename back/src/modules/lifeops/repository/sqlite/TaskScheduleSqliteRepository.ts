@@ -14,10 +14,12 @@ class TaskScheduleSqliteRepository extends AbstractSqliteRepository<ITaskSchedul
     protected jsonFields: string[] = ['task', 'schedule', 'dueDateRule', 'runtime'];
     protected identifier: string = '_id';
     protected populateFields = [
+        {field: 'tenant', table: 'tenants', identifier: '_id'},
         { field: 'user', table: 'user', identifier: '_id' }
     ]
     protected verbose: boolean = false;
     protected tableFields: SqliteTableField[] = [
+        {name: 'tenant', type: 'TEXT', primary: false, unique: false},
         {name: "name", type: "TEXT", unique: undefined, primary: false},
 {name: "active", type: "TEXT", unique: undefined, primary: false},
 {name: "task", type: "TEXT", unique: undefined, primary: false},

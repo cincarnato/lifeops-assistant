@@ -1,5 +1,6 @@
 
 interface IShoppingItemBase {
+    tenant?: any
     name: string
     quantity?: string | null
     purchaseLocation?: string | null
@@ -11,6 +12,7 @@ interface IShoppingItemBase {
 }
 
 interface IShoppingItem {
+    tenant?: any
     _id: string
     name: string
     quantity?: string | null

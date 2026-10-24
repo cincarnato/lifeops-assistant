@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 
 const HabitLogBaseSchema = z.object({
+    tenant: z.string().nullable().optional(),
       habit: z.coerce.string().min(1,'validation.required'),
     date: z.coerce.date({error: "validation.date"}),
     task: z.coerce.string().optional().nullable()
@@ -11,6 +12,7 @@ const HabitLogBaseSchema = z.object({
 const HabitLogSchema = HabitLogBaseSchema
     .extend({
       _id: z.coerce.string(),
+        tenant: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
        habit: z.object({_id: z.coerce.string(), name: z.string()}),
 task: z.object({_id: z.coerce.string(), title: z.string()}).nullable().optional()
     })

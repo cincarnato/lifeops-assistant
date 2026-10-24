@@ -2,6 +2,7 @@ import {z} from 'zod';
 
 
 const ProjectBaseSchema = z.object({
+    tenant: z.string().nullable().optional(),
     name: z.string().min(1, 'validation.required'),
     description: z.string().optional().default(""),
     priority: z.string().optional().default(""),
@@ -18,6 +19,7 @@ const ProjectBaseSchema = z.object({
 const ProjectSchema = ProjectBaseSchema
     .extend({
         _id: z.coerce.string(),
+        tenant: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
         goals: z.array(z.object({_id: z.coerce.string(), name: z.string()})).optional(),
         businessPartner: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
         user: z.object({_id: z.coerce.string(), username: z.string()}),

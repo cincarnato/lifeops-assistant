@@ -11,7 +11,7 @@ class BusinessPartnerMongoRepository extends AbstractMongoRepository<IBusinessPa
         super();
         this._model = BusinessPartnerModel;
         this._searchFields = ['name', 'aliases', 'legalName', 'taxCondition', 'taxIdType', 'taxIdNumber', 'taxAddress', 'taxEmail', 'description', 'website'];
-        this._populateFields = ['mainContact', 'user'];
+        this._populateFields = ['tenant', 'mainContact', 'user'];
         this._lean = true
     }
 

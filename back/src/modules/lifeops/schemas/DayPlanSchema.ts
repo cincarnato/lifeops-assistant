@@ -45,6 +45,7 @@ const DayPlanSlotsSchema = z.object({slots: z.array(z.object({
 }))});
 
 const DayPlanBaseSchema = z.object({
+    tenant: z.string().nullable().optional(),
     date: z.coerce.date({error: "validation.date"}),
     user: z.coerce.string().min(1, 'validation.required'),
     status: z.enum(['BORRADOR', 'VISTO', 'CONFIRMADO', 'CERRADO']).default('BORRADOR'),
@@ -76,6 +77,7 @@ const DayPlanPatchSchema = DayPlanBaseSchema.partial().extend({
 const DayPlanSchema = DayPlanBaseSchema
     .extend({
       _id: z.coerce.string(),
+        tenant: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
       user: z.object({
           _id: z.coerce.string(),
           username: z.string()

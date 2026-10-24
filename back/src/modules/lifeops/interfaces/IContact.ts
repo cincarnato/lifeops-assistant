@@ -38,6 +38,7 @@ interface IContactBirthday {
 }
 
 interface IContactBase {
+    tenant?: any
     source: 'manual' | 'google' | 'imported' | 'api'
     externalProvider?: 'google'
     externalId?: string

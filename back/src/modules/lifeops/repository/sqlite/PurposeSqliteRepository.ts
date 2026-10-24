@@ -14,10 +14,12 @@ class PurposeSqliteRepository extends AbstractSqliteRepository<IPurpose, IPurpos
     protected jsonFields: string[] = [];
     protected identifier: string = '_id';
     protected populateFields = [
+        {field: 'tenant', table: 'tenants', identifier: '_id'},
         { field: 'user', table: 'user', identifier: '_id' }
     ]
     protected verbose: boolean = false;
     protected tableFields: SqliteTableField[] = [
+        {name: 'tenant', type: 'TEXT', primary: false, unique: false},
         {name: "title", type: "TEXT", unique: undefined, primary: false},
 {name: "statement", type: "TEXT", unique: undefined, primary: false},
 {name: "isPrimary", type: "TEXT", unique: undefined, primary: false},

@@ -2,6 +2,7 @@ import GoogleAuthServiceFactory from "../factory/GoogleAuthServiceFactory.js";
 import {BadCredentialsError, RoleServiceFactory, UserServiceFactory} from "@drax/identity-back";
 import GoogleConnectionManagerFactory from "../factory/GoogleConnectionManagerFactory.js";
 import GoogleConnectionServiceFactory from "../factory/services/GoogleConnectionServiceFactory.js";
+import colaboradorRole from "../../../setup/data/roles/colaborador-role.js";
 
 class GoogleController {
 
@@ -16,7 +17,7 @@ class GoogleController {
             const payload = await GoogleAuthServiceFactory.instance.validateToken(credential)
             const userService = UserServiceFactory()
             const roleService = RoleServiceFactory()
-            const role = await roleService.findByName('Operator')
+            const role = await roleService.findByName(colaboradorRole.name)
 
             if(!role){
                 throw new Error('Role not found')

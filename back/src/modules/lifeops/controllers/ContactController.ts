@@ -14,9 +14,9 @@ class ContactController extends AbstractFastifyController<IContact, IContactBase
         this.tenantField = "tenant";
         this.userField = "user";
         
-        this.tenantFilter = false;
-        this.tenantSetter = false;
-        this.tenantAssert = false;
+        this.tenantFilter = true;
+        this.tenantSetter = true;
+        this.tenantAssert = true;
         
         this.userFilter = true;
         this.userSetter = true;

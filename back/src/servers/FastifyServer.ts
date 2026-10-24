@@ -21,6 +21,7 @@ import {
     UploadFileError
 } from "@drax/common-back";
 import pino from 'pino'
+import {registerPrincipalUserGuard} from '../modules/identity/PrincipalUserGuard.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -41,6 +42,7 @@ class FastifyServer {
     constructor( rootDir: string) {
         this.rootDir = rootDir ? rootDir : path.join(__dirname);
         this.setupFastifyServer()
+        registerPrincipalUserGuard(this.fastifyServer)
         this.disableValidations()
         this.setupErrorHandler()
         this.setupMultipart()

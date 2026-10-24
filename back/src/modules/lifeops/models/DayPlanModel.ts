@@ -5,6 +5,7 @@ import mongoosePaginate from 'mongoose-paginate-v2'
 import type {IDayPlan} from '../interfaces/IDayPlan'
 
 const DayPlanSchema = new mongoose.Schema<IDayPlan>({
+    tenant: {type: mongoose.Schema.Types.ObjectId, ref: 'Tenant', required: false, index: true},
     date: {type: Date, required: true, index: true, unique: false},
     user: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true, unique: false},
     status: {
@@ -63,7 +64,7 @@ const DayPlanSchema = new mongoose.Schema<IDayPlan>({
     }]
 }, {timestamps: true});
 
-DayPlanSchema.index({user: 1, date: 1}, {unique: true});
+DayPlanSchema.index({tenant: 1, user: 1, date: 1}, {unique: true});
 DayPlanSchema.plugin(uniqueValidator, {message: 'validation.unique'});
 DayPlanSchema.plugin(mongoosePaginate);
 

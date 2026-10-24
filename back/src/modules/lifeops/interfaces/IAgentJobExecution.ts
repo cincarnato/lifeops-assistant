@@ -1,5 +1,6 @@
 
 interface IAgentJobExecutionBase {
+    tenant?: any
     jobId: any
     status: string
     trigger: string
@@ -39,6 +40,7 @@ interface IAgentJobExecutionBase {
 }
 
 interface IAgentJobExecution {
+    tenant?: any
     _id: string
     jobId: any
     status: string

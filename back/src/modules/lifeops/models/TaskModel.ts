@@ -6,6 +6,7 @@ import type {ITask} from '../interfaces/ITask'
 import {TaskBaseSchema} from '../schemas/TaskSchema.js'
 
 const TaskSchemaDefinition = {
+    tenant: {type: mongoose.Schema.Types.ObjectId, ref: 'Tenant', required: false, index: true},
     title: {type: String, required: true, index: true, unique: false},
     description: {type: String, required: false, index: false, unique: false},
     instruction: {type: mongoose.Schema.Types.ObjectId, ref: 'Instruction', required: false},

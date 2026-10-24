@@ -1,5 +1,6 @@
 
 interface IHabitBase {
+    tenant?: any
     name: string
     description?: string
     lifeArea?: string
@@ -16,6 +17,7 @@ interface IHabitBase {
 }
 
 interface IHabit {
+    tenant?: any
     _id: string
     name: string
     description?: string

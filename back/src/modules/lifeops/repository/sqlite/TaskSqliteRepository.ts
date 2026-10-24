@@ -3,6 +3,7 @@ import {AbstractSqliteRepository} from "@drax/crud-back";
 import type {ITaskRepository} from '../../interfaces/ITaskRepository'
 import type {ITask, ITaskBase} from "../../interfaces/ITask";
 import {SqliteTableField} from "@drax/common-back";
+import InstructionServiceFactory from '../../factory/services/InstructionServiceFactory.js';
 
 class TaskSqliteRepository extends AbstractSqliteRepository<ITask, ITaskBase, ITaskBase> implements ITaskRepository {
 
@@ -14,6 +15,7 @@ class TaskSqliteRepository extends AbstractSqliteRepository<ITask, ITaskBase, IT
     protected jsonFields: string[] = ['tags', 'notes', 'statusHistory'];
     protected identifier: string = '_id';
     protected populateFields = [
+        {field: 'tenant', table: 'tenants', identifier: '_id'},
         { field: 'instruction', table: 'Instruction', identifier: '_id' },
         { field: 'goals', table: 'goals', identifier: '_id' },
 { field: 'project', table: 'project', identifier: '_id' },
@@ -22,6 +24,7 @@ class TaskSqliteRepository extends AbstractSqliteRepository<ITask, ITaskBase, IT
     ]
     protected verbose: boolean = false;
     protected tableFields: SqliteTableField[] = [
+        {name: 'tenant', type: 'TEXT', primary: false, unique: false},
         {name: "title", type: "TEXT", unique: undefined, primary: false},
 {name: "description", type: "TEXT", unique: undefined, primary: false},
 {name: "instruction", type: "TEXT", unique: undefined, primary: false},
@@ -57,6 +60,9 @@ class TaskSqliteRepository extends AbstractSqliteRepository<ITask, ITaskBase, IT
 
     async decorate(item: any) {
         await super.decorate(item)
+        if (item?.instruction?._id) {
+            item.instruction = await InstructionServiceFactory.instance.findById(item.instruction._id)
+        }
         if (item?.delegate?.contact) {
             item.delegate.contact = this.db.prepare('SELECT * FROM Contact WHERE _id = ?').get(item.delegate.contact)
         }

@@ -6,6 +6,7 @@ import mongoosePaginate from 'mongoose-paginate-v2'
 import type {IHabit} from '../interfaces/IHabit'
 
 const HabitSchema = new mongoose.Schema<IHabit>({
+    tenant: {type: mongoose.Schema.Types.ObjectId, ref: 'Tenant', required: false, index: true},
             name: {type: String,   required: true, index: true, unique: false },
             description: {type: String,   required: false, index: false, unique: false },
             lifeArea: {type: String,   required: false, index: true, unique: false },

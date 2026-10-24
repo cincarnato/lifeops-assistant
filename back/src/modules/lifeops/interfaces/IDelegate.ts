@@ -1,4 +1,5 @@
 interface IDelegateBase {
+    tenant?: any
     contact: any
     skills?: Array<string>
     description?: string
@@ -9,6 +10,7 @@ interface IDelegateBase {
 }
 
 interface IDelegate {
+    tenant?: any
     _id: string
     contact: any
     skills?: Array<string>

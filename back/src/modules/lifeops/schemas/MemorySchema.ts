@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 
 const MemoryBaseSchema = z.object({
+    tenant: z.string().nullable().optional(),
       title: z.string().min(1,'validation.required'),
     content: z.string().min(1,'validation.required'),
     type: z.string().min(1,'validation.required'),
@@ -16,6 +17,7 @@ const MemoryBaseSchema = z.object({
 const MemorySchema = MemoryBaseSchema
     .extend({
       _id: z.coerce.string(),
+        tenant: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
         user: z.object({_id: z.coerce.string(), username: z.string()}),
         createdAt: z.coerce.date().nullable().optional(),
         updatedAt: z.coerce.date().nullable().optional(),

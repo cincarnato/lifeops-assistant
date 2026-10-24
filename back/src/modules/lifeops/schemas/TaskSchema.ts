@@ -2,6 +2,7 @@ import {z} from 'zod';
 import {InstructionSchema} from './InstructionSchema.js';
 
 const TaskBaseSchema = z.object({
+    tenant: z.string().nullable().optional(),
     title: z.string().min(1, 'validation.required'),
     description: z.string().optional(),
     instruction: z.string().regex(/^[a-f\d]{24}$/i, 'validation.invalid').nullable().optional(),
@@ -50,6 +51,7 @@ const TaskBaseSchema = z.object({
 const TaskSchema = TaskBaseSchema
     .extend({
         _id: z.coerce.string(),
+        tenant: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
         instruction: InstructionSchema.nullable().optional(),
         goals: z.array(z.object({_id: z.coerce.string(), name: z.string()})).optional(),
         project: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),

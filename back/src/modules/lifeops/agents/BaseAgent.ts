@@ -139,7 +139,7 @@ abstract class BaseAgent {
             entityDescription: "Tareas",
             entityName: "Task",
             methods: ["search", "findFirst", "findLast", "create", "updatePartial", "groupBy"],
-            schema: TaskBaseSchema.omit({user: true, taskSchedule: true, scheduledFor: true}),
+            schema: TaskBaseSchema.omit({tenant: true, user: true, taskSchedule: true, scheduledFor: true}),
             service: TaskServiceFactory.instance,
             permission: TaskPermissions,
             userFilter: true,
@@ -153,7 +153,7 @@ abstract class BaseAgent {
             entityDescription: "Lista de compras",
             entityName: "ShoppingItem",
             methods: ["search", "find", "create", "updatePartial"],
-            schema: ShoppingItemBaseSchema.omit({user: true, purchasedAt: true}),
+            schema: ShoppingItemBaseSchema.omit({tenant: true, user: true, purchasedAt: true}),
             service: ShoppingItemServiceFactory.instance,
             permission: ShoppingItemPermissions,
             userFilter: true,
@@ -167,7 +167,7 @@ abstract class BaseAgent {
             entityDescription: "Tareas programadas",
             entityName: "TaskSchedule",
             methods: ["search", "create"],
-            schema: TaskScheduleBaseSchema.omit({user: true}),
+            schema: TaskScheduleBaseSchema.omit({tenant: true, user: true}),
             service: TaskScheduleServiceFactory.instance,
             permission: TaskSchedulePermissions,
             userFilter: true,
@@ -181,7 +181,7 @@ abstract class BaseAgent {
             entityDescription: "Memorias",
             entityName: "Memory",
             methods: ["search", "create", "updatePartial", "groupBy"],
-            schema: MemoryBaseSchema.omit({user: true}),
+            schema: MemoryBaseSchema.omit({tenant: true, user: true}),
             service: MemoryServiceFactory.instance,
             permission: MemoryPermissions,
             userFilter: true,
@@ -195,7 +195,7 @@ abstract class BaseAgent {
             entityDescription: "Propósitos",
             entityName: "Purpose",
             methods: ["search", "create", "updatePartial"],
-            schema: PurposeBaseSchema.omit({user: true}),
+            schema: PurposeBaseSchema.omit({tenant: true, user: true}),
             service: PurposeServiceFactory.instance,
             permission: PurposePermissions,
             userFilter: true,
@@ -209,7 +209,7 @@ abstract class BaseAgent {
             entityDescription: "Hábitos",
             entityName: "Habit",
             methods: ["search", "create", "updatePartial"],
-            schema: HabitBaseSchema.omit({user: true}),
+            schema: HabitBaseSchema.omit({tenant: true, user: true}),
             service: HabitServiceFactory.instance,
             permission: HabitPermissions,
             userFilter: true,
@@ -223,7 +223,7 @@ abstract class BaseAgent {
             entityDescription: "Objetivos",
             entityName: "Goal",
             methods: ["search", "create", "updatePartial"],
-            schema: GoalBaseSchema.omit({user: true}),
+            schema: GoalBaseSchema.omit({tenant: true, user: true}),
             service: GoalServiceFactory.instance,
             permission: GoalPermissions,
             userFilter: true,
@@ -237,7 +237,7 @@ abstract class BaseAgent {
             entityDescription: "Partes u organizaciones",
             entityName: "BusinessPartner",
             methods: ["search", "create", "updatePartial"],
-            schema: BusinessPartnerBaseSchema.omit({user: true}),
+            schema: BusinessPartnerBaseSchema.omit({tenant: true, user: true}),
             service: BusinessPartnerServiceFactory.instance,
             permission: BusinessPartnerPermissions,
             userFilter: true,
@@ -252,7 +252,7 @@ abstract class BaseAgent {
             entityDescription: "Contactos",
             entityName: "Contact",
             methods: ["search", "create", "updatePartial"],
-            schema: ContactBaseSchema.omit({user: true}),
+            schema: ContactBaseSchema.omit({tenant: true, user: true}),
             service: ContactServiceFactory.instance,
             permission: ContactPermissions,
             userFilter: true,
@@ -266,7 +266,7 @@ abstract class BaseAgent {
             entityDescription: "Proyectos",
             entityName: "Project",
             methods: ["search", "create", "updatePartial"],
-            schema: ProjectBaseSchema.omit({user: true}),
+            schema: ProjectBaseSchema.omit({tenant: true, user: true}),
             service: ProjectServiceFactory.instance,
             permission: ProjectPermissions,
             userFilter: true,
@@ -279,7 +279,13 @@ abstract class BaseAgent {
         options: Omit<BuildContextToolOptions, "context">,
         context: DraxAgentPromptContext
     ): DraxAgentToolBuilder {
-        return BuildContextTool.fromPromptContext(options, context);
+        return BuildContextTool.fromPromptContext({
+            ...options,
+            tenantField: 'tenant',
+            tenantFilter: true,
+            tenantSetter: true,
+            tenantAssert: true,
+        }, context);
     }
 
     public prepareGoogleTools(): void {
@@ -385,9 +391,10 @@ abstract class BaseAgent {
     private async buildLifeOpsPromptContext(context: DraxAgentPromptContext): Promise<string> {
         try {
             const userId = this.resolveContextUserId(context);
+            const tenant = context.input?.tenantId ?? context.session.tenantId;
             const [purpose, goals] = await Promise.all([
-                userId ? this.fetchActivePurposePromptContext(userId) : Promise.resolve(null),
-                userId ? this.fetchGoalPromptContext(userId) : Promise.resolve([])
+                userId ? this.fetchActivePurposePromptContext(userId, tenant) : Promise.resolve(null),
+                userId ? this.fetchGoalPromptContext(userId, tenant) : Promise.resolve([])
             ]);
 
             if (!purpose && goals.length === 0) {
@@ -406,10 +413,11 @@ abstract class BaseAgent {
         }
     }
 
-    private async fetchActivePurposePromptContext(userId: string): Promise<ActivePurposePromptContext | null> {
+    private async fetchActivePurposePromptContext(userId: string, tenant?: string | null): Promise<ActivePurposePromptContext | null> {
         const purposes = await PurposeServiceFactory.instance.findFirst(1, [
             {field: "active", operator: "eq", value: true},
-            {field: "user", operator: "eq", value: userId}
+            {field: "user", operator: "eq", value: userId},
+                ...(tenant ? [{field: "tenant", operator: "eq", value: tenant}] : [])
         ]);
         const purpose = purposes[0];
 
@@ -423,13 +431,14 @@ abstract class BaseAgent {
         };
     }
 
-    private async fetchGoalPromptContext(userId: string): Promise<GoalPromptContext[]> {
+    private async fetchGoalPromptContext(userId: string, tenant?: string | null): Promise<GoalPromptContext[]> {
         const goals = await GoalServiceFactory.instance.find({
             limit: 50,
             orderBy: "name",
             order: "asc",
             filters: [
-                {field: "user", operator: "eq", value: userId}
+                {field: "user", operator: "eq", value: userId},
+                ...(tenant ? [{field: "tenant", operator: "eq", value: tenant}] : [])
             ]
         });
 

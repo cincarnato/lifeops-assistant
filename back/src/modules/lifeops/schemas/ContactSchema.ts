@@ -40,6 +40,7 @@ const ContactBirthdaySchema = z.object({
 });
 
 const ContactBaseSchema = z.object({
+    tenant: z.string().nullable().optional(),
     source: z.enum(['manual', 'google', 'imported', 'api']).optional().default('manual'),
     externalProvider: z.enum(['google']).nullable().optional(),
     externalId: z.string().optional().default(""),
@@ -65,6 +66,7 @@ const ContactBaseSchema = z.object({
 const ContactSchema = ContactBaseSchema
     .extend({
         _id: z.coerce.string(),
+        tenant: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
         displayName: z.string().min(1, 'validation.required'),
         user: z.object({_id: z.coerce.string(), username: z.string()}),
         createdAt: z.coerce.date().nullable().optional(),

@@ -14,10 +14,12 @@ class MemorySqliteRepository extends AbstractSqliteRepository<IMemory, IMemoryBa
     protected jsonFields: string[] = ['tags'];
     protected identifier: string = '_id';
     protected populateFields = [
+        {field: 'tenant', table: 'tenants', identifier: '_id'},
         { field: 'user', table: 'user', identifier: '_id' }
     ]
     protected verbose: boolean = false;
     protected tableFields: SqliteTableField[] = [
+        {name: 'tenant', type: 'TEXT', primary: false, unique: false},
         {name: "title", type: "TEXT", unique: undefined, primary: false},
 {name: "content", type: "TEXT", unique: undefined, primary: false},
 {name: "type", type: "TEXT", unique: undefined, primary: false},

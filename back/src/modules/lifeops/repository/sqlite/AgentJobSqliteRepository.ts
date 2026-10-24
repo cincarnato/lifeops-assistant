@@ -14,10 +14,12 @@ class AgentJobSqliteRepository extends AbstractSqliteRepository<IAgentJob, IAgen
     protected jsonFields: string[] = ['agent', 'schedule', 'execution', 'runtime'];
     protected identifier: string = '_id';
     protected populateFields = [
+        {field: 'tenant', table: 'tenants', identifier: '_id'},
         { field: 'createdBy', table: 'createdBy', identifier: '_id' }
     ]
     protected verbose: boolean = false;
     protected tableFields: SqliteTableField[] = [
+        {name: 'tenant', type: 'TEXT', primary: false, unique: false},
         {name: "name", type: "TEXT", unique: undefined, primary: false},
 {name: "description", type: "TEXT", unique: undefined, primary: false},
 {name: "active", type: "TEXT", unique: undefined, primary: false},

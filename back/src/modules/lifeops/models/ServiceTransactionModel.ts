@@ -6,6 +6,7 @@ import mongoosePaginate from 'mongoose-paginate-v2'
 import type {IServiceTransaction} from '../interfaces/IServiceTransaction'
 
 const ServiceTransactionSchema = new mongoose.Schema<IServiceTransaction>({
+    tenant: {type: mongoose.Schema.Types.ObjectId, ref: 'Tenant', required: false, index: true},
             service: {type: mongoose.Schema.Types.ObjectId, ref: 'Service',  required: true, index: true, unique: false },
             period: {type: String, required: true, match: /^\d{4}-(0[1-9]|1[0-2])$/, index: true },
             amount: {type: Number, min: 0, required: true },

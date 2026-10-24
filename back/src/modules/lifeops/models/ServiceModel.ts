@@ -6,6 +6,7 @@ import mongoosePaginate from 'mongoose-paginate-v2'
 import type {IService} from '../interfaces/IService'
 
 const ServiceSchema = new mongoose.Schema<IService>({
+    tenant: {type: mongoose.Schema.Types.ObjectId, ref: 'Tenant', required: false, index: true},
             name: {type: String,   required: true, index: false, unique: false },
             businessPartner: {type: mongoose.Schema.Types.ObjectId, ref: 'BusinessPartner',  required: true, index: true, unique: false },
             type: {type: String,  enum: ['INCOME', 'EXPENSE'], required: true, index: false, unique: false },

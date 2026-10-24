@@ -11,7 +11,7 @@ class HabitMongoRepository extends AbstractMongoRepository<IHabit, IHabitBase, I
         super();
         this._model = HabitModel;
         this._searchFields = ['name', 'description', 'lifeArea'];
-        this._populateFields = ['user'];
+        this._populateFields = ['tenant', 'user'];
         this._lean = true
     }
 

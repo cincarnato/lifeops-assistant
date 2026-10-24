@@ -13,11 +13,13 @@ class DelegateSqliteRepository extends AbstractSqliteRepository<IDelegate, IDele
     protected jsonFields: string[] = ['skills'];
     protected identifier: string = '_id';
     protected populateFields = [
+        {field: 'tenant', table: 'tenants', identifier: '_id'},
         { field: 'contact', table: 'Contact', identifier: '_id' },
 { field: 'user', table: 'User', identifier: '_id' }
     ]
     protected verbose: boolean = false;
     protected tableFields: SqliteTableField[] = [
+        {name: 'tenant', type: 'TEXT', primary: false, unique: false},
         {name: "contact", type: "TEXT", unique: undefined, primary: false},
 {name: "skills", type: "TEXT", unique: undefined, primary: false},
 {name: "description", type: "TEXT", unique: undefined, primary: false},

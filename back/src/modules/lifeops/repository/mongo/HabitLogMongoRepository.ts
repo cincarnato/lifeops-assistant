@@ -11,7 +11,7 @@ class HabitLogMongoRepository extends AbstractMongoRepository<IHabitLog, IHabitL
         super();
         this._model = HabitLogModel;
         this._searchFields = [];
-        this._populateFields = ['habit', 'task'];
+        this._populateFields = ['tenant', 'habit', 'task'];
         this._lean = true
     }
 

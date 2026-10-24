@@ -1,5 +1,6 @@
 
 interface IGoalBase {
+    tenant?: any
     name: string
     description?: string
     priority?: string
@@ -18,6 +19,7 @@ interface IGoalBase {
 }
 
 interface IGoal {
+    tenant?: any
     _id: string
     name: string
     description?: string

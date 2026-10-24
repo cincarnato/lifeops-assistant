@@ -7,6 +7,7 @@ import type {IProject} from '../interfaces/IProject'
 import {ProjectBaseSchema} from '../schemas/ProjectSchema.js'
 
 const ProjectSchema = new mongoose.Schema<IProject>({
+    tenant: {type: mongoose.Schema.Types.ObjectId, ref: 'Tenant', required: false, index: true},
             name: {type: String,   required: true, index: true, unique: false },
             description: {type: String,   required: false, index: false, unique: false },
             priority: {type: String, required: false, index: true, unique: false },

@@ -3,6 +3,7 @@ import { ServiceSchema } from './ServiceSchema.js';
 
 const ServicePeriodSchema = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'Invalid period; expected YYYY-MM');
 const ServiceTransactionUpdateSchema = z.object({
+    tenant: z.string().nullable().optional(),
     service: z.string().min(1, 'validation.required'),
     period: ServicePeriodSchema,
     amount: z.number().nonnegative(),
@@ -15,6 +16,7 @@ const ServiceTransactionBaseSchema = ServiceTransactionUpdateSchema.extend({
 const ServiceTransactionPatchSchema = ServiceTransactionUpdateSchema.partial();
 const ServiceTransactionSchema = ServiceTransactionUpdateSchema.extend({
     _id: z.coerce.string(),
+        tenant: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
     service: ServiceSchema,
     paidAt: z.coerce.date().nullable().default(null)
 }).strip();

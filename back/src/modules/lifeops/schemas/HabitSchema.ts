@@ -2,6 +2,7 @@ import {z} from 'zod';
 
 
 const HabitBaseSchema = z.object({
+    tenant: z.string().nullable().optional(),
     name: z.string().min(1, 'validation.required'),
     description: z.string().optional().default(""),
     lifeArea: z.string().optional().default(""),
@@ -20,6 +21,7 @@ const HabitBaseSchema = z.object({
 const HabitSchema = HabitBaseSchema
     .extend({
         _id: z.coerce.string(),
+        tenant: z.object({_id: z.coerce.string(), name: z.string()}).nullable().optional(),
         user: z.object({_id: z.coerce.string(), username: z.string()}),
         createdAt: z.coerce.date().nullable().optional(),
         updatedAt: z.coerce.date().nullable().optional(),

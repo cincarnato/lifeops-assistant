@@ -6,6 +6,7 @@ import mongoosePaginate from 'mongoose-paginate-v2'
 import type {IShoppingItem} from '../interfaces/IShoppingItem'
 
 const ShoppingItemSchema = new mongoose.Schema<IShoppingItem>({
+    tenant: {type: mongoose.Schema.Types.ObjectId, ref: 'Tenant', required: false, index: true},
             name: {type: String, required: true, trim: true},
             quantity: {type: String, default: null},
             purchaseLocation: {type: String},

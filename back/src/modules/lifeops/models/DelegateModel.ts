@@ -5,6 +5,7 @@ import mongoosePaginate from 'mongoose-paginate-v2'
 import type {IDelegate} from '../interfaces/IDelegate'
 
 const DelegateSchema = new mongoose.Schema<IDelegate>({
+    tenant: {type: mongoose.Schema.Types.ObjectId, ref: 'Tenant', required: false, index: true},
             contact: {type: mongoose.Schema.Types.ObjectId, ref: 'Contact',  required: true, index: false, unique: false },
             skills: [{type: String,   required: false, index: false, unique: false }],
             description: {type: String,   required: false, index: false, unique: false },

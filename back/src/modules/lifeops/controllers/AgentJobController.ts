@@ -11,9 +11,9 @@ class AgentJobController extends AbstractFastifyController<IAgentJob, IAgentJobB
         this.tenantField = "tenant";
         this.userField = "createdBy";
         
-        this.tenantFilter = false;
-        this.tenantSetter = false;
-        this.tenantAssert = false;
+        this.tenantFilter = true;
+        this.tenantSetter = true;
+        this.tenantAssert = true;
         
         this.userFilter = true;
         this.userSetter = true;

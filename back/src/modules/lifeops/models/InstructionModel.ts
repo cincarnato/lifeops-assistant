@@ -6,6 +6,7 @@ import mongoosePaginate from 'mongoose-paginate-v2'
 import type {IInstruction} from '../interfaces/IInstruction'
 
 const InstructionSchema = new mongoose.Schema<IInstruction>({
+    tenant: {type: mongoose.Schema.Types.ObjectId, ref: 'Tenant', required: false, index: true},
             title: {type: String,   required: true, index: false, unique: false },
             content: {type: String,   required: true, index: false, unique: false }
 }, {timestamps: true});

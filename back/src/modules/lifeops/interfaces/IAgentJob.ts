@@ -1,5 +1,6 @@
 
 interface IAgentJobBase {
+    tenant?: any
     name: string
     description?: string
     active?: boolean
@@ -25,6 +26,7 @@ interface IAgentJobBase {
 }
 
 interface IAgentJob {
+    tenant?: any
     _id: string
     name: string
     description?: string
