@@ -3,6 +3,7 @@ import {BadCredentialsError, IdentityConfig, RoleServiceFactory, TenantServiceFa
 import {DraxConfig} from "@drax/common-back";
 import GoogleConnectionManagerFactory from "../factory/GoogleConnectionManagerFactory.js";
 import GoogleConnectionServiceFactory from "../factory/services/GoogleConnectionServiceFactory.js";
+import {GoogleLoginSchema} from "../schemas/GoogleLoginSchema.js";
 
 
 class GoogleController {
@@ -14,7 +15,11 @@ class GoogleController {
     async login(request, reply) {
 
         try{
-            const { credential } = request.body
+            const body = GoogleLoginSchema.safeParse(request.body)
+            if (!body.success) {
+                return reply.code(400).send({error: 'validation.invalid'})
+            }
+            const {credential, rememberMe} = body.data
             const payload = await GoogleAuthServiceFactory.instance.validateToken(credential)
             const userService = UserServiceFactory()
             const defaultRole = DraxConfig.getOrLoad(IdentityConfig.defaultRole)
@@ -47,7 +52,7 @@ class GoogleController {
                 const tenant = await tenantService.create({name: userData.username})
                 const tenantId = tenant._id.toString()
                 try {
-                    return await userService.authByEmail(payload.email, true, {...userData, tenant: tenantId}, {userAgent, ip})
+                    return await userService.authByEmail(payload.email, true, {...userData, tenant: tenantId}, {userAgent, ip}, rememberMe === true)
                 } finally {
                     // Authentication can fail after persistence; only remove an unassigned tenant.
                     const persisted = await userService.findByEmail(payload.email)
@@ -58,14 +63,13 @@ class GoogleController {
                     }
                 }
             }
-            return await userService.authByEmail(payload.email,true, userData, { userAgent, ip })
+            return await userService.authByEmail(payload.email,true, userData, { userAgent, ip }, rememberMe === true)
 
 
         }catch (e){
             console.error('/api/google/login error', e)
             if (e instanceof BadCredentialsError) {
-                reply.code(401)
-                reply.send({error: e.message})
+                return reply.code(401).send({error: e.message})
             }
             reply.code(500)
             reply.send({error: 'error.server'})

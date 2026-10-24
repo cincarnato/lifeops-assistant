@@ -1,22 +1,26 @@
 import {OAuth2Client} from 'google-auth-library';
+import {BadCredentialsError} from '@drax/identity-back';
 
-const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 
 class GoogleAuthService {
 
 
     async validateToken(token: string): Promise<any> {
+        const clientId = process.env.GOOGLE_CLIENT_ID;
+        if (!clientId) {
+            throw new Error('GOOGLE_CLIENT_ID must be configured for Google login');
+        }
         const client = new OAuth2Client();
-        const ticket = await client.verifyIdToken({
-            idToken: token,
-            audience: CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
-            // Or, if multiple clients access the backend:
-            //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
-        });
+        let ticket;
+        try {
+            ticket = await client.verifyIdToken({idToken: token, audience: clientId});
+        } catch {
+            throw new BadCredentialsError();
+        }
         const payload = ticket.getPayload();
-        const userid = payload['sub'];
-        // If the request specified a Google Workspace domain:
-        // const domain = payload['hd'];
+        if (!payload?.email || payload.email_verified !== true) {
+            throw new BadCredentialsError();
+        }
         return payload;
     }
 }

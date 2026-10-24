@@ -1,5 +1,5 @@
 import {HttpRestClientFactory, IHttpClient} from "@drax/common-front";
-import {useAuth} from "@drax/identity-vue";
+import type {ILoginResponse} from "@drax/identity-front";
 import type {
   IGoogleGmailListOptions,
   IGoogleGmailListResult,
@@ -47,13 +47,11 @@ class GoogleProvider {
     return GoogleProvider.singleton
   }
 
-  async login(credential: string): Promise<{accessToken: string}> {
+  async login(credential: string, rememberMe = false): Promise<ILoginResponse> {
     const url = this.basePath + '/login'
-    const response:{accessToken: string} = await this.httpClient.post(url, {credential}, {timeout: 120000, removeHeaders: ['Authorization']}) as {accessToken: string}
-    const {loginWithToken} = useAuth()
-    this.setHttpClientToken(response.accessToken)
-    await loginWithToken(response.accessToken)
-    return response
+    return await this.httpClient.post(url, {credential, rememberMe}, {
+      timeout: 120000, removeHeaders: ['Authorization'],
+    }) as ILoginResponse
   }
 
   async logout(): Promise<object|string> {

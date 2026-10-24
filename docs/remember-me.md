@@ -2,10 +2,11 @@
 
 ## Integración
 
-Se verificaron los paquetes instalados y lockfiles: `@drax/common-front`,
-`@drax/identity-front`, `@drax/identity-vue` y `@drax/identity-back` están en
-**3.68.0**; `@drax/identity-share` está en **3.67.0**, sin duplicación de los
-singletons frontend revisados. No fue necesario actualizar dependencias.
+Se verificaron los paquetes instalados y lockfiles actualizados por el usuario:
+`@drax/identity-vue` y `@drax/identity-back` están en **3.69.0**;
+`@drax/common-front` y `@drax/identity-front`, en **3.68.0**;
+`@drax/identity-share`, en **3.67.0**, sin duplicación de los singletons frontend
+revisados. Las APIs de login externo necesarias están disponibles.
 
 - Pinia conserva `pinia-plugin-persistedstate`.
 - `SetupAuth` delega en `setupAuthSession`; el arranque espera su finalización
@@ -22,55 +23,40 @@ singletons frontend revisados. No fue necesario actualizar dependencias.
   `/api/auth/refresh` y `/api/auth/logout` accesibles incluso con bearer vencido.
   El framework administra el almacenamiento privado; no se creó otro CRUD.
 
-El proxy Vite existente mantiene `/api` hacia el backend. La integración es REST;
-el login externo de Google conserva su flujo normal con `loginWithToken`, sin
-agregarle sesiones extendidas. No se afirma soporte de renovación GraphQL/OAuth.
+El proxy Vite existente mantiene `/api` hacia el backend. La integración de
+sesiones Drax es REST, incluido el login externo Google. No se afirma soporte
+de preflight/renovación GraphQL.
 
-## Login con Google: remember-me no disponible en Drax 3.68.0
+## Login con Google (Drax Identity 3.69.0)
 
-La revisión del código instalado y del registro npm confirmó que la última
-versión publicada de `@drax/identity-back` y `@drax/identity-vue` consultada es
-3.68.0. Activar ambas flags **no extiende las sesiones iniciadas con Google**.
+- `GoogleLogin.vue` tiene su propio `IdentityRememberMe`, inicialmente
+  desmarcado y oculto por Drax si la flag frontend está deshabilitada. Es
+  independiente del checkbox del formulario de usuario/contraseña.
+- Al recibir la credencial de Google, inicia el intercambio HTTP dentro de
+  `useAuth().loginWithSession(operation, rememberMe)`. El callback envía el opt-in
+  efectivo calculado por Drax; no inicia la petición antes del workflow.
+- `GoogleProvider.login()` es solo transporte: devuelve `ILoginResponse` completa
+  y omite Authorization en el intercambio. No escribe tokens ni headers; Drax
+  confirma y persiste la sesión, sincroniza headers y carga el perfil.
+- `GoogleLoginSchema` valida `credential` y el booleano opcional `rememberMe`
+  sin coerción. Las entradas inválidas reciben 400.
+- `GoogleAuthService` verifica la credencial con `google-auth-library`, exige
+  `GOOGLE_CLIENT_ID` como audience y requiere un email verificado. Credenciales
+  inválidas se rechazan con 401 antes de autenticar/registrar en Drax.
+- `GoogleController` pasa el quinto argumento `rememberMe === true` a
+  `authByEmail()` tanto en registro con tenant como en el flujo normal. Devuelve
+  la respuesta completa. Roles y tenant iniciales siguen siendo política del
+  servidor; no se aceptan del cliente.
+- Con opt-in y flag backend activa se emiten refreshToken/refreshExpiresAt.
+  Sin marcar, o con flag backend deshabilitada, sigue siendo un login normal.
+  Bootstrap, guard, preflight y logout reutilizan la integración existente.
+- La navegación a home solo ocurre si el workflow confirma el login. Un rechazo
+  o cancelación muestra un error traducido sin registrar credenciales. Logout
+  durante el intercambio/perfil no debe restaurar la sesión tardíamente.
 
-El flujo actual tiene tres limitaciones:
-
-1. `GoogleLogin.vue` no envía una elección remember-me. El checkbox de
-   `IdentityLogin` es estado privado del formulario de usuario/contraseña; no
-   afecta al botón de Google que está fuera de ese componente.
-2. `GoogleController.login()` usa `UserService.authByEmail()`. Esa API no acepta
-   `rememberMe`, genera una sesión normal y devuelve solo `accessToken`, incluso
-   con `DRAX_REMEMBER_ME_ENABLED=true`.
-3. `GoogleProvider.login()` llama a `useAuth().loginWithToken(accessToken)`.
-   Esa API limpia la sesión anterior y no acepta `refreshToken` ni
-   `refreshExpiresAt`. Por eso, aun agregando esos campos a la respuesta, no
-   quedarían integrados automáticamente en la sesión recordada.
-
-### Actualización necesaria en Drax
-
-Antes de modificar la aplicación consumidora se necesita una release que:
-
-- Agregue opt-in explícito a `authByEmail`, conservando el comportamiento normal
-  por defecto y reutilizando la emisión privada de sesiones del framework. Debe
-  obtener de BD los datos actuales, incluido el hash de contraseña requerido
-  para vincular el refresh token, sin exponerlo al cliente.
-- Exponga un workflow frontend para login externo con la respuesta completa de
-  sesión. Debe sincronizar headers, persistir credenciales, cargar el perfil,
-  coordinar cancelación/logout y revocar resultados tardíos, como el login
-  estándar. No alcanza con escribir los tokens directamente en el store.
-
-Con esa release publicada, actualizar paquetes/lockfiles de forma coherente,
-conectar `IdentityRememberMe` (inicialmente desmarcado) al botón de Google,
-validar con Zod el opt-in del endpoint y pasar la respuesta completa al workflow
-público. Probar luego restauración, rotación, rechazo, logout y concurrencia.
-No se agregó un checkbox sin efecto ni una implementación paralela de refresh.
-El login Google normal sigue disponible, pero al expirar su JWT necesita un
-nuevo inicio de sesión; la renovación de tokens de conexiones Gmail/Calendar es
-un mecanismo distinto y no mantiene la sesión de Drax.
-
-La prueba `back/test/modules/google/google-login.test.ts` ejecuta también el
-`authByEmail` real instalado (simulando persistencia y firma) con la flag activa
-e inactiva para caracterizar esta limitación. No reemplaza una prueba OAuth de
-navegador ni verifica la rotación de refresh tokens.
+Los refresh tokens de Drax mantienen la sesión de la aplicación: no son tokens
+OAuth de Google ni autorizan Gmail/Calendar. El consentimiento y renovación de
+las conexiones de Google son mecanismos independientes.
 
 ## Entorno y despliegue
 
@@ -110,6 +96,8 @@ Ejecutar desde `front/`:
 
 ```sh
 node test/auth-session.assertions.mjs
+node test/login-session.assertions.mjs
+node test/google-login.assertions.mjs
 npm run build
 ```
 
@@ -118,11 +106,22 @@ antes de decidir acceso, permisos, rechazo, fallo transitorio, rutas públicas,
 flag deshabilitada con credenciales antiguas y orden del bootstrap. No sustituyen
 pruebas de integración de red ni prueban internamente la rotación del framework.
 
+Las assertions de Google ejecutan el componente, provider y workflow/store/
+cliente REST instalados de Drax, con red y contexto de navegador simulados:
+opt-in/flags, persistencia y headers, cancelación por logout durante intercambio,
+fallo de perfil, restauración con JWT vencido y preflight concurrente. No montan
+la UI ni prueban GIS en navegador o coordinación real entre pestañas.
+
 Ejecutar desde `back/`:
 
 ```sh
+npx --no-install vitest run test/modules/google/google-login.test.ts
 node node_modules/typescript/bin/tsc -p tsconfig.json --noEmit --incremental false
 ```
+
+Los tests Google cubren el contrato del endpoint, registro con/sin tenant,
+validación de credenciales y emisión opt-in con servicios Drax reales y
+persistencia simulada. No usan BD productiva ni llamadas reales a Google.
 
 Pendiente con usuario/BD de prueba seguros y navegador:
 
