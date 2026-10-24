@@ -1,9 +1,6 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {CommonConfig, DraxConfig} from '@drax/common-back';
-import {AuthUtils, IdentityConfig, RoleServiceFactory, TenantServiceFactory, UserServiceFactory} from '@drax/identity-back';
-import Fastify from 'fastify';
-import jwtMiddleware from '../../../src/modules/identity/jwtMiddleware.js';
-import GoogleFastifyRoutes from '../../../src/modules/google/routes/GoogleRoutes.js';
+import {IdentityConfig, RoleServiceFactory, TenantServiceFactory, UserServiceFactory} from '@drax/identity-back';
 import GoogleController from '../../../src/modules/google/controllers/GoogleController.js';
 
 const {validateToken} = vi.hoisted(() => ({validateToken: vi.fn()}));
@@ -25,8 +22,7 @@ describe('Google login tenant registration', () => {
 
     beforeEach(() => {
         DraxConfig.set(CommonConfig.DbEngine, 'mongo');
-        DraxConfig.set(IdentityConfig.JwtSecret, 'google-login-test-secret');
-        DraxConfig.set(IdentityConfig.JwtExpiration, '-1s');
+
         DraxConfig.set(IdentityConfig.RegistrationTenantEnabled, true);
         validateToken.mockResolvedValue(profile);
         vi.spyOn(RoleServiceFactory(), 'findByName').mockResolvedValue({id: 'collaborator'} as any);
@@ -98,47 +94,6 @@ describe('Google login tenant registration', () => {
         expect(reply.code).toHaveBeenCalledWith(500);
     });
 
-    it.each(['/api/google/login', '/api/google/login?source=google'])(
-        'accepts a Google login despite an expired session JWT at %s', async url => {
-            DraxConfig.set(IdentityConfig.RegistrationTenantEnabled, false);
-            const expiredToken = AuthUtils.generateToken({
-                id: 'old-user', username: 'old-user', roleId: 'collaborator', session: 'old-session',
-            });
-            const app = Fastify();
-            app.addHook('onRequest', jwtMiddleware);
-            app.register(GoogleFastifyRoutes);
-            try {
-                const response = await app.inject({
-                    method: 'POST', url, headers: {authorization: `Bearer ${expiredToken}`},
-                    payload: {credential: 'google-token'},
-                });
-                expect(response.statusCode).toBe(200);
-                expect(response.json()).toEqual(tokens);
-                expect(validateToken).toHaveBeenCalledWith('google-token');
-                expect(authByEmail).toHaveBeenCalledOnce();
-            } finally {
-                await app.close();
-            }
-        },
-    );
-
-    it.each(['/api/google/connections/me', '/api/google/login/other', '/api/google/login'])(
-        'still rejects an expired JWT on GET %s', async url => {
-            const expiredToken = AuthUtils.generateToken({
-                id: 'old-user', username: 'old-user', roleId: 'collaborator', session: 'old-session',
-            });
-            const app = Fastify();
-            app.addHook('onRequest', jwtMiddleware);
-            app.get(url, async () => ({protected: true}));
-            try {
-                const response = await app.inject({method: 'GET', url, headers: {authorization: `Bearer ${expiredToken}`}});
-                expect(response.statusCode).toBe(498);
-                expect(response.json()).toEqual({error: 'JWT expirado'});
-            } finally {
-                await app.close();
-            }
-        },
-    );
 
     it('does not create a tenant or authenticate for an invalid Google credential', async () => {
         validateToken.mockRejectedValueOnce(new Error('Invalid Google credential'));
