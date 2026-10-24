@@ -3,7 +3,7 @@ import {BadCredentialsError, IdentityConfig, RoleServiceFactory, TenantServiceFa
 import {DraxConfig} from "@drax/common-back";
 import GoogleConnectionManagerFactory from "../factory/GoogleConnectionManagerFactory.js";
 import GoogleConnectionServiceFactory from "../factory/services/GoogleConnectionServiceFactory.js";
-import colaboradorRole from "../../../setup/data/roles/colaborador-role.js";
+
 
 class GoogleController {
 
@@ -17,11 +17,15 @@ class GoogleController {
             const { credential } = request.body
             const payload = await GoogleAuthServiceFactory.instance.validateToken(credential)
             const userService = UserServiceFactory()
+            const defaultRole = DraxConfig.getOrLoad(IdentityConfig.defaultRole)
+            if (!defaultRole) {
+                throw new Error('DRAX_DEFAULT_ROLE must be configured for Google registration')
+            }
             const roleService = RoleServiceFactory()
-            const role = await roleService.findByName(colaboradorRole.name)
+            const role = await roleService.findByName(defaultRole)
 
             if(!role){
-                throw new Error('Role not found')
+                throw new Error(`Default role not found: ${defaultRole}`)
             }
 
             const userData = {
@@ -29,7 +33,7 @@ class GoogleController {
                 username: payload.name.replace(' ', ''),
                 name: payload.name,
                 avatar: payload.picture,
-                role: role.id,
+                role: role._id.toString(),
                 active: true,
                 phone: '',
                 password: undefined,

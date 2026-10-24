@@ -26,8 +26,9 @@ describe('Google login tenant registration', () => {
         DraxConfig.set(CommonConfig.DbEngine, 'mongo');
 
         DraxConfig.set(IdentityConfig.RegistrationTenantEnabled, true);
+        DraxConfig.set(IdentityConfig.defaultRole, 'Principal');
         validateToken.mockResolvedValue(profile);
-        vi.spyOn(RoleServiceFactory(), 'findByName').mockResolvedValue({id: 'collaborator'} as any);
+        vi.spyOn(RoleServiceFactory(), 'findByName').mockResolvedValue({_id: 'principal-role', name: 'Principal'} as any);
         findByEmail = vi.spyOn(UserServiceFactory(), 'findByEmail').mockResolvedValue(null);
         authByEmail = vi.spyOn(UserServiceFactory(), 'authByEmail').mockResolvedValue(tokens);
         createTenant = vi.spyOn(TenantServiceFactory(), 'create').mockResolvedValue({_id: 'new-tenant', name: 'AnaPerez'} as any);
@@ -47,9 +48,33 @@ describe('Google login tenant registration', () => {
         expect(await controller.login(request, reply)).toEqual(tokens);
         expect(createTenant).toHaveBeenCalledExactlyOnceWith({name: 'AnaPerez'});
         expect(authByEmail).toHaveBeenCalledExactlyOnceWith(profile.email, true, expect.objectContaining({
-            username: 'AnaPerez', tenant: 'new-tenant', active: true, origin: 'Google', role: 'collaborator',
+            username: 'AnaPerez', tenant: 'new-tenant', active: true, origin: 'Google', role: 'principal-role',
         }), {userAgent: 'test', ip: '127.0.0.1'});
         expect(deleteTenant).not.toHaveBeenCalled();
+    });
+
+    it('uses the configured default role and its required _id rather than the optional id', async () => {
+        DraxConfig.set(IdentityConfig.RegistrationTenantEnabled, false);
+        expect(await controller.login(request, reply)).toEqual(tokens);
+        expect(RoleServiceFactory().findByName).toHaveBeenCalledExactlyOnceWith('Principal');
+        expect(authByEmail.mock.calls[0][2].role).toBe('principal-role');
+    });
+
+    it('does not create a tenant or user when the default role is not configured', async () => {
+        DraxConfig.set(IdentityConfig.defaultRole, '');
+        await controller.login(request, reply);
+        expect(RoleServiceFactory().findByName).not.toHaveBeenCalled();
+        expect(createTenant).not.toHaveBeenCalled();
+        expect(authByEmail).not.toHaveBeenCalled();
+        expect(reply.code).toHaveBeenCalledWith(500);
+    });
+
+    it('does not create a tenant or user when the configured role does not exist', async () => {
+        vi.mocked(RoleServiceFactory().findByName).mockResolvedValue(null);
+        await controller.login(request, reply);
+        expect(createTenant).not.toHaveBeenCalled();
+        expect(authByEmail).not.toHaveBeenCalled();
+        expect(reply.code).toHaveBeenCalledWith(500);
     });
 
     it('preserves registration without a tenant when the option is disabled', async () => {
