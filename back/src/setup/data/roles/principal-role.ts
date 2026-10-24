@@ -1,5 +1,6 @@
 import {UserPermissions, RolePermissions} from "@drax/identity-back";
 import {AIPermissions, AgentPermissions, AgentSessionPermissions} from "@drax/ai-back";
+import TaskStatusPermissions from "../../../modules/lifeops/permissions/TaskStatusPermissions.js";
 import colaboradorRole from "./colaborador-role.js";
 import lifeopsGooglePermissions from "./lifeops-google-permissions.js";
 
@@ -10,6 +11,7 @@ const role = {
         ...Object.values(AIPermissions),
         ...Object.values(AgentPermissions),
         ...Object.values(AgentSessionPermissions),
+        TaskStatusPermissions.View,
         UserPermissions.Create,
         UserPermissions.View,
         UserPermissions.Update,
