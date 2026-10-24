@@ -1,6 +1,7 @@
 import FastifyServer from "../servers/FastifyServer.js";
+import jwtMiddleware from "../modules/identity/jwtMiddleware.js";
 import {
-    jwtMiddleware,
+
     rbacMiddleware,
     apiKeyMiddleware,
     UserRoutes,
