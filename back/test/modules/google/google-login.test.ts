@@ -1,6 +1,6 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {CommonConfig, DraxConfig} from '@drax/common-back';
-import {AuthUtils, IdentityConfig, jwtMiddleware, RoleServiceFactory, TenantServiceFactory, UserServiceFactory} from '@drax/identity-back';
+import {AuthUtils, IdentityConfig, jwtMiddleware, RoleServiceFactory, TenantServiceFactory, UserServiceFactory, UserSessionServiceFactory} from '@drax/identity-back';
 import Fastify from 'fastify';
 import GoogleFastifyRoutes from '../../../src/modules/google/routes/GoogleRoutes.js';
 import GoogleController from '../../../src/modules/google/controllers/GoogleController.js';
@@ -13,6 +13,35 @@ vi.mock('../../../src/modules/google/factory/GoogleAuthServiceFactory.js', () =>
 const profile = {email: 'ana@example.com', name: 'Ana Perez', picture: 'https://example.com/avatar.png'};
 const request = {body: {credential: 'google-token'}, headers: {'user-agent': 'test'}, ip: '127.0.0.1'};
 const tokens = {accessToken: 'access-token'};
+
+describe('Installed Drax Google remember-me compatibility', () => {
+    afterEach(() => {
+        vi.restoreAllMocks();
+        DraxConfig.set(IdentityConfig.RememberMeEnabled, undefined);
+    });
+
+    it.each([false, true])('authByEmail returns only an access token with remember-me enabled=%s', async enabled => {
+        DraxConfig.set(CommonConfig.DbEngine, 'mongo');
+        DraxConfig.set(IdentityConfig.RememberMeEnabled, enabled);
+        const userService = UserServiceFactory();
+        vi.spyOn(userService, 'findByEmail').mockResolvedValue({
+            _id: 'google-user', username: 'AnaPerez', active: true,
+            role: {_id: 'principal-role', name: 'Principal'},
+        } as any);
+        const createSession = vi.spyOn(UserSessionServiceFactory(), 'create').mockResolvedValue({} as any);
+        vi.spyOn(AuthUtils, 'generateToken').mockReturnValue('access-token');
+        vi.spyOn(console, 'log').mockImplementation(() => {});
+
+        const result = await userService.authByEmail(profile.email, false, {} as any, {
+            userAgent: 'test', ip: '127.0.0.1',
+        });
+
+        expect(result).toEqual(tokens);
+        expect(createSession).toHaveBeenCalledExactlyOnceWith({
+            user: 'google-user', uuid: expect.any(String), userAgent: 'test', ip: '127.0.0.1',
+        });
+    });
+});
 
 describe('Google login tenant registration', () => {
     let controller: GoogleController;

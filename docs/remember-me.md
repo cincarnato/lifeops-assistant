@@ -3,9 +3,9 @@
 ## Integración
 
 Se verificaron los paquetes instalados y lockfiles: `@drax/common-front`,
-`@drax/identity-front`, `@drax/identity-vue`, `@drax/identity-share` y
-`@drax/identity-back` están en **3.65.0**, sin duplicación de los singletons
-frontend revisados. No fue necesario actualizar dependencias.
+`@drax/identity-front`, `@drax/identity-vue` y `@drax/identity-back` están en
+**3.68.0**; `@drax/identity-share` está en **3.67.0**, sin duplicación de los
+singletons frontend revisados. No fue necesario actualizar dependencias.
 
 - Pinia conserva `pinia-plugin-persistedstate`.
 - `SetupAuth` delega en `setupAuthSession`; el arranque espera su finalización
@@ -25,6 +25,52 @@ frontend revisados. No fue necesario actualizar dependencias.
 El proxy Vite existente mantiene `/api` hacia el backend. La integración es REST;
 el login externo de Google conserva su flujo normal con `loginWithToken`, sin
 agregarle sesiones extendidas. No se afirma soporte de renovación GraphQL/OAuth.
+
+## Login con Google: remember-me no disponible en Drax 3.68.0
+
+La revisión del código instalado y del registro npm confirmó que la última
+versión publicada de `@drax/identity-back` y `@drax/identity-vue` consultada es
+3.68.0. Activar ambas flags **no extiende las sesiones iniciadas con Google**.
+
+El flujo actual tiene tres limitaciones:
+
+1. `GoogleLogin.vue` no envía una elección remember-me. El checkbox de
+   `IdentityLogin` es estado privado del formulario de usuario/contraseña; no
+   afecta al botón de Google que está fuera de ese componente.
+2. `GoogleController.login()` usa `UserService.authByEmail()`. Esa API no acepta
+   `rememberMe`, genera una sesión normal y devuelve solo `accessToken`, incluso
+   con `DRAX_REMEMBER_ME_ENABLED=true`.
+3. `GoogleProvider.login()` llama a `useAuth().loginWithToken(accessToken)`.
+   Esa API limpia la sesión anterior y no acepta `refreshToken` ni
+   `refreshExpiresAt`. Por eso, aun agregando esos campos a la respuesta, no
+   quedarían integrados automáticamente en la sesión recordada.
+
+### Actualización necesaria en Drax
+
+Antes de modificar la aplicación consumidora se necesita una release que:
+
+- Agregue opt-in explícito a `authByEmail`, conservando el comportamiento normal
+  por defecto y reutilizando la emisión privada de sesiones del framework. Debe
+  obtener de BD los datos actuales, incluido el hash de contraseña requerido
+  para vincular el refresh token, sin exponerlo al cliente.
+- Exponga un workflow frontend para login externo con la respuesta completa de
+  sesión. Debe sincronizar headers, persistir credenciales, cargar el perfil,
+  coordinar cancelación/logout y revocar resultados tardíos, como el login
+  estándar. No alcanza con escribir los tokens directamente en el store.
+
+Con esa release publicada, actualizar paquetes/lockfiles de forma coherente,
+conectar `IdentityRememberMe` (inicialmente desmarcado) al botón de Google,
+validar con Zod el opt-in del endpoint y pasar la respuesta completa al workflow
+público. Probar luego restauración, rotación, rechazo, logout y concurrencia.
+No se agregó un checkbox sin efecto ni una implementación paralela de refresh.
+El login Google normal sigue disponible, pero al expirar su JWT necesita un
+nuevo inicio de sesión; la renovación de tokens de conexiones Gmail/Calendar es
+un mecanismo distinto y no mantiene la sesión de Drax.
+
+La prueba `back/test/modules/google/google-login.test.ts` ejecuta también el
+`authByEmail` real instalado (simulando persistencia y firma) con la flag activa
+e inactiva para caracterizar esta limitación. No reemplaza una prueba OAuth de
+navegador ni verifica la rotación de refresh tokens.
 
 ## Entorno y despliegue
 
