@@ -1,5 +1,6 @@
 import GoogleAuthServiceFactory from "../factory/GoogleAuthServiceFactory.js";
-import {BadCredentialsError, RoleServiceFactory, UserServiceFactory} from "@drax/identity-back";
+import {BadCredentialsError, IdentityConfig, RoleServiceFactory, TenantServiceFactory, UserServiceFactory} from "@drax/identity-back";
+import {DraxConfig} from "@drax/common-back";
 import GoogleConnectionManagerFactory from "../factory/GoogleConnectionManagerFactory.js";
 import GoogleConnectionServiceFactory from "../factory/services/GoogleConnectionServiceFactory.js";
 import colaboradorRole from "../../../setup/data/roles/colaborador-role.js";
@@ -36,6 +37,23 @@ class GoogleController {
             }
             const userAgent = request.headers['user-agent']
             const ip = request.ip
+            const tenantRequired = DraxConfig.getOrLoad(IdentityConfig.RegistrationTenantEnabled, 'boolean', false)
+            if (tenantRequired && !await userService.findByEmail(payload.email)) {
+                const tenantService = TenantServiceFactory()
+                const tenant = await tenantService.create({name: userData.username})
+                const tenantId = tenant._id.toString()
+                try {
+                    return await userService.authByEmail(payload.email, true, {...userData, tenant: tenantId}, {userAgent, ip})
+                } finally {
+                    // Authentication can fail after persistence; only remove an unassigned tenant.
+                    const persisted = await userService.findByEmail(payload.email)
+                    const assignedTenant = persisted?.tenant
+                    const assignedTenantId = typeof assignedTenant === 'string' ? assignedTenant : assignedTenant?._id?.toString()
+                    if (assignedTenantId !== tenantId) {
+                        await tenantService.delete(tenantId)
+                    }
+                }
+            }
             return await userService.authByEmail(payload.email,true, userData, { userAgent, ip })
 
 
