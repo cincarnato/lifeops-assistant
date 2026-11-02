@@ -18,7 +18,10 @@ const excluded = ['TaskType', 'TaskStatus', 'Source', 'LifeArea', 'Priority', 'C
 
 describe('system roles', () => {
     it('grants operational permissions and only the allowed catalog views to both roles', async () => {
-        const catalogViews = ['priority:view', 'source:view', 'taskstatus:view'];
+        const catalogViews = [
+            'priority:view', 'source:view', 'taskstatus:view',
+            'lifearea:view', 'memorytype:view', 'tasktype:view', 'contacttype:view',
+        ];
         const expected: string[] = [...catalogViews];
         const catalogPermissions: string[] = [];
         for (const module of ['lifeops', 'google']) {
