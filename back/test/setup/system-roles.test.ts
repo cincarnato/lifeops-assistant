@@ -17,8 +17,9 @@ import CreateSystemRoles from '../../src/setup/CreateSystemRoles.js';
 const excluded = ['TaskType', 'TaskStatus', 'Source', 'LifeArea', 'Priority', 'ContactType', 'MemoryType'];
 
 describe('system roles', () => {
-    it('grants every operational LifeOps and Google permission to both roles, excluding catalogs', async () => {
-        const expected: string[] = [];
+    it('grants operational permissions and only the allowed catalog views to both roles', async () => {
+        const catalogViews = ['priority:view', 'source:view', 'taskstatus:view'];
+        const expected: string[] = [...catalogViews];
         const catalogPermissions: string[] = [];
         for (const module of ['lifeops', 'google']) {
             const directory = new URL(`../../src/modules/${module}/permissions/`, import.meta.url);
@@ -30,7 +31,8 @@ describe('system roles', () => {
         expect([...colaboradorRole.permissions].sort()).toEqual(expected.sort());
         expect(principalRole.permissions).toEqual(expect.arrayContaining(expected));
         for (const role of [principalRole, colaboradorRole]) {
-            expect(role.permissions.some(permission => catalogPermissions.includes(permission))).toBe(false);
+            expect(role.permissions.filter(permission => catalogPermissions.includes(permission)).sort())
+                .toEqual([...catalogViews].sort());
             expect(role.readonly).toBe(true);
         }
     });
