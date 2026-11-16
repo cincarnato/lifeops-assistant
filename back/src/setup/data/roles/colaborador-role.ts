@@ -24,6 +24,7 @@ import ShoppingItemPermissions from "../../../modules/lifeops/permissions/Shoppi
 import TaskPermissions from "../../../modules/lifeops/permissions/TaskPermissions.js";
 import TaskSchedulePermissions from "../../../modules/lifeops/permissions/TaskSchedulePermissions.js";
 import GoogleConnectionPermissions from "../../../modules/google/permissions/GoogleConnectionPermissions.js";
+import {UserApiKeyPermissions} from "@drax/identity-back";
 
 const role = {
     name: "Colaborador",
@@ -54,6 +55,12 @@ const role = {
         PriorityPermissions.View,
         SourcePermissions.View,
         TaskStatusPermissions.View,
+
+        UserApiKeyPermissions.Create,
+        UserApiKeyPermissions.Manage,
+        UserApiKeyPermissions.View,
+        UserApiKeyPermissions.Update,
+        UserApiKeyPermissions.Delete
     ],
     childRoles: [],
     readonly: true,

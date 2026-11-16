@@ -1,4 +1,4 @@
-import {UserPermissions, RolePermissions} from "@drax/identity-back";
+import {UserPermissions, RolePermissions, UserApiKeyPermissions} from "@drax/identity-back";
 import {AIPermissions, AgentPermissions, AgentSessionPermissions} from "@drax/ai-back";
 import LifeAreaPermissions from "../../../modules/lifeops/permissions/LifeAreaPermissions.js";
 import MemoryTypePermissions from "../../../modules/lifeops/permissions/MemoryTypePermissions.js";
@@ -67,6 +67,11 @@ const role = {
         UserPermissions.Manage,
         UserPermissions.ChangePassword,
         RolePermissions.View,
+        UserApiKeyPermissions.Create,
+        UserApiKeyPermissions.Manage,
+        UserApiKeyPermissions.View,
+        UserApiKeyPermissions.Update,
+        UserApiKeyPermissions.Delete
     ],
     childRoles: [colaboradorRole.name],
     readonly: true,
