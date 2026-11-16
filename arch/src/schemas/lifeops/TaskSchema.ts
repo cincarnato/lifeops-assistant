@@ -50,8 +50,8 @@ const entitySchema: IEntitySchema = {
             header: true,
         },
         importance: {
-            type: "enum",
-            enum: ["HIGH", "MEDIUM", "LOW"],
+            type: "number",
+            index: true,
             header: true,
         },
         goals: {

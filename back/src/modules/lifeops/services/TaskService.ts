@@ -10,6 +10,10 @@ import {ValidationError} from '@drax/common-back';
 
 class TaskService extends AbstractService<ITask, ITaskBase, ITaskBase> {
 
+    async migrateImportance(): Promise<void> {
+        await (this._repository as ITaskRepository).migrateImportance?.()
+    }
+
     async migrateBusinessPartnerReference(): Promise<void> {
         await (this._repository as ITaskRepository).migrateBusinessPartnerReference?.()
     }

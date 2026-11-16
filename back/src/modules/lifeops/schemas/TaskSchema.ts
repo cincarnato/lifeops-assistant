@@ -11,7 +11,7 @@ const TaskBaseSchema = z.object({
     lifeArea: z.coerce.string().optional().nullable().default(null),
     status: z.coerce.string().optional().nullable().default(null),
     priority: z.coerce.string().optional().nullable().default(null),
-    importance: z.enum(['HIGH', 'MEDIUM', 'LOW']).nullable().optional(),
+    importance: z.number().int().min(1).max(3).nullable().optional(),
     goals: z.array(z.coerce.string()).optional().default([]),
     project: z.coerce.string().optional().nullable().default(null),
     valueScore: z.number().nullable().optional().default(null),

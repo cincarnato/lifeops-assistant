@@ -389,7 +389,7 @@ class DayPlanJob {
     }
 
     private scoreTask(task: ITask): number {
-        const importance = {HIGH: 3, MEDIUM: 2, LOW: 1}[task.importance ?? ''] ?? 0;
+        const importance = task.importance ?? 0;
         return importance * 2 + (task.urgent ? 1 : 0);
     }
 

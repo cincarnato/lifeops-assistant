@@ -12,6 +12,8 @@ import InitLifeops from "./scripts/InitLifeops.js";
 import initializeAgent from "./InitializeAgent.js";
 import MigrateClientToBusinessPartner from "./scripts/MigrateClientToBusinessPartner.js";
 
+import MigrateTaskImportance from "./scripts/MigrateTaskImportance.js";
+
 async function SetupDrax(seed: boolean = false){
 
     //Load Identity Drax Config from enviroment variables
@@ -23,6 +25,7 @@ async function SetupDrax(seed: boolean = false){
         const mongooseUri = DraxConfig.getOrLoad(CommonConfig.MongoDbUri)
         const mongooseConector = new MongooseConector(mongooseUri)
         await mongooseConector.connect()
+        await MigrateTaskImportance()
         await MigrateClientToBusinessPartner()
     }
 

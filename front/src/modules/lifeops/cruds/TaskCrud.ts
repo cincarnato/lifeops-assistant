@@ -168,7 +168,7 @@ class TaskCrud extends EntityCrud implements IEntityCrud {
         // addOnTheFly: true,
         sm: 6, md: 6
       },
-      {name: 'importance', type: 'enum', label: 'importance', default: null, enum: ['HIGH', 'MEDIUM', 'LOW'], sm: 6, md:6},
+      {name: 'importance', type: 'number', label: 'importance', default: null, sm: 6, md:6},
       {name: 'urgent', type: 'boolean', label: 'urgent', default: false, md: 2},
       {name: 'delegable', type: 'boolean', label: 'delegable', default: false, sm: 4, md: 4},
 

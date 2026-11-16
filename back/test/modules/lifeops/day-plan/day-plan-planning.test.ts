@@ -167,9 +167,9 @@ describe('DayPlan planning', () => {
 
     it('ranks HIGH before MEDIUM before LOW, and urgent first within importance', async () => {
         taskService.find = vi.fn(async () => [
-            {_id: ids[0], user, importance: 'LOW', urgent: true, priority: 'HIGH', valueScore: 999},
-            {_id: ids[1], user, importance: 'HIGH', urgent: false},
-            {_id: ids[2], user, importance: 'HIGH', urgent: true},
+            {_id: ids[0], user, importance: 1, urgent: true, priority: 'HIGH', valueScore: 999},
+            {_id: ids[1], user, importance: 3, urgent: false},
+            {_id: ids[2], user, importance: 3, urgent: true},
         ]);
         const tasks = await (new DayPlanJob() as any).fetchCandidateTasks(user);
         expect(tasks.map(task => task._id)).toEqual([ids[2], ids[1], ids[0]]);
@@ -211,7 +211,7 @@ describe('DayPlan planning', () => {
     });
 
     it('uses AI IDs, deduplicates, filters candidates and falls back on invalid output', async () => {
-        const candidates = ids.map((_id, index) => ({_id, user, importance: index === 0 ? 'HIGH' : 'LOW'}));
+        const candidates = ids.map((_id, index) => ({_id, user, importance: index === 0 ? 3 : 1}));
         taskService.find = vi.fn().mockResolvedValue([...candidates,
             {_id: planId, user: 'foreign'}, {_id: '666666666666666666666666', user, completedAt: new Date()}]);
         const prompt = vi.fn().mockResolvedValue({output: {taskIds: [ids[2], ids[2]]}});
@@ -444,7 +444,7 @@ describe('DayPlan planning', () => {
 
     it('retains all selectable card properties using the task output schema', () => {
         const task = {
-            _id: ids[0], title: 'Task', description: 'Details', priority: 'HIGH', importance: 'HIGH',
+            _id: ids[0], title: 'Task', description: 'Details', priority: 'HIGH', importance: 3,
             status: 'TODO', urgent: false, source: 'manual', type: 'Work', lifeArea: 'Career',
             project: {_id: ids[1], name: 'Project'}, goals: [{_id: ids[2], name: 'Goal'}],
             user: {_id: user, username: 'user'}, tags: ['planning'],

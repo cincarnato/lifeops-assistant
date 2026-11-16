@@ -15,7 +15,12 @@ const TaskSchemaDefinition = {
     lifeArea: {type: String, required: false, index: true, unique: false},
     status: {type: String, required: false, index: true, unique: false},
     priority: {type: String, required: false, index: true, unique: false},
-    importance: {type: String, required: false, enum: TaskBaseSchema.shape.importance.unwrap().unwrap().options},
+    importance: {
+        type: Number, required: false, index: true,
+        min: TaskBaseSchema.shape.importance.unwrap().unwrap().minValue,
+        max: TaskBaseSchema.shape.importance.unwrap().unwrap().maxValue,
+        validate: (value: number | null) => value == null || Number.isInteger(value)
+    },
     goals: [{type: mongoose.Schema.Types.ObjectId, ref: 'Goal', required: false, index: true, unique: false}],
     project: {type: mongoose.Schema.Types.ObjectId, ref: 'Project', required: false, index: true, unique: false},
     valueScore: {type: Number, required: false, index: true, unique: false},

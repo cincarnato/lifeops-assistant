@@ -11,6 +11,15 @@ import type {ITask, ITaskBase} from "../../interfaces/ITask";
 
 class TaskMongoRepository extends AbstractMongoRepository<ITask, ITaskBase, ITaskBase> implements ITaskRepository {
 
+    async migrateImportance(): Promise<void> {
+        // Raw collections avoid Mongoose casting legacy strings to the new numeric type.
+        for (const collection of [TaskModel.collection, TaskArchivedModel.collection]) {
+            for (const [legacy, value] of Object.entries({HIGH: 3, MEDIUM: 2, LOW: 1})) {
+                await collection.updateMany({importance: legacy}, {$set: {importance: value}})
+            }
+        }
+    }
+
     async migrateBusinessPartnerReference(): Promise<void> {
         for (const collection of [TaskModel.collection, TaskArchivedModel.collection]) {
             await collection.updateMany(

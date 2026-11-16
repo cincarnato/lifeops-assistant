@@ -3,13 +3,16 @@ import ProjectCrud from '../../cruds/ProjectCrud'
 import {Crud} from '@drax/crud-vue'
 import PriorityCombobox from '../../comboboxes/PriorityCombobox.vue'
 import TaskImportanceSelect from '../../comboboxes/TaskImportanceSelect.vue'
-import {useTaskImportance} from '../../composables/useTaskImportance'
+import {useTaskImportance, taskImportanceValues} from '../../composables/useTaskImportance'
 import {useI18n} from 'vue-i18n'
 import {ref} from 'vue'
 import type {IEntityCrudOperation} from '@drax/crud-share'
 
 const {t} = useI18n()
-const {importanceOption} = useTaskImportance()
+const {importanceOption: taskImportanceOption} = useTaskImportance()
+const projectImportanceValue = (value: keyof typeof taskImportanceValues | null) => value ? taskImportanceValues[value] : null
+const importanceOption = (value: keyof typeof taskImportanceValues | null) => taskImportanceOption(projectImportanceValue(value))
+const projectImportanceKey = (value: number | null | undefined) => Object.entries(taskImportanceValues).find(([, number]) => number === value)?.[0] ?? null
 const operation = ref<IEntityCrudOperation>()
 </script>
 
@@ -17,10 +20,10 @@ const operation = ref<IEntityCrudOperation>()
   <crud :entity="ProjectCrud.instance" @operation="operation = $event">
     <template #field.importance="{modelValue, setValue}">
       <task-importance-select
-        :model-value="modelValue"
+        :model-value="projectImportanceValue(modelValue)"
         :label="t('project.field.importance')"
         :readonly="operation === 'view' || operation === 'delete'"
-        @update:model-value="setValue"
+        @update:model-value="setValue(projectImportanceKey($event))"
       />
     </template>
     <template #item.importance="{value}">

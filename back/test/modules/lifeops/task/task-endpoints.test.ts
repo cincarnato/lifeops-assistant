@@ -7,6 +7,8 @@ import TaskServiceFactory from "../../../../src/modules/lifeops/factory/services
 import TaskScheduleServiceFactory from "../../../../src/modules/lifeops/factory/services/TaskScheduleServiceFactory"
 import {TaskModel} from "../../../../src/modules/lifeops/models/TaskModel"
 import {TaskScheduleModel} from "../../../../src/modules/lifeops/models/TaskScheduleModel"
+import {TaskArchivedModel} from "../../../../src/modules/lifeops/models/TaskArchivedModel"
+import MigrateTaskImportance from "../../../../src/setup/scripts/MigrateTaskImportance"
 import type {ITaskNote} from "../../../../src/modules/lifeops/interfaces/ITask"
 
 describe("Task endpoints", () => {
@@ -24,6 +26,7 @@ describe("Task endpoints", () => {
 
     beforeEach(async () => {
         await TaskModel.deleteMany({})
+        await TaskArchivedModel.deleteMany({})
         await TaskScheduleModel.deleteMany({})
     })
 
@@ -31,7 +34,27 @@ describe("Task endpoints", () => {
         await testSetup.dropAndClose()
     })
 
-    it.each(['HIGH', 'MEDIUM', 'LOW'] as const)("creates and reads tasks with importance %s", async importance => {
+    it("migrates active and archived importance idempotently and sorts numerically", async () => {
+        for (const collection of [TaskModel.collection, TaskArchivedModel.collection]) {
+            await collection.insertMany(['LOW', 'HIGH', 'MEDIUM', 2, null, undefined].map((importance, index) => ({
+                title: String(index),
+                ...(importance === undefined ? {} : {importance})
+            })))
+        }
+
+        await MigrateTaskImportance()
+        await MigrateTaskImportance()
+
+        for (const collection of [TaskModel.collection, TaskArchivedModel.collection]) {
+            const tasks = await collection.find({}).sort({title: 1}).toArray()
+            expect(tasks.map(task => task.importance)).toEqual([1, 3, 2, 2, null, undefined])
+            expect(tasks[5]).not.toHaveProperty('importance')
+            const sorted = await collection.find({importance: {$type: 'number'}}).sort({importance: -1}).toArray()
+            expect(sorted.map(task => task.importance)).toEqual([3, 2, 2, 1])
+        }
+    })
+
+    it.each([3, 2, 1] as const)("creates and reads tasks with importance %s", async importance => {
         const {accessToken} = await testSetup.rootUserLogin()
         const response = await testSetup.fastifyInstance.inject({
             method: "POST",
@@ -60,10 +83,10 @@ describe("Task endpoints", () => {
         const task = await TaskServiceFactory.instance.create({
             title: "Task with importance",
             user: testSetup.rootUser._id,
-            importance: 'HIGH'
+            importance: 3
         })
 
-        for (const importance of ['LOW', null]) {
+        for (const importance of [1, null]) {
             const response = await testSetup.fastifyInstance.inject({
                 method,
                 url: `/api/tasks/${task._id}`,
@@ -83,7 +106,7 @@ describe("Task endpoints", () => {
         const task = await TaskServiceFactory.instance.create({
             title: "Task with importance",
             user: testSetup.rootUser._id,
-            importance: 'MEDIUM'
+            importance: 2
         })
         const response = await testSetup.fastifyInstance.inject({
             method,
@@ -94,7 +117,7 @@ describe("Task endpoints", () => {
 
         expect(response.statusCode).toBe(422)
         const persisted = await TaskModel.findById(task._id).lean().exec()
-        expect(persisted?.importance).toBe('MEDIUM')
+        expect(persisted?.importance).toBe(2)
     })
 
     it("keeps importance unchanged when a PATCH omits it", async () => {
@@ -102,7 +125,7 @@ describe("Task endpoints", () => {
         const task = await TaskServiceFactory.instance.create({
             title: "Task with importance",
             user: testSetup.rootUser._id,
-            importance: 'LOW'
+            importance: 1
         })
         const response = await testSetup.fastifyInstance.inject({
             method: "PATCH",
@@ -112,9 +135,9 @@ describe("Task endpoints", () => {
         })
 
         expect(response.statusCode).toBe(200)
-        expect(response.json().importance).toBe('LOW')
+        expect(response.json().importance).toBe(1)
         const persisted = await TaskModel.findById(task._id).lean().exec()
-        expect(persisted?.importance).toBe('LOW')
+        expect(persisted?.importance).toBe(1)
     })
 
     it("assigns note dates in the backend when creating a task", async () => {
